@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Investment Brief {{ report_date }}</title>
+<style>
+  body {
+    font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 13px;
+    color: #1a1a2e;
+    background: #f0f2f5;
+    margin: 0;
+    padding: 20px;
+    line-height: 1.5;
+  }
+
+  .wrapper {
+    max-width: 640px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  /* 헤더 */
+  .header {
+    background: #0a1628;
+    padding: 18px 24px 14px;
+    border-bottom: 3px solid #c9a227;
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .header .title { color: #ffffff; font-size: 15px; font-weight: 700; letter-spacing: 0.3px; }
+  .header .date  { color: #9bb0cc; font-size: 11px; }
+  .header .tagline { color: #9bb0cc; font-size: 11px; margin-top: 2px; }
+
+  /* 시장 무드 배너 */
+  .mood-banner {
+    padding: 10px 24px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .mood-risk-off  { background: #7b1c1c; color: #ffd6d6; }
+  .mood-risk-on   { background: #0a4a2e; color: #d6ffe8; }
+  .mood-neutral   { background: #7a5c00; color: #fff3cc; }
+
+  .mood-banner .headline { font-size: 13px; margin-bottom: 2px; }
+  .mood-banner .summary  { font-size: 11px; opacity: 0.85; font-weight: 400; }
+
+  /* 섹션 */
+  .section { padding: 16px 24px; border-bottom: 1px solid #e8ecf0; }
+  .section:last-child { border-bottom: none; }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #6b7280;
+    margin-bottom: 10px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #e8ecf0;
+  }
+
+  /* 포트폴리오 P&L 배너 */
+  .pnl-box {
+    background: #f7f8fc;
+    border: 1px solid #d0d7e3;
+    border-radius: 4px;
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .pnl-box .pnl-total { font-size: 18px; font-weight: 700; }
+  .pnl-box .pnl-label { font-size: 10px; color: #6b7280; margin-top: 2px; }
+  .pnl-box .pnl-meta  { text-align: right; font-size: 11px; color: #6b7280; }
+
+  .up   { color: #0a6640; font-weight: 700; }
+  .down { color: #8b1a1a; font-weight: 700; }
+
+  /* 테이블 */
+  table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 4px; }
+  th {
+    background: #f0f2f5;
+    padding: 5px 8px;
+    text-align: right;
+    font-size: 10px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #d0d7e3;
+  }
+  th:first-child { text-align: left; }
+  td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #f0f2f5;
+    text-align: right;
+    vertical-align: top;
+  }
+  td:first-child { text-align: left; font-weight: 600; }
+  tr:last-child td { border-bottom: none; }
+
+  /* 종목별 TODAY 코멘트 */
+  .today-comment { font-size: 11px; color: #444; font-weight: 400; }
+  .view-badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 2px;
+    letter-spacing: 0.5px;
+  }
+  .badge-buy    { background: #d6ffe8; color: #0a4a2e; }
+  .badge-hold   { background: #fff3cc; color: #7a5c00; }
+  .badge-reduce { background: #ffd6d6; color: #7b1c1c; }
+
+  /* 글로벌 지수 */
+  .index-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid #f0f2f5;
+    font-size: 12px;
+  }
+  .index-row:last-child { border-bottom: none; }
+  .index-name { color: #444; }
+  .index-val  { font-weight: 600; }
+
+  /* PDF 첨부 안내 */
+  .pdf-notice {
+    background: #eef1f7;
+    border-left: 3px solid #1e3a5f;
+    padding: 10px 14px;
+    font-size: 11px;
+    color: #444;
+    margin-bottom: 0;
+  }
+
+  /* 푸터 */
+  .footer {
+    background: #f7f8fc;
+    padding: 12px 24px;
+    font-size: 10px;
+    color: #9bb0cc;
+    text-align: center;
+    border-top: 1px solid #e8ecf0;
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- 헤더 -->
+  <div class="header">
+    <div class="header-top">
+      <span class="title">Daily Investment Brief</span>
+      <span class="date">{{ report_date }}</span>
+    </div>
+    <div class="tagline">Ten-Bagger Portfolio — 5 Core Positions | 08:27 KST</div>
+  </div>
+
+  <!-- 시장 무드 배너 -->
+  {% if market_commentary %}
+  <div class="mood-banner mood-{{ market_commentary.market_mood | lower | replace('-', '-') }}
+    {%- if market_commentary.market_mood == 'RISK-OFF' %} mood-risk-off
+    {%- elif market_commentary.market_mood == 'RISK-ON' %} mood-risk-on
+    {%- else %} mood-neutral{%- endif %}">
+    <div class="headline">{{ market_commentary.market_mood }} | {{ market_commentary.headline }}</div>
+    <div class="summary">{{ market_commentary.summary }}</div>
+  </div>
+  {% endif %}
+
+  <!-- 포트폴리오 P&L -->
+  {% if sim_summary and not sim_summary.get('error') %}
+  <div class="section">
+    <div class="section-title">Portfolio P&amp;L</div>
+
+    <div class="pnl-box">
+      <div>
+        <div class="pnl-total {{ 'up' if sim_summary.cumulative_return_pct >= 0 else 'down' }}">
+          ${{ "%.2f"|format(sim_summary.total_value) }}
+        </div>
+        <div class="pnl-label">총 평가액 (초기 ${{ sim_summary.total_capital }})</div>
+      </div>
+      <div class="pnl-meta">
+        <div class="{{ 'up' if sim_summary.cumulative_return_pct >= 0 else 'down' }}" style="font-size:15px;">
+          {{ "%+.2f"|format(sim_summary.cumulative_return_pct) }}%
+        </div>
+        <div>누적 수익률 ({{ sim_summary.days_running }}일째)</div>
+        <div style="margin-top:3px;">당일 {{ "%+.2f"|format(sim_summary.daily_return_pct) }}%</div>
+      </div>
+    </div>
+
+    <!-- 종목별 1줄 테이블 -->
+    {% if sim_stocks %}
+    <table>
+      <tr>
+        <th>종목</th>
+        <th>현재가</th>
+        <th>수익률</th>
+        <th>VIEW</th>
+        <th style="text-align:left;">TODAY</th>
+      </tr>
+      {% for stock in sim_stocks %}
+      {% set t = stock.technical %}
+      {% set dv = stock.daily_view %}
+      {% set pos = sim_summary.positions | selectattr('symbol', 'equalto', stock.symbol) | list | first %}
+      <tr>
+        <td>{{ stock.symbol }}</td>
+        <td>
+          {% if not t.get('error') %}
+          <span class="{{ 'up' if t.change_pct >= 0 else 'down' }}">${{ "%.2f"|format(t.current_price) }}</span>
+          <br><span style="font-size:10px;color:#888;">{{ "%+.2f"|format(t.change_pct) }}%</span>
+          {% else %}N/A{% endif %}
+        </td>
+        <td>
+          {% if pos %}
+          <span class="{{ 'up' if pos.return_pct >= 0 else 'down' }}">{{ "%+.2f"|format(pos.return_pct) }}%</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if dv %}
+          <span class="view-badge badge-{{ dv.view_rating | lower }}">{{ dv.view_rating }}</span>
+          {% endif %}
+        </td>
+        <td style="text-align:left;">
+          {% if dv %}
+          <span class="today-comment">{{ dv.today[:60] }}{% if dv.today|length > 60 %}...{% endif %}</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- 글로벌 시장 요약 -->
+  <div class="section">
+    <div class="section-title">Global Markets</div>
+    {% if us_indices %}
+    {% for name, d in us_indices.items() %}
+    {% if not d.get('error') %}
+    <div class="index-row">
+      <span class="index-name">{{ name }}</span>
+      <span class="index-val {{ 'up' if d.change_pct >= 0 else 'down' }}">
+        {{ "%.0f"|format(d.close) if d.close > 1000 else "%.2f"|format(d.close) }}
+        ({{ "%+.2f"|format(d.change_pct) }}%)
+      </span>
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    {% if commodities %}
+    {% for name, d in commodities.items() %}
+    {% if not d.get('error') %}
+    <div class="index-row">
+      <span class="index-name">{{ name }}</span>
+      <span class="index-val {{ 'up' if d.change_pct >= 0 else 'down' }}">
+        {{ "$%.1f"|format(d.close) }} ({{ "%+.1f"|format(d.change_pct) }}%)
+      </span>
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+  </div>
+
+  <!-- 핵심 리스크 & 기회 -->
+  {% if market_commentary %}
+  <div class="section">
+    <div class="section-title">Key Risk &amp; Opportunity</div>
+    <div style="margin-bottom:6px;">
+      <span style="font-size:10px; font-weight:700; color:#8b1a1a; text-transform:uppercase; letter-spacing:0.5px;">RISK</span>
+      <span style="margin-left:8px; font-size:12px;">{{ market_commentary.key_risk }}</span>
+    </div>
+    <div>
+      <span style="font-size:10px; font-weight:700; color:#0a6640; text-transform:uppercase; letter-spacing:0.5px;">OPPORTUNITY</span>
+      <span style="margin-left:8px; font-size:12px;">{{ market_commentary.key_opportunity }}</span>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- PDF 첨부 안내 -->
+  <div class="section">
+    <div class="pdf-notice">
+      <strong>첨부 파일:</strong> {{ report_date }}-investment-report.pdf<br>
+      전체 리포트 (글로벌 시장 리뷰 · 섹터 로테이션 · 기업별 심층 분석 2p × 5종목 · Goldman/JPM 형식)
+      총 13페이지가 첨부되어 있습니다.
+    </div>
+  </div>
+
+  <!-- 푸터 -->
+  <div class="footer">
+    본 메일은 투자 시뮬레이션 목적으로 자동 생성된 자료입니다. 투자 권유가 아닙니다.<br>
+    데이터: Yahoo Finance · FMP API · FRED | GitHub Actions 자동화
+  </div>
+
+</div>
+</body>
+</html>

@@ -23,6 +23,9 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
+      - name: Install system dependencies (WeasyPrint)
+        run: sudo apt-get install -y libpango-1.0-0 libpangocairo-1.0-0 libcairo2 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
+
       - name: Install dependencies
         run: pip install -r requirements.txt
 
@@ -41,7 +44,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/simulation/portfolio_state.json docs/simulation/ docs/reports/
-          git diff --cached --quiet || git commit -m "chore: 일일 시뮬레이션 업데이트 $(date +'%Y-%m-%d')"
+          git diff --cached --quiet || git commit -m "chore: 일일 리포트 업데이트 $(date +'%Y-%m-%d')"
           git push
 
       - name: Upload report artifacts
@@ -50,5 +53,6 @@ jobs:
           name: daily-report-${{ github.run_id }}
           path: |
             docs/reports/*.md
+            docs/reports/*.pdf
             docs/simulation/*.md
           retention-days: 30

@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investment Report {{ report_date }}</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 18mm 14mm 15mm 14mm;
+  @bottom-right {
+    content: counter(page) " / " counter(pages);
+    font-size: 8pt;
+    color: #888;
+  }
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans KR', Arial, sans-serif;
+  font-size: 9.5pt;
+  color: #1a1a2e;
+  line-height: 1.45;
+}
+
+.page-break { page-break-before: always; }
+
+/* ── 색상 팔레트 ── */
+:root {
+  --navy: #0a1628;
+  --gold: #c9a227;
+  --accent: #1e3a5f;
+  --green: #0a6640;
+  --red: #8b1a1a;
+  --light-bg: #f7f8fc;
+  --border: #d0d7e3;
+  --muted: #6b7280;
+}
+
+/* ── 표지 ── */
+.cover {
+  min-height: 250mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20mm 0 15mm;
+}
+
+.cover-header {
+  border-top: 4px solid var(--gold);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 0 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.cover-firm { font-size: 9pt; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+.cover-date { font-size: 9pt; color: var(--muted); }
+
+.cover-title {
+  margin-top: 40px;
+}
+
+.cover-title h1 {
+  font-size: 26pt;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+
+.cover-title h2 {
+  font-size: 13pt;
+  font-weight: 300;
+  color: var(--accent);
+  margin-top: 8px;
+}
+
+.cover-mood-banner {
+  margin-top: 30px;
+  padding: 10px 16px;
+  border-left: 4px solid var(--gold);
+  background: var(--light-bg);
+}
+
+.cover-mood-banner .headline { font-size: 11pt; font-weight: 700; color: var(--navy); }
+.cover-mood-banner .summary { font-size: 9pt; color: #444; margin-top: 4px; }
+
+.cover-portfolio-box {
+  margin-top: 28px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.cover-portfolio-box .box-header {
+  background: var(--navy);
+  color: white;
+  padding: 6px 12px;
+  font-size: 9pt;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.cover-portfolio-box table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cover-portfolio-box td, .cover-portfolio-box th {
+  padding: 6px 10px;
+  font-size: 8.5pt;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+}
+
+.cover-portfolio-box th { background: #eef1f7; font-weight: 700; text-align: left; }
+.cover-portfolio-box td:first-child { text-align: left; font-weight: 700; }
+
+.up { color: var(--green); font-weight: 700; }
+.down { color: var(--red); font-weight: 700; }
+.neutral { color: var(--muted); }
+
+.cover-footer {
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+  font-size: 7.5pt;
+  color: var(--muted);
+}
+
+/* ── 섹션 헤더 ── */
+.section-header {
+  border-top: 3px solid var(--navy);
+  padding: 8px 0 6px;
+  margin-bottom: 12px;
+}
+
+.section-header h2 {
+  font-size: 13pt;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.section-header .sub { font-size: 8.5pt; color: var(--muted); margin-top: 2px; }
+
+/* ── 데이터 테이블 ── */
+table.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 8.5pt;
+  margin-bottom: 14px;
+}
+
+table.data-table th {
+  background: var(--navy);
+  color: white;
+  padding: 5px 8px;
+  text-align: right;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+table.data-table th:first-child { text-align: left; }
+
+table.data-table td {
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+}
+
+table.data-table td:first-child { text-align: left; font-weight: 600; }
+table.data-table tr:nth-child(even) td { background: var(--light-bg); }
+table.data-table tr:last-child td { border-bottom: 2px solid var(--navy); }
+
+/* ── 시황 카드 ── */
+.market-cards {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.market-card {
+  flex: 1;
+  min-width: 100px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  text-align: center;
+}
+
+.market-card .label { font-size: 7.5pt; color: var(--muted); margin-bottom: 3px; }
+.market-card .value { font-size: 10.5pt; font-weight: 700; color: var(--navy); }
+.market-card .change { font-size: 8pt; margin-top: 2px; }
+
+/* ── 섹터 바 차트 (텍스트 기반) ── */
+.sector-bar {
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 8pt;
+}
+
+.sector-bar .name { width: 90px; text-align: right; color: var(--muted); }
+.sector-bar .bar-wrap { flex: 1; height: 10px; background: #eef1f7; border-radius: 2px; overflow: hidden; }
+.sector-bar .bar-fill { height: 100%; border-radius: 2px; }
+.sector-bar .bar-up { background: var(--green); }
+.sector-bar .bar-down { background: var(--red); }
+.sector-bar .pct { width: 50px; font-weight: 700; }
+
+/* ── 시황 신호 박스 ── */
+.signal-grid {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.signal-box {
+  flex: 1;
+  border-radius: 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+}
+
+.signal-box .sig-label { font-size: 7.5pt; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
+.signal-box .sig-value { font-size: 9pt; font-weight: 700; }
+
+.risk-off { border-left: 3px solid var(--red); }
+.risk-on  { border-left: 3px solid var(--green); }
+.neutral-sig { border-left: 3px solid var(--gold); }
+
+/* ── 기업 분석 페이지 ── */
+.stock-header {
+  border-top: 4px solid var(--navy);
+  padding: 10px 0 8px;
+  margin-bottom: 14px;
+}
+
+.stock-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.stock-header .ticker {
+  font-size: 18pt;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.stock-header .company-name {
+  font-size: 10pt;
+  color: var(--accent);
+  font-weight: 400;
+}
+
+.stock-header .sector-badge {
+  font-size: 7.5pt;
+  background: var(--accent);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 2px;
+  letter-spacing: 0.5px;
+}
+
+.stock-header .price-line {
+  margin-top: 6px;
+  font-size: 9pt;
+  color: var(--muted);
+}
+
+.stock-header .price-line strong { color: var(--navy); font-size: 10pt; }
+
+/* ── Goldman 스타일 TODAY/CATALYST/RISK/VIEW ── */
+.daily-view-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.dv-row {
+  display: flex;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--border);
+  padding: 6px 10px;
+}
+
+.dv-row:last-child { border-bottom: none; }
+
+.dv-label {
+  width: 72px;
+  font-size: 8pt;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: white;
+  background: var(--navy);
+  padding: 3px 6px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  margin-right: 10px;
+  text-align: center;
+}
+
+.dv-label.today-lbl  { background: #1e3a5f; }
+.dv-label.cat-lbl    { background: #155724; }
+.dv-label.risk-lbl   { background: #7b1c1c; }
+.dv-label.view-lbl   { background: var(--gold); color: var(--navy); }
+
+.dv-content { font-size: 9pt; line-height: 1.4; flex: 1; }
+
+.view-rating {
+  font-size: 10pt;
+  font-weight: 700;
+  margin-right: 6px;
+}
+
+.view-buy    { color: var(--green); }
+.view-hold   { color: #7a5c00; }
+.view-reduce { color: var(--red); }
+
+/* ── 지표 테이블 2열 ── */
+.two-col-tables {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.two-col-tables > div { flex: 1; }
+
+/* ── 전망 섹션 ── */
+.outlook-section {
+  margin-bottom: 14px;
+}
+
+.outlook-title {
+  font-size: 9pt;
+  font-weight: 700;
+  color: var(--navy);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.outlook-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 6px;
+  font-size: 9pt;
+}
+
+.outlook-row .period {
+  width: 80px;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+/* ── Bull/Bear/Risk ── */
+.thesis-grid {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.thesis-box {
+  flex: 1;
+  border-radius: 4px;
+  padding: 8px 10px;
+}
+
+.thesis-box .tb-label {
+  font-size: 8pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.thesis-box .tb-content { font-size: 8.5pt; line-height: 1.45; }
+
+.bull-box { border: 1px solid #a3d977; background: #f0fae8; }
+.bull-box .tb-label { color: var(--green); }
+.bear-box { border: 1px solid #e8a0a0; background: #fdf3f3; }
+.bear-box .tb-label { color: var(--red); }
+
+.risks-box {
+  margin-bottom: 14px;
+}
+
+.risks-box .risk-item {
+  font-size: 8.5pt;
+  padding: 4px 0 4px 12px;
+  border-bottom: 1px dashed var(--border);
+  position: relative;
+  color: #333;
+}
+
+.risks-box .risk-item::before {
+  content: "▲";
+  position: absolute;
+  left: 0;
+  color: var(--red);
+  font-size: 7pt;
+}
+
+/* ── 카탈리스트 & 이벤트 ── */
+.catalyst-list, .event-list {
+  padding-left: 14px;
+  margin-bottom: 10px;
+}
+
+.catalyst-list li, .event-list li {
+  font-size: 8.5pt;
+  margin-bottom: 3px;
+  line-height: 1.4;
+}
+
+.catalyst-list li::marker { color: var(--green); }
+.event-list li::marker { color: var(--accent); }
+
+/* ── 기관 투자자 ── */
+.inst-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 8.5pt;
+  margin-bottom: 10px;
+}
+
+.inst-table th {
+  background: var(--light-bg);
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  font-weight: 700;
+  text-align: left;
+}
+
+.inst-table td {
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+}
+
+/* ── 포트폴리오 전략 & 면책 ── */
+.disclaimer {
+  margin-top: 20px;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  font-size: 7.5pt;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ── 소제목 ── */
+.sub-section-title {
+  font-size: 9pt;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 10px 0 6px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── 매크로 인디케이터 ── */
+.macro-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.macro-item {
+  flex: 0 0 calc(25% - 6px);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 7px 9px;
+}
+
+.macro-item .m-label { font-size: 7.5pt; color: var(--muted); }
+.macro-item .m-value { font-size: 10pt; font-weight: 700; color: var(--navy); margin-top: 2px; }
+.macro-item .m-note  { font-size: 7.5pt; color: var(--muted); margin-top: 2px; }
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 1: 표지
+═══════════════════════════════════════════════════════════ -->
+<div class="cover">
+  <div>
+    <div class="cover-header">
+      <span class="cover-firm">Private Portfolio Research</span>
+      <span class="cover-date">{{ report_date }}</span>
+    </div>
+
+    <div class="cover-title">
+      <h1>Daily Investment<br>Research Report</h1>
+      <h2>Ten-Bagger Portfolio — 5 Core Positions</h2>
+    </div>
+
+    {% if market_commentary %}
+    <div class="cover-mood-banner">
+      <div class="headline">{{ market_commentary.headline }}</div>
+      <div class="summary">{{ market_commentary.summary }}</div>
+    </div>
+    {% endif %}
+
+    {% if sim_summary and not sim_summary.get('error') %}
+    <div class="cover-portfolio-box" style="margin-top: 24px;">
+      <div class="box-header">SIMULATION PORTFOLIO — P&amp;L SUMMARY</div>
+      <table>
+        <tr>
+          <th>종목</th><th>진입가</th><th>현재가</th><th>수익률</th><th>평가액</th><th>배분</th>
+        </tr>
+        {% for p in sim_summary.positions %}
+        <tr>
+          <td>{{ p.symbol }}</td>
+          <td>${{ "%.2f"|format(p.entry_price) }}</td>
+          <td>${{ "%.2f"|format(p.current_price) }}</td>
+          <td class="{{ 'up' if p.return_pct >= 0 else 'down' }}">{{ "%+.2f"|format(p.return_pct) }}%</td>
+          <td>${{ "%.0f"|format(p.current_value) }}</td>
+          <td>${{ p.allocation }}</td>
+        </tr>
+        {% endfor %}
+        <tr style="background:#eef1f7;">
+          <td colspan="3"><strong>포트폴리오 합계</strong></td>
+          <td class="{{ 'up' if sim_summary.cumulative_return_pct >= 0 else 'down' }}">
+            <strong>{{ "%+.2f"|format(sim_summary.cumulative_return_pct) }}%</strong>
+          </td>
+          <td><strong>${{ "%.0f"|format(sim_summary.total_value) }}</strong></td>
+          <td><strong>${{ sim_summary.total_capital }}</strong></td>
+        </tr>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="cover-footer">
+    본 리포트는 투자 시뮬레이션 목적으로 자동 생성된 자료입니다. 투자 권유가 아니며 실제 매매에 따른 손실에 대해 책임지지 않습니다.
+    데이터 출처: Yahoo Finance, Financial Modeling Prep API. 생성 시각: {{ report_date }} 08:27 KST.
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 2: 글로벌 시장 리뷰
+═══════════════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+
+<div class="section-header">
+  <h2>Global Market Review</h2>
+  <div class="sub">미국 / 유럽 / 아시아 지수 · 원자재 · 금리</div>
+</div>
+
+{% if market_commentary %}
+<div class="signal-grid">
+  <div class="signal-box {{ 'risk-off' if market_commentary.market_mood == 'RISK-OFF' else ('risk-on' if market_commentary.market_mood == 'RISK-ON' else 'neutral-sig') }}">
+    <div class="sig-label">Market Mood</div>
+    <div class="sig-value">{{ market_commentary.market_mood }}</div>
+  </div>
+  <div class="signal-box">
+    <div class="sig-label">VIX Signal</div>
+    <div class="sig-value" style="font-size:8.5pt;">{{ market_commentary.vix_signal }}</div>
+  </div>
+  <div class="signal-box">
+    <div class="sig-label">WTI Signal</div>
+    <div class="sig-value" style="font-size:8.5pt;">{{ market_commentary.wti_signal }}</div>
+  </div>
+</div>
+{% endif %}
+
+{% if us_indices %}
+<div class="sub-section-title">미국 주요 지수</div>
+<table class="data-table">
+  <tr><th>지수</th><th>종가</th><th>등락</th><th>등락률</th></tr>
+  {% for name, d in us_indices.items() %}
+  {% if not d.get('error') %}
+  <tr>
+    <td>{{ name }}</td>
+    <td>{{ "%.2f"|format(d.close) }}</td>
+    <td class="{{ 'up' if d.change >= 0 else 'down' }}">{{ "%+.2f"|format(d.change) }}</td>
+    <td class="{{ 'up' if d.change_pct >= 0 else 'down' }}">{{ "%+.2f"|format(d.change_pct) }}%</td>
+  </tr>
+  {% endif %}
+  {% endfor %}
+</table>
+{% endif %}
+
+{% if kr_indices %}
+<div class="sub-section-title">한국 시장</div>
+<table class="data-table">
+  <tr><th>지수</th><th>종가</th><th>등락</th><th>등락률</th></tr>
+  {% for name, d in kr_indices.items() %}
+  {% if not d.get('error') %}
+  <tr>
+    <td>{{ name }}</td>
+    <td>{{ "%.2f"|format(d.close) }}</td>
+    <td class="{{ 'up' if d.change >= 0 else 'down' }}">{{ "%+.2f"|format(d.change) }}</td>
+    <td class="{{ 'up' if d.change_pct >= 0 else 'down' }}">{{ "%+.2f"|format(d.change_pct) }}%</td>
+  </tr>
+  {% endif %}
+  {% endfor %}
+</table>
+{% if market_commentary %}
+<p style="font-size:8.5pt; color:#444; margin-bottom:12px;">{{ market_commentary.kr_summary }}</p>
+{% endif %}
+{% endif %}
+
+{% if commodities %}
+<div class="sub-section-title">원자재 · 금리</div>
+<table class="data-table">
+  <tr><th>자산</th><th>종가</th><th>등락</th><th>등락률</th></tr>
+  {% for name, d in commodities.items() %}
+  {% if not d.get('error') %}
+  <tr>
+    <td>{{ name }}</td>
+    <td>{{ "%.2f"|format(d.close) }}</td>
+    <td class="{{ 'up' if d.change >= 0 else 'down' }}">{{ "%+.2f"|format(d.change) }}</td>
+    <td class="{{ 'up' if d.change_pct >= 0 else 'down' }}">{{ "%+.2f"|format(d.change_pct) }}%</td>
+  </tr>
+  {% endif %}
+  {% endfor %}
+</table>
+{% endif %}
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 3: 섹터 로테이션 + 매크로
+═══════════════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+
+<div class="section-header">
+  <h2>Sector Rotation &amp; Macro Indicators</h2>
+  <div class="sub">S&amp;P500 섹터 일일 등락 · FRED 매크로 지표</div>
+</div>
+
+{% if market_commentary %}
+<div style="margin-bottom:14px; padding:10px; background:var(--light-bg); border-left:3px solid var(--gold);">
+  <strong style="font-size:9pt;">Key Risk:</strong>
+  <span style="font-size:9pt;"> {{ market_commentary.key_risk }}</span><br>
+  <strong style="font-size:9pt; margin-top:5px; display:block;">Key Opportunity:</strong>
+  <span style="font-size:9pt;"> {{ market_commentary.key_opportunity }}</span>
+</div>
+{% endif %}
+
+{% if sectors_daily %}
+<div class="sub-section-title">S&P500 섹터 당일 등락</div>
+<table class="data-table">
+  <tr><th>섹터</th><th>등락률</th><th>상태</th></tr>
+  {% for name, d in sectors_daily.items() %}
+  {% if not d.get('error') and d.get('change_pct') is not none %}
+  <tr>
+    <td>{{ name }}</td>
+    <td class="{{ 'up' if d.change_pct >= 0 else 'down' }}">{{ "%+.2f"|format(d.change_pct) }}%</td>
+    <td>
+      {% if d.change_pct >= 2 %}강세
+      {% elif d.change_pct >= 0.5 %}상승
+      {% elif d.change_pct >= -0.5 %}보합
+      {% elif d.change_pct >= -2 %}약세
+      {% else %}급락
+      {% endif %}
+    </td>
+  </tr>
+  {% endif %}
+  {% endfor %}
+</table>
+{% endif %}
+
+{% if macro %}
+<div class="sub-section-title">FRED 매크로 지표</div>
+<div class="macro-grid">
+  {% for key, val in macro.items() %}
+  {% if not val.get('error') %}
+  <div class="macro-item">
+    <div class="m-label">{{ key }}</div>
+    <div class="m-value">
+      {% if val.value is not none %}{{ "%.2f"|format(val.value) }}{% if val.unit %}{{ val.unit }}{% endif %}
+      {% else %}N/A{% endif %}
+    </div>
+    {% if val.get('date') %}<div class="m-note">{{ val.date }}</div>{% endif %}
+  </div>
+  {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if volume_surge %}
+<div class="sub-section-title">거래량 급증 종목 (20일 평균 대비)</div>
+<table class="data-table">
+  <tr><th>종목</th><th>현재가</th><th>등락률</th><th>거래량비율</th></tr>
+  {% for s in volume_surge[:8] %}
+  <tr>
+    <td>{{ s.symbol }}</td>
+    <td>${{ "%.2f"|format(s.current_price) }}</td>
+    <td class="{{ 'up' if s.change_pct >= 0 else 'down' }}">{{ "%+.2f"|format(s.change_pct) }}%</td>
+    <td>{{ "%.1f"|format(s.volume_ratio) }}x</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGES 4-13: 기업별 2페이지 분석
+═══════════════════════════════════════════════════════════ -->
+{% for stock in sim_stocks %}
+{% set t = stock.technical %}
+{% set f = stock.fundamental %}
+{% set ins = stock.institutional %}
+{% set dv = stock.daily_view %}
+{% set th = stock.thesis %}
+
+<!-- 기업 상단 페이지 -->
+<div class="page-break"></div>
+
+<div class="stock-header">
+  <div class="stock-header-top">
+    <div>
+      <span class="ticker">{{ stock.symbol }}</span>
+      <span class="company-name" style="margin-left:10px;">{{ stock.company }}</span>
+    </div>
+    <span class="sector-badge">{{ stock.sector }}</span>
+  </div>
+  <div class="price-line">
+    진입가 <strong>${{ "%.2f"|format(sim_summary.positions | selectattr('symbol', 'equalto', stock.symbol) | map(attribute='entry_price') | first | default(0)) }}</strong>
+    → 현재가 <strong {% if not t.get('error') %}class="{{ 'up' if t.change_pct >= 0 else 'down' }}"{% endif %}>${{ "%.2f"|format(t.current_price) if not t.get('error') else 'N/A' }}</strong>
+    {% if not t.get('error') %}
+    <span class="{{ 'up' if t.change_pct >= 0 else 'down' }}">
+      ({{ "%+.2f"|format(t.change_pct) }}%)
+    </span>
+    | 거래량 {{ "%.1f"|format(t.volume_ratio) }}x
+    {% endif %}
+    &nbsp;&nbsp;<em style="color:var(--muted);">{{ stock.thesis_short }}</em>
+  </div>
+</div>
+
+{% if dv %}
+<div class="daily-view-grid">
+  <div class="dv-row">
+    <span class="dv-label today-lbl">TODAY</span>
+    <span class="dv-content">{{ dv.today }}</span>
+  </div>
+  <div class="dv-row">
+    <span class="dv-label cat-lbl">CATALYST</span>
+    <span class="dv-content">{{ dv.catalyst }}</span>
+  </div>
+  <div class="dv-row">
+    <span class="dv-label risk-lbl">RISK</span>
+    <span class="dv-content">{{ dv.risk }}</span>
+  </div>
+  <div class="dv-row">
+    <span class="dv-label view-lbl">VIEW</span>
+    <span class="dv-content">
+      <span class="view-rating {{ 'view-buy' if dv.view_rating == 'BUY' else ('view-reduce' if dv.view_rating == 'REDUCE' else 'view-hold') }}">
+        {{ dv.view_rating }}
+      </span>
+      — {{ dv.view_reason }}
+    </span>
+  </div>
+</div>
+{% endif %}
+
+<div class="two-col-tables">
+  <div>
+    <div class="sub-section-title">기술적 지표</div>
+    {% if not t.get('error') %}
+    <table class="data-table">
+      <tr><th>지표</th><th>값</th></tr>
+      <tr><td>현재가</td><td>${{ "%.2f"|format(t.current_price) }}</td></tr>
+      <tr><td>RSI(14)</td><td {% if t.rsi and t.rsi > 70 %}class="down"{% elif t.rsi and t.rsi < 30 %}class="up"{% endif %}>
+        {{ "%.1f"|format(t.rsi) if t.rsi else 'N/A' }}</td></tr>
+      <tr><td>MACD 트렌드</td><td>{{ t.macd_trend }}</td></tr>
+      <tr><td>MA50</td><td {% if t.above_ma50 %}class="up"{% else %}class="down"{% endif %}>${{ "%.2f"|format(t.ma50) }}</td></tr>
+      <tr><td>MA200</td><td {% if t.above_ma200 %}class="up"{% else %}class="down"{% endif %}>${{ "%.2f"|format(t.ma200) }}</td></tr>
+      <tr><td>52주 고점</td><td>${{ "%.2f"|format(t.high_52w) }}</td></tr>
+      <tr><td>52주 저점</td><td>${{ "%.2f"|format(t.low_52w) }}</td></tr>
+      <tr><td>고점 대비</td><td class="{{ 'down' if t.pct_from_52w_high < -20 else 'neutral' }}">{{ "%.1f"|format(t.pct_from_52w_high) }}%</td></tr>
+    </table>
+    {% else %}
+    <p style="font-size:8.5pt;color:var(--muted);">{{ t.error }}</p>
+    {% endif %}
+  </div>
+  <div>
+    <div class="sub-section-title">펀더멘털 밸류에이션</div>
+    {% if f %}
+    <table class="data-table">
+      <tr><th>지표</th><th>값</th></tr>
+      <tr><td>PER</td><td>{{ "%.1f"|format(f.per) if f.per else 'N/A' }}x</td></tr>
+      <tr><td>PBR</td><td>{{ "%.2f"|format(f.pbr) if f.pbr else 'N/A' }}x</td></tr>
+      <tr><td>PSR</td><td>{{ "%.1f"|format(f.psr) if f.psr else 'N/A' }}x</td></tr>
+      <tr><td>FCF/주</td><td>{{ "$%.2f"|format(f.fcf) if f.fcf else 'N/A' }}</td></tr>
+      <tr><td>DCF 적정가</td><td>{{ "$%.2f"|format(f.dcf_price) if f.dcf_price else 'N/A' }}</td></tr>
+      <tr><td>DCF 괴리율</td><td class="{{ 'up' if f.dcf_upside and f.dcf_upside > 0 else 'down' }}">
+        {{ "%+.1f"|format(f.dcf_upside) if f.dcf_upside is not none else 'N/A' }}%</td></tr>
+      <tr><td>매출 성장률</td><td class="{{ 'up' if f.revenue_growth and f.revenue_growth > 0 else 'down' }}">
+        {{ "%+.1f"|format(f.revenue_growth) if f.revenue_growth is not none else 'N/A' }}%</td></tr>
+      <tr><td>영업이익률</td><td>{{ "%.1f"|format(f.operating_margin) if f.operating_margin is not none else 'N/A' }}%</td></tr>
+    </table>
+    {% endif %}
+  </div>
+</div>
+
+{% if ins %}
+<div class="sub-section-title">기관 · 내부자 동향</div>
+{% if ins.top_institutions %}
+<table class="inst-table">
+  <tr><th>기관명</th><th>보유 주수</th><th>전분기 대비</th></tr>
+  {% for h in ins.top_institutions %}
+  <tr>
+    <td>{{ h.name }}</td>
+    <td>{{ "{:,}".format(h.shares) }}</td>
+    <td class="{{ 'up' if h.change >= 0 else 'down' }}">{{ "%+,d"|format(h.change) }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+<p style="font-size:8.5pt; margin-bottom:14px;">
+  내부자 거래 (최근 30일):
+  <strong class="up">매수 {{ ins.insider_buy }}건</strong> /
+  <strong class="down">매도 {{ ins.insider_sell }}건</strong>
+</p>
+{% endif %}
+
+
+<!-- 기업 하단 페이지 -->
+<div class="page-break"></div>
+
+<div class="stock-header" style="border-top-color: var(--accent);">
+  <div class="stock-header-top">
+    <span class="ticker" style="font-size:14pt;">{{ stock.symbol }}</span>
+    <span class="company-name">투자 전망 &amp; Thesis</span>
+  </div>
+</div>
+
+<div class="outlook-section">
+  <div class="outlook-title">Investment Outlook</div>
+  <div class="outlook-row">
+    <span class="period">단기 (1M)</span>
+    <span>{{ stock.outlook.short }}</span>
+  </div>
+  <div class="outlook-row">
+    <span class="period">중기 (3-6M)</span>
+    <span>{{ stock.outlook.mid }}</span>
+  </div>
+  <div class="outlook-row">
+    <span class="period">장기 (1-2Y)</span>
+    <span>{{ stock.outlook.long }}</span>
+  </div>
+</div>
+
+<div class="thesis-grid">
+  <div class="thesis-box bull-box">
+    <div class="tb-label">Bull Case</div>
+    <div class="tb-content">{{ th.bull }}</div>
+  </div>
+  <div class="thesis-box bear-box">
+    <div class="tb-label">Bear Case</div>
+    <div class="tb-content">{{ th.bear }}</div>
+  </div>
+</div>
+
+<div class="sub-section-title">핵심 리스크</div>
+<div class="risks-box">
+  {% for r in th.risks %}
+  <div class="risk-item">{{ r }}</div>
+  {% endfor %}
+</div>
+
+<div style="display:flex; gap:14px;">
+  <div style="flex:1;">
+    <div class="sub-section-title">Upcoming Catalysts</div>
+    <ul class="catalyst-list">
+      {% for c in stock.catalysts %}
+      <li>{{ c }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div style="flex:1;">
+    <div class="sub-section-title">Upcoming Events</div>
+    <ul class="event-list">
+      {% for e in stock.upcoming_events %}
+      <li>{{ e }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+{% endfor %}
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     마지막 페이지: 포트폴리오 전략 & 면책조항
+═══════════════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+
+<div class="section-header">
+  <h2>Portfolio Strategy &amp; Disclaimer</h2>
+</div>
+
+<div class="sub-section-title">포트폴리오 구성 원칙</div>
+<table class="data-table">
+  <tr><th>종목</th><th>배분액</th><th>비중</th><th>투자 테마</th></tr>
+  <tr><td>PLTR</td><td>$350</td><td>35%</td><td>Defense AI / Government Tech</td></tr>
+  <tr><td>RKLB</td><td>$250</td><td>25%</td><td>Space Economy / Launch Services</td></tr>
+  <tr><td>HIMS</td><td>$200</td><td>20%</td><td>Telehealth / Consumer Health</td></tr>
+  <tr><td>APLD</td><td>$150</td><td>15%</td><td>AI Infrastructure / Data Centers</td></tr>
+  <tr><td>IONQ</td><td>$50</td><td>5%</td><td>Quantum Computing (복권 베팅)</td></tr>
+</table>
+
+<div class="sub-section-title">리스크 관리 원칙</div>
+<div style="font-size:8.5pt; line-height:1.7; margin-bottom:14px;">
+  • 개별 종목 최대 손실 한도: 배분액의 -50% (Stop-loss 기준)<br>
+  • IONQ 포지션 성격: 소액 복권. 전액 손실 감수 가능 범위 내 베팅<br>
+  • 리밸런싱: 분기 실적 발표 후 thesis 변화 시만 재검토<br>
+  • DCF 기준 +20% 이상 상승 여력: BUY / -20% 이하: REDUCE 검토<br>
+  • 시장 급락(VIX >30): 추가 매수 기회 탐색, 공황 매도 금지
+</div>
+
+<div class="disclaimer">
+  <strong>면책조항 (Disclaimer)</strong><br>
+  본 리포트는 개인 투자 시뮬레이션 연구 목적으로 자동 생성된 자료이며, 투자 권유가 아닙니다.
+  모든 투자 결정과 그에 따른 손익은 투자자 본인에게 귀속됩니다.
+  과거 수익률이 미래 수익률을 보장하지 않으며, 주식 투자에는 원금 손실 위험이 있습니다.<br><br>
+  데이터 출처: Yahoo Finance (yfinance), Financial Modeling Prep (FMP API), FRED (Federal Reserve Economic Data).<br>
+  생성 시각: {{ report_date }} 08:27 KST | 자동화 파이프라인: GitHub Actions<br><br>
+  <em>This report is for simulation and educational purposes only. Not financial advice.</em>
+</div>
+
+</body>
+</html>

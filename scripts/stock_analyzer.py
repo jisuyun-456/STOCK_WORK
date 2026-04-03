@@ -30,6 +30,8 @@ STOCK_THESIS = {
         "bear": "경쟁사(Microsoft, Palantir-clone) 진입, 정부 예산 삭감, 높은 주식 기반 보상 희석",
         "risks": ["고밸류에이션 (PSR 30x+)", "내부자 대규모 매도 이력", "정부 의존도 60%+"],
         "sector": "Defense AI / Government Tech",
+        "catalysts": ["DoD/정부 신규 계약 공시", "AIP 상업 고객 수 분기 발표", "미-이란 분쟁 국방 예산 확대"],
+        "upcoming_events": ["Q1 2026 실적 발표 (5월 예정)", "NDF-X 계약 갱신 결과"],
     },
     "RKLB": {
         "company": "Rocket Lab USA",
@@ -43,6 +45,8 @@ STOCK_THESIS = {
         "bear": "Neutron 개발 지연/실패, SpaceX Starship 소형위성 시장 잠식, 자본 소진",
         "risks": ["Neutron 개발 일정 지연 위험", "단발성 발사 실패 시 신뢰도 타격", "지속적 자본 조달 필요"],
         "sector": "Space Economy / Launch Services",
+        "catalysts": ["Neutron 로켓 첫 발사 마일스톤 공시", "NASA/DARPA 신규 계약 발표", "민간 위성 고객 장기 계약 체결"],
+        "upcoming_events": ["Q1 2026 실적 발표 (5월 예정)", "Neutron 엔진 테스트 결과 공시"],
     },
     "HIMS": {
         "company": "Hims & Hers Health",
@@ -56,6 +60,8 @@ STOCK_THESIS = {
         "bear": "FDA 복제약 공급 중단 명령, 노보노디스크/일라이릴리 직접 경쟁, 보험 미적용",
         "risks": ["FDA 규제 리스크 (가장 중요)", "GLP-1 복제약 사업 불확실성", "의료 책임 소송"],
         "sector": "Telehealth / Consumer Health",
+        "catalysts": ["FDA 복제약 공급 허가 유지 결정", "GLP-1 구독자 수 분기 발표", "여성 건강 신규 카테고리 론칭"],
+        "upcoming_events": ["Q1 2026 실적 발표 (5월 예정)", "FDA 복제약 정책 업데이트"],
     },
     "APLD": {
         "company": "Applied Digital Corporation",
@@ -69,6 +75,8 @@ STOCK_THESIS = {
         "bear": "자본 집약적 사업 구조로 희석 지속, 전력/냉각 비용 급등, 대형 경쟁사 시장 진입",
         "risks": ["높은 부채 비율", "계약 의존도 집중 리스크", "전력 비용 변동성"],
         "sector": "AI Infrastructure / Data Centers",
+        "catalysts": ["하이퍼스케일러 장기 임대 계약 공시", "HPC 데이터센터 신규 캐퍼시티 발표", "CoreWeave 대비 저평가 해소 모멘텀"],
+        "upcoming_events": ["Q1 2026 실적 발표 (5월 예정)", "신규 데이터센터 가동 일정 공시"],
     },
     "IONQ": {
         "company": "IonQ Inc.",
@@ -82,6 +90,8 @@ STOCK_THESIS = {
         "bear": "퀀텀 실용화 10년 이상 지연, IBM/Google의 퀀텀 기술 선점, 자금 소진",
         "risks": ["기술 실현 타임라인 극히 불확실", "경쟁사 대비 기술 우위 미검증", "상업화까지 대규모 자금 필요"],
         "sector": "Quantum Computing",
+        "catalysts": ["퀀텀 우위(Quantum Advantage) 달성 발표", "대형 제약/금융 기업 파일럿 계약", "정부 퀀텀 R&D 예산 확대"],
+        "upcoming_events": ["Q1 2026 실적 발표 (5월 예정)", "Forte Enterprise 시스템 출시 일정"],
     },
 }
 
@@ -289,6 +299,70 @@ def _safe_round(val, digits=2):
         return None
 
 
+# ── Goldman/JPM 스타일 일일 뷰 생성 ──────────────────────────────────────────
+
+def generate_daily_view(symbol: str, technical: dict, fundamental: dict) -> dict:
+    """TODAY / CATALYST / RISK / VIEW 자동 생성"""
+    thesis = STOCK_THESIS.get(symbol, {})
+
+    # TODAY: 당일 가격 움직임 해석
+    pct = technical.get("change_pct", 0) or 0
+    price = technical.get("current_price", 0) or 0
+    vol_ratio = technical.get("volume_ratio", 1.0) or 1.0
+    rsi = technical.get("rsi")
+
+    if pct >= 5:
+        today = f"${price:.2f} ({pct:+.1f}%) — 강한 상승. 거래량 {vol_ratio:.1f}x. 모멘텀 지속 여부 주목."
+    elif pct >= 2:
+        today = f"${price:.2f} ({pct:+.1f}%) — 의미있는 상승. 거래량 {vol_ratio:.1f}x 수반."
+    elif pct >= 0.5:
+        today = f"${price:.2f} ({pct:+.1f}%) — 소폭 상승. 추세 유지 중."
+    elif pct <= -5:
+        today = f"${price:.2f} ({pct:+.1f}%) — 급락. 거래량 {vol_ratio:.1f}x. 저가 매수 vs 손절 판단 필요."
+    elif pct <= -2:
+        today = f"${price:.2f} ({pct:+.1f}%) — 약세. 섹터 전반 흐름 확인 필요."
+    elif pct <= -0.5:
+        today = f"${price:.2f} ({pct:+.1f}%) — 소폭 하락. 홀딩 유지."
+    else:
+        today = f"${price:.2f} ({pct:+.1f}%) — 보합. 방향성 탐색 중."
+
+    if rsi and rsi > 70:
+        today += f" RSI {rsi:.0f} — 과매수 주의."
+    elif rsi and rsi < 30:
+        today += f" RSI {rsi:.0f} — 과매도, 반등 모멘텀 가능."
+
+    # CATALYST: thesis에서 첫 번째 카탈리스트
+    catalysts = thesis.get("catalysts", [])
+    catalyst = catalysts[0] if catalysts else "분기 실적 발표 모니터링 중"
+
+    # RISK: thesis의 첫 번째 리스크
+    risks = thesis.get("risks", [])
+    risk = risks[0] if risks else "시장 전반 변동성"
+
+    # VIEW: DCF upside 기반 BUY/HOLD/REDUCE
+    dcf_upside = fundamental.get("dcf_upside")
+    if dcf_upside is None:
+        view_rating = "HOLD"
+        view_reason = "DCF 데이터 미수집 — 기술적 지표 기반 홀딩 유지"
+    elif dcf_upside > 20:
+        view_rating = "BUY"
+        view_reason = f"DCF 기준 {dcf_upside:+.0f}% 상승 여력 — 장기 thesis 유효, 비중 확대 검토"
+    elif dcf_upside < -20:
+        view_rating = "REDUCE"
+        view_reason = f"DCF 기준 {dcf_upside:+.0f}% (고평가) — 부분 차익 실현 고려"
+    else:
+        view_rating = "HOLD"
+        view_reason = f"DCF 기준 {dcf_upside:+.0f}% — 현 포지션 유지, 카탈리스트 대기"
+
+    return {
+        "today": today,
+        "catalyst": catalyst,
+        "risk": risk,
+        "view_rating": view_rating,
+        "view_reason": view_reason,
+    }
+
+
 # ── 메인 분석 함수 ────────────────────────────────────────────────────────────
 
 def analyze_stock(symbol: str) -> dict:
@@ -305,6 +379,7 @@ def analyze_stock(symbol: str) -> dict:
     technical = fetch_technical(symbol)
     fundamental = fetch_fundamental(symbol)
     institutional = fetch_institutional(symbol)
+    daily_view = generate_daily_view(symbol, technical, fundamental)
 
     return {
         "symbol": symbol,
@@ -314,12 +389,15 @@ def analyze_stock(symbol: str) -> dict:
         "technical": technical,
         "fundamental": fundamental,
         "institutional": institutional,
+        "daily_view": daily_view,
         "outlook": thesis["outlook"],
         "thesis": {
             "bull": thesis["bull"],
             "bear": thesis["bear"],
             "risks": thesis["risks"],
         },
+        "catalysts": thesis.get("catalysts", []),
+        "upcoming_events": thesis.get("upcoming_events", []),
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
     }
 
