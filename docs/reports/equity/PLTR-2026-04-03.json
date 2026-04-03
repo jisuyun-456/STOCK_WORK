@@ -1,0 +1,257 @@
+{
+  "symbol": "PLTR",
+  "company_name": "Palantir Technologies",
+  "report_date": "2026-04-03",
+  "generated_at": "2026-04-03 22:40",
+  "sector": "Defense AI / Government Tech",
+  "exchange": "NASDAQ",
+  "ch1": {
+    "rating": "HOLD",
+    "conviction": "MEDIUM",
+    "target_price": 148.46,
+    "current_price": 148.46,
+    "upside_pct": 0.0,
+    "investment_thesis": "정부/기업 AI 플랫폼 독점, 미-이란 분쟁 수혜, 흑자 전환 완료",
+    "investment_thesis_long": "미국 + 동맹국 정부 AI 플랫폼 표준 자리 잡기. Gotham(정부)→Foundry(기업)→AIP(AI) 3단계 성장 구조. 상업 고객 ARR 연 50%+ 성장 기대.",
+    "key_metrics": {
+      "market_cap": null,
+      "fwd_pe": null,
+      "ev_ebitda": null,
+      "revenue_growth": null,
+      "gross_margin": null,
+      "fcf_yield": null
+    },
+    "scenarios": {
+      "bull": {
+        "price": 217.54,
+        "prob": 30,
+        "note": "AIP 상업 고객 연 100%+ 성장, 정부 AI 예산 2배 증가, 흑자 기반 자사주 매입 개시"
+      },
+      "base": {
+        "price": 148.46,
+        "prob": 45,
+        "note": "현 thesis 유지, 카탈리스트 대기"
+      },
+      "bear": {
+        "price": 147.74,
+        "prob": 25,
+        "note": "경쟁사(Microsoft, Palantir-clone) 진입, 정부 예산 삭감, 높은 주식 기반 보상 희석"
+      }
+    }
+  },
+  "ch2": {
+    "business_model": "미국 + 동맹국 정부 AI 플랫폼 표준 자리 잡기. Gotham(정부)→Foundry(기업)→AIP(AI) 3단계 성장 구조. 상업 고객 ARR 연 50%+ 성장 기대.",
+    "business_model_short": "AIP(AI Platform) 상업 계약 확대 + 미국 국방부 지출 증가. 단기 카탈리스트: 분기 실적 발표, 신규 정부 계약 공시. 리스크: 고밸류에이션 조정 가능성.",
+    "revenue_segments": [],
+    "geographic_mix": [],
+    "competitors": [],
+    "tam_sam_som": {}
+  },
+  "ch3": {
+    "income_stmt": [],
+    "balance_sheet": {},
+    "cash_flow": [],
+    "margins": []
+  },
+  "ch4": {
+    "dcf": {
+      "wacc": 10.0,
+      "tgr": 3.0,
+      "fair_value": null,
+      "sensitivity_matrix": [
+        [
+          96.88,
+          106.25,
+          115.62,
+          125.0,
+          134.38
+        ],
+        [
+          86.11,
+          94.44,
+          102.78,
+          111.11,
+          119.44
+        ],
+        [
+          77.5,
+          85.0,
+          92.5,
+          100.0,
+          107.5
+        ],
+        [
+          70.45,
+          77.27,
+          84.09,
+          90.91,
+          97.73
+        ],
+        [
+          64.58,
+          70.83,
+          77.08,
+          83.33,
+          89.58
+        ]
+      ]
+    },
+    "comps": [],
+    "comps_self": {
+      "pe": null,
+      "ev_ebitda": null,
+      "psr": null
+    },
+    "historical_val": [],
+    "target_method": "DCF 50% + Comps 50%"
+  },
+  "ch5": {
+    "short_term": [
+      {
+        "event": "Q1 2026 실적 발표 (5월 예정)",
+        "date": "",
+        "expectation": ""
+      },
+      {
+        "event": "NDF-X 계약 갱신 결과",
+        "date": "",
+        "expectation": ""
+      }
+    ],
+    "mid_term": [
+      {
+        "theme": "DoD/정부 신규 계약 공시",
+        "description": "",
+        "impact": ""
+      },
+      {
+        "theme": "AIP 상업 고객 수 분기 발표",
+        "description": "",
+        "impact": ""
+      },
+      {
+        "theme": "미-이란 분쟁 국방 예산 확대",
+        "description": "",
+        "impact": ""
+      }
+    ],
+    "long_term_thesis": "AI 시대의 핵심 인프라 레이어. 데이터 통합-분석-의사결정 자동화 전 주기 장악. 10년 TAM $500B+ 시장에서 핵심 플레이어. 텐배거 시나리오: AIP 글로벌 확장 + 국방 AI 독점.",
+    "margin_leverage": [],
+    "capital_allocation": {
+      "dividend_yield": 0,
+      "buyback_yield": 0,
+      "ma_strategy": ""
+    }
+  },
+  "ch6": {
+    "business_risk": [
+      {
+        "title": "고밸류에이션 (PSR 30x+)",
+        "desc": "",
+        "prob": "중간",
+        "impact": "높음",
+        "bear_price": 147.74
+      },
+      {
+        "title": "내부자 대규모 매도 이력",
+        "desc": "",
+        "prob": "중간",
+        "impact": "높음",
+        "bear_price": 147.74
+      },
+      {
+        "title": "정부 의존도 60%+",
+        "desc": "",
+        "prob": "중간",
+        "impact": "높음",
+        "bear_price": 147.74
+      }
+    ],
+    "financial_risk": [],
+    "regulatory_risk": [],
+    "macro_risk": []
+  },
+  "ch7": {
+    "sector_performance": {
+      "vs_sp500_12m": null,
+      "vs_nasdaq_12m": null,
+      "sector_rank": null
+    },
+    "macro_sensitivity": {
+      "rate_impact": "중간",
+      "cycle_position": "Expansion",
+      "beta": null
+    },
+    "institutional": {
+      "top_holders": [],
+      "insider_activity": {
+        "buys_30d": 0,
+        "sells_30d": 0
+      },
+      "short_interest": null
+    },
+    "technical": {
+      "support": [
+        146.91,
+        164.16
+      ],
+      "resistance": [
+        207.18
+      ],
+      "rsi": 47.9,
+      "macd": "하락",
+      "ma50": 146.91,
+      "ma200": 164.16,
+      "above_ma50": true,
+      "above_ma200": false,
+      "pct_from_high": -28.3,
+      "high_52w": 207.18,
+      "low_52w": 74.01
+    }
+  },
+  "ch8": {
+    "final_rating": "HOLD",
+    "trade_setup": {
+      "entry_zone": [
+        144.01,
+        151.43
+      ],
+      "target1": 148.46,
+      "target2": 217.54,
+      "stop_loss": 130.64,
+      "rr_ratio": 0.0
+    },
+    "monitoring": [
+      {
+        "kpi": "분기 매출 성장률",
+        "threshold": "<15%",
+        "action": "성장 둔화 경고"
+      },
+      {
+        "kpi": "FCF Margin",
+        "threshold": "<10%",
+        "action": "수익성 점검"
+      },
+      {
+        "kpi": "RSI",
+        "threshold": ">80",
+        "action": "과매수 경고, 부분 차익 실현 검토"
+      },
+      {
+        "kpi": "주가 vs Stop",
+        "threshold": "<$130.64",
+        "action": "손절 실행"
+      },
+      {
+        "kpi": "내부자 거래",
+        "threshold": "대규모 매도",
+        "action": "경영진 신뢰 재평가"
+      }
+    ],
+    "next_update": {
+      "trigger": "Q1 2026 실적 발표 (5월 예정)",
+      "date": "",
+      "event": "실적 발표 후 CH1, CH3, CH4 업데이트"
+    }
+  }
+}
