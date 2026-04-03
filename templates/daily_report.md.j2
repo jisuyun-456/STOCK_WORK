@@ -68,7 +68,7 @@
 | 지표 | 최신값 |
 |------|--------|
 {% for name, val in macro.items() %}
-| {{ name }} | {{ val }} |
+| {{ name }} | {{ val.value }} |
 {% endfor %}
 {% endif %}
 

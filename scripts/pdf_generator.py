@@ -26,7 +26,7 @@ def generate_pdf(context: dict, output_path: str) -> str:
     반환: 저장된 PDF 파일 경로 (실패 시 None)
     """
     try:
-        from jinja2 import Environment, FileSystemLoader, StrictUndefined
+        from jinja2 import Environment, FileSystemLoader
         from weasyprint import HTML, CSS
         from weasyprint.text.fonts import FontConfiguration
     except ImportError as e:
@@ -36,7 +36,6 @@ def generate_pdf(context: dict, output_path: str) -> str:
     try:
         env = Environment(
             loader=FileSystemLoader(str(TEMPLATES_DIR)),
-            undefined=StrictUndefined,
             autoescape=False,
         )
         # Jinja2 필터 추가
@@ -80,5 +79,7 @@ def generate_html_preview(context: dict, output_path: str) -> str:
         return output_path
 
     except Exception as e:
+        import traceback
         print(f"  [pdf_generator] HTML 미리보기 실패: {e}", file=sys.stderr)
+        traceback.print_exc(file=sys.stderr)
         return None

@@ -56,10 +56,22 @@ def generate_report(mode: str = "auto") -> dict:
     kr_indices = fetch_kr_indices()
 
     print("  → 원자재/금리 수집 중...", file=sys.stderr)
-    commodities = fetch_commodities()
+    commodities_raw = fetch_commodities()
+    # fetch_commodities()에 change 키 없음 → 역산 추가
+    commodities = {}
+    for k, v in commodities_raw.items():
+        if v.get("error"):
+            commodities[k] = v
+        else:
+            pct = v["change_pct"]
+            close = v["close"]
+            change = round(close * (pct / 100) / (1 + pct / 100), 2)
+            commodities[k] = {**v, "change": change}
 
     print("  → 매크로 지표 수집 중...", file=sys.stderr)
-    macro = fetch_macro()
+    macro_raw = fetch_macro()
+    # fetch_macro()는 float 직접 반환 → {"value": float} dict로 정규화
+    macro = {k: {"value": v} for k, v in macro_raw.items()} if macro_raw else {}
 
     print("  → 섹터 등락 수집 중...", file=sys.stderr)
     sectors_daily_raw = fetch_sector_performance()
