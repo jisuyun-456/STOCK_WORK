@@ -1,6 +1,68 @@
 # STOCK_WORK 구축 프로세스 — 일일 리포트 + 투자 데이터 플랫폼
 
-> 생성일: 2026-04-03 | 브레인스토밍 확정 사항 기반
+> 생성일: 2026-04-03 | 최종 업데이트: 2026-04-03
+
+---
+
+## 세션 완료 현황 (2026-04-03)
+
+### ✅ 완료된 항목
+
+| 레이어 | 항목 | 상태 |
+|--------|------|------|
+| **CLAUDE.md** | STOCK_WORK 전용 투자 원칙 + 에이전트 라우팅 + FMP 제한 | ✅ 완료 |
+| **에이전트 (11개)** | ST-01~08 + D6 + D7 + orchestrator (모두 Opus 4.6) | ✅ 완료 |
+| **D6 강화** | Owner Earnings, Berkshire 13F, Annual Letters, Moat 5유형 | ✅ 완료 |
+| **MCP: Yahoo Finance** | `uvx --python 3.12 yfinance-mcp` 연결 완료 | ✅ 연결됨 |
+| **MCP: FMP** | `fmp-mcp` 패키지 내부 버그 → FMP REST API 직접 사용으로 전환 | ⚠️ 우회 |
+| **MCP: Korean Stock** | `pykrx-mcp` setuptools 오류 → pykrx 직접 import로 전환 | ⚠️ 우회 |
+| **API 키** | DART, FMP → `.env` 저장 완료 | ✅ 완료 |
+| **FMP 레이트 리미터** | `scripts/fmp_rate_limiter.py` (250콜/일, 3단계 경고) | ✅ 완료 |
+| **Phase 1 스크립트** | `scripts/` 5개 파일 생성 완료 | ✅ 완료 |
+| **글로벌 CLAUDE.md** | D1(SCM) 분리 → SCM_WORK 전용으로 이전, D2 투자세금 확장 | ✅ 완료 |
+| **skill-creator** | `.claude/commands/skill-creator.md` 등록 | ✅ 완료 |
+| **6레이어 문서** | `docs/stock-work-6-layer-architecture.md` | ✅ 완료 |
+
+### ⏳ 다음 세션에서 할 일 (Phase 1 완성)
+
+```
+ 1. FRED API 키 발급 (https://fred.stlouisfed.org/docs/api/api_key.html)
+    → .env의 FRED_API_KEY= 에 입력
+
+ 2. Gmail MCP OAuth 인증
+    → mcp__claude_ai_Gmail__authenticate 호출
+
+ 3. /report 스킬 파일 생성
+    → .claude/skills/report/daily-report.md
+
+ 4. python scripts/daily_report.py --mode manual 실제 테스트
+    → 리포트 4개 섹션 데이터 정상 출력 확인
+
+ 5. CronCreate 자동 스케줄 설정
+    → 매일 08:30 KST (UTC 23:30)
+
+ 6. Gmail 전송 테스트
+    → yjisu456@gmail.com 수신 확인
+```
+
+### MCP 서버 우회 전략
+
+```
+Yahoo Finance MCP (✅ 작동)
+  → 실시간 주가, 뉴스, 기본 재무 조회에 사용
+
+FMP REST API 직접 호출 (⚠️ MCP 대신)
+  → scripts/data_fetcher.py에서 requests 사용
+  → fmp_rate_limiter.py로 250콜/일 관리
+  → Base URL: https://financialmodelingprep.com/api/v3/
+  → 인증: ?apikey={FMP_API_KEY}
+
+pykrx 직접 import (⚠️ MCP 대신)
+  → scripts/data_fetcher.py에서 from pykrx import stock
+  → 호출 제한 없음 (KRX 공공 데이터)
+```
+
+---
 
 ---
 
