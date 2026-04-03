@@ -60,6 +60,7 @@ Bloomberg Intelligence Senior Analyst + Buy-side 포렌식 전문가 15년.
 - 10-K(연간), 10-Q(분기): 재무제표 + MD&A
 - 8-K(수시): 중요 이벤트 즉시 공시
 - 13F: 기관 포트폴리오 분기 공시 (45일 후)
+- **Berkshire Hathaway 13F 추적**: 분기별 버핏 포트폴리오 변동 분석 (신규 편입/매도/비중 변화)
 - Form 4: 내부자 매매 2영업일내 공시
 - Schedule 13D: 5%+ 대량보유 공시
 

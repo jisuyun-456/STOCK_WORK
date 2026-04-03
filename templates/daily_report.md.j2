@@ -1,0 +1,128 @@
+# 📊 일일 투자 리포트 — {{ report_date }}
+
+> 생성: {{ generated_at }} KST
+
+---
+
+## 1. 나스닥/코스피 일일 분석
+
+### 🇺🇸 미국 주요 지수
+
+| 지수 | 종가 | 변동 | 등락률 | 거래량 |
+|------|------|------|--------|--------|
+{% for name, data in us_indices.items() %}
+{% if data.get('error') %}
+| {{ name }} | — | — | — | ⚠️ {{ data.error }} |
+{% else %}
+| {{ name }} | {{ "{:,.2f}".format(data.close) }} | {{ "{:+,.2f}".format(data.change) }} | {{ "{:+.2f}%".format(data.change_pct) }} | {{ "{:,.0f}".format(data.volume) }} |
+{% endif %}
+{% endfor %}
+
+### 🇰🇷 한국 시장
+
+| 지수 | 종가 | 변동 | 등락률 | 거래량 |
+|------|------|------|--------|--------|
+{% for name, data in kr_indices.items() %}
+{% if name != 'investor_flow' %}
+{% if data.get('error') %}
+| {{ name }} | — | — | — | ⚠️ {{ data.error }} |
+{% else %}
+| {{ name }} | {{ "{:,.2f}".format(data.close) }} | {{ "{:+,.2f}".format(data.change) }} | {{ "{:+.2f}%".format(data.change_pct) }} | {{ "{:,.0f}".format(data.volume) }} |
+{% endif %}
+{% endif %}
+{% endfor %}
+
+{% if kr_indices.get('investor_flow') %}
+**투자자 동향 (KOSPI):**
+- 외국인 순매수: {{ "{:,.0f}".format(kr_indices.investor_flow.foreign) }}원
+- 기관 순매수: {{ "{:,.0f}".format(kr_indices.investor_flow.institution) }}원
+{% endif %}
+
+---
+
+## 2. 글로벌/미국 시장 종합
+
+### 원자재 & 금리
+
+| 자산 | 가격 | 등락률 |
+|------|------|--------|
+{% for name, data in commodities.items() %}
+{% if data.get('error') %}
+| {{ name }} | — | ⚠️ {{ data.error }} |
+{% else %}
+| {{ name }} | {{ "{:,.2f}".format(data.close) }} | {{ "{:+.2f}%".format(data.change_pct) }} |
+{% endif %}
+{% endfor %}
+
+### 섹터 등락 (S&P500 기준)
+
+| 섹터 | 일간 등락률 |
+|------|-----------|
+{% for name, pct in sectors_daily | dictsort(by='value', reverse=true) %}
+| {{ name }} | {{ "{:+.2f}%".format(pct) }} |
+{% endfor %}
+
+{% if macro %}
+### 매크로 경제지표 (FRED)
+
+| 지표 | 최신값 |
+|------|--------|
+{% for name, val in macro.items() %}
+| {{ name }} | {{ val }} |
+{% endfor %}
+{% endif %}
+
+---
+
+## 3. 나스닥 떠오르는 기업
+
+### 거래량 급등 TOP 10
+
+| 순위 | 종목 | 종가 | 등락률 | 거래량 | 평균(20일) | 급등배율 |
+|------|------|------|--------|--------|-----------|---------|
+{% for stock in volume_surge %}
+| {{ loop.index }} | **{{ stock.symbol }}** | ${{ "{:,.2f}".format(stock.close) }} | {{ "{:+.2f}%".format(stock.change_pct) }} | {{ "{:,.0f}".format(stock.volume) }} | {{ "{:,.0f}".format(stock.avg_volume_20d) }} | **{{ stock.volume_ratio }}x** |
+{% endfor %}
+
+{% if new_highs %}
+### 52주 신고가 근접 종목
+
+| 종목 | 종가 | 52주 고가 | 고가 대비 |
+|------|------|----------|----------|
+{% for stock in new_highs %}
+| **{{ stock.symbol }}** | ${{ "{:,.2f}".format(stock.close) }} | ${{ "{:,.2f}".format(stock.high_52w) }} | {{ "{:+.2f}%".format(stock.pct_from_high) }} |
+{% endfor %}
+{% endif %}
+
+{% if sector_momentum %}
+### 섹터별 모멘텀
+
+| 섹터 | 1주 수익률 | 1개월 수익률 |
+|------|----------|------------|
+{% for name, data in sector_momentum.items() %}
+| {{ name }} | {{ "{:+.2f}%".format(data.return_1w) }} | {{ "{:+.2f}%".format(data.return_1m) }} |
+{% endfor %}
+{% endif %}
+
+---
+
+## 4. 매크로 기반 종목 추천
+
+### 현재 경기사이클: {{ cycle_info.label }}
+
+> {{ cycle_info.rationale }}
+
+**유리 섹터:** {{ cycle_info.sectors | join(', ') }}
+
+### 추천 종목
+
+| 종목 | 기업명 | 섹터 |
+|------|--------|------|
+{% for stock in recommended_stocks %}
+| **{{ stock.symbol }}** | {{ stock.name }} | {{ stock.sector }} |
+{% endfor %}
+
+---
+
+> ⚠️ 본 리포트는 AI 기반 자동 생성 자료이며, 투자 권유가 아닙니다.
+> 투자 결정은 본인의 판단과 책임 하에 이루어져야 합니다.

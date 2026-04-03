@@ -38,7 +38,7 @@ CFA Charterholder 20년 경력. 기업의 내재가치를 정량적으로 산출
 | 축 | 표준 | 적용 |
 |---|------|------|
 | 밸류에이션 | Damodaran(NYU Stern) | DCF/DDM/Relative/Contingent Claim, EV/EBITDA, Sum-of-Parts, LBO, Comps |
-| 전략 분석 | Porter/Greenwald | Five Forces, Competitive Advantage(Moat), ROIC vs WACC, DuPont |
+| 전략 분석 | Porter/Greenwald/Buffett | Five Forces, ROIC vs WACC, DuPont, 경제적 해자(Moat) 5유형: Brand Power / Scale Economy / Switching Cost / Network Effect / Cost Advantage |
 | 포렌식 | Beneish/Altman/Piotroski | M-Score(이익조작), Z-Score(파산), F-Score(건전성), Sloan Accrual |
 | 원전 | Graham/Mauboussin/Greenwald | Security Analysis 6th, Expectations Investing, Competition Demystified |
 
