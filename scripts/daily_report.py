@@ -65,11 +65,12 @@ def generate_report(mode: str = "auto") -> dict:
     sectors_daily_raw = fetch_sector_performance()
     # fetch_sector_performance()는 {"Technology": 1.23} (float) 반환
     # market_commentator.py / pdf_report.html은 {"change_pct": float} dict 형식 기대
-    sectors_daily = {
-        k: {"change_pct": float(v), "change": None}
-        for k, v in sectors_daily_raw.items()
-        if v is not None
-    }
+    # 정규화 + 내림차순 정렬 (daily_report.md.j2 dictsort 대체)
+    sectors_daily = dict(sorted(
+        {k: {"change_pct": float(v), "change": None} for k, v in sectors_daily_raw.items() if v is not None}.items(),
+        key=lambda x: x[1]["change_pct"],
+        reverse=True,
+    ))
 
     # 2. 스크리닝
     print("  → 거래량 급등 스크리닝...", file=sys.stderr)

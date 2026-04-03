@@ -58,8 +58,8 @@
 
 | 섹터 | 일간 등락률 |
 |------|-----------|
-{% for name, pct in sectors_daily | dictsort(by='value', reverse=true) %}
-| {{ name }} | {{ "{:+.2f}%".format(pct) }} |
+{% for name, d in sectors_daily.items() %}
+| {{ name }} | {{ "{:+.2f}%".format(d.change_pct) }} |
 {% endfor %}
 
 {% if macro %}
