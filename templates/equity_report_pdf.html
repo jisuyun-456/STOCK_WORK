@@ -1,0 +1,1849 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>{{ symbol }} Equity Research — {{ report_date }}</title>
+<style>
+  /* ═══════════════════════════════════════════════════════════
+     CREAM EDITORIAL — GS/JPM Equity Research Print Style
+     WeasyPrint A4 PDF Template
+  ═══════════════════════════════════════════════════════════ */
+
+  :root {
+    --cream:     #FAF8F4;
+    --cream2:    #F2EDE3;
+    --ink:       #1A1814;
+    --ink2:      #45423C;
+    --ink3:      #8A857C;
+    --border:    #E0DBD0;
+    --coral:     #C8523A;
+    --coral-bg:  #FBF0ED;
+    --gold:      #A87228;
+    --gold-bg:   #FBF3E2;
+    --teal:      #1D6B5F;
+    --teal-bg:   #E4F2EF;
+    --blue:      #1E5FA8;
+    --blue-bg:   #EBF2FB;
+    --up:        #1E7A45;
+    --up-bg:     #E8F5EE;
+    --font-serif: Georgia, 'Libre Baskerville', serif;
+    --font-sans:  'Pretendard', -apple-system, 'Apple SD Gothic Neo', Arial, sans-serif;
+    --font-mono:  'DM Mono', Consolas, 'Courier New', monospace;
+  }
+
+  /* ── PAGE SETUP ────────────────────────────────────────── */
+  @page {
+    size: A4;
+    margin: 2cm;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 9pt;
+    line-height: 1.5;
+  }
+
+  /* ── PAGE BREAK ────────────────────────────────────────── */
+  .page-break { page-break-before: always; }
+
+  /* ── SECTION TITLE ─────────────────────────────────────── */
+  .sec-title {
+    font-family: var(--font-sans);
+    font-size: 7pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--ink3);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 4px;
+    margin-bottom: 10px;
+    margin-top: 16px;
+  }
+  .sec-title:first-child { margin-top: 0; }
+
+  /* ── UP / DN / NT ──────────────────────────────────────── */
+  .up  { color: var(--up); }
+  .dn  { color: var(--coral); }
+  .nt  { color: var(--ink3); }
+
+  /* ── EMPTY STATE ───────────────────────────────────────── */
+  .empty-state {
+    padding: 16px;
+    text-align: center;
+    color: var(--ink3);
+    font-size: 8pt;
+    background: var(--cream2);
+    border: 1px dashed var(--border);
+    border-radius: 3px;
+    margin-bottom: 10px;
+  }
+
+  /* ── TABLES (common) ────────────────────────────────────── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+    font-size: 8.5pt;
+    font-family: var(--font-sans);
+  }
+  .data-table thead tr {
+    background: var(--cream2);
+  }
+  .data-table th {
+    padding: 5px 8px;
+    text-align: left;
+    font-size: 7pt;
+    font-weight: 700;
+    color: var(--ink3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    border-bottom: 1.5px solid var(--border);
+  }
+  .data-table th.r { text-align: right; }
+  .data-table td {
+    padding: 5px 8px;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink2);
+  }
+  .data-table td.r { text-align: right; font-family: var(--font-mono); font-size: 8pt; }
+  .data-table tbody tr:last-child td { border-bottom: none; }
+  .data-table tbody tr.self-row td { color: var(--gold); font-weight: 700; }
+
+  /* ── FIN TABLE (financials special) ─────────────────────── */
+  .fin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+    font-size: 8.5pt;
+  }
+  .fin-table th {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 6px 8px;
+    text-align: left;
+    font-size: 7pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  .fin-table th.r { text-align: right; }
+  .fin-table td {
+    padding: 5px 8px;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink2);
+  }
+  .fin-table td.r { text-align: right; font-family: var(--font-mono); font-size: 8pt; }
+  .fin-table tbody tr:last-child td { border-bottom: none; }
+
+  /* ── CHAPTER HEADER ─────────────────────────────────────── */
+  .ch-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 6px;
+    margin-bottom: 16px;
+  }
+  .ch-number {
+    font-family: var(--font-mono);
+    font-size: 7pt;
+    color: var(--ink3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .ch-title {
+    font-family: var(--font-serif);
+    font-size: 13pt;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .ch-meta {
+    font-size: 7pt;
+    color: var(--ink3);
+    text-align: right;
+  }
+
+  /* ════════════════════════════════════════════════════════
+     COVER PAGE
+  ════════════════════════════════════════════════════════ */
+  .cover-page {
+    min-height: 240mm;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cover-header {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 18px 22px;
+    margin-bottom: 0;
+  }
+  .cover-header-top {
+    font-family: var(--font-mono);
+    font-size: 7pt;
+    color: var(--ink3);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .cover-header-top span {
+    color: #8A857C;
+  }
+  .cover-company-name {
+    font-family: var(--font-serif);
+    font-size: 26pt;
+    font-weight: 700;
+    color: #FAF8F4;
+    line-height: 1.15;
+    margin-bottom: 6px;
+  }
+  .cover-ticker-line {
+    font-family: var(--font-mono);
+    font-size: 9pt;
+    color: #8A857C;
+    letter-spacing: 0.5px;
+  }
+  .cover-ticker-line strong {
+    color: #FAF8F4;
+    margin-right: 6px;
+  }
+
+  .cover-body {
+    background: var(--cream2);
+    border: 1px solid var(--border);
+    border-top: none;
+    padding: 20px 22px;
+    flex: 1;
+  }
+
+  .cover-rating-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .cover-rating-badge {
+    font-family: var(--font-serif);
+    font-size: 16pt;
+    font-weight: 700;
+    padding: 6px 22px;
+    border-radius: 3px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .cover-rating-buy  { background: var(--up-bg);   color: var(--up);   border: 1.5px solid var(--up); }
+  .cover-rating-hold { background: var(--gold-bg);  color: var(--gold); border: 1.5px solid var(--gold); }
+  .cover-rating-sell { background: var(--coral-bg); color: var(--coral);border: 1.5px solid var(--coral); }
+
+  .cover-divider { width: 1px; height: 36px; background: var(--border); }
+
+  .cover-rb-item { display: flex; flex-direction: column; gap: 2px; }
+  .cover-rb-label {
+    font-size: 6.5pt;
+    color: var(--ink3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .cover-rb-val {
+    font-family: var(--font-mono);
+    font-size: 12pt;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .cover-rb-val.up  { color: var(--up); }
+  .cover-rb-val.dn  { color: var(--coral); }
+
+  .conviction-badge {
+    font-family: var(--font-sans);
+    font-size: 7pt;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 2px;
+    letter-spacing: 0.5px;
+    background: var(--teal-bg);
+    color: var(--teal);
+    border: 1px solid var(--teal);
+  }
+
+  .cover-thesis-box {
+    background: var(--cream);
+    border-left: 3px solid var(--blue);
+    padding: 12px 14px;
+    margin-bottom: 16px;
+  }
+  .cover-thesis-label {
+    font-size: 6.5pt;
+    font-weight: 700;
+    color: var(--blue);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+  }
+  .cover-thesis-text {
+    font-family: var(--font-serif);
+    font-size: 10pt;
+    color: var(--ink2);
+    line-height: 1.65;
+  }
+
+  .cover-km-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .cover-km-cell {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 8px 9px;
+  }
+  .cover-km-label {
+    font-size: 6.5pt;
+    color: var(--ink3);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 3px;
+  }
+  .cover-km-val {
+    font-family: var(--font-mono);
+    font-size: 11pt;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .cover-footer {
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .cover-footer-left {
+    font-size: 7pt;
+    color: var(--ink3);
+  }
+  .cover-footer-right {
+    font-family: var(--font-mono);
+    font-size: 7pt;
+    color: var(--ink3);
+  }
+
+  /* ════════════════════════════════════════════════════════
+     CH1: EXECUTIVE SUMMARY
+  ════════════════════════════════════════════════════════ */
+  .bluf-box {
+    background: var(--blue-bg);
+    border-left: 3px solid var(--blue);
+    padding: 12px 14px;
+    margin-bottom: 12px;
+  }
+  .bluf-label {
+    font-size: 6.5pt;
+    font-weight: 700;
+    color: var(--blue);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+  }
+  .bluf-text {
+    font-family: var(--font-serif);
+    font-size: 9.5pt;
+    color: var(--ink2);
+    line-height: 1.65;
+  }
+
+  .km-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .km-cell {
+    background: var(--cream2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 7px 9px;
+  }
+  .km-label {
+    font-size: 6.5pt;
+    color: var(--ink3);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 3px;
+  }
+  .km-val {
+    font-family: var(--font-mono);
+    font-size: 11pt;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .scenario-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .sc-card { border-radius: 3px; padding: 10px 12px; }
+  .sc-bull {
+    background: var(--up-bg);
+    border: 1px solid #a8d5b8;
+  }
+  .sc-base {
+    background: var(--cream);
+    border: 1px solid var(--border);
+  }
+  .sc-bear {
+    background: var(--coral-bg);
+    border: 1px solid #e8b4a8;
+  }
+  .sc-label {
+    font-size: 7pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+  }
+  .sc-bull .sc-label { color: var(--up); }
+  .sc-base .sc-label { color: var(--ink3); }
+  .sc-bear .sc-label { color: var(--coral); }
+  .sc-price {
+    font-family: var(--font-mono);
+    font-size: 13pt;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .sc-bull .sc-price { color: var(--up); }
+  .sc-base .sc-price { color: var(--ink); }
+  .sc-bear .sc-price { color: var(--coral); }
+  .sc-prob {
+    font-size: 7pt;
+    color: var(--ink3);
+    margin-bottom: 4px;
+  }
+  .sc-note {
+    font-size: 7.5pt;
+    color: var(--ink2);
+    line-height: 1.4;
+  }
+
+  /* ════════════════════════════════════════════════════════
+     CH2: BUSINESS OVERVIEW
+  ════════════════════════════════════════════════════════ */
+  .biz-text {
+    background: var(--cream2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 12px 14px;
+    font-family: var(--font-serif);
+    font-size: 9.5pt;
+    line-height: 1.7;
+    color: var(--ink2);
+    margin-bottom: 12px;
+    white-space: pre-line;
+  }
+
+  /* ════════════════════════════════════════════════════════
+     CH3: FINANCIAL ANALYSIS
+  ════════════════════════════════════════════════════════ */
+  .bs-boxes {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .bs-box {
+    background: var(--cream2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 9px 10px;
+  }
+  .bs-label {
+    font-size: 6.5pt;
+    color: var(--ink3);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 4px;
+  }
+  .bs-val {
+    font-family: var(--font-mono);
+    font-size: 12pt;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  /* ════════════════════════════════════════════════════════
+     CH4: VALUATION
+  ════════════════════════════════════════════════════════ */
+  .dcf-summary {
+    background: var(--cream2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 12px 16px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .dcf-item { display: flex; flex-direction: column; gap: 3px; }
+  .dcf-label {
+    font-size: 6.5pt;
+    color: var(--ink3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .dcf-val {
+    font-family: var(--font-mono);
+    font-size: 13pt;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .dcf-fair { color: var(--teal); }
+  .dcf-divider { width: 1px; height: 32px; background: var(--border); }
+
+  /* Sensitivity heatmap — print-safe bright tones */
+  .sensitivity-wrap { margin-bottom: 12px; }
+  .sens-table {
+    border-collapse: collapse;
+    font-size: 8pt;
+  }
+  .sens-table th {
+    padding: 4px 9px;
+    font-size: 7pt;
+    font-weight: 700;
+    color: var(--ink3);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    background: var(--ink);
+    color: var(--cream);
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+  .sens-table td {
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    text-align: center;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 8pt;
+    min-width: 60px;
+  }
+  /* print-safe heatmap: green -> yellow -> red gradation */
+  .sens-heat-high  { background: #C8ECD5; color: #0F5C2A; }
+  .sens-heat-mid2  { background: #DFF0E5; color: #1E7A45; }
+  .sens-heat-mid   { background: #FBF3E2; color: #7A5A10; }
+  .sens-heat-mid3  { background: #FCDDD4; color: #8C3520; }
+  .sens-heat-low   { background: #F8C9BE; color: #C8523A; }
+  .sens-row-label {
+    font-size: 7pt;
+    font-weight: 600;
+    color: var(--ink3);
+    background: var(--cream2);
+    border: 1px solid var(--border);
+    padding: 4px 9px;
+    white-space: nowrap;
+  }
+
+  /* ════════════════════════════════════════════════════════
+     CH5: GROWTH CATALYSTS
+  ════════════════════════════════════════════════════════ */
+  .catalyst-list { margin-bottom: 12px; }
+  .catalyst-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 7px 10px;
+    background: var(--cream2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    margin-bottom: 4px;
+  }
+  .c-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--blue);
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+  .c-date {
+    font-family: var(--font-mono);
+    font-size: 7.5pt;
+    color: var(--ink3);
+    min-width: 70px;
+    padding-top: 1px;
+    white-space: nowrap;
+  }
+  .c-body { flex: 1; }
+  .c-title { font-size: 9pt; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+  .c-desc  { font-size: 7.5pt; color: var(--ink3); line-height: 1.4; }
+
+  .mid-term-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .mt-card {
+    background: var(--cream2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 9px 11px;
+    border-left: 3px solid var(--gold);
+  }
+  .mt-label {
+    font-size: 7.5pt;
+    font-weight: 700;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 4px;
+  }
+  .mt-text { font-size: 8.5pt; color: var(--ink2); line-height: 1.5; }
+
+  .lt-thesis-box {
+    background: var(--gold-bg);
+    border-left: 3px solid var(--gold);
+    padding: 11px 13px;
+    margin-bottom: 12px;
+  }
+  .lt-label {
+    font-size: 6.5pt;
+    font-weight: 700;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .lt-text {
+    font-family: var(--font-serif);
+    font-size: 9.5pt;
+    color: var(--ink2);
+    line-height: 1.65;
+  }
+
+  /* ════════════════════════════════════════════════════════
+     CH6: RISK FACTORS
+  ════════════════════════════════════════════════════════ */
+  .risk-category-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .risk-card {
+    background: var(--cream2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 9px 11px;
+  }
+  .risk-card-title {
+    font-size: 8.5pt;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+  .risk-row-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .risk-row-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .ri-title { font-size: 8.5pt; font-weight: 600; flex: 1; color: var(--ink2); }
+  .ri-badges { display: flex; gap: 3px; flex-wrap: wrap; align-items: center; }
+  .ri-bear { font-size: 7.5pt; color: var(--coral); font-family: var(--font-mono); }
+
+  /* Risk level badges — print-safe */
+  .prob-badge {
+    font-size: 6.5pt;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 2px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+  .prob-high { background: var(--coral-bg); color: var(--coral);   border: 1px solid #e8b4a8; }
+  .prob-mid  { background: var(--gold-bg);  color: var(--gold);    border: 1px solid #d4b86a; }
+  .prob-low  { background: var(--up-bg);    color: var(--up);      border: 1px solid #a8d5b8; }
+
+  .impact-badge {
+    font-size: 6.5pt;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 2px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+  .impact-high { background: #EDE8F5; color: #5B3B9A; border: 1px solid #c4b0e0; }
+  .impact-mid  { background: var(--blue-bg); color: var(--blue); border: 1px solid #a8c4e8; }
+  .impact-low  { background: var(--cream2); color: var(--ink3); border: 1px solid var(--border); }
+
+  /* ════════════════════════════════════════════════════════
+     CH7: INDUSTRY & MACRO
+  ════════════════════════════════════════════════════════ */
+  .institutional-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .inst-box {
+    background: var(--cream2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 8px 10px;
+  }
+  .inst-label {
+    font-size: 6.5pt;
+    color: var(--ink3);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 3px;
+  }
+  .inst-val {
+    font-family: var(--font-mono);
+    font-size: 12pt;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .tech-box {
+    background: var(--cream2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 8px 10px;
+  }
+  .tech-label { font-size: 6.5pt; color: var(--ink3); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+  .tech-val   { font-family: var(--font-mono); font-size: 11pt; font-weight: 700; color: var(--ink); }
+  .tech-sub   { font-size: 7pt; color: var(--ink3); margin-top: 2px; }
+
+  /* ════════════════════════════════════════════════════════
+     CH8: INVESTMENT CONCLUSION
+  ════════════════════════════════════════════════════════ */
+  .conclusion-rating-wrap {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .rating-badge-lg {
+    font-family: var(--font-serif);
+    font-size: 18pt;
+    font-weight: 700;
+    padding: 7px 24px;
+    border-radius: 3px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .rating-lg-buy  { background: var(--up-bg);   color: var(--up);   border: 2px solid var(--up); }
+  .rating-lg-hold { background: var(--gold-bg);  color: var(--gold); border: 2px solid var(--gold); }
+  .rating-lg-sell { background: var(--coral-bg); color: var(--coral);border: 2px solid var(--coral); }
+
+  .conclusion-subtext {
+    font-family: var(--font-serif);
+    font-size: 9pt;
+    color: var(--ink2);
+    line-height: 1.6;
+    max-width: 380pt;
+  }
+
+  /* Trade Setup — teal left border */
+  .trade-setup-box {
+    background: var(--teal-bg);
+    border: 1px solid #b0d9d4;
+    border-left: 3px solid var(--teal);
+    border-radius: 3px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+  }
+  .tsb-title {
+    font-size: 7pt;
+    font-weight: 700;
+    color: var(--teal);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 9px;
+  }
+  .tsb-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 7px;
+  }
+  .tsb-item {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 6px 8px;
+  }
+  .tsb-label { font-size: 6.5pt; color: var(--ink3); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+  .tsb-val   { font-family: var(--font-mono); font-size: 11pt; font-weight: 700; color: var(--ink); }
+  .tsb-rr {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 9pt;
+  }
+  .tsb-rr-label { font-size: 7pt; color: var(--ink3); }
+  .tsb-rr-val   { font-family: var(--font-mono); font-size: 12pt; font-weight: 700; color: var(--teal); }
+
+  .next-update-box {
+    background: var(--cream2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 9px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .nu-trigger { font-size: 8pt; color: var(--ink3); }
+  .nu-event   { font-size: 9pt; font-weight: 600; color: var(--gold); }
+
+  /* ── RUNNING FOOTER (optional — weasyprint @page rule)
+     Placed here as a static inline block per page */
+  .page-footer {
+    border-top: 1px solid var(--border);
+    padding-top: 6px;
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 6.5pt;
+    color: var(--ink3);
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     COVER PAGE
+═══════════════════════════════════════════════════════════ -->
+<div class="cover-page">
+
+  <div class="cover-header">
+    <div class="cover-header-top">
+      EQUITY RESEARCH <span>·</span> {{ sector | default('SECTOR') }} <span>·</span> {{ report_date }}
+    </div>
+    <div class="cover-company-name">{{ company_name }}</div>
+    <div class="cover-ticker-line">
+      <strong>{{ symbol }}</strong>{{ exchange | default('') }}
+    </div>
+  </div>
+
+  <div class="cover-body">
+
+    <!-- Rating + Target Price -->
+    <div class="cover-rating-row">
+      {% set r = ch1.rating | upper %}
+      {% if r == 'BUY' %}
+        <div class="cover-rating-badge cover-rating-buy">BUY</div>
+      {% elif r == 'HOLD' %}
+        <div class="cover-rating-badge cover-rating-hold">HOLD</div>
+      {% else %}
+        <div class="cover-rating-badge cover-rating-sell">SELL</div>
+      {% endif %}
+
+      <div class="cover-divider"></div>
+
+      <div class="cover-rb-item">
+        <div class="cover-rb-label">Target Price</div>
+        <div class="cover-rb-val up">{{ ch1.target_price }}</div>
+      </div>
+
+      <div class="cover-divider"></div>
+
+      <div class="cover-rb-item">
+        <div class="cover-rb-label">Current Price</div>
+        <div class="cover-rb-val">{{ ch1.current_price }}</div>
+      </div>
+
+      <div class="cover-divider"></div>
+
+      <div class="cover-rb-item">
+        <div class="cover-rb-label">Upside</div>
+        {% if ch1.upside_pct is defined %}
+          {% set upside = ch1.upside_pct | float %}
+          <div class="cover-rb-val {% if upside >= 0 %}up{% else %}dn{% endif %}">
+            {% if upside >= 0 %}+{% endif %}{{ ch1.upside_pct }}%
+          </div>
+        {% else %}
+          <div class="cover-rb-val nt">—</div>
+        {% endif %}
+      </div>
+
+      <div class="cover-divider"></div>
+
+      <div class="cover-rb-item">
+        <div class="cover-rb-label">Conviction</div>
+        <div class="conviction-badge">{{ ch1.conviction | default('HIGH') }}</div>
+      </div>
+    </div>
+
+    <!-- Investment Thesis (BLUF) -->
+    <div class="cover-thesis-box">
+      <div class="cover-thesis-label">Investment Thesis</div>
+      <div class="cover-thesis-text">{{ ch1.investment_thesis }}</div>
+    </div>
+
+    <!-- Key Metrics 5-col -->
+    <div class="sec-title" style="margin-top:0;">Key Metrics</div>
+    <div class="cover-km-grid">
+      {% set km = ch1.key_metrics %}
+      <div class="cover-km-cell">
+        <div class="cover-km-label">Market Cap</div>
+        <div class="cover-km-val">{{ km.market_cap | default('—') }}</div>
+      </div>
+      <div class="cover-km-cell">
+        <div class="cover-km-label">Fwd P/E</div>
+        <div class="cover-km-val">{{ km.fwd_pe | default('—') }}</div>
+      </div>
+      <div class="cover-km-cell">
+        <div class="cover-km-label">EV/EBITDA</div>
+        <div class="cover-km-val">{{ km.ev_ebitda | default('—') }}</div>
+      </div>
+      <div class="cover-km-cell">
+        <div class="cover-km-label">Rev Growth</div>
+        <div class="cover-km-val {{ km.revenue_growth | pct_class | default('nt') }}">{{ km.revenue_growth | default('—') }}</div>
+      </div>
+      <div class="cover-km-cell">
+        <div class="cover-km-label">FCF Yield</div>
+        <div class="cover-km-val {{ km.fcf_yield | pct_class | default('nt') }}">{{ km.fcf_yield | default('—') }}</div>
+      </div>
+    </div>
+
+    <div class="cover-footer">
+      <div class="cover-footer-left">
+        Analyst Research Report &nbsp;·&nbsp; For informational purposes only &nbsp;·&nbsp; Not investment advice
+      </div>
+      <div class="cover-footer-right">{{ symbol }} &nbsp;·&nbsp; {{ report_date }}</div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     CH1: EXECUTIVE SUMMARY
+═══════════════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+
+<div class="ch-header">
+  <div>
+    <div class="ch-number">Chapter 01</div>
+    <div class="ch-title">Executive Summary</div>
+  </div>
+  <div class="ch-meta">{{ symbol }} · {{ report_date }}</div>
+</div>
+
+<!-- BLUF Box -->
+<div class="bluf-box">
+  <div class="bluf-label">BLUF — Investment Thesis</div>
+  <div class="bluf-text">{{ ch1.investment_thesis }}</div>
+</div>
+
+<!-- Key Metrics 5-col -->
+<div class="sec-title">Key Metrics</div>
+<div class="km-grid">
+  {% set km = ch1.key_metrics %}
+  <div class="km-cell">
+    <div class="km-label">Market Cap</div>
+    <div class="km-val">{{ km.market_cap | default('—') }}</div>
+  </div>
+  <div class="km-cell">
+    <div class="km-label">Fwd P/E</div>
+    <div class="km-val">{{ km.fwd_pe | default('—') }}</div>
+  </div>
+  <div class="km-cell">
+    <div class="km-label">EV/EBITDA</div>
+    <div class="km-val">{{ km.ev_ebitda | default('—') }}</div>
+  </div>
+  <div class="km-cell">
+    <div class="km-label">Revenue Growth</div>
+    <div class="km-val {{ km.revenue_growth | pct_class | default('nt') }}">{{ km.revenue_growth | default('—') }}</div>
+  </div>
+  <div class="km-cell">
+    <div class="km-label">Gross Margin</div>
+    <div class="km-val">{{ km.gross_margin | default('—') }}</div>
+  </div>
+</div>
+
+<!-- Bull / Base / Bear Scenarios -->
+<div class="sec-title">Price Scenarios</div>
+<div class="scenario-row">
+  <div class="sc-card sc-bull">
+    <div class="sc-label">▲ Bull Case</div>
+    <div class="sc-price">${{ ch1.scenarios.bull.price | default('—') }}</div>
+    <div class="sc-prob">Probability {{ ch1.scenarios.bull.prob | default('—') }}%</div>
+    <div class="sc-note">{{ ch1.scenarios.bull.note | default('') }}</div>
+  </div>
+  <div class="sc-card sc-base">
+    <div class="sc-label">— Base Case</div>
+    <div class="sc-price">${{ ch1.scenarios.base.price | default('—') }}</div>
+    <div class="sc-prob">Probability {{ ch1.scenarios.base.prob | default('—') }}%</div>
+    <div class="sc-note">{{ ch1.scenarios.base.note | default('') }}</div>
+  </div>
+  <div class="sc-card sc-bear">
+    <div class="sc-label">▼ Bear Case</div>
+    <div class="sc-price">${{ ch1.scenarios.bear.price | default('—') }}</div>
+    <div class="sc-prob">Probability {{ ch1.scenarios.bear.prob | default('—') }}%</div>
+    <div class="sc-note">{{ ch1.scenarios.bear.note | default('') }}</div>
+  </div>
+</div>
+
+<div class="page-footer">
+  <span>{{ company_name }} — Executive Summary</span>
+  <span>{{ symbol }} · {{ report_date }}</span>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     CH2: BUSINESS OVERVIEW
+═══════════════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+
+<div class="ch-header">
+  <div>
+    <div class="ch-number">Chapter 02</div>
+    <div class="ch-title">Business Overview</div>
+  </div>
+  <div class="ch-meta">{{ symbol }} · {{ report_date }}</div>
+</div>
+
+<!-- Business Model -->
+<div class="sec-title" style="margin-top:0;">Business Model</div>
+<div class="biz-text">{{ ch2.business_model }}</div>
+
+<!-- Competitors Table -->
+{% if ch2.competitors %}
+<div class="sec-title">Competitor Comparison</div>
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Company</th>
+      <th class="r">P/E</th>
+      <th class="r">EV/EBITDA</th>
+      <th class="r">EV/Rev</th>
+      <th class="r">P/FCF</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for c in ch2.competitors %}
+    <tr>
+      <td>{{ c.name }}</td>
+      <td class="r">{{ c.pe | default('—') }}</td>
+      <td class="r">{{ c.ev_ebitda | default('—') }}</td>
+      <td class="r">{{ c.ev_rev | default('—') }}</td>
+      <td class="r">{{ c.p_fcf | default('—') }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<!-- Revenue Segments -->
+{% if ch2.segments %}
+<div class="sec-title">Revenue Segments</div>
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Segment</th>
+      <th class="r">Revenue</th>
+      <th class="r">Share</th>
+      <th class="r">Growth YoY</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for s in ch2.segments %}
+    <tr>
+      <td>{{ s.name }}</td>
+      <td class="r">{{ s.revenue | fmt_num | default('—') }}</td>
+      <td class="r">{{ s.share | default('—') }}%</td>
+      <td class="r {{ s.growth | pct_class | default('nt') }}">{{ s.growth | fmt_pct | default('—') }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<!-- Geographic Distribution -->
+{% if ch2.geo %}
+<div class="sec-title">Geographic Distribution</div>
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Region</th>
+      <th class="r">Revenue</th>
+      <th class="r">Share</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for g in ch2.geo %}
+    <tr>
+      <td>{{ g.region }}</td>
+      <td class="r">{{ g.revenue | fmt_num | default('—') }}</td>
+      <td class="r">{{ g.share | default('—') }}%</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<div class="page-footer">
+  <span>{{ company_name }} — Business Overview</span>
+  <span>{{ symbol }} · {{ report_date }}</span>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     CH3: FINANCIAL ANALYSIS
+═══════════════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+
+<div class="ch-header">
+  <div>
+    <div class="ch-number">Chapter 03</div>
+    <div class="ch-title">Financial Analysis</div>
+  </div>
+  <div class="ch-meta">{{ symbol }} · {{ report_date }}</div>
+</div>
+
+<!-- Income Statement -->
+<div class="sec-title" style="margin-top:0;">Income Statement (5Y)</div>
+{% if ch3.income_stmt %}
+<table class="fin-table">
+  <thead>
+    <tr>
+      <th>Year</th>
+      <th class="r">Revenue</th>
+      <th class="r">Gross Profit</th>
+      <th class="r">EBITDA</th>
+      <th class="r">Net Income</th>
+      <th class="r">EPS</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in ch3.income_stmt %}
+    <tr>
+      <td>{{ row.year }}</td>
+      <td class="r">{{ row.revenue | fmt_num }}</td>
+      <td class="r">{{ row.gp | fmt_num }}</td>
+      <td class="r">{{ row.ebitda | fmt_num }}</td>
+      <td class="r {{ row.ni | pct_class | default('nt') }}">{{ row.ni | fmt_num }}</td>
+      <td class="r">{{ row.eps }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty-state">Income statement data unavailable</div>
+{% endif %}
+
+<!-- Margin Trend -->
+<div class="sec-title">Margin Trend</div>
+{% if ch3.margins %}
+<table class="fin-table">
+  <thead>
+    <tr>
+      <th>Year</th>
+      <th class="r">Gross Margin</th>
+      <th class="r">EBITDA Margin</th>
+      <th class="r">Net Margin</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in ch3.margins %}
+    <tr>
+      <td>{{ row.year }}</td>
+      <td class="r">{{ row.gross_m }}%</td>
+      <td class="r">{{ row.ebitda_m }}%</td>
+      <td class="r">{{ row.net_m }}%</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty-state">Margin data unavailable</div>
+{% endif %}
+
+<!-- Cash Flow -->
+{% if ch3.cashflow %}
+<div class="sec-title">Cash Flow</div>
+<table class="fin-table">
+  <thead>
+    <tr>
+      <th>Year</th>
+      <th class="r">Operating CF</th>
+      <th class="r">CapEx</th>
+      <th class="r">Free CF</th>
+      <th class="r">FCF Margin</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in ch3.cashflow %}
+    <tr>
+      <td>{{ row.year }}</td>
+      <td class="r">{{ row.cfo | fmt_num }}</td>
+      <td class="r dn">{{ row.capex | fmt_num }}</td>
+      <td class="r {{ row.fcf | pct_class | default('nt') }}">{{ row.fcf | fmt_num }}</td>
+      <td class="r">{{ row.fcf_margin | default('—') }}%</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<!-- Balance Sheet Key Metrics -->
+{% if ch3.balance_sheet %}
+<div class="sec-title">Balance Sheet Highlights</div>
+<div class="bs-boxes">
+  {% set bs = ch3.balance_sheet %}
+  <div class="bs-box">
+    <div class="bs-label">Total Assets</div>
+    <div class="bs-val">{{ bs.total_assets | fmt_num | default('—') }}</div>
+  </div>
+  <div class="bs-box">
+    <div class="bs-label">Debt Ratio</div>
+    <div class="bs-val {{ 'dn' if (bs.debt_ratio | default(0) | float) > 60 else 'nt' }}">
+      {{ bs.debt_ratio | default('—') }}%
+    </div>
+  </div>
+  <div class="bs-box">
+    <div class="bs-label">Net Cash</div>
+    <div class="bs-val {{ 'up' if (bs.net_cash | default(0) | float) >= 0 else 'dn' }}">
+      {{ bs.net_cash | fmt_num | default('—') }}
+    </div>
+  </div>
+  <div class="bs-box">
+    <div class="bs-label">ROE</div>
+    <div class="bs-val {{ 'up' if (bs.roe | default(0) | float) >= 10 else 'nt' }}">
+      {{ bs.roe | default('—') }}%
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<div class="page-footer">
+  <span>{{ company_name }} — Financial Analysis</span>
+  <span>{{ symbol }} · {{ report_date }}</span>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     CH4: VALUATION
+═══════════════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+
+<div class="ch-header">
+  <div>
+    <div class="ch-number">Chapter 04</div>
+    <div class="ch-title">Valuation</div>
+  </div>
+  <div class="ch-meta">{{ symbol }} · {{ report_date }}</div>
+</div>
+
+<!-- DCF Summary -->
+<div class="sec-title" style="margin-top:0;">DCF Analysis</div>
+{% if ch4.dcf %}
+{% set dcf = ch4.dcf %}
+<div class="dcf-summary">
+  <div class="dcf-item">
+    <div class="dcf-label">WACC</div>
+    <div class="dcf-val" style="color:#5B3B9A">{{ dcf.wacc }}%</div>
+  </div>
+  <div class="dcf-divider"></div>
+  <div class="dcf-item">
+    <div class="dcf-label">Terminal Growth Rate</div>
+    <div class="dcf-val" style="color:var(--blue)">{{ dcf.tgr }}%</div>
+  </div>
+  <div class="dcf-divider"></div>
+  <div class="dcf-item">
+    <div class="dcf-label">DCF Fair Value</div>
+    <div class="dcf-val dcf-fair">{{ dcf.fair_value }}</div>
+  </div>
+  {% if dcf.current_price %}
+  <div class="dcf-divider"></div>
+  <div class="dcf-item">
+    <div class="dcf-label">Current Price</div>
+    <div class="dcf-val">{{ dcf.current_price }}</div>
+  </div>
+  {% endif %}
+  {% if dcf.upside %}
+  <div class="dcf-divider"></div>
+  <div class="dcf-item">
+    <div class="dcf-label">Implied Upside</div>
+    <div class="dcf-val {% if (dcf.upside | float) >= 0 %}up{% else %}dn{% endif %}">
+      {% if (dcf.upside | float) >= 0 %}+{% endif %}{{ dcf.upside }}%
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Sensitivity Heatmap -->
+{% if dcf.sensitivity_matrix %}
+<div class="sensitivity-wrap">
+  <div class="sec-title">DCF Sensitivity (WACC x TGR)</div>
+  <table class="sens-table">
+    {% if dcf.sensitivity_headers %}
+    <thead>
+      <tr>
+        <th style="background:var(--ink);color:var(--cream);">WACC \ TGR</th>
+        {% for h in dcf.sensitivity_headers %}
+        <th>{{ h }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    {% endif %}
+    <tbody>
+      {% for row in dcf.sensitivity_matrix %}
+      <tr>
+        {% if dcf.sensitivity_row_labels %}
+        <td class="sens-row-label">{{ dcf.sensitivity_row_labels[loop.index0] }}</td>
+        {% endif %}
+        {% for val in row %}
+          {% set fval = val | float %}
+          {% set cur  = dcf.current_price_num | default(0) | float %}
+          {% if fval >= cur * 1.20 %}
+            <td class="sens-heat-high">{{ val }}</td>
+          {% elif fval >= cur * 1.05 %}
+            <td class="sens-heat-mid2">{{ val }}</td>
+          {% elif fval >= cur * 0.95 %}
+            <td class="sens-heat-mid">{{ val }}</td>
+          {% elif fval >= cur * 0.80 %}
+            <td class="sens-heat-mid3">{{ val }}</td>
+          {% else %}
+            <td class="sens-heat-low">{{ val }}</td>
+          {% endif %}
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% else %}
+<div class="empty-state">DCF data unavailable</div>
+{% endif %}
+
+<!-- Comps Table -->
+<div class="sec-title">Comparable Company Analysis</div>
+{% if ch4.comps %}
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Company</th>
+      <th class="r">P/E</th>
+      <th class="r">EV/EBITDA</th>
+      <th class="r">EV/Rev</th>
+      <th class="r">P/FCF</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for c in ch4.comps %}
+    <tr>
+      <td>{{ c.name }}</td>
+      <td class="r">{{ c.pe | default('—') }}</td>
+      <td class="r">{{ c.ev_ebitda | default('—') }}</td>
+      <td class="r">{{ c.ev_rev | default('—') }}</td>
+      <td class="r">{{ c.p_fcf | default('—') }}</td>
+    </tr>
+    {% endfor %}
+    {% if ch4.comps_self %}
+    <tr class="self-row">
+      <td>{{ symbol }} (Subject)</td>
+      <td class="r">{{ ch4.comps_self.pe | default('—') }}</td>
+      <td class="r">{{ ch4.comps_self.ev_ebitda | default('—') }}</td>
+      <td class="r">{{ ch4.comps_self.ev_rev | default('—') }}</td>
+      <td class="r">{{ ch4.comps_self.p_fcf | default('—') }}</td>
+    </tr>
+    {% endif %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty-state">Comparable company data unavailable</div>
+{% endif %}
+
+<div class="page-footer">
+  <span>{{ company_name }} — Valuation</span>
+  <span>{{ symbol }} · {{ report_date }}</span>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     CH5: GROWTH CATALYSTS
+═══════════════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+
+<div class="ch-header">
+  <div>
+    <div class="ch-number">Chapter 05</div>
+    <div class="ch-title">Growth Catalysts</div>
+  </div>
+  <div class="ch-meta">{{ symbol }} · {{ report_date }}</div>
+</div>
+
+<!-- Short-term Catalysts -->
+<div class="sec-title" style="margin-top:0;">Short-term Catalysts (0–12M)</div>
+{% if ch5.short_term %}
+<div class="catalyst-list">
+  {% for e in ch5.short_term %}
+  <div class="catalyst-item">
+    <div class="c-dot"></div>
+    {% if e.date %}<div class="c-date">{{ e.date }}</div>{% endif %}
+    <div class="c-body">
+      <div class="c-title">{{ e.title }}</div>
+      {% if e.desc %}<div class="c-desc">{{ e.desc }}</div>{% endif %}
+    </div>
+    {% if e.impact %}
+    <div class="prob-badge prob-mid">{{ e.impact }}</div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">No short-term catalysts identified</div>
+{% endif %}
+
+<!-- Mid-term Themes -->
+<div class="sec-title">Mid-term Themes (1–3Y)</div>
+{% if ch5.mid_term %}
+<div class="mid-term-grid">
+  {% for t in ch5.mid_term %}
+  <div class="mt-card">
+    <div class="mt-label">{{ t.title }}</div>
+    <div class="mt-text">{{ t.desc | default('') }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">No mid-term themes identified</div>
+{% endif %}
+
+<!-- Long-term Thesis -->
+{% if ch5.long_term_thesis %}
+<div class="sec-title">Long-term Investment Thesis</div>
+<div class="lt-thesis-box">
+  <div class="lt-label">Long-term Vision (3Y+)</div>
+  <div class="lt-text">{{ ch5.long_term_thesis }}</div>
+</div>
+{% endif %}
+
+<div class="page-footer">
+  <span>{{ company_name }} — Growth Catalysts</span>
+  <span>{{ symbol }} · {{ report_date }}</span>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     CH6: RISK FACTORS
+═══════════════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+
+<div class="ch-header">
+  <div>
+    <div class="ch-number">Chapter 06</div>
+    <div class="ch-title">Risk Factors</div>
+  </div>
+  <div class="ch-meta">{{ symbol }} · {{ report_date }}</div>
+</div>
+
+<div class="risk-category-grid">
+
+  <!-- Business Risk -->
+  <div class="risk-card">
+    <div class="risk-card-title" style="color:var(--coral)">Business Risks</div>
+    {% if ch6.business_risk %}
+      {% for r in ch6.business_risk %}
+      <div class="risk-row-item">
+        <div class="c-dot" style="width:5px;height:5px;background:var(--coral);border-radius:50%;margin-top:4px;flex-shrink:0;"></div>
+        <div style="flex:1;">
+          <div class="ri-title">{{ r.title }}</div>
+          <div class="ri-badges">
+            {% if r.prob %}
+            <span class="prob-badge {% if r.prob|lower in ['high','높음'] %}prob-high{% elif r.prob|lower in ['mid','medium','중간'] %}prob-mid{% else %}prob-low{% endif %}">
+              P: {{ r.prob }}
+            </span>
+            {% endif %}
+            {% if r.impact %}
+            <span class="impact-badge {% if r.impact|lower in ['high','높음'] %}impact-high{% elif r.impact|lower in ['mid','medium','중간'] %}impact-mid{% else %}impact-low{% endif %}">
+              I: {{ r.impact }}
+            </span>
+            {% endif %}
+            {% if r.bear_price %}
+            <span class="ri-bear">Bear ${{ r.bear_price }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div style="color:var(--ink3);font-size:8pt;padding:6px 0;">—</div>
+    {% endif %}
+  </div>
+
+  <!-- Financial Risk -->
+  <div class="risk-card">
+    <div class="risk-card-title" style="color:var(--gold)">Financial Risks</div>
+    {% if ch6.financial_risk %}
+      {% for r in ch6.financial_risk %}
+      <div class="risk-row-item">
+        <div class="c-dot" style="width:5px;height:5px;background:var(--gold);border-radius:50%;margin-top:4px;flex-shrink:0;"></div>
+        <div style="flex:1;">
+          <div class="ri-title">{{ r.title }}</div>
+          <div class="ri-badges">
+            {% if r.prob %}
+            <span class="prob-badge {% if r.prob|lower in ['high','높음'] %}prob-high{% elif r.prob|lower in ['mid','medium','중간'] %}prob-mid{% else %}prob-low{% endif %}">
+              P: {{ r.prob }}
+            </span>
+            {% endif %}
+            {% if r.impact %}
+            <span class="impact-badge {% if r.impact|lower in ['high','높음'] %}impact-high{% elif r.impact|lower in ['mid','medium','중간'] %}impact-mid{% else %}impact-low{% endif %}">
+              I: {{ r.impact }}
+            </span>
+            {% endif %}
+            {% if r.bear_price %}
+            <span class="ri-bear">Bear ${{ r.bear_price }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div style="color:var(--ink3);font-size:8pt;padding:6px 0;">—</div>
+    {% endif %}
+  </div>
+
+  <!-- Regulatory Risk -->
+  <div class="risk-card">
+    <div class="risk-card-title" style="color:#5B3B9A">Regulatory Risks</div>
+    {% if ch6.regulatory_risk %}
+      {% for r in ch6.regulatory_risk %}
+      <div class="risk-row-item">
+        <div class="c-dot" style="width:5px;height:5px;background:#5B3B9A;border-radius:50%;margin-top:4px;flex-shrink:0;"></div>
+        <div style="flex:1;">
+          <div class="ri-title">{{ r.title }}</div>
+          <div class="ri-badges">
+            {% if r.prob %}
+            <span class="prob-badge {% if r.prob|lower in ['high','높음'] %}prob-high{% elif r.prob|lower in ['mid','medium','중간'] %}prob-mid{% else %}prob-low{% endif %}">
+              P: {{ r.prob }}
+            </span>
+            {% endif %}
+            {% if r.impact %}
+            <span class="impact-badge {% if r.impact|lower in ['high','높음'] %}impact-high{% elif r.impact|lower in ['mid','medium','중간'] %}impact-mid{% else %}impact-low{% endif %}">
+              I: {{ r.impact }}
+            </span>
+            {% endif %}
+            {% if r.bear_price %}
+            <span class="ri-bear">Bear ${{ r.bear_price }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div style="color:var(--ink3);font-size:8pt;padding:6px 0;">—</div>
+    {% endif %}
+  </div>
+
+  <!-- Macro Risk -->
+  <div class="risk-card">
+    <div class="risk-card-title" style="color:var(--teal)">Macro Risks</div>
+    {% if ch6.macro_risk %}
+      {% for r in ch6.macro_risk %}
+      <div class="risk-row-item">
+        <div class="c-dot" style="width:5px;height:5px;background:var(--teal);border-radius:50%;margin-top:4px;flex-shrink:0;"></div>
+        <div style="flex:1;">
+          <div class="ri-title">{{ r.title }}</div>
+          <div class="ri-badges">
+            {% if r.prob %}
+            <span class="prob-badge {% if r.prob|lower in ['high','높음'] %}prob-high{% elif r.prob|lower in ['mid','medium','중간'] %}prob-mid{% else %}prob-low{% endif %}">
+              P: {{ r.prob }}
+            </span>
+            {% endif %}
+            {% if r.impact %}
+            <span class="impact-badge {% if r.impact|lower in ['high','높음'] %}impact-high{% elif r.impact|lower in ['mid','medium','중간'] %}impact-mid{% else %}impact-low{% endif %}">
+              I: {{ r.impact }}
+            </span>
+            {% endif %}
+            {% if r.bear_price %}
+            <span class="ri-bear">Bear ${{ r.bear_price }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div style="color:var(--ink3);font-size:8pt;padding:6px 0;">—</div>
+    {% endif %}
+  </div>
+
+</div>
+
+<div class="page-footer">
+  <span>{{ company_name }} — Risk Factors</span>
+  <span>{{ symbol }} · {{ report_date }}</span>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     CH7: INDUSTRY & MACRO
+═══════════════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+
+<div class="ch-header">
+  <div>
+    <div class="ch-number">Chapter 07</div>
+    <div class="ch-title">Industry &amp; Macro</div>
+  </div>
+  <div class="ch-meta">{{ symbol }} · {{ report_date }}</div>
+</div>
+
+<!-- Institutional Overview -->
+{% if ch7.institutional %}
+{% set inst = ch7.institutional %}
+<div class="sec-title" style="margin-top:0;">Institutional Overview</div>
+<div class="institutional-summary">
+  <div class="inst-box">
+    <div class="inst-label">Short Interest</div>
+    <div class="inst-val dn">{{ inst.short_interest | default('—') }}%</div>
+  </div>
+  <div class="inst-box">
+    <div class="inst-label">Insider Buys (30d)</div>
+    <div class="inst-val up">{{ inst.insider_activity.buys_30d | default('—') }}</div>
+  </div>
+  <div class="inst-box">
+    <div class="inst-label">Insider Sells (30d)</div>
+    <div class="inst-val dn">{{ inst.insider_activity.sells_30d | default('—') }}</div>
+  </div>
+</div>
+
+{% if inst.top_holders %}
+<div class="sec-title">Top Institutional Holders</div>
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Institution</th>
+      <th class="r">Shares</th>
+      <th class="r">Change</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for h in inst.top_holders %}
+    <tr>
+      <td>{{ h.name }}</td>
+      <td class="r">{{ h.shares }}</td>
+      <td class="r {{ h.change | pct_class | default('nt') }}">{{ h.change }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endif %}
+
+<!-- Technical Analysis -->
+{% if ch7.technical %}
+<div class="sec-title">Technical Analysis</div>
+{% set ta = ch7.technical %}
+<div class="tech-grid">
+  <div class="tech-box">
+    <div class="tech-label">RSI (14)</div>
+    <div class="tech-val {% if (ta.rsi | default(50) | float) > 70 %}dn{% elif (ta.rsi | default(50) | float) < 30 %}up{% else %}nt{% endif %}">
+      {{ ta.rsi | default('—') }}
+    </div>
+    <div class="tech-sub">
+      {% if (ta.rsi | default(50) | float) > 70 %}Overbought
+      {% elif (ta.rsi | default(50) | float) < 30 %}Oversold
+      {% else %}Neutral{% endif %}
+    </div>
+  </div>
+  <div class="tech-box">
+    <div class="tech-label">MACD</div>
+    <div class="tech-val {% if ta.macd_signal == 'bullish' %}up{% elif ta.macd_signal == 'bearish' %}dn{% else %}nt{% endif %}">
+      {{ ta.macd | default('—') }}
+    </div>
+    <div class="tech-sub">{{ ta.macd_signal | default('—') | capitalize }}</div>
+  </div>
+  <div class="tech-box">
+    <div class="tech-label">MA50 / MA200</div>
+    <div class="tech-val up">{{ ta.ma50 | default('—') }}</div>
+    <div class="tech-sub">MA200: {{ ta.ma200 | default('—') }}</div>
+  </div>
+  <div class="tech-box">
+    <div class="tech-label">52W High %</div>
+    <div class="tech-val {% if (ta.from_52w_high | default(0) | float) >= -10 %}up{% elif (ta.from_52w_high | default(0) | float) <= -30 %}dn{% else %}nt{% endif %}">
+      {{ ta.from_52w_high | default('—') }}%
+    </div>
+    <div class="tech-sub">From 52W High</div>
+  </div>
+</div>
+
+{% if ta.support_resistance %}
+<div class="sec-title">Support / Resistance Levels</div>
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th class="r">Level</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for lvl in ta.support_resistance %}
+    <tr>
+      <td class="{{ 'up' if lvl.type == 'support' else 'dn' }}">{{ lvl.type | capitalize }}</td>
+      <td class="r">{{ lvl.level }}</td>
+      <td style="color:var(--ink3);font-size:7.5pt;">{{ lvl.note | default('') }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endif %}
+
+<div class="page-footer">
+  <span>{{ company_name }} — Industry &amp; Macro</span>
+  <span>{{ symbol }} · {{ report_date }}</span>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     CH8: INVESTMENT CONCLUSION
+═══════════════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+
+<div class="ch-header">
+  <div>
+    <div class="ch-number">Chapter 08</div>
+    <div class="ch-title">Investment Conclusion</div>
+  </div>
+  <div class="ch-meta">{{ symbol }} · {{ report_date }}</div>
+</div>
+
+<!-- Final Rating -->
+<div class="sec-title" style="margin-top:0;">Final Rating</div>
+<div class="conclusion-rating-wrap">
+  {% set r8 = ch8.rating | default(ch1.rating) | upper %}
+  {% if r8 == 'BUY' %}
+    <div class="rating-badge-lg rating-lg-buy">BUY</div>
+  {% elif r8 == 'HOLD' %}
+    <div class="rating-badge-lg rating-lg-hold">HOLD</div>
+  {% else %}
+    <div class="rating-badge-lg rating-lg-sell">SELL</div>
+  {% endif %}
+  {% if ch8.summary %}
+  <div class="conclusion-subtext">{{ ch8.summary }}</div>
+  {% endif %}
+</div>
+
+<!-- Trade Setup -->
+{% if ch8.trade_setup %}
+{% set ts = ch8.trade_setup %}
+<div class="sec-title">Trade Setup</div>
+<div class="trade-setup-box">
+  <div class="tsb-title">Tactical Entry Plan</div>
+  <div class="tsb-grid">
+    <div class="tsb-item">
+      <div class="tsb-label">Entry Zone</div>
+      <div class="tsb-val">
+        {% if ts.entry_zone is iterable and ts.entry_zone | length == 2 %}
+          ${{ ts.entry_zone[0] }} – ${{ ts.entry_zone[1] }}
+        {% else %}
+          ${{ ts.entry_zone }}
+        {% endif %}
+      </div>
+    </div>
+    <div class="tsb-item">
+      <div class="tsb-label">Target 1</div>
+      <div class="tsb-val up">${{ ts.target1 | default('—') }}</div>
+    </div>
+    <div class="tsb-item">
+      <div class="tsb-label">Target 2</div>
+      <div class="tsb-val up">${{ ts.target2 | default('—') }}</div>
+    </div>
+    <div class="tsb-item">
+      <div class="tsb-label">Stop Loss</div>
+      <div class="tsb-val dn">${{ ts.stop_loss | default('—') }}</div>
+    </div>
+    <div class="tsb-item">
+      <div class="tsb-label">Position Size</div>
+      <div class="tsb-val">{{ ts.position_size | default('—') }}</div>
+    </div>
+    <div class="tsb-item">
+      <div class="tsb-label">Time Horizon</div>
+      <div class="tsb-val nt">{{ ts.horizon | default('—') }}</div>
+    </div>
+  </div>
+  {% if ts.rr_ratio %}
+  <div class="tsb-rr">
+    <span class="tsb-rr-label">Risk : Reward</span>
+    <span class="tsb-rr-val">{{ ts.rr_ratio }}</span>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+<!-- Monitoring KPIs -->
+{% if ch8.monitoring %}
+<div class="sec-title">Monitoring KPIs</div>
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>KPI</th>
+      <th>Threshold</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for m in ch8.monitoring %}
+    <tr>
+      <td>{{ m.kpi }}</td>
+      <td style="color:var(--gold);font-family:var(--font-mono);">{{ m.threshold }}</td>
+      <td style="color:var(--ink3);font-size:7.5pt;">{{ m.action }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<!-- Next Update -->
+{% if ch8.next_update %}
+<div class="sec-title">Next Review Trigger</div>
+<div class="next-update-box">
+  <div style="font-size:7.5pt;color:var(--ink3);">Trigger:</div>
+  <div class="nu-trigger">{{ ch8.next_update.trigger | default('—') }}</div>
+  <div style="width:1px;height:18px;background:var(--border);"></div>
+  <div class="nu-event">{{ ch8.next_update.event | default('—') }}</div>
+  {% if ch8.next_update.date %}
+  <div style="font-size:7pt;color:var(--ink3);margin-left:auto;font-family:var(--font-mono);">{{ ch8.next_update.date }}</div>
+  {% endif %}
+</div>
+{% endif %}
+
+<div class="page-footer">
+  <span>{{ company_name }} — Investment Conclusion</span>
+  <span>{{ symbol }} · {{ report_date }} &nbsp;·&nbsp; This report is for informational purposes only</span>
+</div>
+
+</body>
+</html>
