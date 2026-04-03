@@ -14,6 +14,16 @@ sys.stdout.reconfigure(encoding="utf-8")
 sys.stderr.reconfigure(encoding="utf-8")
 
 sys.path.insert(0, str(Path(__file__).parent))
+
+# .env 로드 (dotenv 없이 직접 파싱)
+env_path = Path(__file__).resolve().parent.parent / ".env"
+if env_path.exists():
+    for line in env_path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            key, _, value = line.partition("=")
+            os.environ.setdefault(key.strip(), value.strip())
+
 from stock_analyzer import fetch_technical, fetch_fundamental, fetch_institutional, STOCK_THESIS
 from fmp_rate_limiter import can_call, record_calls
 
