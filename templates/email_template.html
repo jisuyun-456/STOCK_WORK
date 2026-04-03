@@ -128,6 +128,50 @@
     </td>
   </tr>
 
+  <!-- Simulation Portfolio -->
+  {% if sim_summary %}
+  <tr>
+    <td style="padding:0 20px 20px;">
+      <h2 style="font-size:15px; color:#1a1a2e; border-bottom:2px solid #f72585; padding-bottom:6px; margin:0 0 12px;">🚀 텐버거 시뮬레이션 포트폴리오</h2>
+      <p style="font-size:12px; color:#666; margin:0 0 10px;">
+        가상 $1,000 | 시작일: {{ sim_summary.start_date }} | {{ sim_summary.days_running }}일째
+      </p>
+      <!-- 전체 수익률 배너 -->
+      <div style="background:{{ '#1a472a' if sim_summary.cumulative_return_pct >= 0 else '#4a1a1a' }}; border-radius:8px; padding:12px; text-align:center; margin-bottom:12px;">
+        <span style="font-size:22px; font-weight:700; color:{{ '#0cce6b' if sim_summary.cumulative_return_pct >= 0 else '#e94560' }};">
+          {{ "%+.2f%%"|format(sim_summary.cumulative_return_pct) }}
+        </span>
+        <span style="font-size:12px; color:#aaa; margin-left:8px;">누적 수익률 | 평가액 ${{ "%.2f"|format(sim_summary.total_value) }}</span>
+      </div>
+      <!-- 종목별 현황 -->
+      <table width="100%" cellpadding="6" cellspacing="0" style="font-size:12px; border-collapse:collapse;">
+        <tr style="background:#f8f9fa;">
+          <th style="text-align:left; padding:6px 8px; border-bottom:1px solid #dee2e6;">종목</th>
+          <th style="text-align:right; padding:6px 8px; border-bottom:1px solid #dee2e6;">진입가</th>
+          <th style="text-align:right; padding:6px 8px; border-bottom:1px solid #dee2e6;">현재가</th>
+          <th style="text-align:right; padding:6px 8px; border-bottom:1px solid #dee2e6;">수익률</th>
+          <th style="text-align:right; padding:6px 8px; border-bottom:1px solid #dee2e6;">평가액</th>
+        </tr>
+        {% for p in sim_summary.positions %}
+        <tr>
+          <td style="padding:6px 8px; border-bottom:1px solid #eee; font-weight:700;">{{ p.symbol }}</td>
+          <td style="padding:6px 8px; border-bottom:1px solid #eee; text-align:right; color:#666;">${{ "%.2f"|format(p.entry_price) }}</td>
+          <td style="padding:6px 8px; border-bottom:1px solid #eee; text-align:right;">${{ "%.2f"|format(p.current_price) }}</td>
+          <td style="padding:6px 8px; border-bottom:1px solid #eee; text-align:right; font-weight:700; color:{{ '#e94560' if p.return_pct < 0 else '#0cce6b' }};">
+            {{ "%+.2f%%"|format(p.return_pct) }}
+          </td>
+          <td style="padding:6px 8px; border-bottom:1px solid #eee; text-align:right;">${{ "%.2f"|format(p.current_value) }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      <p style="font-size:11px; color:#999; margin:8px 0 0;">
+        ★ 최고: {{ sim_summary.best_performer.symbol }} ({{ "%+.2f%%"|format(sim_summary.best_performer.return_pct) }}) &nbsp;|&nbsp;
+        ▼ 최저: {{ sim_summary.worst_performer.symbol }} ({{ "%+.2f%%"|format(sim_summary.worst_performer.return_pct) }})
+      </p>
+    </td>
+  </tr>
+  {% endif %}
+
   <!-- Footer -->
   <tr>
     <td style="background:#f8f9fa; padding:16px 20px; text-align:center; border-top:1px solid #dee2e6;">

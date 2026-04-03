@@ -31,7 +31,11 @@ from data_fetcher import (
 )
 from market_screener import volume_surge, new_highs, sector_momentum
 from macro_analyzer import current_cycle, favored_sectors, recommend_stocks
-from report_formatter import to_markdown, to_html, save_report
+from report_formatter import to_markdown, to_html, save_report, to_simulation_md, save_simulation_report
+from simulation_tracker import run_daily_update
+from stock_analyzer import analyze_portfolio
+
+SIMULATION_SYMBOLS = ["PLTR", "RKLB", "HIMS", "APLD", "IONQ"]
 
 
 def generate_report(mode: str = "auto") -> dict:
@@ -73,7 +77,14 @@ def generate_report(mode: str = "auto") -> dict:
     cycle_info = favored_sectors(cycle)
     picks = recommend_stocks(cycle_info["sectors"], top_n=5)
 
-    # 4. 컨텍스트 조립
+    # 4. 시뮬레이션 포트폴리오 업데이트
+    print("  → 시뮬레이션 포트폴리오 업데이트...", file=sys.stderr)
+    sim_summary = run_daily_update()
+
+    print("  → 종목 심층 분석 중...", file=sys.stderr)
+    sim_stocks = analyze_portfolio(SIMULATION_SYMBOLS)
+
+    # 5. 컨텍스트 조립
     context = {
         "report_date": report_date,
         "generated_at": generated_at,
@@ -87,6 +98,8 @@ def generate_report(mode: str = "auto") -> dict:
         "sector_momentum": sec_momentum,
         "cycle_info": cycle_info,
         "recommended_stocks": picks,
+        "sim_summary": sim_summary,
+        "sim_stocks": sim_stocks,
     }
 
     return context
@@ -138,6 +151,12 @@ def main():
         md_content = to_markdown(context)
         filepath = save_report(md_content, context["report_date"])
         print(f"  ✅ Markdown 저장: {filepath}", file=sys.stderr)
+
+    # 시뮬레이션 상세 리포트
+    if args.format in ("all", "md") and context.get("sim_summary"):
+        sim_md = to_simulation_md(context)
+        sim_filepath = save_simulation_report(sim_md, context["report_date"])
+        print(f"  ✅ 시뮬레이션 리포트 저장: {sim_filepath}", file=sys.stderr)
 
     # HTML 이메일본
     html_content = None
