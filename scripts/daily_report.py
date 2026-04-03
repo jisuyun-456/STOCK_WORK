@@ -179,7 +179,7 @@ def _render_email_summary(context: dict) -> str:
         from jinja2 import Environment, FileSystemLoader
         templates_dir = Path(__file__).parent.parent / "templates"
         env = Environment(loader=FileSystemLoader(str(templates_dir)), autoescape=False)
-        env.filters["format"] = lambda v, fmt: (fmt % v) if v is not None else "N/A"
+        env.filters["format"] = lambda v, fmt: (v % fmt) if fmt is not None else "N/A"
         template = env.get_template("email_summary.html")
         return template.render(**context)
     except Exception as e:
