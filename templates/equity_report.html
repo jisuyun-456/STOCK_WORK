@@ -6,38 +6,38 @@
 <title>{{ symbol }} Equity Research — {{ report_date }}</title>
 <style>
   :root {
-    --bg: #0d0f14;
-    --bg2: #141720;
-    --bg3: #1a1e2a;
-    --border: #252a38;
-    --text: #e2e8f0;
-    --muted: #8892a4;
-    --up: #22c55e;
-    --down: #ef4444;
-    --gold: #f59e0b;
-    --blue: #3b82f6;
-    --purple: #8b5cf6;
-    --cyan: #06b6d4;
-    --font: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    --bg: #FAF8F4;
+    --bg2: #FFFFFF;
+    --bg3: #F2EDE3;
+    --border: #E0DBD0;
+    --text: #1A1814;
+    --muted: #8A857C;
+    --up: #1E7A45;
+    --down: #C8523A;
+    --gold: #A87228;
+    --blue: #1E5FA8;
+    --purple: #6B46C1;
+    --cyan: #0E7490;
+    --font: 'Pretendard', -apple-system, 'Segoe UI', sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     background: var(--bg);
     color: var(--text);
     font-family: var(--font);
-    font-size: 12px;
+    font-size: 13px;
     min-height: 100vh;
   }
 
   /* ── SCROLLBAR ──────────────────────────────────── */
   ::-webkit-scrollbar { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #2a2f3e; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb { background: #d4cfc6; border-radius: 2px; }
 
   /* ── HEADER ─────────────────────────────────────── */
   .hdr {
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
+    background: #1A1814;
+    border-bottom: 2px solid #C8523A;
     display: flex;
     align-items: center;
     gap: 0;
@@ -50,13 +50,13 @@
   .hdr-logo {
     font-size: 14px;
     font-weight: 700;
-    color: var(--gold);
+    color: #FAF8F4;
     letter-spacing: 1px;
     white-space: nowrap;
     min-width: 220px;
   }
   .hdr-logo span {
-    color: var(--muted);
+    color: #8A857C;
     font-weight: 400;
     font-size: 10px;
     margin-left: 6px;
@@ -77,21 +77,21 @@
     letter-spacing: 0.4px;
     cursor: pointer;
     border: 1px solid transparent;
-    color: var(--muted);
+    color: #8A857C;
     background: transparent;
     transition: all .18s;
     white-space: nowrap;
   }
-  .tab:hover { color: var(--text); border-color: var(--border); }
+  .tab:hover { color: #FAF8F4; border-color: #3a3530; }
   .tab.active {
-    background: var(--blue);
+    background: #C8523A;
     color: #fff;
-    border-color: var(--blue);
+    border-color: #C8523A;
   }
 
   .hdr-date {
     font-size: 10px;
-    color: #475569;
+    color: #8A857C;
     white-space: nowrap;
     min-width: 90px;
     text-align: right;
@@ -142,9 +142,9 @@
     letter-spacing: 1px;
     text-transform: uppercase;
   }
-  .rating-buy    { background: #166534; color: var(--up);   border: 1px solid #22c55e44; }
-  .rating-hold   { background: #78350f; color: var(--gold); border: 1px solid #f59e0b44; }
-  .rating-sell   { background: #7f1d1d; color: var(--down); border: 1px solid #ef444444; }
+  .rating-buy    { background: #E8F5EE; color: #1E7A45; border: 1px solid #b8d8c4; }
+  .rating-hold   { background: #FBF3E2; color: #A87228; border: 1px solid #e0d5b8; }
+  .rating-sell   { background: #FBF0ED; color: #C8523A; border: 1px solid #f0c4b8; }
 
   .rb-item { display: flex; flex-direction: column; gap: 2px; }
   .rb-label { font-size: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
@@ -157,9 +157,9 @@
     padding: 3px 9px;
     border-radius: 3px;
     letter-spacing: .5px;
-    background: #1e1b4b;
-    color: var(--purple);
-    border: 1px solid #8b5cf644;
+    background: #EBF2FB;
+    color: #1E5FA8;
+    border: 1px solid #c4d8f0;
   }
 
   /* Investment Thesis */
@@ -180,7 +180,7 @@
   }
   .thesis-box .tb-text {
     font-size: 11px;
-    color: #cbd5e1;
+    color: var(--text);
     line-height: 1.6;
   }
 
@@ -208,16 +208,16 @@
     margin-bottom: 14px;
   }
   .sc-card { border-radius: 5px; padding: 10px 12px; }
-  .sc-bull  { background: #052e16; border: 1px solid #22c55e44; }
-  .sc-base  { background: #1c1917; border: 1px solid #78716c44; }
-  .sc-bear  { background: #450a0a; border: 1px solid #ef444444; }
+  .sc-bull  { background: #E8F5EE; border: 1px solid #b8d8c4; }
+  .sc-base  { background: var(--bg3); border: 1px solid var(--border); }
+  .sc-bear  { background: #FBF0ED; border: 1px solid #f0c4b8; }
   .sc-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
   .sc-bull .sc-label { color: var(--up); }
   .sc-base .sc-label { color: var(--muted); }
   .sc-bear .sc-label { color: var(--down); }
   .sc-price { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
   .sc-prob  { font-size: 9px; color: var(--muted); margin-bottom: 4px; }
-  .sc-note  { font-size: 9px; color: #94a3b8; line-height: 1.4; }
+  .sc-note  { font-size: 9px; color: var(--muted); line-height: 1.4; }
 
   /* ── TABLES (common) ─────────────────────────────── */
   .data-table {
@@ -227,15 +227,15 @@
     font-size: 11px;
   }
   .data-table thead tr {
-    background: var(--bg3);
-    border-bottom: 1px solid var(--border);
+    background: #1A1814;
+    border-bottom: 1px solid #1A1814;
   }
   .data-table th {
     padding: 7px 10px;
     text-align: left;
     font-size: 9px;
     font-weight: 700;
-    color: var(--muted);
+    color: #FAF8F4;
     text-transform: uppercase;
     letter-spacing: .5px;
     white-space: nowrap;
@@ -243,12 +243,12 @@
   .data-table th.r { text-align: right; }
   .data-table td {
     padding: 6px 10px;
-    border-bottom: 1px solid #1a1e2a;
-    color: #cbd5e1;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
   }
   .data-table td.r { text-align: right; }
   .data-table tbody tr:last-child td { border-bottom: none; }
-  .data-table tbody tr:hover { background: #1a1e2a; }
+  .data-table tbody tr:hover { background: var(--bg3); }
   .data-table tbody tr.self-row td { color: var(--gold); font-weight: 700; }
   .data-table .tbl-wrap {
     background: var(--bg2);
@@ -266,7 +266,7 @@
     padding: 14px 16px;
     font-size: 11px;
     line-height: 1.7;
-    color: #cbd5e1;
+    color: var(--text);
     margin-bottom: 14px;
     white-space: pre-line;
   }
@@ -319,11 +319,11 @@
     padding: 5px 10px;
     font-size: 8px;
     font-weight: 700;
-    color: var(--muted);
+    color: #FAF8F4;
     text-transform: uppercase;
     letter-spacing: .4px;
-    background: var(--bg3);
-    border: 1px solid var(--border);
+    background: #1A1814;
+    border: 1px solid #1A1814;
     text-align: center;
   }
   .sens-table td {
@@ -334,17 +334,17 @@
     font-size: 11px;
     min-width: 70px;
   }
-  .sens-heat-high { background: #052e16; color: #4ade80; }
-  .sens-heat-mid  { background: #082f2f; color: #22d3ee; }
-  .sens-heat-low  { background: #450a0a; color: #f87171; }
-  .sens-heat-mid2 { background: #1c2a1a; color: #86efac; }
-  .sens-heat-mid3 { background: #2d1515; color: #fca5a5; }
+  .sens-heat-high { background: #1E7A45; color: #E8F5EE; }
+  .sens-heat-mid  { background: #E8F5EE; color: #1E7A45; }
+  .sens-heat-low  { background: #C8523A; color: #FBF0ED; }
+  .sens-heat-mid2 { background: #c8e8d4; color: #1E7A45; }
+  .sens-heat-mid3 { background: #f0c4b8; color: #C8523A; }
   .sens-row-label {
     font-size: 9px;
     font-weight: 600;
-    color: var(--muted);
-    background: var(--bg3);
-    border: 1px solid var(--border);
+    color: #FAF8F4;
+    background: #1A1814;
+    border: 1px solid #1A1814;
     padding: 5px 10px;
     white-space: nowrap;
   }
@@ -378,7 +378,7 @@
   }
   .catalyst-item .c-body { flex: 1; }
   .catalyst-item .c-title { font-size: 11px; font-weight: 600; margin-bottom: 2px; }
-  .catalyst-item .c-desc  { font-size: 9px; color: #94a3b8; line-height: 1.4; }
+  .catalyst-item .c-desc  { font-size: 9px; color: var(--muted); line-height: 1.4; }
 
   .mid-term-grid {
     display: grid;
@@ -394,7 +394,7 @@
     border-left: 3px solid var(--purple);
   }
   .mt-label { font-size: 9px; font-weight: 700; color: var(--purple); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px; }
-  .mt-text  { font-size: 10px; color: #cbd5e1; line-height: 1.5; }
+  .mt-text  { font-size: 10px; color: var(--text); line-height: 1.5; }
 
   .lt-thesis-box {
     background: var(--bg2);
@@ -404,7 +404,7 @@
     margin-bottom: 14px;
   }
   .lt-thesis-box .lt-label { font-size: 9px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
-  .lt-thesis-box .lt-text  { font-size: 11px; color: #cbd5e1; line-height: 1.6; }
+  .lt-thesis-box .lt-text  { font-size: 11px; color: var(--text); line-height: 1.6; }
 
   /* ── CH6: RISK FACTORS ───────────────────────────── */
   .risk-category-grid {
@@ -440,9 +440,9 @@
     letter-spacing: .3px;
     white-space: nowrap;
   }
-  .prob-high { background: #450a0a; color: #f87171; border: 1px solid #ef444433; }
-  .prob-mid  { background: #451a03; color: #fbbf24; border: 1px solid #f59e0b33; }
-  .prob-low  { background: #082f2f; color: #67e8f9; border: 1px solid #06b6d433; }
+  .prob-high { background: #FBF0ED; color: #C8523A; border: 1px solid #f0c4b8; }
+  .prob-mid  { background: #FBF3E2; color: #A87228; border: 1px solid #e0d5b8; }
+  .prob-low  { background: #E8F5EE; color: #1E7A45; border: 1px solid #b8d8c4; }
 
   .impact-badge {
     font-size: 8px;
@@ -452,9 +452,9 @@
     letter-spacing: .3px;
     white-space: nowrap;
   }
-  .impact-high { background: #2d1b69; color: #c4b5fd; border: 1px solid #8b5cf633; }
-  .impact-mid  { background: #0c2e4e; color: #93c5fd; border: 1px solid #3b82f633; }
-  .impact-low  { background: #1a1e2a; color: var(--muted); border: 1px solid var(--border); }
+  .impact-high { background: #EDE9F8; color: #6B46C1; border: 1px solid #c4b8ea; }
+  .impact-mid  { background: #EBF2FB; color: #1E5FA8; border: 1px solid #c4d8f0; }
+  .impact-low  { background: var(--bg3); color: var(--muted); border: 1px solid var(--border); }
 
   /* ── CH7: INDUSTRY & MACRO ───────────────────────── */
   .institutional-summary {
@@ -504,14 +504,14 @@
     letter-spacing: 2px;
     text-transform: uppercase;
   }
-  .rating-lg-buy  { background: #166534; color: var(--up);   border: 2px solid #22c55e55; }
-  .rating-lg-hold { background: #78350f; color: var(--gold); border: 2px solid #f59e0b55; }
-  .rating-lg-sell { background: #7f1d1d; color: var(--down); border: 2px solid #ef444455; }
-  .conclusion-subtext { font-size: 11px; color: #94a3b8; line-height: 1.5; }
+  .rating-lg-buy  { background: #E8F5EE; color: #1E7A45; border: 2px solid #b8d8c4; }
+  .rating-lg-hold { background: #FBF3E2; color: #A87228; border: 2px solid #e0d5b8; }
+  .rating-lg-sell { background: #FBF0ED; color: #C8523A; border: 2px solid #f0c4b8; }
+  .conclusion-subtext { font-size: 11px; color: var(--muted); line-height: 1.5; }
 
   .trade-setup-box {
     background: var(--bg2);
-    border: 1px solid #22c55e44;
+    border: 1px solid #b8d8c4;
     border-radius: 5px;
     padding: 14px 16px;
     margin-bottom: 14px;
@@ -678,7 +678,7 @@
     </div>
     <div class="sc-card sc-base">
       <div class="sc-label">— Base Case</div>
-      <div class="sc-price" style="color:#e2e8f0">${{ ch1.scenarios.base.price | default('—') }}</div>
+      <div class="sc-price" style="color:var(--text)">${{ ch1.scenarios.base.price | default('—') }}</div>
       <div class="sc-prob">Probability {{ ch1.scenarios.base.prob | default('—') }}%</div>
       <div class="sc-note">{{ ch1.scenarios.base.note | default('') }}</div>
     </div>
@@ -957,7 +957,7 @@
         {% if dcf.sensitivity_headers %}
         <thead>
           <tr>
-            <th style="background:var(--bg3);border:1px solid var(--border);">WACC \ TGR</th>
+            <th style="background:#1A1814;border:1px solid #1A1814;color:#FAF8F4;">WACC \ TGR</th>
             {% for h in dcf.sensitivity_headers %}
             <th>{{ h }}</th>
             {% endfor %}
@@ -1054,7 +1054,7 @@
         {% if e.desc %}<div class="c-desc">{{ e.desc }}</div>{% endif %}
       </div>
       {% if e.impact %}
-      <div class="prob-badge prob-high" style="background:#0c2e4e;color:#93c5fd;border-color:#3b82f633;">
+      <div class="prob-badge" style="background:#EBF2FB;color:#1E5FA8;border:1px solid #c4d8f0;">
         {{ e.impact }}
       </div>
       {% endif %}
@@ -1329,7 +1329,7 @@
         <tr>
           <td class="{{ 'up' if lvl.type == 'support' else 'dn' }}">{{ lvl.type | capitalize }}</td>
           <td class="r">{{ lvl.level }}</td>
-          <td style="color:#94a3b8;font-size:10px;">{{ lvl.note | default('') }}</td>
+          <td style="color:var(--muted);font-size:10px;">{{ lvl.note | default('') }}</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -1423,7 +1423,7 @@
         <tr>
           <td>{{ m.kpi }}</td>
           <td style="color:var(--gold)">{{ m.threshold }}</td>
-          <td style="color:#94a3b8;font-size:10px;">{{ m.action }}</td>
+          <td style="color:var(--muted);font-size:10px;">{{ m.action }}</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -1440,7 +1440,7 @@
     <div style="width:1px;height:20px;background:var(--border);"></div>
     <div class="nu-event">{{ ch8.next_update.event | default('—') }}</div>
     {% if ch8.next_update.date %}
-    <div style="font-size:9px;color:#475569;margin-left:auto;">{{ ch8.next_update.date }}</div>
+    <div style="font-size:9px;color:var(--muted);margin-left:auto;">{{ ch8.next_update.date }}</div>
     {% endif %}
   </div>
   {% endif %}

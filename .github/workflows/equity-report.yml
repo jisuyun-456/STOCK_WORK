@@ -1,0 +1,54 @@
+name: 📊 Equity Research Report
+
+on:
+  workflow_dispatch:
+    inputs:
+      symbol:
+        description: '종목 심볼 (예: PLTR, RKLB, HIMS)'
+        required: true
+        default: 'PLTR'
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install system dependencies (WeasyPrint)
+        run: sudo apt-get install -y libpango-1.0-0 libpangocairo-1.0-0 libcairo2 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate equity report
+        env:
+          FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
+        working-directory: scripts
+        run: python equity_report_generator.py ${{ github.event.inputs.symbol }}
+
+      - name: Commit report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/reports/equity/
+          git diff --cached --quiet || git commit -m "report: ${{ github.event.inputs.symbol }} equity research $(date +'%Y-%m-%d')"
+          git push
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: equity-report-${{ github.event.inputs.symbol }}
+          path: |
+            docs/reports/equity/${{ github.event.inputs.symbol }}-*
+          retention-days: 30
