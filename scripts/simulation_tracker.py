@@ -18,32 +18,32 @@ from pathlib import Path
 PORTFOLIO_DEFINITION = [
     {
         "symbol": "PLTR",
-        "allocation": 350,
+        "allocation": 7000,
         "thesis_short": "정부/기업 AI 플랫폼 독점, 미-이란 분쟁 수혜, 흑자 전환 완료",
     },
     {
         "symbol": "RKLB",
-        "allocation": 250,
+        "allocation": 5000,
         "thesis_short": "우주 경제 유일한 공개 순수주, Neutron 재사용 로켓 임박",
     },
     {
         "symbol": "HIMS",
-        "allocation": 200,
+        "allocation": 4000,
         "thesis_short": "텔레헬스 + GLP-1 비만약 복제약, 헬스케어 유통 파괴자",
     },
     {
         "symbol": "APLD",
-        "allocation": 150,
+        "allocation": 3000,
         "thesis_short": "AI 데이터센터 순수주, CoreWeave 대비 극도 저평가",
     },
     {
         "symbol": "IONQ",
-        "allocation": 50,
+        "allocation": 1000,
         "thesis_short": "퀀텀 컴퓨팅 복권, AWS/Azure/Google 파트너십, 소액 베팅",
     },
 ]
 
-TOTAL_CAPITAL = 1000
+TOTAL_CAPITAL = 20000
 STATE_FILE = Path(__file__).parent.parent / "docs" / "simulation" / "portfolio_state.json"
 
 
@@ -224,7 +224,7 @@ def main():
         summary = get_portfolio_summary(state)
         print(f"\n📊 시뮬레이션 포트폴리오 현황")
         print(f"  시작일: {summary['start_date']} ({summary['days_running']}일째)")
-        print(f"  총 평가액: ${summary['total_value']:,.2f} (초기 $1,000)")
+        print(f"  총 평가액: ${summary['total_value']:,.2f} (초기 ${summary['total_capital']:,.0f})")
         print(f"  누적 수익률: {summary['cumulative_return_pct']:+.2f}%")
         print(f"  당일 수익률: {summary['daily_return_pct']:+.2f}%")
         print(f"\n  종목별 현황:")

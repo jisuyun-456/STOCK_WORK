@@ -20,7 +20,28 @@
 
 ## 에이전트 팀 라우팅
 
-### 프로젝트 특화 에이전트 (세밀한 키워드 우선)
+### 2계층 구조 개요
+
+```
+Tier 2 — 시니어 리뷰어 (3명)
+├── orchestrator       전체 조율·최종 통합 (Head of Desk)
+├── D6 investment-expert  ST-01/ST-04 결과 검토 → 투자 의견 통합
+└── D7 economics-expert   ST-03/ST-07 결과 검토 → 이론 프레임 제공
+
+Tier 1 — 스페셜리스트 (8명)
+├── ST-01 equity-research        → reports to D6
+├── ST-02 technical-strategist   → reports to orchestrator
+├── ST-03 macro-economist        → reports to D7
+├── ST-04 portfolio-architect    → reports to D6
+├── ST-05 risk-controller        → reports to orchestrator
+├── ST-06 tax-optimizer          → reports to orchestrator
+├── ST-07 market-intelligence    → reports to D7
+└── ST-08 leveraged-etf-specialist → reports to orchestrator
+```
+
+**라우팅 원칙:** 단일 도메인 → Tier 1 직접 위임 / 복합 분석 → orchestrator 경유
+
+### Tier 1 — 스페셜리스트 라우팅 (세밀한 키워드 우선)
 
 | 키워드 | 에이전트 |
 |--------|---------|
@@ -33,17 +54,17 @@
 | 공시, 뉴스, 수급, 13F, 내부자거래, 센티멘트, Earnings | ST-07 market-intelligence |
 | 인버스, 곱버스, 레버리지ETF, 변동성끌림, 괴리율, KODEX, TIGER | ST-08 leveraged-etf-specialist |
 
-### 범용 전문가 에이전트 (일반 키워드)
+### Tier 2 — 시니어 리뷰어 라우팅
 
-| 키워드 | 에이전트 |
-|--------|---------|
-| 투자 전략, 가치투자, 성장투자, 장기투자, 매수/매도 판단 | D6 investment-expert |
-| 경제학, 거시경제 이론, 학술적 분석, 경제 전망 | D7 economics-expert |
-| 코드, API, DB, 배포, 아키텍처, 성능 | D3 tech-architect (전역) |
-| 프로젝트 계획, 리스크, KPI, MECE, 일정 | D5 project-manager (전역) |
-| 종합 분석, 매수/매도 의견, 전체 리뷰, 포트폴리오 점검 | orchestrator |
+| 역할 | 에이전트 | 트리거 조건 |
+|------|---------|-----------|
+| 투자 의견 통합 | D6 investment-expert | ST-01/ST-04 결과 검토, 최종 매수/매도 판단, 투자 철학 적용 |
+| 경제 이론 검증 | D7 economics-expert | ST-03/ST-07 결과 검토, 학술적 이론 프레임 적용, 반론 제시 |
+| 전체 조율 | orchestrator | 복수 도메인 교차 분석, 5가지 오케스트레이션 패턴 실행 |
+| 코드/인프라 | D3 tech-architect (전역) | 코드, API, DB, 배포, 아키텍처 |
+| 프로젝트 관리 | D5 project-manager (전역) | 프로젝트 계획, KPI, MECE, 일정 |
 
-> **라우팅 우선순위:** 프로젝트 특화(세밀한 키워드) > 범용 전문가(일반 키워드)
+> **라우팅 우선순위:** Tier 1 특화 키워드 > Tier 2 시니어 리뷰 > 범용 전문가
 
 ## 데이터 소스
 - 한국: Korean Stock MCP (DART+KRX), 네이버 금융, BOK ECOS

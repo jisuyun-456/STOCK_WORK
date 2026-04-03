@@ -1,47 +1,47 @@
 {
   "start_date": "2026-04-03",
-  "total_capital": 1000,
+  "total_capital": 20000,
   "positions": [
     {
       "symbol": "PLTR",
-      "shares": 2.357537,
+      "shares": 47.150746,
       "entry_price": 148.46,
-      "allocation": 350,
+      "allocation": 7000,
       "thesis_short": "정부/기업 AI 플랫폼 독점, 미-이란 분쟁 수혜, 흑자 전환 완료"
     },
     {
       "symbol": "RKLB",
-      "shares": 3.691126,
+      "shares": 73.822527,
       "entry_price": 67.73,
-      "allocation": 250,
+      "allocation": 5000,
       "thesis_short": "우주 경제 유일한 공개 순수주, Neutron 재사용 로켓 임박"
     },
     {
       "symbol": "HIMS",
-      "shares": 10.449321,
+      "shares": 208.986423,
       "entry_price": 19.14,
-      "allocation": 200,
+      "allocation": 4000,
       "thesis_short": "텔레헬스 + GLP-1 비만약 복제약, 헬스케어 유통 파괴자"
     },
     {
       "symbol": "APLD",
-      "shares": 6.107492,
+      "shares": 122.14984,
       "entry_price": 24.56,
-      "allocation": 150,
+      "allocation": 3000,
       "thesis_short": "AI 데이터센터 순수주, CoreWeave 대비 극도 저평가"
     },
     {
       "symbol": "IONQ",
-      "shares": 1.706485,
+      "shares": 34.129694,
       "entry_price": 29.3,
-      "allocation": 50,
+      "allocation": 1000,
       "thesis_short": "퀀텀 컴퓨팅 복권, AWS/Azure/Google 파트너십, 소액 베팅"
     }
   ],
   "daily_snapshots": [
     {
       "date": "2026-04-03",
-      "total_value": 1000,
+      "total_value": 20000,
       "daily_return_pct": 0.0,
       "cumulative_return_pct": 0.0
     }

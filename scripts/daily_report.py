@@ -36,6 +36,7 @@ from simulation_tracker import run_daily_update
 from stock_analyzer import analyze_portfolio
 from market_commentator import generate_market_commentary
 from pdf_generator import generate_pdf, generate_html_preview, get_pdf_path
+from dashboard_generator import generate_dashboard
 
 SIMULATION_SYMBOLS = ["PLTR", "RKLB", "HIMS", "APLD", "IONQ"]
 
@@ -249,6 +250,10 @@ def main():
     # 이메일 발송 (PDF 첨부)
     if args.send and html_content:
         send_email(html_content, report_date, pdf_path=pdf_path)
+
+    # 트레이딩 대시보드 HTML 생성
+    dashboard_path = Path(__file__).parent.parent / "docs" / "dashboard.html"
+    generate_dashboard(context, str(dashboard_path))
 
     print(f"\n[완료] 리포트 생성 성공 — {report_date}", file=sys.stderr)
 
