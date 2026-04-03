@@ -45,10 +45,19 @@
 
 > **라우팅 우선순위:** 프로젝트 특화(세밀한 키워드) > 범용 전문가(일반 키워드)
 
-## 데이터 소스 (참고)
-- 한국: DART 전자공시, KRX KIND, 네이버 금융, BOK ECOS
-- 미국: SEC EDGAR, Yahoo Finance, Seeking Alpha, FRED
+## 데이터 소스
+- 한국: Korean Stock MCP (DART+KRX), 네이버 금융, BOK ECOS
+- 미국: Yahoo Finance MCP, FMP MCP (SEC 재무 심층), FRED
 - API 키: .env 파일 (절대 커밋 금지)
+
+## FMP API 제한 (필수 준수)
+- **일일 한도: 250콜** (무료 플랜)
+- FMP 호출 전 반드시 `python scripts/fmp_rate_limiter.py check` 실행
+- 200콜(80%): ⚠️ WARNING — 알림 표시, 계속 가능
+- 245콜(98%): 🟡 CRITICAL — 필수 분석만 허용, 사용자에게 알림
+- 250콜(100%): 🔴 BLOCKED — FMP 호출 완전 차단, 내일 자동 리셋
+- 일일 리포트(자동): ~50콜 예상, 수동 분석 포함 하루 최대 ~150콜
+- **에이전트는 FMP 호출 시 `record_calls(n, source)` 로 사용량 기록할 것**
 
 ## 태스크 관리
 `.claude/feature_list.json` — 분석 대기 종목, 리밸런싱 태스크, 세금 이벤트 목록
