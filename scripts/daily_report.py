@@ -92,10 +92,42 @@ def generate_report(mode: str = "auto") -> dict:
     return context
 
 
+def send_email(html_content: str, report_date: str):
+    """Gmail SMTP로 리포트 이메일 발송"""
+    import smtplib
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+
+    smtp_user = os.environ.get("GMAIL_ADDRESS", "").strip()
+    smtp_pass = os.environ.get("GMAIL_APP_PASSWORD", "").strip()
+    to_email = os.environ.get("REPORT_EMAIL_TO", "").strip()
+
+    if not all([smtp_user, smtp_pass, to_email]):
+        print("  ⚠️ 이메일 설정 누락 (GMAIL_ADDRESS, GMAIL_APP_PASSWORD, REPORT_EMAIL_TO)", file=sys.stderr)
+        return False
+
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = f"📊 일일 투자 리포트 — {report_date}"
+    msg["From"] = smtp_user
+    msg["To"] = to_email
+    msg.attach(MIMEText(html_content, "html", "utf-8"))
+
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(smtp_user, smtp_pass)
+            server.sendmail(smtp_user, to_email, msg.as_string())
+        print(f"  ✅ 이메일 발송 완료 → {to_email}", file=sys.stderr)
+        return True
+    except Exception as e:
+        print(f"  ❌ 이메일 발송 실패: {e}", file=sys.stderr)
+        return False
+
+
 def main():
     parser = argparse.ArgumentParser(description="일일 투자 리포트 생성")
     parser.add_argument("--mode", choices=["auto", "manual"], default="auto")
     parser.add_argument("--format", choices=["all", "md", "html"], default="all")
+    parser.add_argument("--send", action="store_true", help="이메일 발송")
     args = parser.parse_args()
 
     # 리포트 데이터 생성
@@ -108,11 +140,16 @@ def main():
         print(f"  ✅ Markdown 저장: {filepath}", file=sys.stderr)
 
     # HTML 이메일본
+    html_content = None
     if args.format in ("all", "html"):
         html_content = to_html(context)
-        # HTML은 stdout으로 출력 (스킬에서 Gmail MCP로 전달)
-        print(html_content)
-        print(f"  ✅ HTML 출력 완료", file=sys.stderr)
+        if not args.send:
+            print(html_content)
+        print(f"  ✅ HTML 생성 완료", file=sys.stderr)
+
+    # 이메일 발송
+    if args.send and html_content:
+        send_email(html_content, context["report_date"])
 
     print(f"\n[완료] 리포트 생성 성공 — {context['report_date']}", file=sys.stderr)
 

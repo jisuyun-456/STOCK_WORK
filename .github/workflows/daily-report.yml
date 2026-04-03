@@ -1,0 +1,40 @@
+name: 📊 Daily Investment Report
+
+on:
+  schedule:
+    # 평일 08:27 KST = 23:27 UTC (전일)
+    - cron: '27 23 * * 0-4'  # Sun-Thu UTC = Mon-Fri KST
+  workflow_dispatch:  # 수동 실행 가능
+
+jobs:
+  generate-and-send:
+    runs-on: ubuntu-latest
+    # 주말 스킵 (UTC 기준이므로 cron으로 이미 제어)
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate report & send email
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          REPORT_EMAIL_TO: ${{ secrets.REPORT_EMAIL_TO }}
+        working-directory: scripts
+        run: python daily_report.py --format all --send
+
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-report-${{ github.run_id }}
+          path: docs/reports/*.md
+          retention-days: 30
