@@ -39,7 +39,12 @@ def generate_pdf(context: dict, output_path: str) -> str:
             autoescape=False,
         )
         # Jinja2 필터 추가
-        env.filters["format"] = lambda v, fmt: (v % fmt) if fmt is not None else "N/A"
+        def _safe_fmt(v, fmt):
+            try:
+                return v % fmt
+            except Exception:
+                return "N/A"
+        env.filters["format"] = _safe_fmt
 
         template = env.get_template("pdf_report.html")
         html_content = template.render(**context)
@@ -69,7 +74,12 @@ def generate_html_preview(context: dict, output_path: str) -> str:
             loader=FileSystemLoader(str(TEMPLATES_DIR)),
             autoescape=False,
         )
-        env.filters["format"] = lambda v, fmt: (v % fmt) if fmt is not None else "N/A"
+        def _safe_fmt(v, fmt):
+            try:
+                return v % fmt
+            except Exception:
+                return "N/A"
+        env.filters["format"] = _safe_fmt
 
         template = env.get_template("pdf_report.html")
         html_content = template.render(**context)

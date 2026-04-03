@@ -702,7 +702,7 @@ table.data-table tr:last-child td { border-bottom: 2px solid var(--navy); }
   {% for s in volume_surge[:8] %}
   <tr>
     <td>{{ s.symbol }}</td>
-    <td>${{ "%.2f"|format(s.current_price) }}</td>
+    <td>${{ "%.2f"|format(s.close) }}</td>
     <td class="{{ 'up' if s.change_pct >= 0 else 'down' }}">{{ "%+.2f"|format(s.change_pct) }}%</td>
     <td>{{ "%.1f"|format(s.volume_ratio) }}x</td>
   </tr>

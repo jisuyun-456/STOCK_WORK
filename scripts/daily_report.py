@@ -191,7 +191,12 @@ def _render_email_summary(context: dict) -> str:
         from jinja2 import Environment, FileSystemLoader
         templates_dir = Path(__file__).parent.parent / "templates"
         env = Environment(loader=FileSystemLoader(str(templates_dir)), autoescape=False)
-        env.filters["format"] = lambda v, fmt: (v % fmt) if fmt is not None else "N/A"
+        def _safe_fmt(v, fmt):
+            try:
+                return v % fmt
+            except Exception:
+                return "N/A"
+        env.filters["format"] = _safe_fmt
         template = env.get_template("email_summary.html")
         return template.render(**context)
     except Exception as e:
