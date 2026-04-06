@@ -73,11 +73,23 @@ generate_equity_report(context, 'SYMBOL')
 "
 ```
 
-## Step 7: 결과 알림
+## Step 7: GitHub Actions 트리거 → 이메일 발송
 
-출력 파일:
-- HTML: `docs/reports/equity/SYMBOL-YYYY-MM-DD.html`
-- PDF: `docs/reports/equity/SYMBOL-YYYY-MM-DD.pdf`
-- JSON: `docs/reports/equity/SYMBOL-YYYY-MM-DD.json`
+리포트를 메일로 받을 수 있도록 GitHub Actions 워크플로우를 자동 트리거한다:
 
-사용자에게 파일 경로 + 핵심 결론 요약 (Rating + 목표가 + 핵심 논거)
+```bash
+"/c/Program Files/GitHub CLI/gh.exe" workflow run equity-report.yml -f symbol=SYMBOL
+```
+
+이 명령은 백그라운드로 실행하고, 사용자에게 아래를 안내:
+- "GitHub Actions에서 리포트 생성 중 → 완료되면 메일로 발송됩니다"
+- 예상 소요: 1~2분
+
+## Step 8: 결과 알림
+
+사용자에게:
+1. 핵심 결론 요약 (Rating + 목표가 + 핵심 논거) — 대화 내 즉시 제공
+2. 메일 발송 상태 안내 — "풀 리서치 PDF는 메일로 발송됩니다"
+3. 로컬 파일 경로 (있을 경우):
+   - HTML: `docs/reports/equity/SYMBOL-YYYY-MM-DD.html`
+   - PDF: `docs/reports/equity/SYMBOL-YYYY-MM-DD.pdf`
