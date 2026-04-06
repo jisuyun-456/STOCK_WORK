@@ -540,161 +540,6 @@ def generate_equity_report(context: dict, symbol: str) -> dict:
     return results
 
 
-# ── Anthropic API Prose Generation ────────────────────────────────────────────
-
-def generate_prose(context: dict, symbol: str) -> dict:
-    """Anthropic API로 8챕터 논문급 prose 생성 → context에 merge"""
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
-    if not api_key:
-        print("  [prose] ANTHROPIC_API_KEY 없음 — prose 생성 생략", file=sys.stderr)
-        return context
-
-    try:
-        import anthropic
-    except ImportError:
-        print("  [prose] anthropic 패키지 미설치 — prose 생성 생략", file=sys.stderr)
-        return context
-
-    print(f"  [prose] Claude Sonnet으로 8챕터 prose 생성 중...", file=sys.stderr)
-
-    # 재무 데이터 요약 추출
-    fin_summary = {
-        "symbol": symbol,
-        "company_name": context.get("company_name", symbol),
-        "sector": context.get("sector", ""),
-        "industry": context.get("industry", ""),
-        "current_price": context.get("current_price"),
-        "market_cap": context.get("market_cap"),
-        "pe_ratio": context.get("pe_ratio"),
-        "forward_pe": context.get("forward_pe"),
-        "ps_ratio": context.get("ps_ratio"),
-        "ev_ebitda": context.get("ev_ebitda"),
-        "revenue": context.get("revenue"),
-        "revenue_growth": context.get("revenue_growth"),
-        "gross_margin": context.get("gross_margin"),
-        "operating_margin": context.get("operating_margin"),
-        "net_margin": context.get("net_margin"),
-        "roe": context.get("roe"),
-        "roa": context.get("roa"),
-        "fcf": context.get("fcf"),
-        "total_cash": context.get("total_cash"),
-        "total_debt": context.get("total_debt"),
-        "beta": context.get("beta"),
-        "week52_high": context.get("week52_high"),
-        "week52_low": context.get("week52_low"),
-        "target_mean": context.get("target_mean"),
-        "analyst_rating": context.get("analyst_rating"),
-        "short_interest": context.get("short_interest"),
-        "inst_ownership": context.get("inst_ownership"),
-        "business_summary": context.get("business_summary", ""),
-        "ch1": context.get("ch1", {}),
-        "ch3": context.get("ch3", {}),
-        "ch4": context.get("ch4", {}),
-    }
-
-    prompt = f"""당신은 Goldman Sachs/JP Morgan 수준의 시니어 Equity Research 애널리스트입니다.
-아래 재무 데이터를 기반으로 {symbol}의 8챕터 Equity Research Report prose를 작성하세요.
-
-## 재무 데이터
-```json
-{json.dumps(fin_summary, ensure_ascii=False, default=str, indent=2)}
-```
-
-## 작성 규칙
-1. 모든 텍스트는 한국어로 작성
-2. 결론 먼저, 근거 나중 (Inverted Pyramid)
-3. 수치는 반드시 맥락과 함께 (동종업계 비교, 의미 해석)
-4. 리스크는 Bear Case 가격과 연결
-5. 각 필드는 최소 200자 이상의 전문적 서술
-
-## 출력 형식 (정확히 이 JSON 구조로 반환)
-```json
-{{
-  "ch1": {{
-    "thesis": "투자 논거 5-7문장. 핵심 결론을 첫 문장에.",
-    "thesis_points": ["핵심 포인트 1", "핵심 포인트 2", "핵심 포인트 3"]
-  }},
-  "ch2": {{
-    "platform_overview": "사업 모델 상세 설명 5-7문장",
-    "platforms": [
-      {{"name": "제품1", "target": "대상", "description": "3-4문장 설명"}},
-      {{"name": "제품2", "target": "대상", "description": "3-4문장 설명"}}
-    ],
-    "competitors_commentary": "경쟁 환경 분석 3-5문장"
-  }},
-  "ch3": {{
-    "income_commentary": "손익 분석 5-7문장. 매출 성장 추이, 마진 변화, 핵심 동인 포함",
-    "sbc_analysis": "SBC 분석 3-5문장 (해당 시)",
-    "cashflow_commentary": "현금흐름 분석 3-5문장"
-  }},
-  "ch4": {{
-    "dcf_commentary": "DCF 밸류에이션 분석 3-5문장. 핵심 가정과 민감도",
-    "comps_commentary": "Peer 비교 밸류에이션 분석 3-5문장. 프리미엄/디스카운트 근거"
-  }},
-  "ch5": {{
-    "short_term": [
-      {{"timing": "시기", "title": "이벤트명", "description": "2-3문장 설명", "importance": "HIGH/MEDIUM/LOW"}}
-    ],
-    "mid_term": [
-      {{"theme_name": "테마명", "description": "3-5문장 설명"}}
-    ]
-  }},
-  "ch6": {{
-    "risks": [
-      {{"category": "Business/Competitive/Macro", "title": "리스크명", "description": "3-5문장. 발생 시 주가 영향 포함", "probability": "높음/중간/낮음", "impact": "높음/중간/낮음"}}
-    ]
-  }},
-  "ch7": {{
-    "macro_commentary": "산업 환경 + 매크로 분석 5-7문장",
-    "technical_commentary": "기술적 분석 3-5문장. 지지/저항 레벨, 추세 포함"
-  }},
-  "ch8": {{
-    "conclusion": "투자 결론 5-7문장. CH1 thesis 재확인 + 구체적 행동 지침",
-    "kpis": [
-      {{"metric": "KPI명", "threshold": "기준값", "action": "초과/미달 시 행동"}}
-    ]
-  }}
-}}
-```
-
-JSON만 반환하세요. 다른 텍스트 없이."""
-
-    try:
-        client = anthropic.Anthropic(api_key=api_key)
-        response = client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=8000,
-            messages=[{"role": "user", "content": prompt}]
-        )
-
-        raw = response.content[0].text.strip()
-        # JSON 블록 추출
-        if "```json" in raw:
-            raw = raw.split("```json")[1].split("```")[0].strip()
-        elif "```" in raw:
-            raw = raw.split("```")[1].split("```")[0].strip()
-
-        prose_data = json.loads(raw)
-        print(f"  [prose] 8챕터 prose 생성 완료", file=sys.stderr)
-
-        # context에 merge (기존 데이터 유지, prose만 추가)
-        for ch_key in ["ch1", "ch2", "ch3", "ch4", "ch5", "ch6", "ch7", "ch8"]:
-            if ch_key in prose_data:
-                ch = context.setdefault(ch_key, {})
-                for field_key, field_val in prose_data[ch_key].items():
-                    if field_val and (not ch.get(field_key) or ch.get(field_key) == "" or ch.get(field_key) == []):
-                        ch[field_key] = field_val
-
-        return context
-
-    except json.JSONDecodeError as e:
-        print(f"  [prose] JSON 파싱 실패: {e}", file=sys.stderr)
-        return context
-    except Exception as e:
-        print(f"  [prose] API 호출 실패: {e}", file=sys.stderr)
-        return context
-
-
 # ── Email ────────────────────────────────────────────────────────────────────
 
 def send_email(symbol: str, report_date: str, html_path: str = None, pdf_path: str = None):
@@ -757,12 +602,30 @@ def main():
     symbol = args[0].upper() if args else "PLTR"
     do_send = "--send" in flags
 
+    # --context 플래그: Claude Code에서 생성한 prose JSON 로드
+    context_path = None
+    for f in flags:
+        if f.startswith("--context="):
+            context_path = f.split("=", 1)[1]
+    if not context_path:
+        # 기본 경로: docs/reports/equity/{SYMBOL}-context.json
+        default_ctx = OUTPUT_DIR / f"{symbol}-context.json"
+        if default_ctx.exists():
+            context_path = str(default_ctx)
+
     print(f"\n{'='*60}", file=sys.stderr)
     print(f"  Equity Research Report — {symbol}", file=sys.stderr)
     print(f"{'='*60}", file=sys.stderr)
 
-    context = build_report_context(symbol)
-    context = generate_prose(context, symbol)
+    if context_path and os.path.exists(context_path):
+        print(f"  [context] 외부 JSON 로드: {context_path}", file=sys.stderr)
+        with open(context_path, "r", encoding="utf-8") as f:
+            context = json.load(f)
+        context = _ensure_v1_defaults(context)
+    else:
+        print(f"  [context] API 데이터 수집 모드", file=sys.stderr)
+        context = build_report_context(symbol)
+
     results = generate_equity_report(context, symbol)
 
     print(f"\n{'='*60}", file=sys.stderr)

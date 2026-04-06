@@ -16,80 +16,125 @@ description: >
 ## Step 1: 심볼 확인
 요청에서 종목 심볼(티커) 추출. 불명확하면 사용자에게 확인.
 
-## Step 2: FMP 예산 체크
-```bash
-cd scripts && python3 fmp_rate_limiter.py check
-```
-245콜 이상이면 FMP 없이 Yahoo Finance만으로 진행.
+## Step 2: 데이터 수집 (Yahoo Finance MCP 병렬)
 
-## Step 3: 데이터 수집 (병렬)
-
-Yahoo Finance MCP 호출:
+아래 MCP 도구를 병렬 호출하여 데이터 수집:
 - `mcp__yahoo-finance__get_ticker_info` (symbol)
-- `mcp__yahoo-finance__get_financials` (symbol, frequency=annual)
+- `mcp__yahoo-finance__get_financials` (symbol, statement=income, period=yearly)
+- `mcp__yahoo-finance__get_financials` (symbol, statement=balance, period=yearly)
+- `mcp__yahoo-finance__get_financials` (symbol, statement=cashflow, period=yearly)
 - `mcp__yahoo-finance__get_earnings` (symbol)
-- `mcp__yahoo-finance__get_holders` (symbol)
-- `mcp__yahoo-finance__get_price_history` (symbol, period=1y, interval=1d)
-- `mcp__yahoo-finance__get_analyst_data` (symbol)
+- `mcp__yahoo-finance__get_holders` (symbol, holder_type=institutional)
+- `mcp__yahoo-finance__get_price_history` (symbol, period=1y, interval=1wk)
+- `mcp__yahoo-finance__get_analyst_data` (symbol, data_type=price_targets)
 
-Python 스크립트:
-```bash
-cd scripts && python3 -c "
-from stock_analyzer import fetch_technical, fetch_fundamental, fetch_institutional
-import json
-tech = fetch_technical('SYMBOL')
-fund = fetch_fundamental('SYMBOL')
-inst = fetch_institutional('SYMBOL')
-print(json.dumps({'technical': tech, 'fundamental': fund, 'institutional': inst}, default=str))
-"
+## Step 3: 풀 prose context JSON 생성
+
+수집한 데이터를 기반으로 **equity-research-guide.md** 기준에 맞는 8챕터 prose를 직접 작성.
+`docs/reports/equity/{SYMBOL}-context.json` 파일로 저장.
+
+JSON 구조는 아래 스키마를 따른다:
+
+```json
+{
+  "symbol": "PLTR",
+  "company_name": "Palantir Technologies Inc.",
+  "exchange": "NASDAQ",
+  "sector": "Technology",
+  "industry": "Software - Infrastructure",
+  "report_date": "2026-04-06",
+  "current_price": 148.46,
+  "target_price": 175.0,
+  "rating": "HOLD",
+  "conviction": "MEDIUM",
+  "market_cap": "$355B",
+  "forward_pe": "79.8x",
+  "ev_ebitda": "241.8x",
+  "revenue_growth": "+56.2%",
+  "gross_margin": "82.4%",
+  "fcf_yield": "0.4%",
+
+  "ch1": {
+    "thesis": "5-7문장 투자 논거. 결론 먼저.",
+    "investment_thesis": "1줄 요약",
+    "thesis_points": ["포인트1", "포인트2", "포인트3"],
+    "scenarios": {
+      "bull": {"price": 250, "probability": 30, "note": "설명"},
+      "base": {"price": 175, "probability": 45, "note": "설명"},
+      "bear": {"price": 90, "probability": 25, "note": "설명"}
+    }
+  },
+  "ch2": {
+    "platform_overview": "사업 모델 상세 5-7문장",
+    "business_model": "1줄 요약",
+    "platforms": [
+      {"name": "제품명", "target": "대상", "description": "3-4문장"}
+    ],
+    "competitors_commentary": "경쟁 분석 3-5문장"
+  },
+  "ch3": {
+    "income_commentary": "손익 분석 5-7문장",
+    "sbc_analysis": "SBC 분석 3-5문장",
+    "cashflow_commentary": "현금흐름 3-5문장",
+    "income_stmt": [
+      {"year": "FY2023", "revenue": 2225, "revenue_growth": 17, "gross_margin": 82, "op_margin": 5, "net_income": 210}
+    ]
+  },
+  "ch4": {
+    "dcf_commentary": "DCF 분석 3-5문장",
+    "comps_commentary": "Comps 분석 3-5문장",
+    "dcf": {"wacc": 10.5, "tgr": 4.0, "fair_value": 155},
+    "comps": [
+      {"ticker": "SNOW", "ev_rev": "13x", "pe_fwd": "145x", "growth": "+28%"}
+    ]
+  },
+  "ch5": {
+    "short_term": [
+      {"timing": "시기", "title": "이벤트", "description": "설명", "importance": "HIGH"}
+    ],
+    "mid_term": [
+      {"theme_name": "테마", "description": "설명"}
+    ],
+    "long_term_thesis": "장기 비전 설명"
+  },
+  "ch6": {
+    "risks": [
+      {"category": "Business", "title": "리스크명", "description": "3-5문장", "probability": "중간", "impact": "높음", "bear_price": 90}
+    ]
+  },
+  "ch7": {
+    "macro_commentary": "산업+매크로 5-7문장",
+    "technical_commentary": "기술적 분석 3-5문장",
+    "technical": {"rsi_14": 47.9, "ma50": 146.9, "ma200": 164.2, "macd_signal": "하락"}
+  },
+  "ch8": {
+    "conclusion": "투자 결론 5-7문장",
+    "trade_setup": {"entry_zone": "$130-$140", "target1": 165, "target2": 175, "stop_loss": 125},
+    "kpis": [
+      {"metric": "KPI명", "threshold": "기준", "action": "행동"}
+    ]
+  }
+}
 ```
 
-## Step 4: 에이전트 분석 (병렬)
-
-3개 에이전트를 병렬 호출:
-- **Fundamental Analyst** → CH1~CH4, CH6 (기업가치, 재무, 밸류에이션, 리스크)
-- **Quant Strategist** → CH5, CH7 일부 (성장 촉매, 기술적 분석)
-- **Market Scanner** → CH7 일부 (수급, 공시, 센티멘트)
-
-## Step 5: 8챕터 context dict 조립
-
-| 챕터 | 내용 |
-|------|------|
-| CH1 Executive Summary | Rating, 12개월 목표가, Investment Thesis, Bull/Base/Bear |
-| CH2 Business Overview | 사업모델, 매출 세그먼트, 경쟁사 5개, TAM/SAM/SOM |
-| CH3 Financial Analysis | 5개년 P&L, BS 핵심, CF, 마진 추세 |
-| CH4 Valuation | DCF(민감도 5x5), Comps(Peer 5개), 역사적 P/E 밴드 |
-| CH5 Growth Catalysts | 단기(0-6M), 중장기(1-3Y), 마진 레버리지 |
-| CH6 Risk Factors | 사업/재무/규제/매크로 리스크 |
-| CH7 Industry & Macro | 섹터 퍼포먼스, 매크로 민감도, 기관 포지션, 기술적 |
-| CH8 Investment Conclusion | Rating, Trade Setup, 모니터링 KPI 5개 |
-
-## Step 6: 보고서 생성
+## Step 4: Git commit + push
 
 ```bash
-cd scripts && python3 -c "
-from equity_report_generator import generate_equity_report
-generate_equity_report(context, 'SYMBOL')
-"
+git add docs/reports/equity/{SYMBOL}-context.json
+git commit -m "data: {SYMBOL} equity research context"
+git push
 ```
 
-## Step 7: GitHub Actions 트리거 → 이메일 발송
-
-리포트를 메일로 받을 수 있도록 GitHub Actions 워크플로우를 자동 트리거한다:
+## Step 5: GitHub Actions 트리거
 
 ```bash
-"/c/Program Files/GitHub CLI/gh.exe" workflow run equity-report.yml -f symbol=SYMBOL
+"/c/Program Files/GitHub CLI/gh.exe" workflow run equity-report.yml -f symbol={SYMBOL}
 ```
 
-이 명령은 백그라운드로 실행하고, 사용자에게 아래를 안내:
-- "GitHub Actions에서 리포트 생성 중 → 완료되면 메일로 발송됩니다"
-- 예상 소요: 1~2분
+Actions가 context.json을 읽어 HTML/PDF 렌더링 → 이메일 발송.
 
-## Step 8: 결과 알림
+## Step 6: 결과 안내
 
 사용자에게:
-1. 핵심 결론 요약 (Rating + 목표가 + 핵심 논거) — 대화 내 즉시 제공
-2. 메일 발송 상태 안내 — "풀 리서치 PDF는 메일로 발송됩니다"
-3. 로컬 파일 경로 (있을 경우):
-   - HTML: `docs/reports/equity/SYMBOL-YYYY-MM-DD.html`
-   - PDF: `docs/reports/equity/SYMBOL-YYYY-MM-DD.pdf`
+1. 핵심 분석 요약 (Rating + 목표가 + 핵심 논거) — 대화 내 즉시
+2. "풀 리서치 PDF는 메일로 발송됩니다" — 1~2분 후 도착
