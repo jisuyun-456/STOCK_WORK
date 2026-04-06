@@ -55,7 +55,7 @@ body {
 }
 
 .cover-header {
-  border-top: 4px solid var(--gold);
+  border-top: 4px solid var(--navy);
   border-bottom: 1px solid var(--border);
   padding: 12px 0 10px;
   display: flex;
@@ -71,8 +71,10 @@ body {
 }
 
 .cover-title h1 {
+  font-family: 'Newsreader', 'Noto Sans KR', Georgia, serif;
+  font-style: italic;
   font-size: 26pt;
-  font-weight: 700;
+  font-weight: 400;
   color: var(--navy);
   line-height: 1.2;
   letter-spacing: -0.5px;
@@ -81,14 +83,14 @@ body {
 .cover-title h2 {
   font-size: 13pt;
   font-weight: 300;
-  color: var(--accent);
+  color: var(--muted);
   margin-top: 8px;
 }
 
 .cover-mood-banner {
   margin-top: 30px;
   padding: 10px 16px;
-  border-left: 4px solid var(--gold);
+  border-left: 4px solid var(--navy);
   background: var(--light-bg);
 }
 
@@ -103,12 +105,13 @@ body {
 }
 
 .cover-portfolio-box .box-header {
-  background: var(--navy);
-  color: white;
+  background: var(--primary-dim);
+  color: var(--navy);
   padding: 6px 12px;
   font-size: 9pt;
   font-weight: 700;
   letter-spacing: 1px;
+  border-bottom: 2px solid var(--navy);
 }
 
 .cover-portfolio-box table {
@@ -123,7 +126,7 @@ body {
   text-align: right;
 }
 
-.cover-portfolio-box th { background: #eef1f7; font-weight: 700; text-align: left; }
+.cover-portfolio-box th { background: var(--light-bg); font-weight: 700; text-align: left; color: var(--muted); }
 .cover-portfolio-box td:first-child { text-align: left; font-weight: 700; }
 
 .up { color: var(--green); font-weight: 700; }
@@ -140,6 +143,7 @@ body {
 /* ── 섹션 헤더 ── */
 .section-header {
   border-top: 3px solid var(--navy);
+  background: var(--light-bg);
   padding: 8px 0 6px;
   margin-bottom: 12px;
 }
@@ -162,7 +166,7 @@ table.data-table {
 
 table.data-table th {
   background: var(--navy);
-  color: white;
+  color: #fff;
   padding: 5px 8px;
   text-align: right;
   font-weight: 600;
@@ -179,7 +183,8 @@ table.data-table td {
 
 table.data-table td:first-child { text-align: left; font-weight: 600; }
 table.data-table tr:nth-child(even) td { background: var(--light-bg); }
-table.data-table tr:last-child td { border-bottom: 2px solid var(--navy); }
+table.data-table tr:last-child td { border-bottom: 2px solid var(--border); }
+table.data-table tr:nth-child(odd) td { background: var(--cream); }
 
 /* ── 시황 카드 ── */
 .market-cards {
@@ -316,10 +321,10 @@ table.data-table tr:last-child td { border-bottom: 2px solid var(--navy); }
   text-align: center;
 }
 
-.dv-label.today-lbl  { background: #1e3a5f; }
-.dv-label.cat-lbl    { background: #155724; }
-.dv-label.risk-lbl   { background: #7b1c1c; }
-.dv-label.view-lbl   { background: var(--gold); color: var(--navy); }
+.dv-label.today-lbl  { background: var(--navy); }
+.dv-label.cat-lbl    { background: var(--green); }
+.dv-label.risk-lbl   { background: #7b2a1a; }
+.dv-label.view-lbl   { background: var(--primary-dim); color: var(--navy); }
 
 .dv-content { font-size: 9pt; line-height: 1.4; flex: 1; }
 
