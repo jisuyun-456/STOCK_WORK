@@ -31,19 +31,35 @@
       "bull": {
         "price": 250,
         "probability": 25,
-        "note": "AIP 기반 상업 고객 ARR이 연 80%+ 성장을 지속하고, 미국 국방·정보 예산 증액이 정부 부문 가속을 이끄는 시나리오. 2027년 EPS $1.80 달성 시 EV/S 40배 적용. SBC 희석이 통제되고 자사주 매입이 본격화될 경우 추가 Upside 가능. Agentic AI 플랫폼으로의 전환이 시장 재평가를 이끌 수 있다."
+        "note": "AIP 기반 상업 고객 ARR이 연 80%+ 성장을 지속하고, 미국 국방·정보 예산 증액이 정부 부문 가속을 이끄는 시나리오. 2027년 EPS $1.80 달성 시 EV/S 40배 적용. SBC 희석이 통제되고 자사주 매입이 본격화될 경우 추가 Upside 가능. Agentic AI 플랫폼으로의 전환이 시장 재평가를 이끌 수 있다.",
+        "prob": 25
       },
       "base": {
         "price": 175,
         "probability": 50,
-        "note": "상업 ARR 연 40~50% 성장 지속, 정부 부문 안정적 유지. FY2026 매출 $6.3B, Adj. Op. Margin 35% 유지를 가정. EV/S 25배 적용. 현재 주가 대비 밸류에이션 부담이 일부 해소되며 점진적 상승 기대."
+        "note": "상업 ARR 연 40~50% 성장 지속, 정부 부문 안정적 유지. FY2026 매출 $6.3B, Adj. Op. Margin 35% 유지를 가정. EV/S 25배 적용. 현재 주가 대비 밸류에이션 부담이 일부 해소되며 점진적 상승 기대.",
+        "prob": 50
       },
       "bear": {
         "price": 90,
         "probability": 25,
-        "note": "AI 예산 역풍 또는 경쟁사(Microsoft Fabric, Databricks) 침식으로 상업 성장이 20% 이하로 둔화되는 시나리오. 정부 부문 계약 갱신 실패가 가세될 경우, SBC 과다로 희석이 심화되며 EV/S 15배 수준으로 멀티플 수축이 불가피하다."
+        "note": "AI 예산 역풍 또는 경쟁사(Microsoft Fabric, Databricks) 침식으로 상업 성장이 20% 이하로 둔화되는 시나리오. 정부 부문 계약 갱신 실패가 가세될 경우, SBC 과다로 희석이 심화되며 EV/S 15배 수준으로 멀티플 수축이 불가피하다.",
+        "prob": 25
       }
-    }
+    },
+    "rating": "HOLD",
+    "conviction": "MEDIUM",
+    "target_price": 175.0,
+    "current_price": 148.46,
+    "key_metrics": {
+      "market_cap": "$355B",
+      "fwd_pe": "79.8x",
+      "ev_ebitda": "241.8x",
+      "revenue_growth": "+56.2%",
+      "gross_margin": "82.4%",
+      "fcf_yield": "0.35%"
+    },
+    "upside_pct": 17.9
   },
   "ch2": {
     "business_model": "미국 + 동맹국 정부 AI 플랫폼 표준. Gotham(정부)→Foundry(기업)→AIP(AI) 3단계 수직 통합 구조.",
@@ -70,7 +86,10 @@
         "description": "Palantir의 소프트웨어 배포·업데이트 플랫폼으로, Gotham/Foundry/AIP를 클라우드, 온프레미스, 에어갭(air-gapped) 환경 등 어디서든 실행할 수 있게 하는 인프라 레이어다. 국방·정보기관의 보안 환경에서 SaaS 방식의 지속적 업데이트를 가능하게 하는 핵심 기술로, 경쟁사 대비 배포 유연성에서 강력한 차별화 요소다."
       }
     ],
-    "competitors_commentary": "Palantir의 경쟁 환경은 직접 경쟁사보다는 대형 클라우드 플랫폼의 번들 전략이 장기적 위협이다. Microsoft(Azure + Fabric + Copilot)는 범용 클라우드 번들로 중견기업 시장에서 Foundry를 대체할 수 있으나, 정부 보안 인증과 복잡 데이터 통합 역량에서 Palantir에 미치지 못한다. Databricks는 데이터 엔지니어링 영역에서 강하지만 비즈니스 의사결정 자동화에는 약하며, Snowflake는 저장·쿼리 전문으로 Palantir와 직접 경쟁하지 않는다. C3.ai는 재무적으로 불안정하고 시장 점유율이 미미하다. 핵심은 Palantir의 Moat가 '기술'이 아니라 '고객 내 Deep Embedding'에 있다는 점으로, 한번 구축된 데이터 파이프라인의 교체 비용이 경쟁사 진입 장벽으로 작용한다."
+    "competitors_commentary": "Palantir의 경쟁 환경은 직접 경쟁사보다는 대형 클라우드 플랫폼의 번들 전략이 장기적 위협이다. Microsoft(Azure + Fabric + Copilot)는 범용 클라우드 번들로 중견기업 시장에서 Foundry를 대체할 수 있으나, 정부 보안 인증과 복잡 데이터 통합 역량에서 Palantir에 미치지 못한다. Databricks는 데이터 엔지니어링 영역에서 강하지만 비즈니스 의사결정 자동화에는 약하며, Snowflake는 저장·쿼리 전문으로 Palantir와 직접 경쟁하지 않는다. C3.ai는 재무적으로 불안정하고 시장 점유율이 미미하다. 핵심은 Palantir의 Moat가 '기술'이 아니라 '고객 내 Deep Embedding'에 있다는 점으로, 한번 구축된 데이터 파이프라인의 교체 비용이 경쟁사 진입 장벽으로 작용한다.",
+    "segments": [],
+    "geo": [],
+    "competitors": []
   },
   "ch3": {
     "income_commentary": "Palantir의 재무 구조는 지난 3년간 극적인 전환을 보여왔다. 만성적 적자 기업에서 GAAP 기준 흑자 전환에 성공했으며, FCF 마진은 업계 최상위 수준으로 개선됐다. FY2025 매출은 $4.48B로 전년 대비 56.2% 성장하며 성장 속도가 오히려 가속화됐다는 점이 핵심이다. 매출총이익률(Gross Margin) 82.4%는 SaaS 업계에서도 최상위권으로, 순수 소프트웨어 모델의 강점을 보여준다. 영업이익은 $1.41B(영업이익률 31.6%)으로 전년 $310M에서 4.5배 증가했으며, 순이익은 $1.63B(순이익률 36.3%)을 기록했다. 다만 주식기반보상(SBC)이 연간 $500M 이상으로 높아, Adjusted 수익성과 GAAP 수익성 사이의 괴리가 크다는 점은 밸류에이션 분석 시 반드시 반영이 필요하다.",
@@ -110,7 +129,8 @@
         "net_income": 1625
       }
     ],
-    "revenue_breakdown": []
+    "revenue_breakdown": [],
+    "cashflow": []
   },
   "ch4": {
     "dcf_commentary": "DCF 분석에서 WACC 10.5%, Terminal Growth Rate 4.0%를 적용하여 내재가치 $155를 도출했다. 향후 5년간 매출 성장률 연평균 30% 유지 후 Terminal 단계에서 10%로 수렴, Adj. FCF Margin 42% 가정이 핵심이다. 현재 주가 $148은 DCF 내재가치에 근접해 있으나, 이는 매우 낙관적인 성장 가정을 전제한 것이다. WACC이 11.5%로 올라가면 내재가치는 $123까지 하락하며, Terminal Growth Rate가 2%로 낮아지면 $115까지 하락한다. DCF 민감도 분석에서 현재 주가가 정당화되려면 WACC 10% 이하 + Terminal Growth 3.5% 이상의 조합이 필요하다.",
@@ -261,6 +281,40 @@
   },
   "ch6": {
     "risks": [
+      {
+        "category": "Business",
+        "title": "극단적 고밸류에이션 / 멀티플 수축 리스크",
+        "description": "현재 EV/Revenue 79x, P/E 240x(TTM)는 성장에 대한 극단적 낙관을 이미 반영한다. 고성장 기술주는 실망스러운 실적 발표 후 하루 만에 20~30% 하락하는 사례가 빈번하며, PLTR도 예외가 아니다. 분기 매출 성장이 1퍼라도 시장 기대치(30%+)를 하회할 경우 멀티플 수축이 즉각적으로 발생할 수 있으며, 금리 상승 국면에서는 장기 성장주의 DCF 할인율이 올라가 추가적인 밸류에이션 압박이 발생한다.",
+        "probability": "중간",
+        "impact": "높음",
+        "bear_price": 90
+      },
+      {
+        "category": "Business",
+        "title": "정부 계약 집중 / 예산 역풍 리스크",
+        "description": "전체 매출의 약 55%가 미국·동맹국 정부 계약에서 발생한다. 정치적 환경 변화(국방 예산 역풍, 정권 교체)나 특정 대형 계약의 비갱신은 단기 매출에 큰 충격을 줄 수 있다. 역사적으로 정부 IT 계약은 정권 교체 후 재검토되는 경우가 많으며, 이는 예측 가능성을 낮춘다. 다만 현 트럼프 행정부 하에서는 이 리스크가 낮다고 판단된다.",
+        "probability": "낮음",
+        "impact": "높음",
+        "bear_price": 110
+      },
+      {
+        "category": "Business",
+        "title": "내부자 대규모 주식 매도 / 거버넌스 리스크",
+        "description": "Alex Karp CEO를 포함한 내부자들의 대규모 주식 매도 이력이 투자자 신뢰에 부정적 영향을 미쳐왔다. Rule 10b5-1 플랜을 통한 정기적 매도는 경영진이 주가 상단에 대한 확신이 낮다는 신호로 해석될 수 있다. 또한 복수 의결권 구조로 인해 일반 주주의 거버넌스 감시가 제한된다. 거버넌스 리스크 점수 10/10(최고 위험)은 이 구조적 문제를 반영한다.",
+        "probability": "중간",
+        "impact": "중간",
+        "bear_price": 120
+      },
+      {
+        "category": "Competitive",
+        "title": "Microsoft Fabric / 대형 하이퍼스케일러 번들 전략",
+        "description": "장기적으로 가장 주의 깊게 모니터링해야 할 리스크는 Microsoft의 번들 전략이다. Azure + Microsoft Fabric + Copilot for Enterprise 패키지가 중견 기업 고객에서 PLTR의 Foundry를 대체할 가능성이 있다. Palantir의 방어선은 정부 보안 인증, 복잡 데이터 통합 역량, 그리고 고객 내 Deep Embedding이지만, 대형 하이퍼스케일러의 번들 가격 공세는 장기적 위협이다.",
+        "probability": "낮음",
+        "impact": "중간",
+        "bear_price": 100
+      }
+    ],
+    "business_risk": [
       {
         "category": "Business",
         "title": "극단적 고밸류에이션 / 멀티플 수축 리스크",
