@@ -19,6 +19,24 @@
             "command": "bash .claude/hooks/protect-sensitive-files.sh"
           }
         ]
+      },
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre-trade-gate.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/fmp-budget-check.sh"
+          }
+        ]
       }
     ],
     "Stop": [
@@ -26,7 +44,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/investment-risk-gate.sh"
+            "command": "bash .claude/hooks/session-portfolio-snapshot.sh"
           }
         ]
       }

@@ -31,11 +31,14 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
-      - name: Generate equity report
+      - name: Generate equity report & send email
         env:
           FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          REPORT_EMAIL_TO: ${{ secrets.REPORT_EMAIL_TO }}
         working-directory: scripts
-        run: python equity_report_generator.py ${{ github.event.inputs.symbol }}
+        run: python equity_report_generator.py ${{ github.event.inputs.symbol }} --send
 
       - name: Commit report
         run: |

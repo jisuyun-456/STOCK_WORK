@@ -540,11 +540,67 @@ def generate_equity_report(context: dict, symbol: str) -> dict:
     return results
 
 
+# ── Email ────────────────────────────────────────────────────────────────────
+
+def send_email(symbol: str, report_date: str, html_path: str = None, pdf_path: str = None):
+    """Gmail SMTP로 Equity Research Report 이메일 발송 (PDF 첨부)"""
+    import smtplib
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+    from email.mime.application import MIMEApplication
+
+    smtp_user = os.environ.get("GMAIL_ADDRESS", "").strip()
+    smtp_pass = os.environ.get("GMAIL_APP_PASSWORD", "").strip()
+    to_email = os.environ.get("REPORT_EMAIL_TO", "").strip()
+
+    if not all([smtp_user, smtp_pass, to_email]):
+        print("  [email] 설정 누락 (GMAIL_ADDRESS, GMAIL_APP_PASSWORD, REPORT_EMAIL_TO)", file=sys.stderr)
+        return False
+
+    msg = MIMEMultipart("mixed")
+    msg["Subject"] = f"[Equity Research] {symbol} — {report_date}"
+    msg["From"] = smtp_user
+    msg["To"] = to_email
+
+    # HTML 본문
+    if html_path and os.path.exists(html_path):
+        with open(html_path, "r", encoding="utf-8") as f:
+            html_content = f.read()
+        msg.attach(MIMEText(html_content, "html", "utf-8"))
+    else:
+        msg.attach(MIMEText(f"<h1>{symbol} Equity Research Report — {report_date}</h1><p>PDF 첨부 확인</p>", "html", "utf-8"))
+
+    # PDF 첨부
+    if pdf_path and os.path.exists(pdf_path):
+        with open(pdf_path, "rb") as f:
+            pdf_part = MIMEApplication(f.read(), _subtype="pdf")
+            filename = f"{symbol}-{report_date}.pdf"
+            pdf_part["Content-Disposition"] = f'attachment; filename="{filename}"'
+            msg.attach(pdf_part)
+        size_kb = os.path.getsize(pdf_path) / 1024
+        print(f"  [email] PDF 첨부: {filename} ({size_kb:.0f}KB)", file=sys.stderr)
+    else:
+        print("  [email] PDF 없음 — 본문만 발송", file=sys.stderr)
+
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(smtp_user, smtp_pass)
+            server.sendmail(smtp_user, to_email, msg.as_string())
+        print(f"  [email] 발송 완료 → {to_email}", file=sys.stderr)
+        return True
+    except Exception as e:
+        print(f"  [email] 발송 실패: {e}", file=sys.stderr)
+        return False
+
+
 # ── CLI ──────────────────────────────────────────────────────────────────────
 
 def main():
-    symbol = sys.argv[1] if len(sys.argv) > 1 else "PLTR"
-    symbol = symbol.upper()
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    flags = [a for a in sys.argv[1:] if a.startswith("--")]
+
+    symbol = args[0].upper() if args else "PLTR"
+    do_send = "--send" in flags
 
     print(f"\n{'='*60}", file=sys.stderr)
     print(f"  Equity Research Report — {symbol}", file=sys.stderr)
@@ -559,6 +615,10 @@ def main():
         if path:
             print(f"  [{fmt.upper()}] {path}", file=sys.stderr)
     print(f"{'='*60}", file=sys.stderr)
+
+    if do_send:
+        report_date = context.get("report_date", str(date.today()))
+        send_email(symbol, report_date, results.get("html"), results.get("pdf"))
 
 
 if __name__ == "__main__":

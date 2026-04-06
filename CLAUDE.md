@@ -9,76 +9,79 @@
 ## 투자 원칙 (불변)
 - 분산투자: 단일 종목 최대 20%, 단일 섹터 최대 40%
 - 손절 원칙: 개별 종목 -10%, 포트폴리오 MDD -20% 시 검토 의무화
-- 세금 선행: 매도 전 ST-06(tax-optimizer) 시뮬레이션 필수
+- 세금 선행: 매도 전 Tax & Compliance 시뮬레이션 필수
 - 데이터 기반: 뉴스·감·소문에 의한 매매 금지, 정량 분석 선행
-- 레버리지 경고: 인버스/곱버스는 반드시 ST-08 + ST-05 동시 분석 후 진입
+- 레버리지 경고: 인버스/곱버스는 반드시 Market Scanner + Quant Strategist 동시 분석 후 진입
 
 ## 투자 스타일
 - 코어: 장기 가치투자 (Graham→Buffett 계보)
 - 새틀라이트: 모멘텀/테마/인버스·곱버스 (기회 포착형)
-- 시장: 미국/한국 동등 커버, 기회에 따라 유동적
+- 시장: 미국/한국 동등 ��버, 기회에 따라 ��동적
 
-## 에이전트 팀 라우팅
+## 에이전트 팀 — Lean Trading Desk (5명)
 
-### 2계층 구조 개요
+> 핵심 철학: "에이전트는 사고한다. 스킬은 실행한다. 도구가 차별화한다."
 
 ```
-Tier 2 — 시니어 리뷰어 (3명)
-├── orchestrator       전체 조율·최종 통합 (Head of Desk)
-├── D6 investment-expert  ST-01/ST-04 결과 검토 → 투자 의견 통합
-└── D7 economics-expert   ST-03/ST-07 결과 검토 → 이론 프레임 제공
-
-Tier 1 — 스페셜리스트 (8명)
-├── ST-01 equity-research        → reports to D6
-├── ST-02 technical-strategist   → reports to orchestrator
-├── ST-03 macro-economist        → reports to D7
-├── ST-04 portfolio-architect    → reports to D6
-├── ST-05 risk-controller        → reports to orchestrator
-├── ST-06 tax-optimizer          → reports to orchestrator
-├── ST-07 market-intelligence    → reports to D7
-└── ST-08 leveraged-etf-specialist → reports to orchestrator
+Chief Strategist (opus) — 다관점 ��합 + 최종 판단 + 동적 오케스트레이션
+├── Fundamental Analyst (sonnet) — 기업가치 + 매크로 경제
+├── Quant Strategist (sonnet) — 기술적 분석 + 리스크 + ���트폴리오
+├── Tax & Compliance (sonnet) — 세금 최적화 + 투자원칙 게이트키퍼
+└─��� Market Scanner (sonnet) — 공시/수���/뉴스 + ���버리지ETF
 ```
 
-**라우팅 원칙:** 단일 도메인 → Tier 1 직접 위임 / 복합 분석 → orchestrator 경유
-
-### Tier 1 — 스페셜리스트 라우팅 (세밀한 키워드 우선)
+### 라우팅 키워드
 
 | 키워드 | 에이전트 |
 |--------|---------|
-| PER, PBR, ROE, DCF, 10-K, 사업보고서, 밸류에이션, 실적, Moat | ST-01 equity-research |
-| 이동평균, RSI, MACD, 볼린저, 지지선, 저항선, 차트, 기술적, Elliott | ST-02 technical-strategist |
-| 금리, 환율, 경기사이클, GDP, CPI, 연준, 한은, 매크로 | ST-03 macro-economist |
-| 포트폴리오, 비중, 리밸런싱, 섹터분산, 편출입, 팩터 | ST-04 portfolio-architect |
-| 손절, MDD, VaR, 포지션사이징, 리스크, 스트레스테스트, 켈리 | ST-05 risk-controller |
-| 양도세, 배당세, ISA, 연금저축, 세금, 절세, 손익통산 | ST-06 tax-optimizer |
-| 공시, 뉴스, 수급, 13F, 내부자거래, 센티멘트, Earnings | ST-07 market-intelligence |
-| 인버스, 곱버스, 레버리지ETF, 변동성끌림, 괴리율, KODEX, TIGER | ST-08 leveraged-etf-specialist |
+| PER, PBR, ROE, DCF, 밸류에이션, 실적, Moat, 금리, 환율, GDP, CPI, 연준, 매크로 | Fundamental Analyst |
+| 이동평균, RSI, MACD, 볼린저, 차트, VaR, MDD, 포지션사이징, 포트폴리오, 리밸런싱, 팩터 | Quant Strategist |
+| 양도세, 배당���, ISA, 연금저축, 세금, 절세, 손익통산 | Tax & Compliance |
+| 공시, 뉴스, 수급, 13F, 내부자거래, 센티멘트, 인버스, 곱버스, 레버리지ETF, 괴리율 | Market Scanner |
+| 종합 분석, 매수/매도 판단, 복합 요청 | Chief Strategist |
 
-### Tier 2 — 시니어 리뷰어 라우팅
+> **라우팅 우선순위:** 스킬 매칭 > 단일 에이전트 직접 위임 > Chief Strategist 통합
 
-| 역할 | 에이전트 | 트리거 조건 |
-|------|---------|-----------|
-| 투자 의견 통합 | D6 investment-expert | ST-01/ST-04 결과 검토, 최종 매수/매도 판단, 투자 철학 적용 |
-| 경제 이론 검증 | D7 economics-expert | ST-03/ST-07 결과 검토, 학술적 이론 프레임 적용, 반론 제시 |
-| 전체 조율 | orchestrator | 복수 도메인 교차 분석, 5가지 오케스트레이션 패턴 실행 |
-| 코드/인프라 | D3 tech-architect (전역) | 코드, API, DB, 배포, 아키텍처 |
-| 프로젝트 관리 | D5 project-manager (전역) | 프로젝트 계획, KPI, MECE, 일정 |
+### 동적 오케스트레이션 규칙 (4개)
 
-> **라우팅 우선순위:** Tier 1 특화 키워드 > Tier 2 시니어 리뷰 > 범용 전문가
+| 규칙 | 조건 | 동작 |
+|------|------|------|
+| 1 | 매수/매도 판단 | Tax & Compliance 경유 필수 |
+| 2 | 레버리지 ETF | Quant Strategist 병렬 분석 필수 |
+| 3 | 단일 도메인 질문 | 해당 에이전트 직접 위임 |
+| 4 | 2개+ 도메인 교차 | Chief Strategist 동적 조합 |
+
+### 스킬 (8개)
+
+| 스킬 | 트리거 | 호출 에이전트 |
+|------|--------|-------------|
+| `/analyze {SYMBOL}` | 분석해줘, 보고서 | Fundamental + Quant + Market Scanner |
+| `/screen` | 스크리닝, 종목 찾아줘 | Market Scanner |
+| `/portfolio` | 포트폴리오, ��밸런싱 | Quant + Tax & Compliance |
+| `/macro` | 매크로, 경기, ��리 | Fundamental Analyst |
+| `/trade-check {SYMBOL}` | 매수해도 돼?, 매도? | Chief Strategist (전체 조율) |
+| `/daily` | 일일 리포트, 오늘 시장 | Market Scanner + Quant |
+| `/tax-sim` | 세금, 양도세, 절세 | Tax & Compliance |
+| `/leverage-check` | 인버스, 곱버스, 레버리지 | Market Scanner + Quant (병렬 필수) |
+
+### 범용 전문가 (전역 CLAUDE.md 상속)
+
+| 역할 | 에이전트 | 트리거 |
+|------|---------|--------|
+| 코드/인프라 | D3 tech-architect (전역) | 코드, API, DB, 배포 |
+| 프로젝트 관리 | D5 project-manager (전역) | 프로젝트 계획, KPI, MECE |
 
 ## 데이터 소스
-- 한국: Korean Stock MCP (DART+KRX), 네이버 금융, BOK ECOS
+- 한���: Korean Stock MCP (DART+KRX), 네이버 금융, BOK ECOS
 - 미국: Yahoo Finance MCP, FMP MCP (SEC 재무 심층), FRED
 - API 키: .env 파일 (절대 커밋 금지)
 
 ## FMP API 제한 (필수 준수)
 - **일일 한도: 250콜** (무료 플랜)
 - FMP 호출 전 반드시 `python scripts/fmp_rate_limiter.py check` 실행
-- 200콜(80%): ⚠️ WARNING — 알림 표시, 계속 가능
-- 245콜(98%): 🟡 CRITICAL — 필수 분석만 허용, 사용자에게 알림
-- 250콜(100%): 🔴 BLOCKED — FMP 호출 완전 차단, 내일 자동 리셋
-- 일일 리포트(자동): ~50콜 예상, 수동 분석 포함 하루 최대 ~150콜
-- **에이전트는 FMP 호출 시 `record_calls(n, source)` 로 사용량 기록할 것**
+- 200콜(80%): WARNING — 알림 표시, 계속 가능
+- 245콜(98%): CRITICAL — 필수 분석�� 허용
+- 250콜(100%): BLOCKED — FMP 호출 완전 차단, 내일 자동 리셋
 
 ## 태스크 관리
 `.claude/feature_list.json` — 분석 대기 종목, 리밸런싱 태스크, 세금 이벤트 목록
