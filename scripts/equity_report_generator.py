@@ -405,6 +405,20 @@ def _fmt_num(val, decimals=0):
         return "N/A"
 
 
+def _fmt_m(val, decimals=1):
+    """millions 단위 값 → $x.xB / $xxxM 포맷 (income_stmt, cashflow 전용)"""
+    try:
+        v = float(val) * 1_000_000
+        if abs(v) >= 1e9:
+            return f"${v/1e9:.{decimals}f}B"
+        elif abs(v) >= 1e6:
+            return f"${v/1e6:.0f}M"
+        else:
+            return f"${v:,.0f}"
+    except (TypeError, ValueError):
+        return "N/A"
+
+
 def _fmt_pct(val):
     try:
         v = float(val)
@@ -561,6 +575,7 @@ def generate_equity_report(context: dict, symbol: str) -> dict:
         from jinja2 import Environment, FileSystemLoader
         env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)), autoescape=False)
         env.filters["fmt_num"] = _fmt_num
+        env.filters["fmt_m"] = _fmt_m
         env.filters["fmt_pct"] = _fmt_pct
         env.filters["pct_class"] = _pct_class
         env.filters["abs"] = abs
@@ -586,6 +601,7 @@ def generate_equity_report(context: dict, symbol: str) -> dict:
 
         env_pdf = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)), autoescape=False)
         env_pdf.filters["fmt_num"] = _fmt_num
+        env_pdf.filters["fmt_m"] = _fmt_m
         env_pdf.filters["fmt_pct"] = _fmt_pct
         env_pdf.filters["pct_class"] = _pct_class
         env_pdf.filters["abs"] = abs
@@ -611,7 +627,7 @@ def generate_equity_report(context: dict, symbol: str) -> dict:
 
 # ── Email ────────────────────────────────────────────────────────────────────
 
-def send_email(symbol: str, report_date: str, html_path: str = None, pdf_path: str = None):
+def send_email(symbol: str, report_date: str, html_path: str = None, pdf_path: str = None, context: dict = None):
     """Gmail SMTP로 Equity Research Report 이메일 발송 (PDF 첨부)"""
     import smtplib
     from email.mime.multipart import MIMEMultipart
@@ -631,11 +647,22 @@ def send_email(symbol: str, report_date: str, html_path: str = None, pdf_path: s
     msg["From"] = smtp_user
     msg["To"] = to_email
 
-    # HTML 본문
-    if html_path and os.path.exists(html_path):
-        with open(html_path, "r", encoding="utf-8") as f:
-            html_content = f.read()
-        msg.attach(MIMEText(html_content, "html", "utf-8"))
+    # HTML 본문 — equity_email.html (Gmail 호환 요약), context 없으면 기본 텍스트
+    if context:
+        try:
+            from jinja2 import Environment, FileSystemLoader
+            env_mail = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)), autoescape=False)
+            env_mail.filters["fmt_num"] = _fmt_num
+            env_mail.filters["fmt_m"] = _fmt_m
+            env_mail.filters["fmt_pct"] = _fmt_pct
+            env_mail.filters["pct_class"] = _pct_class
+            template_mail = env_mail.get_template("equity_email.html")
+            email_html = template_mail.render(**context)
+            msg.attach(MIMEText(email_html, "html", "utf-8"))
+            print("  [email] equity_email.html 렌더링 완료", file=sys.stderr)
+        except Exception as e:
+            print(f"  [email] 이메일 템플릿 렌더링 실패: {e}", file=sys.stderr)
+            msg.attach(MIMEText(f"<h1>{symbol} Equity Research — {report_date}</h1><p>PDF 첨부 확인</p>", "html", "utf-8"))
     else:
         msg.attach(MIMEText(f"<h1>{symbol} Equity Research Report — {report_date}</h1><p>PDF 첨부 확인</p>", "html", "utf-8"))
 
@@ -706,7 +733,7 @@ def main():
 
     if do_send:
         report_date = context.get("report_date", str(date.today()))
-        send_email(symbol, report_date, results.get("html"), results.get("pdf"))
+        send_email(symbol, report_date, results.get("html"), results.get("pdf"), context=context)
 
 
 if __name__ == "__main__":

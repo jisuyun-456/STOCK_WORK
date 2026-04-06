@@ -1061,6 +1061,12 @@
   </tbody>
 </table>
 {% endif %}
+{% if ch2.competitors_commentary %}
+<div class="prose-box" style="margin-top:8pt;">
+  <div class="prose-label">Competitive Landscape</div>
+  {{ ch2.competitors_commentary }}
+</div>
+{% endif %}
 
 <!-- Revenue Segments -->
 {% if ch2.segments %}
@@ -1147,10 +1153,10 @@
     {% for row in ch3.income_stmt %}
     <tr>
       <td>{{ row.year }}</td>
-      <td class="r">{{ row.revenue | fmt_num }}</td>
-      <td class="r">{{ row.gp | fmt_num }}</td>
-      <td class="r">{{ row.ebitda | fmt_num }}</td>
-      <td class="r {{ row.ni | pct_class | default('nt') }}">{{ row.ni | fmt_num }}</td>
+      <td class="r">{{ row.revenue | fmt_m }}</td>
+      <td class="r">{{ row.gp | fmt_m }}</td>
+      <td class="r">{{ row.ebitda | fmt_m }}</td>
+      <td class="r {{ row.ni | pct_class | default('nt') }}">{{ row.ni | fmt_m }}</td>
       <td class="r">{{ row.eps }}</td>
     </tr>
     {% endfor %}
@@ -1158,6 +1164,12 @@
 </table>
 {% else %}
 <div class="empty-state">Income statement data unavailable</div>
+{% endif %}
+{% if ch3.income_commentary %}
+<div class="prose-box" style="margin-bottom:8pt;">
+  <div class="prose-label">Income Statement Commentary</div>
+  {{ ch3.income_commentary }}
+</div>
 {% endif %}
 
 <!-- Margin Trend -->
@@ -1204,14 +1216,20 @@
     {% for row in ch3.cashflow %}
     <tr>
       <td>{{ row.year }}</td>
-      <td class="r">{{ row.cfo | fmt_num }}</td>
-      <td class="r dn">{{ row.capex | fmt_num }}</td>
-      <td class="r {{ row.fcf | pct_class | default('nt') }}">{{ row.fcf | fmt_num }}</td>
+      <td class="r">{{ row.cfo | fmt_m }}</td>
+      <td class="r dn">{{ row.capex | fmt_m }}</td>
+      <td class="r {{ row.fcf | pct_class | default('nt') }}">{{ row.fcf | fmt_m }}</td>
       <td class="r">{{ row.fcf_margin | default('—') }}%</td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
+{% endif %}
+{% if ch3.cashflow_commentary %}
+<div class="prose-box" style="margin-bottom:8pt;">
+  <div class="prose-label">Cash Flow Commentary</div>
+  {{ ch3.cashflow_commentary }}
+</div>
 {% endif %}
 
 <!-- Balance Sheet Key Metrics -->
@@ -1221,7 +1239,7 @@
   {% set bs = ch3.balance_sheet %}
   <div class="bs-box">
     <div class="bs-label">Total Assets</div>
-    <div class="bs-val">{{ bs.total_assets | fmt_num | default('—') }}</div>
+    <div class="bs-val">{{ bs.total_assets | fmt_m | default('—') }}</div>
   </div>
   <div class="bs-box">
     <div class="bs-label">Debt Ratio</div>
@@ -1232,7 +1250,7 @@
   <div class="bs-box">
     <div class="bs-label">Net Cash</div>
     <div class="bs-val {{ 'up' if (bs.net_cash | default(0) | float) >= 0 else 'dn' }}">
-      {{ bs.net_cash | fmt_num | default('—') }}
+      {{ bs.net_cash | fmt_m | default('—') }}
     </div>
   </div>
   <div class="bs-box">
@@ -1719,6 +1737,12 @@
   </tbody>
 </table>
 {% endif %}
+{% if ch7.technical_commentary %}
+<div class="prose-box" style="margin-top:8pt;">
+  <div class="prose-label">Technical Commentary</div>
+  {{ ch7.technical_commentary }}
+</div>
+{% endif %}
 {% endif %}
 
 <div class="page-footer">
@@ -1753,6 +1777,12 @@
   {% endif %}
   {% if ch8.summary %}
   <div class="conclusion-subtext">{{ ch8.summary }}</div>
+  {% endif %}
+  {% if ch8.conclusion %}
+  <div class="prose-box" style="margin-top:10pt;">
+    <div class="prose-label">Investment Conclusion</div>
+    {{ ch8.conclusion }}
+  </div>
   {% endif %}
 </div>
 

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ symbol }} Equity Research — {{ report_date }}</title>
+</head>
+<body style="margin:0;padding:0;background:#f5f0eb;font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;font-size:13px;color:#1c1c19;">
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f0eb;">
+<tr><td align="center" style="padding:20px 12px;">
+
+<table width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:#fcf9f4;border:1px solid #dbc1b9;border-radius:4px;overflow:hidden;">
+
+  <!-- HEADER -->
+  <tr>
+    <td style="background:#fcf9f4;border-bottom:3px solid #99462a;padding:18px 24px 14px;">
+      <p style="margin:0 0 2px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#88726c;">Private Portfolio Research · Equity Research</p>
+      <h1 style="margin:4px 0 0;font-size:22px;font-weight:700;color:#1c1c19;font-family:Georgia,serif;font-style:italic;">{{ company_name }}</h1>
+      <p style="margin:4px 0 0;font-size:11px;color:#88726c;">{{ symbol }} · {{ exchange | default('NASDAQ') }} · {{ sector | default('Technology') }} · {{ report_date }}</p>
+    </td>
+  </tr>
+
+  <!-- RATING BANNER -->
+  {% set r = (ch1.rating | default('HOLD')) | upper %}
+  {% set conv = ch1.conviction | default('MEDIUM') %}
+  {% if r == 'BUY' %}
+  {% set banner_bg = '#1E7A45' %}{% set banner_border = '#165f35' %}
+  {% elif r == 'SELL' %}
+  {% set banner_bg = '#99462a' %}{% set banner_border = '#7a3520' %}
+  {% else %}
+  {% set banner_bg = '#815600' %}{% set banner_border = '#6a4500' %}
+  {% endif %}
+  <tr>
+    <td style="background:{{ banner_bg }};border-bottom:2px solid {{ banner_border }};padding:14px 24px;">
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="vertical-align:middle;">
+            <span style="font-size:20px;font-weight:700;color:#fff;letter-spacing:1px;">{{ r }}</span>
+            <span style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.75);letter-spacing:1.5px;text-transform:uppercase;margin-left:8px;">{{ conv }}</span>
+          </td>
+          <td style="text-align:right;vertical-align:middle;">
+            <span style="font-size:18px;font-weight:700;color:#fff;">${{ ch1.target_price | default('—') }}</span>
+            <span style="font-size:11px;color:rgba(255,255,255,0.75);margin-left:4px;">Target</span>
+            <span style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.9);margin-left:12px;">
+              {% if ch1.upside_pct is defined and ch1.upside_pct != None %}
+                {% if ch1.upside_pct | float >= 0 %}+{% endif %}{{ ch1.upside_pct }}% Upside
+              {% endif %}
+            </span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" style="padding-top:6px;">
+            <span style="font-size:12px;color:rgba(255,255,255,0.85);">Current: ${{ ch1.current_price | default('—') }}</span>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- KEY METRICS -->
+  {% set km = ch1.key_metrics | default({}) %}
+  <tr>
+    <td style="padding:16px 24px 0;">
+      <p style="margin:0 0 8px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#99462a;border-bottom:1px solid #dbc1b9;padding-bottom:5px;">Key Metrics</p>
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td width="33%" style="padding:6px 8px 6px 0;border-bottom:1px solid #ebe8e3;vertical-align:top;">
+            <p style="margin:0 0 2px;font-size:9px;color:#88726c;text-transform:uppercase;letter-spacing:0.8px;">Market Cap</p>
+            <p style="margin:0;font-size:14px;font-weight:700;color:#1c1c19;">{{ km.market_cap | default('—') }}</p>
+          </td>
+          <td width="33%" style="padding:6px 8px;border-bottom:1px solid #ebe8e3;vertical-align:top;">
+            <p style="margin:0 0 2px;font-size:9px;color:#88726c;text-transform:uppercase;letter-spacing:0.8px;">Fwd P/E</p>
+            <p style="margin:0;font-size:14px;font-weight:700;color:#1c1c19;">{{ km.fwd_pe | default('—') }}</p>
+          </td>
+          <td width="34%" style="padding:6px 0 6px 8px;border-bottom:1px solid #ebe8e3;vertical-align:top;">
+            <p style="margin:0 0 2px;font-size:9px;color:#88726c;text-transform:uppercase;letter-spacing:0.8px;">EV/EBITDA</p>
+            <p style="margin:0;font-size:14px;font-weight:700;color:#1c1c19;">{{ km.ev_ebitda | default('—') }}</p>
+          </td>
+        </tr>
+        <tr>
+          <td width="33%" style="padding:6px 8px 0 0;vertical-align:top;">
+            <p style="margin:0 0 2px;font-size:9px;color:#88726c;text-transform:uppercase;letter-spacing:0.8px;">Rev Growth</p>
+            {% set rg = km.revenue_growth | default('—') %}
+            <p style="margin:0;font-size:14px;font-weight:700;color:{% if rg != '—' and (rg | string).startswith('+') %}#1E7A45{% elif rg != '—' and (rg | string).startswith('-') %}#99462a{% else %}#1c1c19{% endif %};">{{ rg }}</p>
+          </td>
+          <td width="33%" style="padding:6px 8px;vertical-align:top;">
+            <p style="margin:0 0 2px;font-size:9px;color:#88726c;text-transform:uppercase;letter-spacing:0.8px;">Gross Margin</p>
+            <p style="margin:0;font-size:14px;font-weight:700;color:#1c1c19;">{{ km.gross_margin | default('—') }}{% if km.gross_margin is defined and km.gross_margin != '—' %}%{% endif %}</p>
+          </td>
+          <td width="34%" style="padding:6px 0 0 8px;vertical-align:top;">
+            <p style="margin:0 0 2px;font-size:9px;color:#88726c;text-transform:uppercase;letter-spacing:0.8px;">FCF Yield</p>
+            <p style="margin:0;font-size:14px;font-weight:700;color:#1c1c19;">{{ km.fcf_yield | default('—') }}{% if km.fcf_yield is defined and km.fcf_yield != '—' %}%{% endif %}</p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- INVESTMENT THESIS -->
+  {% set thesis = ch1.investment_thesis or ch1.thesis or '' %}
+  {% if thesis %}
+  <tr>
+    <td style="padding:14px 24px 0;">
+      <p style="margin:0 0 8px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#99462a;border-bottom:1px solid #dbc1b9;padding-bottom:5px;">Investment Thesis</p>
+      <p style="margin:0;font-size:13px;line-height:1.7;color:#1c1c19;">{{ thesis }}</p>
+    </td>
+  </tr>
+  {% endif %}
+
+  <!-- SCENARIOS (BULL / BASE / BEAR) -->
+  {% if ch1.scenarios %}
+  {% set sc = ch1.scenarios %}
+  <tr>
+    <td style="padding:14px 24px 0;">
+      <p style="margin:0 0 8px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#99462a;border-bottom:1px solid #dbc1b9;padding-bottom:5px;">Price Target Scenarios</p>
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td width="33%" style="padding:8px;background:#E8F5EE;border:1px solid #b8dfca;border-radius:3px;text-align:center;vertical-align:top;">
+            <p style="margin:0 0 3px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#1E7A45;">Bull</p>
+            <p style="margin:0;font-size:16px;font-weight:700;color:#1E7A45;">${{ sc.bull.price | default('—') }}</p>
+            <p style="margin:3px 0 0;font-size:10px;color:#1E7A45;">{{ sc.bull.prob | default('—') }}%</p>
+          </td>
+          <td width="4%" style="padding:0 4px;"></td>
+          <td width="26%" style="padding:8px;background:#f0ede9;border:1px solid #dbc1b9;border-radius:3px;text-align:center;vertical-align:top;">
+            <p style="margin:0 0 3px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#815600;">Base</p>
+            <p style="margin:0;font-size:16px;font-weight:700;color:#1c1c19;">${{ sc.base.price | default('—') }}</p>
+            <p style="margin:3px 0 0;font-size:10px;color:#55433d;">{{ sc.base.prob | default('—') }}%</p>
+          </td>
+          <td width="4%" style="padding:0 4px;"></td>
+          <td width="33%" style="padding:8px;background:#fdf0ec;border:1px solid #e8beae;border-radius:3px;text-align:center;vertical-align:top;">
+            <p style="margin:0 0 3px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#99462a;">Bear</p>
+            <p style="margin:0;font-size:16px;font-weight:700;color:#99462a;">${{ sc.bear.price | default('—') }}</p>
+            <p style="margin:3px 0 0;font-size:10px;color:#99462a;">{{ sc.bear.prob | default('—') }}%</p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  {% endif %}
+
+  <!-- TRADE SETUP -->
+  {% if ch8.trade_setup %}
+  {% set ts = ch8.trade_setup %}
+  <tr>
+    <td style="padding:14px 24px 0;">
+      <p style="margin:0 0 8px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#99462a;border-bottom:1px solid #dbc1b9;padding-bottom:5px;">Trade Setup</p>
+      <table width="100%" cellpadding="6" cellspacing="0" style="border-collapse:collapse;font-size:12px;">
+        {% if ts.entry_zone %}
+        <tr style="background:#f0ede9;">
+          <td style="padding:6px 10px;font-weight:600;color:#55433d;border-bottom:1px solid #dbc1b9;">Entry Zone</td>
+          <td style="padding:6px 10px;text-align:right;border-bottom:1px solid #dbc1b9;">
+            {% if ts.entry_zone is iterable and ts.entry_zone | length == 2 %}
+              ${{ ts.entry_zone[0] }} – ${{ ts.entry_zone[1] }}
+            {% else %}${{ ts.entry_zone }}{% endif %}
+          </td>
+        </tr>
+        {% endif %}
+        {% if ts.target1 %}
+        <tr>
+          <td style="padding:6px 10px;font-weight:600;color:#1E7A45;border-bottom:1px solid #dbc1b9;">Target 1</td>
+          <td style="padding:6px 10px;text-align:right;color:#1E7A45;font-weight:700;border-bottom:1px solid #dbc1b9;">${{ ts.target1 }}{% if ts.target1_note %} · <span style="font-weight:400;font-size:11px;">{{ ts.target1_note }}</span>{% endif %}</td>
+        </tr>
+        {% endif %}
+        {% if ts.target2 %}
+        <tr style="background:#f0ede9;">
+          <td style="padding:6px 10px;font-weight:600;color:#1E7A45;border-bottom:1px solid #dbc1b9;">Target 2</td>
+          <td style="padding:6px 10px;text-align:right;color:#1E7A45;font-weight:700;border-bottom:1px solid #dbc1b9;">${{ ts.target2 }}{% if ts.target2_note %} · <span style="font-weight:400;font-size:11px;">{{ ts.target2_note }}</span>{% endif %}</td>
+        </tr>
+        {% endif %}
+        {% if ts.stop_loss %}
+        <tr>
+          <td style="padding:6px 10px;font-weight:600;color:#99462a;border-bottom:1px solid #dbc1b9;">Stop Loss</td>
+          <td style="padding:6px 10px;text-align:right;color:#99462a;font-weight:700;border-bottom:1px solid #dbc1b9;">${{ ts.stop_loss }}</td>
+        </tr>
+        {% endif %}
+        {% if ts.risk_reward %}
+        <tr style="background:#f0ede9;">
+          <td style="padding:6px 10px;font-weight:600;color:#55433d;">Risk/Reward</td>
+          <td style="padding:6px 10px;text-align:right;font-weight:700;">{{ ts.risk_reward }} : 1</td>
+        </tr>
+        {% endif %}
+      </table>
+    </td>
+  </tr>
+  {% endif %}
+
+  <!-- MONITORING KPIs -->
+  {% if ch8.monitoring %}
+  <tr>
+    <td style="padding:14px 24px 0;">
+      <p style="margin:0 0 8px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#99462a;border-bottom:1px solid #dbc1b9;padding-bottom:5px;">Monitoring KPIs</p>
+      <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:12px;">
+        {% for kpi in ch8.monitoring %}
+        <tr style="{% if loop.index is odd %}background:#f6f3ee;{% endif %}">
+          <td style="padding:6px 10px;font-weight:600;color:#55433d;border-bottom:1px solid #ebe8e3;width:40%;">{{ kpi.kpi }}</td>
+          <td style="padding:6px 10px;color:#99462a;font-family:monospace;border-bottom:1px solid #ebe8e3;width:25%;">{{ kpi.threshold }}</td>
+          <td style="padding:6px 10px;color:#88726c;border-bottom:1px solid #ebe8e3;">{{ kpi.action }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </td>
+  </tr>
+  {% endif %}
+
+  <!-- CONCLUSION -->
+  {% if ch8.conclusion %}
+  <tr>
+    <td style="padding:14px 24px 0;">
+      <p style="margin:0 0 8px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#99462a;border-bottom:1px solid #dbc1b9;padding-bottom:5px;">Investment Conclusion</p>
+      <p style="margin:0;font-size:13px;line-height:1.7;color:#1c1c19;">{{ ch8.conclusion }}</p>
+    </td>
+  </tr>
+  {% endif %}
+
+  <!-- FOOTER -->
+  <tr>
+    <td style="padding:16px 24px;margin-top:20px;background:#f0ede9;border-top:1px solid #dbc1b9;">
+      <p style="margin:0 0 4px;font-size:11px;color:#55433d;font-weight:600;">PDF 첨부 파일에서 8챕터 전문 리포트 확인</p>
+      <p style="margin:0;font-size:10px;color:#88726c;">이 메일은 자동 생성된 투자 참고 자료입니다. 투자 결정의 최종 책임은 본인에게 있습니다.</p>
+      <p style="margin:6px 0 0;font-size:10px;color:#88726c;">Generated {{ generated_at | default(report_date) }} · Private Portfolio Research</p>
+    </td>
+  </tr>
+
+</table>
+
+</td></tr>
+</table>
+
+</body>
+</html>
