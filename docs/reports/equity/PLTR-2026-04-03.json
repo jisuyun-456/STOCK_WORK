@@ -37,7 +37,9 @@
         "prob": 25,
         "note": "경쟁사(Microsoft, Palantir-clone) 진입, 정부 예산 삭감, 높은 주식 기반 보상 희석"
       }
-    }
+    },
+    "thesis": "정부/기업 AI 플랫폼 독점, 미-이란 분쟁 수혜, 흑자 전환 완료",
+    "thesis_points": []
   },
   "ch2": {
     "business_model": "미국 + 동맹국 정부 AI 플랫폼 표준 자리 잡기. Gotham(정부)→Foundry(기업)→AIP(AI) 3단계 성장 구조. 상업 고객 ARR 연 50%+ 성장 기대.",
@@ -45,13 +47,18 @@
     "revenue_segments": [],
     "geographic_mix": [],
     "competitors": [],
-    "tam_sam_som": {}
+    "tam_sam_som": {},
+    "platform_overview": "미국 + 동맹국 정부 AI 플랫폼 표준 자리 잡기. Gotham(정부)→Foundry(기업)→AIP(AI) 3단계 성장 구조. 상업 고객 ARR 연 50%+ 성장 기대.",
+    "platforms": []
   },
   "ch3": {
     "income_stmt": [],
     "balance_sheet": {},
     "cash_flow": [],
-    "margins": []
+    "margins": [],
+    "revenue_breakdown": [],
+    "sbc_analysis": "",
+    "income_commentary": ""
   },
   "ch4": {
     "dcf": {
@@ -59,6 +66,45 @@
       "tgr": 3.0,
       "fair_value": null,
       "sensitivity_matrix": [
+        [
+          96.88,
+          106.25,
+          115.62,
+          125.0,
+          134.38
+        ],
+        [
+          86.11,
+          94.44,
+          102.78,
+          111.11,
+          119.44
+        ],
+        [
+          77.5,
+          85.0,
+          92.5,
+          100.0,
+          107.5
+        ],
+        [
+          70.45,
+          77.27,
+          84.09,
+          90.91,
+          97.73
+        ],
+        [
+          64.58,
+          70.83,
+          77.08,
+          83.33,
+          89.58
+        ]
+      ],
+      "labels_wacc": [],
+      "labels_tgr": [],
+      "matrix": [
         [
           96.88,
           106.25,
@@ -103,7 +149,9 @@
       "psr": null
     },
     "historical_val": [],
-    "target_method": "DCF 50% + Comps 50%"
+    "target_method": "DCF 50% + Comps 50%",
+    "dcf_commentary": "",
+    "comps_commentary": ""
   },
   "ch5": {
     "short_term": [
@@ -169,7 +217,8 @@
     ],
     "financial_risk": [],
     "regulatory_risk": [],
-    "macro_risk": []
+    "macro_risk": [],
+    "risks": []
   },
   "ch7": {
     "sector_performance": {
@@ -207,7 +256,9 @@
       "pct_from_high": -28.3,
       "high_52w": 207.18,
       "low_52w": 74.01
-    }
+    },
+    "perf_chart_data": [],
+    "macro_commentary": ""
   },
   "ch8": {
     "final_rating": "HOLD",
@@ -252,6 +303,8 @@
       "trigger": "Q1 2026 실적 발표 (5월 예정)",
       "date": "",
       "event": "실적 발표 후 CH1, CH3, CH4 업데이트"
-    }
+    },
+    "kpis": [],
+    "conclusion": ""
   }
 }

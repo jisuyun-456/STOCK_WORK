@@ -557,7 +557,113 @@
     border-radius: 5px;
     margin-bottom: 14px;
   }
+  /* ── PROSE COMMENTARY ──────────────────────────────── */
+  .prose-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 14px 16px;
+    font-size: 11.5px;
+    line-height: 1.8;
+    color: var(--text);
+    margin-bottom: 14px;
+    white-space: pre-line;
+  }
+  .prose-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    margin-bottom: 6px;
+  }
+
+  /* ── THESIS POINTS ──────────────────────────────────── */
+  .thesis-points { list-style: none; padding: 0; margin-bottom: 14px; }
+  .thesis-points li {
+    display: flex;
+    gap: 8px;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    line-height: 1.5;
+    background: var(--bg2);
+  }
+  .thesis-points li:first-child { border-radius: 5px 5px 0 0; }
+  .thesis-points li:last-child  { border-bottom: none; border-radius: 0 0 5px 5px; }
+  .thesis-points li .tp-bullet  { color: #C8523A; font-weight: 700; flex-shrink: 0; }
+
+  /* ── PLATFORM CARDS ─────────────────────────────────── */
+  .platform-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .platform-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 12px 14px;
+    border-top: 3px solid #1E5FA8;
+  }
+  .platform-card .pc-name { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .platform-card .pc-contrib {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    margin-bottom: 6px;
+  }
+  .platform-card .pc-desc { font-size: 10.5px; line-height: 1.6; color: var(--text); }
+
+  /* ── CHART CONTAINERS ───────────────────────────────── */
+  .chart-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .chart-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .chart-sub {
+    font-size: 9px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .chart-canvas { max-height: 280px; }
+
+  /* ── KPI TABLE (v1) ─────────────────────────────────── */
+  .signal-badge {
+    font-size: 8px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .signal-ok      { background: #E8F5EE; color: #1E7A45; border: 1px solid #b8d8c4; }
+  .signal-warn    { background: #FBF3E2; color: #A87228; border: 1px solid #e0d5b8; }
+  .signal-danger  { background: #FBF0ED; color: #C8523A; border: 1px solid #f0c4b8; }
+
+  /* ── RISK UNIFIED TABLE ─────────────────────────────── */
+  .risk-tier-badge {
+    font-size: 8px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .tier-high   { background: #FBF0ED; color: #C8523A; border: 1px solid #f0c4b8; }
+  .tier-medium { background: #FBF3E2; color: #A87228; border: 1px solid #e0d5b8; }
+  .tier-low    { background: #E8F5EE; color: #1E7A45; border: 1px solid #b8d8c4; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -625,11 +731,13 @@
     </div>
   </div>
 
-  <!-- Investment Thesis -->
+  <!-- Investment Thesis (v1: thesis prose + thesis_points, fallback to investment_thesis) -->
+  
   <div class="thesis-box">
     <div class="tb-label">Investment Thesis</div>
     <div class="tb-text">정부/기업 AI 플랫폼 독점, 미-이란 분쟁 수혜, 흑자 전환 완료</div>
   </div>
+  
 
   <!-- Key Metrics 6-grid -->
   <div class="sec-title">Key Metrics</div>
@@ -689,9 +797,13 @@
 <!-- ═══ CH2: BUSINESS OVERVIEW ══════════════════════════════════════════════ -->
 <section class="chapter" id="ch2">
 
-  <!-- Business Model -->
+  <!-- Business Model + Platform Overview -->
   <div class="sec-title">Business Model</div>
+  
   <div class="biz-text">미국 + 동맹국 정부 AI 플랫폼 표준 자리 잡기. Gotham(정부)→Foundry(기업)→AIP(AI) 3단계 성장 구조. 상업 고객 ARR 연 50%+ 성장 기대.</div>
+
+  <!-- Platform Cards (v1) -->
+  
 
   <!-- Competitors Table -->
   
@@ -707,6 +819,12 @@
 <!-- ═══ CH3: FINANCIAL ANALYSIS ════════════════════════════════════════════ -->
 <section class="chapter" id="ch3">
 
+  <!-- Exhibit 1: Revenue Breakdown Stacked Bar -->
+  
+
+  <!-- Exhibit 2: Revenue + Gross Margin Combo -->
+  
+
   <!-- Income Statement -->
   <div class="sec-title">Income Statement (5Y)</div>
   
@@ -719,7 +837,11 @@
   <div class="empty-state">Margin data unavailable</div>
   
 
+  <!-- SBC Analysis (v1) -->
+  
+
   <!-- Cash Flow -->
+  
   
 
   <!-- Balance Sheet Key Metrics -->
@@ -753,12 +875,15 @@
     
   </div>
 
-  <!-- Sensitivity Heatmap -->
+  <!-- Sensitivity Heatmap (supports both v1 labels_wacc/labels_tgr/matrix and legacy) -->
+  
   
   <div class="sensitivity-wrap">
-    <div class="sec-title">DCF Sensitivity (WACC x TGR)</div>
+    <div class="sec-title">DCF Sensitivity Matrix (WACC × TGR)</div>
     <div style="overflow-x:auto;">
       <table class="sens-table">
+        
+        
         
         <tbody>
           
@@ -768,66 +893,31 @@
               
               
               
-                <td class="sens-heat-high">96.88</td>
+                <td class="sens-heat-low">$96.88</td>
               
             
               
               
               
-                <td class="sens-heat-high">106.25</td>
+                <td class="sens-heat-low">$106.25</td>
               
             
               
               
               
-                <td class="sens-heat-high">115.62</td>
+                <td class="sens-heat-low">$115.62</td>
               
             
               
               
               
-                <td class="sens-heat-high">125.0</td>
+                <td class="sens-heat-mid3">$125.0</td>
               
             
               
               
               
-                <td class="sens-heat-high">134.38</td>
-              
-            
-          </tr>
-          
-          <tr>
-            
-            
-              
-              
-              
-                <td class="sens-heat-high">86.11</td>
-              
-            
-              
-              
-              
-                <td class="sens-heat-high">94.44</td>
-              
-            
-              
-              
-              
-                <td class="sens-heat-high">102.78</td>
-              
-            
-              
-              
-              
-                <td class="sens-heat-high">111.11</td>
-              
-            
-              
-              
-              
-                <td class="sens-heat-high">119.44</td>
+                <td class="sens-heat-mid3">$134.38</td>
               
             
           </tr>
@@ -838,66 +928,31 @@
               
               
               
-                <td class="sens-heat-high">77.5</td>
+                <td class="sens-heat-low">$86.11</td>
               
             
               
               
               
-                <td class="sens-heat-high">85.0</td>
+                <td class="sens-heat-low">$94.44</td>
               
             
               
               
               
-                <td class="sens-heat-high">92.5</td>
+                <td class="sens-heat-low">$102.78</td>
               
             
               
               
               
-                <td class="sens-heat-high">100.0</td>
+                <td class="sens-heat-low">$111.11</td>
               
             
               
               
               
-                <td class="sens-heat-high">107.5</td>
-              
-            
-          </tr>
-          
-          <tr>
-            
-            
-              
-              
-              
-                <td class="sens-heat-high">70.45</td>
-              
-            
-              
-              
-              
-                <td class="sens-heat-high">77.27</td>
-              
-            
-              
-              
-              
-                <td class="sens-heat-high">84.09</td>
-              
-            
-              
-              
-              
-                <td class="sens-heat-high">90.91</td>
-              
-            
-              
-              
-              
-                <td class="sens-heat-high">97.73</td>
+                <td class="sens-heat-mid3">$119.44</td>
               
             
           </tr>
@@ -908,31 +963,101 @@
               
               
               
-                <td class="sens-heat-high">64.58</td>
+                <td class="sens-heat-low">$77.5</td>
               
             
               
               
               
-                <td class="sens-heat-high">70.83</td>
+                <td class="sens-heat-low">$85.0</td>
               
             
               
               
               
-                <td class="sens-heat-high">77.08</td>
+                <td class="sens-heat-low">$92.5</td>
               
             
               
               
               
-                <td class="sens-heat-high">83.33</td>
+                <td class="sens-heat-low">$100.0</td>
               
             
               
               
               
-                <td class="sens-heat-high">89.58</td>
+                <td class="sens-heat-low">$107.5</td>
+              
+            
+          </tr>
+          
+          <tr>
+            
+            
+              
+              
+              
+                <td class="sens-heat-low">$70.45</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$77.27</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$84.09</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$90.91</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$97.73</td>
+              
+            
+          </tr>
+          
+          <tr>
+            
+            
+              
+              
+              
+                <td class="sens-heat-low">$64.58</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$70.83</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$77.08</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$83.33</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$89.58</td>
               
             
           </tr>
@@ -942,6 +1067,10 @@
     </div>
   </div>
   
+
+  <!-- DCF Commentary (v1) -->
+  
+
   
 
   <!-- Comps Table -->
@@ -964,7 +1093,8 @@
       <div class="c-dot" style="background:var(--blue)"></div>
       
       <div class="c-body">
-        <div class="c-title"></div>
+        <div class="c-title">Q1 2026 실적 발표 (5월 예정)</div>
+        
         
       </div>
       
@@ -974,7 +1104,8 @@
       <div class="c-dot" style="background:var(--blue)"></div>
       
       <div class="c-body">
-        <div class="c-title"></div>
+        <div class="c-title">NDF-X 계약 갱신 결과</div>
+        
         
       </div>
       
@@ -989,18 +1120,21 @@
   <div class="mid-term-grid">
     
     <div class="mt-card">
-      <div class="mt-label"></div>
+      <div class="mt-label">DoD/정부 신규 계약 공시</div>
       <div class="mt-text"></div>
+      
     </div>
     
     <div class="mt-card">
-      <div class="mt-label"></div>
+      <div class="mt-label">AIP 상업 고객 수 분기 발표</div>
       <div class="mt-text"></div>
+      
     </div>
     
     <div class="mt-card">
-      <div class="mt-label"></div>
+      <div class="mt-label">미-이란 분쟁 국방 예산 확대</div>
       <div class="mt-text"></div>
+      
     </div>
     
   </div>
@@ -1019,6 +1153,9 @@
 
 <!-- ═══ CH6: RISK FACTORS ════════════════════════════════════════════════════ -->
 <section class="chapter" id="ch6">
+
+  <!-- Unified risks[] (v1 schema) -->
+  
 
   <div class="risk-category-grid">
 
@@ -1121,10 +1258,18 @@
     </div>
 
   </div>
+  
+
 </section>
 
 <!-- ═══ CH7: INDUSTRY & MACRO ═══════════════════════════════════════════════ -->
 <section class="chapter" id="ch7">
+
+  <!-- Exhibit 3: 12M Relative Performance -->
+  
+
+  <!-- Macro Commentary (v1) -->
+  
 
   <!-- Institutional Summary Boxes -->
   
@@ -1177,10 +1322,11 @@
     </div>
     <div class="tech-box">
       <div class="tech-label">52W High %</div>
-      <div class="tech-val up">
-        —%
+      
+      <div class="tech-val nt">
+        -28.3%
       </div>
-      <div class="tech-sub">From 52W High</div>
+      <div class="tech-sub">From 52W High (207.18)</div>
     </div>
   </div>
 
@@ -1202,6 +1348,9 @@
     
     
   </div>
+
+  <!-- Conclusion Prose (v1) -->
+  
 
   <!-- Trade Setup -->
   
@@ -1243,47 +1392,70 @@
   </div>
   
 
-  <!-- Monitoring KPIs -->
+  <!-- Monitoring KPIs (v1 kpis[] or fallback monitoring[]) -->
+  
   
   <div class="sec-title">Monitoring KPIs</div>
   <div style="overflow-x:auto; margin-bottom:14px;">
     <table class="data-table" style="background:var(--bg2);border:1px solid var(--border);border-radius:5px;overflow:hidden;">
       <thead>
         <tr>
-          <th>KPI</th>
+          <th>Metric / KPI</th>
           <th>Threshold</th>
+          <th>Current</th>
+          <th style="width:80px;">Signal</th>
           <th>Action</th>
         </tr>
       </thead>
       <tbody>
         
         <tr>
-          <td>분기 매출 성장률</td>
+          <td style="font-weight:600;">분기 매출 성장률</td>
           <td style="color:var(--gold)"><15%</td>
+          <td style="color:var(--muted);font-size:10px;">—</td>
+          <td>
+            —
+          </td>
           <td style="color:var(--muted);font-size:10px;">성장 둔화 경고</td>
         </tr>
         
         <tr>
-          <td>FCF Margin</td>
+          <td style="font-weight:600;">FCF Margin</td>
           <td style="color:var(--gold)"><10%</td>
+          <td style="color:var(--muted);font-size:10px;">—</td>
+          <td>
+            —
+          </td>
           <td style="color:var(--muted);font-size:10px;">수익성 점검</td>
         </tr>
         
         <tr>
-          <td>RSI</td>
+          <td style="font-weight:600;">RSI</td>
           <td style="color:var(--gold)">>80</td>
+          <td style="color:var(--muted);font-size:10px;">—</td>
+          <td>
+            —
+          </td>
           <td style="color:var(--muted);font-size:10px;">과매수 경고, 부분 차익 실현 검토</td>
         </tr>
         
         <tr>
-          <td>주가 vs Stop</td>
+          <td style="font-weight:600;">주가 vs Stop</td>
           <td style="color:var(--gold)"><$130.64</td>
+          <td style="color:var(--muted);font-size:10px;">—</td>
+          <td>
+            —
+          </td>
           <td style="color:var(--muted);font-size:10px;">손절 실행</td>
         </tr>
         
         <tr>
-          <td>내부자 거래</td>
+          <td style="font-weight:600;">내부자 거래</td>
           <td style="color:var(--gold)">대규모 매도</td>
+          <td style="color:var(--muted);font-size:10px;">—</td>
+          <td>
+            —
+          </td>
           <td style="color:var(--muted);font-size:10px;">경영진 신뢰 재평가</td>
         </tr>
         
@@ -1320,7 +1492,113 @@ function switchTab(id, event) {
     event.currentTarget.classList.add('active');
   }
   window.scrollTo(0, 0);
+  // Lazy-init charts on first tab visit
+  if (id === 'ch3') { initCh3Charts(); }
+  if (id === 'ch7') { initCh7Charts(); }
 }
+
+// ── Exhibit 1 & 2: Revenue Charts (CH3) ───────────────────────────────────
+var ch3ChartsInited = false;
+function initCh3Charts() {
+  if (ch3ChartsInited) return;
+  ch3ChartsInited = true;
+
+  // Exhibit 1: Revenue Breakdown Stacked Bar
+  var ctxBreak = document.getElementById('chartRevBreakdown');
+  if (ctxBreak && window._revBreakdown) {
+    var rb = window._revBreakdown;
+    new Chart(ctxBreak, {
+      type: 'bar',
+      data: {
+        labels: rb.labels,
+        datasets: [
+          { label: 'Government', data: rb.gov, backgroundColor: '#1E5FA8', stack: 'rev' },
+          { label: 'Commercial', data: rb.com, backgroundColor: '#C8523A', stack: 'rev' }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+          x: { stacked: true, grid: { color: '#E0DBD0' } },
+          y: { stacked: true, grid: { color: '#E0DBD0' },
+               ticks: { callback: function(v) { return '$' + (v/1e6).toFixed(0) + 'M'; } } }
+        }
+      }
+    });
+  }
+
+  // Exhibit 2: Revenue + Gross Margin Combo
+  var ctxCombo = document.getElementById('chartRevMargin');
+  if (ctxCombo && window._revMargin) {
+    var rm = window._revMargin;
+    new Chart(ctxCombo, {
+      type: 'bar',
+      data: {
+        labels: rm.labels,
+        datasets: [
+          { type: 'bar',  label: 'Revenue',       data: rm.revenue, backgroundColor: '#1A1814', yAxisID: 'yRev' },
+          { type: 'line', label: 'Gross Margin %', data: rm.grossM, borderColor: '#C8523A', backgroundColor: 'transparent',
+            pointBackgroundColor: '#C8523A', tension: 0.3, yAxisID: 'yPct', borderWidth: 2 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+          yRev: { position: 'left', grid: { color: '#E0DBD0' },
+                  ticks: { callback: function(v) { return '$' + (v/1e6).toFixed(0) + 'M'; } } },
+          yPct: { position: 'right', min: 0, max: 100, grid: { drawOnChartArea: false },
+                  ticks: { callback: function(v) { return v + '%'; } } },
+          x:    { grid: { color: '#E0DBD0' } }
+        }
+      }
+    });
+  }
+}
+
+// ── Exhibit 3: Relative Performance (CH7) ─────────────────────────────────
+var ch7ChartInited = false;
+function initCh7Charts() {
+  if (ch7ChartInited) return;
+  ch7ChartInited = true;
+
+  var ctxPerf = document.getElementById('chartRelPerf');
+  if (ctxPerf && window._relPerf) {
+    var rp = window._relPerf;
+    new Chart(ctxPerf, {
+      type: 'line',
+      data: {
+        labels: rp.labels,
+        datasets: [
+          { label: 'PLTR', data: rp.ticker, borderColor: '#C8523A', backgroundColor: 'rgba(200,82,58,0.08)',
+            fill: true, tension: 0.3, borderWidth: 2, pointRadius: 3 },
+          { label: 'S&P 500',      data: rp.spy,    borderColor: '#1E5FA8', backgroundColor: 'transparent',
+            tension: 0.3, borderWidth: 1.5, pointRadius: 2 },
+          { label: 'Nasdaq',       data: rp.qqq,    borderColor: '#1E7A45', backgroundColor: 'transparent',
+            tension: 0.3, borderWidth: 1.5, pointRadius: 2, borderDash: [4,3] }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { position: 'top' },
+                   tooltip: { callbacks: { label: function(c) { return c.dataset.label + ': ' + c.parsed.y.toFixed(1) + '%'; } } } },
+        scales: {
+          x: { grid: { color: '#E0DBD0' } },
+          y: { grid: { color: '#E0DBD0' },
+               ticks: { callback: function(v) { return (v >= 0 ? '+' : '') + v + '%'; } } }
+        }
+      }
+    });
+  }
+}
+
+// ── Chart Data Injection (Jinja2 → JS) ────────────────────────────────────
+
+
+
+
+
 </script>
 
 </body>
