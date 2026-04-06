@@ -1,0 +1,302 @@
+{
+  "symbol": "BBAI",
+  "company_name": "BigBear.ai Holdings",
+  "exchange": "NYSE",
+  "sector": "Technology",
+  "industry": "Defense AI / Decision Intelligence",
+  "report_date": "2026-04-06",
+  "generated_at": "2026-04-06 09:00",
+  "market_cap": "$1.7B",
+  "forward_pe": "N/M",
+  "ev_ebitda": "N/M",
+  "revenue_growth": "-19.3%",
+  "gross_margin": "22.3%",
+  "fcf_yield": "-27.2%",
+  "current_price": 3.58,
+  "target_price": 4.80,
+  "rating": "HOLD",
+  "conviction": "LOW",
+  "beta": 3.24,
+  "week52_high": 9.39,
+  "week52_low": 2.36,
+
+  "business_summary": "BigBear.ai는 국방·정보기관·공급망·디지털 신원 시장을 대상으로 AI 기반 의사결정 인텔리전스(Decision Intelligence) 솔루션을 제공하는 방산 AI 기업이다. 전직 DHS 장관 Kevin McAleenan이 CEO를 맡고 있으며, 2026년 Pangiam(디지털 신원/생체인식) 인수를 통해 사업 다각화를 추진 중이다.",
+
+  "ch1": {
+    "rating": "HOLD",
+    "conviction": "LOW",
+    "target_price": 4.80,
+    "current_price": 3.58,
+    "upside_pct": 34.1,
+    "investment_thesis": "BigBear.ai는 방산 AI 테마의 순수 플레이어이지만, FY2025 매출이 -19.3% 역성장하며 펀더멘털 회복이 지연되고 있다. Pangiam 인수와 Ask Sage 플랫폼의 정부 채택 확대가 FY2026 반등의 핵심 변수다. 27%에 달하는 숏인터레스트는 시장의 깊은 회의론을 반영하며, 현 주가는 재정 안정화를 반영하되 실적 회복을 선반영하지 않은 수준이다.",
+    "investment_thesis_long": "BBAI는 국방부(DoD) 및 정보기관의 AI 전환 수혜를 받을 수 있는 포지셔닝을 갖추고 있다. 그러나 매출 역성장(-19.3%), 총이익률 하락(28.6%→22.3%), 연간 $46M 현금 유출이 지속되고 있어 재무적 압박이 상존한다. 2025년 $637M 유상증자로 유동성 위기는 해소됐으나, 주식수가 117M(2022)→476M(2025)으로 급증한 대규모 희석이 주당 가치를 압박한다. Pangiam 인수 시너지(생체인식+AI 결합)와 Ask Sage의 정부 생성형 AI 수요 포착 여부가 향후 12개월의 핵심 변수다.",
+    "key_metrics": {
+      "market_cap": "$1.7B",
+      "fwd_pe": "N/M (손실)",
+      "ev_ebitda": "N/M (음수)",
+      "revenue_growth": "-19.3%",
+      "gross_margin": "22.3%",
+      "fcf_yield": "-27.2%"
+    },
+    "scenarios": {
+      "bull": {
+        "price": 7.50,
+        "prob": 25,
+        "note": "Pangiam 통합 성공 + 대형 DoD 계약 수주 + Ask Sage 정부 플랫폼 채택 → FY2026 매출 $200M+ 회복"
+      },
+      "base": {
+        "price": 4.80,
+        "prob": 45,
+        "note": "Pangiam 매출 가세로 FY2026 매출 $170-180M 부분 회복, 총이익률 25% 개선"
+      },
+      "bear": {
+        "price": 2.00,
+        "prob": 30,
+        "note": "DOGE 국방예산 삭감 + 매출 역성장 지속 + 추가 주식 희석으로 재평가 하락"
+      }
+    },
+    "thesis": "방산 AI 순수 플레이어. 단기 펀더멘털 압박 vs 중장기 DoD AI 전환 수혜",
+    "thesis_points": [
+      "CEO Kevin McAleenan (전 DHS 장관) — 정부 네트워크 강점",
+      "Ask Sage: 방산 특화 생성형 AI 플랫폼 (보안 환경 배포)",
+      "Pangiam 인수 — 디지털 신원·생체인식 시장 진입",
+      "$288M 현금 확보 (2025 유상증자) — 유동성 위기 해소",
+      "매출 역성장 -19.3%, 총이익률 22.3% 하락이 핵심 리스크"
+    ]
+  },
+
+  "ch2": {
+    "business_model": "BigBear.ai는 미국 국방부(DoD), 정보기관(IC), 연방정부를 주요 고객으로 하는 AI 기반 의사결정 지원 소프트웨어 기업이다. 매출의 90% 이상이 정부 계약에서 발생하며, 시스템 통합·분석 서비스와 소프트웨어 라이선스가 주요 수익원이다. Pangiam 인수(2025)로 디지털 신원 및 생체인식 분야에 진출, 상업·민간 시장 다각화를 추진 중이다.",
+    "platform_overview": "BigBear.ai Holdings, Inc.는 1988년 설립(전신: Telos Corporation의 자회사), 2021년 SPAC 합병을 통해 NYSE 상장된 방산 AI 기업이다. 버지니아주 McLean에 본사를 두고 579명의 직원을 보유한다. 핵심 플랫폼은 세 축으로 구성된다. 첫째, **Gotham/DI 플랫폼**: 국가 안보·국방을 위한 AI 기반 의사결정 인텔리전스 솔루션으로, 전장 인식·위협 탐지·임무 계획 지원에 활용된다. 둘째, **Ask Sage**: 보안 분류 환경에서 배포 가능한 생성형 AI 오케스트레이션 플랫폼으로, DoD 및 정보기관의 LLM 활용을 지원한다. 셋째, **Pangiam(2025년 인수)**: 공항·국경·포트에서의 생체인식·디지털 신원 검증 AI 솔루션으로, 글로벌 무역·여행 시장을 타깃한다.",
+    "platforms": [
+      {
+        "name": "Decision Intelligence Suite",
+        "target": "DoD / 정보기관",
+        "description": "국가 안보 임무를 위한 AI 기반 예측 분석·위협 탐지·운영 계획 지원. Supply Chain 가시성, 이산 사건 시뮬레이션, 거시경제·지정학 예측 모듈 포함."
+      },
+      {
+        "name": "Ask Sage Platform",
+        "target": "연방정부 / 방산 기업",
+        "description": "보안 분류 환경에 특화된 생성형 AI 플랫폼. 다중 LLM 오케스트레이션, 에이전틱 AI 기능, IL4/IL5/IL6 수준의 보안 배포 지원. FedRAMP 인증 추진 중."
+      },
+      {
+        "name": "Pangiam (Digital Identity)",
+        "target": "글로벌 공항·국경·항만",
+        "description": "2025년 인수한 생체인식 AI 기업. 얼굴 인식·여권 검증·디지털 신원 확인 솔루션을 미국 CBP(세관국경보호청) 및 글로벌 공항에 배포."
+      },
+      {
+        "name": "Cyber & Autonomous Systems",
+        "target": "DoD / 정보기관",
+        "description": "AI 기반 바이너리 취약점 분석, 사이버-물리 시스템 평가, 자율 시스템 의사결정 AI. 전문 컨설팅 서비스 포함."
+      }
+    ],
+    "competitors_commentary": "BigBear.ai의 경쟁 지형은 크게 세 그룹으로 나뉜다. **첫째, 방산 AI 순수 플레이어**: Palantir(PLTR)는 동일한 정부 AI 시장의 지배적 강자로, BBAI보다 훨씬 대규모·고마진 사업을 운영한다. C3.ai(AI)는 엔터프라이즈 AI 플랫폼 경쟁사로 BBAI와 유사한 수익성 문제를 겪고 있다. **둘째, 방산 IT 대형사**: Booz Allen Hamilton(BAH), Leidos(LDOS), SAIC는 AI를 내재화하고 있는 대형 시스템 통합업체로, BBAI의 계약을 잠식할 수 있다. **셋째, 빅테크 방산 진출**: Microsoft(Azure Government), Amazon(AWS GovCloud)은 클라우드 인프라 위에 AI를 얹어 정부 시장에 공격적으로 진입 중이다. BBAI의 차별점은 방산 특화 보안 환경 배포 역량과 Ask Sage의 에이전틱 AI 오케스트레이션이지만, 규모와 브랜드에서 대형사 대비 열위다."
+  },
+
+  "ch3": {
+    "income_commentary": "FY2025(회계연도 2025.12 종료)는 BigBear.ai 재무 역사상 가장 어려운 해였다. 매출이 $158M→$128M으로 -19.3% 급감했으며, 이는 일부 DoD 계약 종료와 Pangiam 인수 전환 과정의 공백이 주요 원인이다. 총이익률은 28.6%→22.3%로 6.3%p 하락했는데, 인수 관련 비용과 인력 전환 비용이 영향을 미쳤다. 순손실 $294M 중 비현금성 자산손상차손이 $124M(굿윌 손상)을 차지하며, 정상화 기준 순손실은 약 $84M 수준이다. 주식기반보상(SBC) $23M도 실질 비용 부담을 가중시킨다. 긍정적으로는 Pangiam 인수 완료(2026 Q1 온기 반영 예정)로 FY2026 매출 기반 확대가 기대되며, Ask Sage의 수주 파이프라인이 누적되는 시점이다.",
+    "sbc_analysis": "FY2025 SBC는 $23.3M으로 매출 대비 18.3%에 달한다. 주식수가 2022년 117M주에서 2025년 476M주로 4배 증가한 점과 맞물려 기존 주주의 희석 부담이 심각하다. 2025년 $637M 유상증자와 옵션 행사($70.7M)가 주요 희석 원인이다. SBC 비율이 매출의 18%를 넘는 것은 소규모 방산 AI 기업으로서는 높은 수준이며, 흑자 전환을 위해서는 SBC 억제와 매출 성장이 동반되어야 한다.",
+    "cashflow_commentary": "영업현금흐름은 FY2023 -$18M에서 FY2025 -$42M으로 악화됐다. 비현금 비용(자산손상차손 $124M, SBC $23M, D&A $15M)을 제외한 현금 손실 규모는 매출 감소와 비례해 증가하는 추세다. 2025년 유상증자($637M)로 현금이 $288M(단기투자 포함)으로 급증, 향후 2-3년의 운영 자금은 확보됐다. CapEx는 $4.4M으로 자본 집약도가 낮은 소프트웨어 사업의 특성을 반영한다. FCF -$46M 기준 현금 런웨이는 약 6.3년으로 단기 유동성 위기는 없으나, 흑자 전환 경로가 불명확하다면 추가 희석이 불가피하다.",
+    "income_stmt": [
+      {"year": "FY2022", "revenue": 155, "gp": 43, "ebitda": -42, "ni": -111, "eps": -0.95},
+      {"year": "FY2023", "revenue": 155, "gp": 41, "ebitda": -27, "ni": -71, "eps": -0.40},
+      {"year": "FY2024", "revenue": 158, "gp": 45, "ebitda": -32, "ni": -296, "eps": -1.10},
+      {"year": "FY2025", "revenue": 128, "gp": 28, "ebitda": -56, "ni": -294, "eps": -0.82}
+    ],
+    "margins": [
+      {"year": "FY2022", "gross_m": 27.7, "ebitda_m": -27.4, "net_m": -71.8},
+      {"year": "FY2023", "gross_m": 26.2, "ebitda_m": -17.5, "net_m": -45.5},
+      {"year": "FY2024", "gross_m": 28.6, "ebitda_m": -20.0, "net_m": -186.8},
+      {"year": "FY2025", "gross_m": 22.3, "ebitda_m": -44.2, "net_m": -230.2}
+    ],
+    "cashflow": [
+      {"year": "FY2022", "cfo": -49, "capex": -1, "fcf": -50, "fcf_margin": -32.3},
+      {"year": "FY2023", "cfo": -18, "capex": -4, "fcf": -22, "fcf_margin": -14.2},
+      {"year": "FY2024", "cfo": -38, "capex": -11, "fcf": -49, "fcf_margin": -31.1},
+      {"year": "FY2025", "cfo": -42, "capex": -4, "fcf": -46, "fcf_margin": -36.0}
+    ],
+    "balance_sheet": {
+      "total_assets": 895,
+      "total_debt": 115,
+      "cash": 288,
+      "equity": 612,
+      "net_cash": 173,
+      "roe": -48.0,
+      "debt_ratio": 12.8
+    }
+  },
+
+  "ch4": {
+    "dcf_commentary": "전통적 DCF는 FCF가 지속적으로 음수인 BBAI에 적용하기 어렵다. EV/Revenue 멀티플 기반 접근법이 보다 적절하다. FY2025 EV $1.53B / 매출 $128M = 12.0x EV/Rev으로, 매출이 역성장 중인 기업 대비 과도한 멀티플이다. FY2026 Pangiam 통합 후 추정 매출 $170-180M 기준, 7x EV/Rev(방산 AI 합리적 수준) 적용 시 EV ~$1.26B → 순부채 $20M 감산 → 시가총액 ~$1.24B → 주당 $2.60. 10x 적용 시 ~$3.76/주. 어낼리스트 평균 목표가 $5.33(3명)을 참고해 Base Case를 $4.80으로 설정했으나, 이는 매출 회복이 전제다.",
+    "comps_commentary": "동종 기업 비교에서 BBAI는 모든 수익성 지표에서 적자이므로 EV/Revenue와 P/S만 유효하다. 12x EV/Rev은 PLTR(35x)보다 낮지만, C3.ai(~8x)보다 높다. 정부 IT 대형사인 BAH(1.3x), LDOS(1.0x), SAIC(0.7x)와 비교하면 극도로 비싸다. 방산 AI 순수 플레이어 프리미엄을 감안해도, 매출 역성장 국면에서의 12x는 실적 턴어라운드를 전제한 선행 평가다. 대형 계약 수주 또는 Pangiam 온기 반영 시 멀티플 조정이 이루어질 것이다.",
+    "dcf": {
+      "wacc": 13.0,
+      "tgr": 3.0,
+      "fair_value": 4.80,
+      "current_price": 3.58,
+      "upside": 34.1,
+      "sensitivity_headers": ["2.0%", "2.5%", "3.0%", "3.5%", "4.0%"],
+      "sensitivity_row_labels": ["11%", "12%", "13%", "14%", "15%"],
+      "sensitivity_matrix": [
+        [6.20, 6.80, 7.50, 8.40, 9.50],
+        [5.40, 5.90, 6.50, 7.20, 8.10],
+        [4.60, 5.00, 4.80, 6.10, 6.80],
+        [3.90, 4.20, 4.60, 5.10, 5.70],
+        [3.30, 3.60, 3.90, 4.30, 4.80]
+      ]
+    },
+    "comps": [
+      {"name": "PLTR", "pe": null, "ev_ebitda": null, "ev_rev": 35.2, "p_fcf": null},
+      {"name": "AI (C3.ai)", "pe": null, "ev_ebitda": null, "ev_rev": 8.1, "p_fcf": null},
+      {"name": "BAH", "pe": 19.8, "ev_ebitda": 14.2, "ev_rev": 1.3, "p_fcf": 22.4},
+      {"name": "LDOS", "pe": 17.5, "ev_ebitda": 11.0, "ev_rev": 1.0, "p_fcf": 19.8},
+      {"name": "SAIC", "pe": 16.8, "ev_ebitda": 9.8, "ev_rev": 0.7, "p_fcf": 18.2}
+    ],
+    "comps_self": {
+      "pe": null,
+      "ev_ebitda": null,
+      "ev_rev": 12.0,
+      "p_fcf": null
+    }
+  },
+
+  "ch5": {
+    "short_term": [
+      {
+        "event": "Q1 FY2026 실적 발표",
+        "date": "2026년 5월 예정",
+        "expectation": "Pangiam 온기 매출 첫 반영 분기. 통합 매출 $45-50M이 핵심 서프라이즈 변수. 총이익률 회복 여부 확인 필요"
+      },
+      {
+        "event": "DoD AI 계약 수주 발표",
+        "date": "수시",
+        "expectation": "전략경쟁 및 정보기관의 AI 예산 집행이 가속화되는 시점. JADC2(합동전영역지휘통제) 관련 계약이 대형 카탈리스트"
+      },
+      {
+        "event": "Ask Sage 연방 채택 확대",
+        "date": "2026 H1",
+        "expectation": "FedRAMP 인증 완료 시 연방 기관 확산 가속. IL5/IL6 인증 완료가 주가 촉매제로 작용 가능"
+      }
+    ],
+    "mid_term": [
+      {
+        "theme": "Pangiam 통합 시너지",
+        "description": "2025년 인수한 Pangiam(생체인식 AI)의 완전 통합으로 FY2026 매출 기반 $170-180M 목표. CBP(세관국경보호청), 글로벌 공항과의 기존 계약이 성장 엔진",
+        "impact": "EV/Rev 멀티플 정당화를 위한 필수 조건. 성공 시 주가 $5-6대 정상화"
+      },
+      {
+        "theme": "방산 AI 예산 확대",
+        "description": "미국 국방예산의 AI·기술 전환 가속. FY2026 국방수권법(NDAA)에 AI 관련 예산 증가 추세. DOGE 효율화 압력은 역설적으로 AI 자동화 수요를 자극할 수 있음",
+        "impact": "기존 계약 갱신·확대 및 신규 입찰 기회 증가"
+      },
+      {
+        "theme": "현금 활용 전략",
+        "description": "$288M 현금을 활용한 추가 M&A 또는 전략적 파트너십. 방산 AI 틈새 기업 인수로 역량 확장 가능",
+        "impact": "단기 주가 변동성 유발 가능. 적절한 M&A는 성장 가속제"
+      }
+    ],
+    "long_term_thesis": "BigBear.ai의 장기 투자 명제는 미국 국방·정보기관의 AI 전환이 구조적 메가트렌드라는 전제에 기반한다. 해당 시장은 DARPA, JAIC, 각 군(육·해·공)의 AI 예산이 2030년까지 연평균 20%+ 성장이 예상되며, BBAI는 방산 특화 보안 AI 배포 역량으로 이 시장의 일정 점유율을 확보할 수 있다. 단, 현재의 매출 역성장과 희석 구조를 극복하려면 FY2027까지 매출 $200M 이상, 총이익률 30%+ 회복, FCF 흑자 전환이라는 세 가지 조건을 충족해야 한다."
+  },
+
+  "ch6": {
+    "risks": [
+      {
+        "category": "Business",
+        "title": "매출 역성장 지속",
+        "description": "FY2025 -19.3%에 이어 Pangiam 통합 지연 시 FY2026도 역성장 가능. 정부 계약 특성상 계약 만료 후 공백기가 발생하며, 새 계약 수주까지 매출 절벽이 심화될 수 있다.",
+        "prob": "중간",
+        "impact": "높음"
+      },
+      {
+        "category": "Financial",
+        "title": "주식 희석 리스크",
+        "description": "주식수가 2022년 117M→2025년 476M으로 4배 증가. 지속적인 영업손실 구조에서 추가 자본 조달 필요성이 있으며, 이는 EPS 희석과 주가 희석을 동반한다.",
+        "prob": "높음",
+        "impact": "높음"
+      },
+      {
+        "category": "Regulatory",
+        "title": "DOGE·국방예산 삭감",
+        "description": "트럼프 행정부의 DOGE 정부효율화 움직임이 소규모 방산 AI 기업 계약을 취소·축소할 수 있다. BBAI의 90%+ 정부 매출 집중은 정치적 리스크에 취약하다.",
+        "prob": "중간",
+        "impact": "매우 높음"
+      },
+      {
+        "category": "Competitive",
+        "title": "대형 방산 IT사의 AI 내재화",
+        "description": "BAH, LDOS, SAIC 등 대형 정부 IT 기업이 자체 AI 역량을 강화하며 BBAI의 시장을 잠식하고 있다. Microsoft, AWS의 Gov 클라우드 AI 서비스도 직접 경쟁 관계에 있다.",
+        "prob": "높음",
+        "impact": "중간"
+      },
+      {
+        "category": "Business",
+        "title": "굿윌 추가 손상",
+        "description": "FY2022 $54M, FY2024 $85M, FY2025 $124M의 굿윌 손상차손이 매년 반복되고 있다. Pangiam 인수($229M)로 굿윌이 $241M까지 증가해 추가 손상 가능성이 상존한다.",
+        "prob": "중간",
+        "impact": "중간"
+      }
+    ]
+  },
+
+  "ch7": {
+    "macro_commentary": "BigBear.ai의 매크로 환경은 복잡한 양면성을 지닌다. 긍정적 측면: 미국의 대중국 기술 경쟁 심화와 우크라이나·중동 분쟁 지속으로 DoD의 AI 투자 의지가 강하며, 2026 회계연도 NDAA에서 AI 관련 예산이 확대됐다. 또한 트럼프 행정부의 AI 규제 완화 기조는 방산 AI 배포를 가속할 수 있다. 부정적 측면: DOGE 주도의 연방 지출 효율화가 소규모 계약을 정리하는 과정에서 BBAI가 직접적 피해를 받을 수 있다. 고금리 환경에서 성장주 밸류에이션 프리미엄이 전반적으로 압박받는 상황도 부담이다. 금리 인하 사이클 진입 시 고베타(3.24) 성장주로서의 반등 탄력이 클 수 있다.",
+    "technical_commentary": "기술적으로 BBAI는 52주 고점($9.39)에서 -62% 급락 후 저점 형성 중이다. RSI 40.6은 중립~약과매도 구간으로, 추가 하락보다는 횡보·반등 가능성이 높다. 단기 저항은 MA50 $4.22, 중기 저항은 MA200 $5.81로 두 이동평균 모두 하방에 위치해 추세는 여전히 하락이다. MACD는 -0.248/-0.263으로 시그널선 근접, 교차 시 단기 매수 신호 가능. $2.39-2.50 구간이 강력한 지지대(52주 저점 근처)이며, 이 구간 이탈 시 손절 필요. $4.00-4.22(MA50)이 1차 저항, 돌파 시 $5.50-5.81(MA200) 도전 가능.",
+    "technical": {
+      "rsi_14": 40.6,
+      "rsi_signal": "중립 (약과매도 진입)",
+      "ma50": 4.22,
+      "ma200": 5.81,
+      "macd_signal": "상승 (시그널선 근접)",
+      "week52_high_pct": -61.9,
+      "support_levels": [3.00, 2.50, 2.36],
+      "resistance_levels": [4.00, 4.22, 5.81, 7.50]
+    },
+    "institutional": {
+      "inst_ownership": "44.4%",
+      "short_interest": "27.3% (숏인터레스트 매우 높음)",
+      "top_holders": [
+        {"name": "기관 보유 합계 (44.4%)", "shares": "~211M주", "change": 0},
+        {"name": "내부자 (0.7%)", "shares": "~3.2M주", "change": 0}
+      ],
+      "insider_activity": {
+        "buys_30d": 0,
+        "sells_30d": 0,
+        "note": "최근 내부자 거래 없음"
+      }
+    }
+  },
+
+  "ch8": {
+    "rating": "HOLD",
+    "summary": "BigBear.ai는 방산 AI 테마의 고위험 투기성 포지션이다. Pangiam 통합과 Ask Sage 채택이 FY2026 반등의 핵심 변수이며, 실패 시 추가 하락 리스크가 크다.",
+    "conclusion": "BigBear.ai(BBAI)는 '방산 AI' 테마의 순수 플레이어라는 포지셔닝을 보유하지만, 현재 펀더멘털은 투자 근거를 지지하기 어렵다. FY2025 매출 -19.3% 역성장, 총이익률 22.3%로 하락, 연간 $46M FCF 유출이 지속되는 가운데 EV/Revenue 12x의 밸류에이션은 실적 회복을 상당 부분 선반영한 수준이다. 긍정적 촉매는 명확하다: Pangiam 인수 통합 성공, Ask Sage의 연방정부 침투 확대, 대형 DoD AI 계약 수주가 각각 단독으로도 주가 재평가 트리거가 될 수 있다. 그러나 27.3%에 달하는 숏인터레스트가 시장의 깊은 회의론을 반영하며, 476M주로 급증한 발행주식수는 주당 가치를 구조적으로 희석시킨다. 투자 결론: 현 가격에서 신규 매수보다는 실적 확인 후 접근이 적절하다. Q1 FY2026 실적(2026년 5월)에서 Pangiam 통합 매출과 총이익률 회복이 확인된다면 $4.20-4.80 저항 돌파를 타겟으로 한 포지션 진입을 검토할 수 있다. 포트폴리오 비중은 최대 2-3% 내로 제한할 것을 권고한다.",
+    "trade_setup": {
+      "entry_zone": [3.20, 3.60],
+      "target1": 4.80,
+      "target1_note": "Base Case — Pangiam 통합 매출 가세, 총이익률 회복",
+      "target2": 7.50,
+      "target2_note": "Bull Case — 대형 DoD 계약 + Ask Sage 연방 채택 가속",
+      "stop_loss": 2.50,
+      "stop_note": "52주 저점 $2.36 근접 구간. 이탈 시 추세 붕괴 확인",
+      "position_size": "포트폴리오의 2-3% 이내 (고위험 투기 포지션)",
+      "time_horizon": "12-18개월",
+      "risk_reward": 1.1
+    },
+    "kpis": [
+      {"kpi": "분기 매출 YoY", "threshold": "연속 역성장 (-10% 이상)", "action": "포지션 즉시 재검토"},
+      {"kpi": "총이익률", "threshold": "<20%", "action": "구조적 수익성 훼손 경고, 축소"},
+      {"kpi": "현금 번율", "threshold": ">$15M/분기 (운영)", "action": "유동성 점검, 추가 희석 위험"},
+      {"kpi": "대형 계약 수주", "threshold": "$50M+ DoD 계약", "action": "포지션 확대 고려"},
+      {"kpi": "숏인터레스트 변화", "threshold": ">35%로 증가", "action": "시장 신뢰 추가 하락, 방어 강화"}
+    ],
+    "monitoring": [
+      {"kpi": "Q1 FY2026 매출", "threshold": "$40M 미만", "action": "Pangiam 통합 실패 우려, 손절 검토"},
+      {"kpi": "DoD 계약 수주 발표", "threshold": "$50M+ 신규 계약", "action": "포지션 추가 매수 신호"},
+      {"kpi": "총이익률 회복", "threshold": "25% 이상 회복", "action": "구조적 개선 확인, 목표가 상향"}
+    ],
+    "next_update": {
+      "trigger": "Q1 FY2026 실적 발표 (2026년 5월 예정)",
+      "scope": "CH1(Rating/Target), CH3(재무), CH4(멀티플 재산정) 업데이트"
+    }
+  }
+}

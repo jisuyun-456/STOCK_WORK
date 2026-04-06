@@ -1,0 +1,2163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BBAI Equity Research — 2026-04-06</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,wght@0,400;0,600;1,400;1,600&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* ── Material You — Warm Terracotta System ────────────── */
+    --bg:     #fcf9f4;    /* surface / background            */
+    --bg2:    #f6f3ee;    /* surface-container-low           */
+    --bg3:    #f0ede9;    /* surface-container               */
+    --bg4:    #ebe8e3;    /* surface-container-high          */
+    --bg5:    #e5e2dd;    /* surface-container-highest       */
+    --border: #dbc1b9;    /* outline-variant                 */
+    --outline: #88726c;   /* outline                        */
+    --text:   #1c1c19;    /* on-surface                      */
+    --muted:  #55433d;    /* on-surface-variant              */
+    --muted2: #88726c;    /* outline (lighter muted)         */
+
+    --up:     #1E7A45;    /* positive / green                */
+    --down:   #99462a;    /* primary / terracotta coral      */
+    --gold:   #815600;    /* tertiary / amber                */
+    --gold2:  #c58500;    /* tertiary-container              */
+    --blue:   #1E5FA8;    /* accent blue                     */
+    --purple: #6B46C1;    /* accent purple                   */
+    --cyan:   #0E7490;    /* accent cyan                     */
+
+    --primary:    #99462a;   /* brand primary                */
+    --primary-lt: #ffdbd0;   /* primary-fixed (light tint)   */
+    --primary-md: #d97757;   /* primary-container            */
+
+    --font:       'Inter', 'Noto Sans KR', -apple-system, 'Segoe UI', sans-serif;
+    --font-serif: 'Newsreader', 'Noto Sans KR', Georgia, serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    min-height: 100vh;
+  }
+
+  /* ── SCROLLBAR ──────────────────────────────────── */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #d4cfc6; border-radius: 2px; }
+
+  /* ── HEADER ─────────────────────────────────────── */
+  .hdr {
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 24px;
+    height: 52px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 0 var(--border);
+  }
+  .hdr-logo {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text);
+    letter-spacing: 0;
+    white-space: nowrap;
+    min-width: 240px;
+  }
+  .hdr-logo span {
+    color: var(--muted2);
+    font-family: var(--font);
+    font-style: normal;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-left: 8px;
+  }
+
+  /* ── TAB NAV ─────────────────────────────────────── */
+  .tab-nav {
+    display: flex;
+    gap: 1px;
+    flex: 1;
+    justify-content: center;
+  }
+  .tab {
+    padding: 5px 13px;
+    border-radius: 2px;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid transparent;
+    color: var(--muted2);
+    background: transparent;
+    transition: all .15s;
+    white-space: nowrap;
+    font-family: var(--font);
+  }
+  .tab:hover { color: var(--text); background: var(--bg3); }
+  .tab.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+  }
+
+  .hdr-date {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--muted2);
+    white-space: nowrap;
+    min-width: 100px;
+    text-align: right;
+  }
+
+  /* ── CHAPTER PAGES ──────────────────────────────── */
+  .chapter { display: none; padding: 28px 32px; max-width: 1200px; margin: 0 auto; }
+  .chapter.active { display: block; }
+
+  /* ── SECTION TITLE ──────────────────────────────── */
+  .sec-title {
+    font-family: var(--font);
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--primary);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
+    margin-bottom: 14px;
+    margin-top: 24px;
+  }
+  .sec-title:first-child { margin-top: 0; }
+
+  /* ── CHAPTER HEADLINE (serif italic) ────────────── */
+  .ch-headline {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.25;
+    margin-bottom: 4px;
+  }
+  .ch-subline {
+    font-size: 10px;
+    color: var(--muted2);
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+  }
+
+  /* ── UP / DN / NT COLORS ────────────────────────── */
+  .up  { color: var(--up); }
+  .dn  { color: var(--down); }
+  .nt  { color: var(--muted2); }
+
+  /* ── CH1: EXECUTIVE SUMMARY ─────────────────────── */
+
+  /* Rating bar */
+  .rating-bar {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .rating-badge {
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 14px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .rating-buy    { background: #E8F5EE; color: #1E7A45; border: 1px solid #b8d8c4; }
+  .rating-hold   { background: #fef3ec; color: #815600; border: 1px solid #e4c88a; }
+  .rating-sell   { background: #fde8e3; color: #99462a; border: 1px solid #e8b9ac; }
+
+  .rb-item { display: flex; flex-direction: column; gap: 2px; }
+  .rb-label { font-size: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .rb-val   { font-size: 14px; font-weight: 700; }
+  .rb-divider { width: 1px; height: 32px; background: var(--border); }
+
+  .conviction-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 3px;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    background: var(--primary-lt);
+    color: var(--primary);
+    border: 1px solid #e8b9ac;
+  }
+
+  /* Investment Thesis */
+  .thesis-box {
+    background: var(--bg2);
+    border-left: 3px solid var(--primary);
+    padding: 14px 18px;
+    border-radius: 0 5px 5px 0;
+    margin-bottom: 14px;
+  }
+  .thesis-box .tb-label {
+    font-family: var(--font);
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 7px;
+  }
+  .thesis-box .tb-text {
+    font-family: var(--font-serif);
+    font-size: 13px;
+    font-style: italic;
+    color: var(--text);
+    line-height: 1.75;
+  }
+
+  /* Key Metrics 6-grid */
+  .key-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .km-cell {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px 10px;
+  }
+  .km-label { font-size: 9px; color: var(--muted); margin-bottom: 3px; text-transform: uppercase; letter-spacing: .3px; }
+  .km-val   { font-size: 14px; font-weight: 700; }
+
+  /* Scenario Cards */
+  .scenario-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .sc-card { border-radius: 5px; padding: 14px 16px; }
+  .sc-bull  { background: #E8F5EE; border: 1px solid #b8d8c4; }
+  .sc-base  { background: var(--primary); border: 1px solid var(--primary); box-shadow: 0 4px 16px rgba(153,70,42,.18); }
+  .sc-bear  { background: var(--bg3); border: 1px solid var(--border); }
+  .sc-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+  .sc-bull .sc-label { color: var(--up); }
+  .sc-base .sc-label { color: rgba(255,255,255,.7); }
+  .sc-bear .sc-label { color: var(--muted2); }
+  .sc-price {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 24px;
+    font-weight: 400;
+    margin-bottom: 2px;
+  }
+  .sc-base  .sc-price { color: #fff; }
+  .sc-bear  .sc-price { color: var(--muted2); }
+  .sc-prob  { font-size: 9px; margin-bottom: 5px; }
+  .sc-base  .sc-prob { color: rgba(255,255,255,.6); }
+  .sc-bear  .sc-prob { color: var(--muted2); }
+  .sc-note  { font-size: 9px; line-height: 1.5; }
+  .sc-base  .sc-note { color: rgba(255,255,255,.8); }
+  .sc-bear  .sc-note { color: var(--muted2); }
+
+  /* ── TABLES (common) ─────────────────────────────── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 14px;
+    font-size: 11px;
+  }
+  .data-table thead tr {
+    background: var(--primary);
+    border-bottom: 1px solid var(--primary);
+  }
+  .data-table th {
+    padding: 7px 10px;
+    text-align: left;
+    font-size: 9px;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    white-space: nowrap;
+  }
+  .data-table th.r { text-align: right; }
+  .data-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .data-table td.r { text-align: right; }
+  .data-table tbody tr:last-child td { border-bottom: none; }
+  .data-table tbody tr:hover { background: var(--bg3); }
+  .data-table tbody tr.self-row td { color: var(--gold); font-weight: 700; }
+  .data-table .tbl-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+
+  /* ── CH2: BUSINESS OVERVIEW ──────────────────────── */
+  .biz-text {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 14px 16px;
+    font-size: 11px;
+    line-height: 1.7;
+    color: var(--text);
+    margin-bottom: 14px;
+    white-space: pre-line;
+  }
+
+  /* ── CH3: FINANCIALS ─────────────────────────────── */
+  .bs-boxes {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .bs-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 10px 12px;
+  }
+  .bs-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px; }
+  .bs-val   { font-size: 15px; font-weight: 700; }
+
+  /* ── CH4: VALUATION ──────────────────────────────── */
+  .dcf-summary {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 14px 16px;
+    display: flex;
+    gap: 28px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .dcf-item { display: flex; flex-direction: column; gap: 3px; }
+  .dcf-label { font-size: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .dcf-val   { font-size: 16px; font-weight: 700; }
+  .dcf-fair  { color: var(--cyan); }
+  .dcf-divider { width: 1px; height: 36px; background: var(--border); }
+
+  /* Sensitivity heatmap */
+  .sensitivity-wrap {
+    margin-bottom: 14px;
+  }
+  .sensitivity-wrap .sec-title { margin-top: 0; }
+  .sens-table {
+    border-collapse: collapse;
+    font-size: 10px;
+    margin-top: 4px;
+  }
+  .sens-table th {
+    padding: 5px 10px;
+    font-size: 8px;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    background: var(--primary);
+    border: 1px solid var(--primary);
+    text-align: center;
+  }
+  .sens-table td {
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    text-align: center;
+    font-weight: 600;
+    font-size: 11px;
+    min-width: 70px;
+  }
+  .sens-heat-high { background: #1E7A45; color: #E8F5EE; }
+  .sens-heat-mid  { background: #E8F5EE; color: #1E7A45; }
+  .sens-heat-low  { background: #C8523A; color: #FBF0ED; }
+  .sens-heat-mid2 { background: #c8e8d4; color: #1E7A45; }
+  .sens-heat-mid3 { background: #f0c4b8; color: #C8523A; }
+  .sens-row-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--primary);
+    border: 1px solid var(--primary);
+    padding: 5px 10px;
+    white-space: nowrap;
+  }
+
+  /* ── CH5: CATALYSTS ──────────────────────────────── */
+  .catalyst-list { margin-bottom: 14px; }
+  .catalyst-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin-bottom: 5px;
+  }
+  .catalyst-item .c-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--blue);
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  .catalyst-item .c-date {
+    font-size: 9px;
+    color: var(--muted);
+    min-width: 80px;
+    padding-top: 1px;
+    white-space: nowrap;
+  }
+  .catalyst-item .c-body { flex: 1; }
+  .catalyst-item .c-title { font-size: 11px; font-weight: 600; margin-bottom: 2px; }
+  .catalyst-item .c-desc  { font-size: 9px; color: var(--muted); line-height: 1.4; }
+
+  .mid-term-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .mt-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 12px 14px;
+    border-left: 3px solid var(--gold2);
+  }
+  .mt-label { font-family: var(--font-serif); font-style: italic; font-size: 12px; font-weight: 400; color: var(--text); margin-bottom: 5px; }
+  .mt-text  { font-size: 10px; color: var(--muted); line-height: 1.6; }
+
+  .lt-thesis-box {
+    background: var(--bg2);
+    border-left: 3px solid var(--gold2);
+    padding: 14px 18px;
+    border-radius: 0 5px 5px 0;
+    margin-bottom: 14px;
+  }
+  .lt-thesis-box .lt-label { font-size: 9px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+  .lt-thesis-box .lt-text  {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.75;
+  }
+
+  /* ── CH6: RISK FACTORS ───────────────────────────── */
+  .risk-category-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .risk-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 10px 12px;
+  }
+  .risk-card-title { font-size: 10px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+  .risk-row-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .risk-row-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .risk-row-item .ri-title  { font-size: 10px; font-weight: 600; flex: 1; }
+  .risk-row-item .ri-badges { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+  .risk-row-item .ri-bear   { font-size: 9px; color: var(--down); }
+
+  .prob-badge {
+    font-size: 8px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    letter-spacing: .3px;
+    white-space: nowrap;
+  }
+  .prob-high { background: #fde8e3; color: #99462a; border: 1px solid #e8b9ac; }
+  .prob-mid  { background: #fef3ec; color: #815600; border: 1px solid #e4c88a; }
+  .prob-low  { background: #E8F5EE; color: #1E7A45; border: 1px solid #b8d8c4; }
+
+  .impact-badge {
+    font-size: 8px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    letter-spacing: .3px;
+    white-space: nowrap;
+  }
+  .impact-high { background: #EDE9F8; color: #6B46C1; border: 1px solid #c4b8ea; }
+  .impact-mid  { background: #EBF2FB; color: #1E5FA8; border: 1px solid #c4d8f0; }
+  .impact-low  { background: var(--bg3); color: var(--muted2); border: 1px solid var(--border); }
+
+  /* ── CH7: INDUSTRY & MACRO ───────────────────────── */
+  .institutional-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .inst-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 9px 11px;
+  }
+  .inst-label { font-size: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 3px; }
+  .inst-val   { font-size: 14px; font-weight: 700; }
+
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .tech-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 9px 11px;
+  }
+  .tech-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 3px; }
+  .tech-val   { font-size: 13px; font-weight: 700; }
+  .tech-sub   { font-size: 9px; color: var(--muted); margin-top: 2px; }
+
+  /* ── CH8: CONCLUSION ─────────────────────────────── */
+  .conclusion-rating-wrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .rating-badge-lg {
+    font-size: 20px;
+    font-weight: 700;
+    padding: 8px 28px;
+    border-radius: 6px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .rating-lg-buy  { background: #E8F5EE; color: #1E7A45; border: 2px solid #b8d8c4; }
+  .rating-lg-hold { background: #fef3ec; color: #815600; border: 2px solid #e4c88a; }
+  .rating-lg-sell { background: #fde8e3; color: #99462a; border: 2px solid #e8b9ac; }
+  .conclusion-subtext { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+  .trade-setup-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--primary);
+    border-radius: 0 5px 5px 0;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .tsb-title { font-size: 9px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 10px; }
+  .tsb-grid  { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
+  .tsb-item  { background: var(--bg3); border-radius: 4px; padding: 7px 9px; }
+  .tsb-label { font-size: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 3px; }
+  .tsb-val   { font-size: 13px; font-weight: 700; }
+  .tsb-rr    {
+    background: var(--bg3);
+    border-radius: 4px;
+    padding: 7px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+  }
+  .tsb-rr-label { font-size: 9px; color: var(--muted); }
+  .tsb-rr-val   { font-size: 14px; font-weight: 700; color: var(--cyan); }
+
+  .next-update-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+  }
+  .nu-trigger { font-size: 9px; color: var(--muted); }
+  .nu-event   { font-size: 11px; font-weight: 600; color: var(--gold); }
+
+  /* ── EMPTY STATE ─────────────────────────────────── */
+  .empty-state {
+    padding: 24px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 11px;
+    background: var(--bg2);
+    border: 1px dashed var(--border);
+    border-radius: 5px;
+    margin-bottom: 14px;
+  }
+  /* ── PROSE COMMENTARY ──────────────────────────────── */
+  .prose-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 16px 18px;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 13px;
+    line-height: 1.85;
+    color: var(--text);
+    margin-bottom: 14px;
+    white-space: pre-line;
+  }
+  .prose-label {
+    font-family: var(--font);
+    font-style: normal;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  /* ── THESIS POINTS ──────────────────────────────────── */
+  .thesis-points { list-style: none; padding: 0; margin-bottom: 14px; }
+  .thesis-points li {
+    display: flex;
+    gap: 8px;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    line-height: 1.5;
+    background: var(--bg2);
+  }
+  .thesis-points li:first-child { border-radius: 5px 5px 0 0; }
+  .thesis-points li:last-child  { border-bottom: none; border-radius: 0 0 5px 5px; }
+  .thesis-points li .tp-bullet  { color: #C8523A; font-weight: 700; flex-shrink: 0; }
+
+  /* ── PLATFORM CARDS ─────────────────────────────────── */
+  .platform-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .platform-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 14px 16px;
+    border-top: 3px solid var(--primary);
+  }
+  .platform-card .pc-name {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 14px;
+    font-weight: 400;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+  .platform-card .pc-contrib {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    margin-bottom: 6px;
+  }
+  .platform-card .pc-desc { font-size: 10.5px; line-height: 1.65; color: var(--muted); }
+
+  /* ── CHART CONTAINERS ───────────────────────────────── */
+  .chart-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .chart-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .chart-sub {
+    font-size: 9px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .chart-canvas { max-height: 280px; }
+
+  /* ── KPI TABLE (v1) ─────────────────────────────────── */
+  .signal-badge {
+    font-size: 8px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .signal-ok      { background: #E8F5EE; color: #1E7A45; border: 1px solid #b8d8c4; }
+  .signal-warn    { background: #fef3ec; color: #815600; border: 1px solid #e4c88a; }
+  .signal-danger  { background: #fde8e3; color: #99462a; border: 1px solid #e8b9ac; }
+
+  /* ── RISK UNIFIED TABLE ─────────────────────────────── */
+  .risk-tier-badge {
+    font-size: 8px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .tier-high   { background: #fde8e3; color: #99462a; border: 1px solid #e8b9ac; }
+  .tier-medium { background: #fef3ec; color: #815600; border: 1px solid #e4c88a; }
+  .tier-low    { background: #E8F5EE; color: #1E7A45; border: 1px solid #b8d8c4; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══════════════════════════════════════════════════════════════ -->
+<header class="hdr">
+  <div class="hdr-logo">
+    BBAI <span>EQUITY RESEARCH</span>
+  </div>
+
+  <nav class="tab-nav">
+    <button class="tab active" onclick="switchTab('ch1', event)">Summary</button>
+    <button class="tab"        onclick="switchTab('ch2', event)">Business</button>
+    <button class="tab"        onclick="switchTab('ch3', event)">Financials</button>
+    <button class="tab"        onclick="switchTab('ch4', event)">Valuation</button>
+    <button class="tab"        onclick="switchTab('ch5', event)">Catalysts</button>
+    <button class="tab"        onclick="switchTab('ch6', event)">Risks</button>
+    <button class="tab"        onclick="switchTab('ch7', event)">Industry</button>
+    <button class="tab"        onclick="switchTab('ch8', event)">Conclusion</button>
+  </nav>
+
+  <div class="hdr-date">2026-04-06</div>
+</header>
+
+<!-- ═══ CH1: EXECUTIVE SUMMARY ══════════════════════════════════════════════ -->
+<section class="chapter active" id="ch1">
+
+  <!-- Rating Bar -->
+  <div class="rating-bar">
+    
+    
+      <div class="rating-badge rating-hold">HOLD</div>
+    
+
+    <div class="rb-divider"></div>
+
+    <div class="rb-item">
+      <div class="rb-label">Target Price</div>
+      <div class="rb-val up">4.8</div>
+    </div>
+
+    <div class="rb-divider"></div>
+
+    <div class="rb-item">
+      <div class="rb-label">Current Price</div>
+      <div class="rb-val">3.58</div>
+    </div>
+
+    <div class="rb-divider"></div>
+
+    <div class="rb-item">
+      <div class="rb-label">Upside</div>
+      
+        
+        <div class="rb-val up">
+          +34.1%
+        </div>
+      
+    </div>
+
+    <div class="rb-divider"></div>
+
+    <div class="rb-item">
+      <div class="rb-label">Conviction</div>
+      <div class="conviction-badge">LOW</div>
+    </div>
+  </div>
+
+  <!-- Investment Thesis (v1: thesis prose + thesis_points, fallback to investment_thesis) -->
+  
+  <div class="thesis-box">
+    <div class="tb-label">Investment Thesis</div>
+    <div class="tb-text">방산 AI 순수 플레이어. 단기 펀더멘털 압박 vs 중장기 DoD AI 전환 수혜</div>
+  </div>
+  
+  <ul class="thesis-points">
+    
+    <li><span class="tp-bullet">▶</span><span>CEO Kevin McAleenan (전 DHS 장관) — 정부 네트워크 강점</span></li>
+    
+    <li><span class="tp-bullet">▶</span><span>Ask Sage: 방산 특화 생성형 AI 플랫폼 (보안 환경 배포)</span></li>
+    
+    <li><span class="tp-bullet">▶</span><span>Pangiam 인수 — 디지털 신원·생체인식 시장 진입</span></li>
+    
+    <li><span class="tp-bullet">▶</span><span>$288M 현금 확보 (2025 유상증자) — 유동성 위기 해소</span></li>
+    
+    <li><span class="tp-bullet">▶</span><span>매출 역성장 -19.3%, 총이익률 22.3% 하락이 핵심 리스크</span></li>
+    
+  </ul>
+  
+
+  <!-- Key Metrics 6-grid -->
+  <div class="sec-title">Key Metrics</div>
+  <div class="key-metrics">
+    
+    <div class="km-cell">
+      <div class="km-label">Market Cap</div>
+      <div class="km-val">$1.7B</div>
+    </div>
+    <div class="km-cell">
+      <div class="km-label">Fwd P/E</div>
+      <div class="km-val">N/M (손실)</div>
+    </div>
+    <div class="km-cell">
+      <div class="km-label">EV/EBITDA</div>
+      <div class="km-val">N/M (음수)</div>
+    </div>
+    <div class="km-cell">
+      <div class="km-label">Revenue Growth</div>
+      <div class="km-val nt">-19.3%</div>
+    </div>
+    <div class="km-cell">
+      <div class="km-label">Gross Margin</div>
+      <div class="km-val">22.3%</div>
+    </div>
+    <div class="km-cell">
+      <div class="km-label">FCF Yield</div>
+      <div class="km-val nt">-27.2%</div>
+    </div>
+  </div>
+
+  <!-- Bull / Base / Bear Scenarios -->
+  <div class="sec-title">Price Scenarios</div>
+  <div class="scenario-row">
+    <div class="sc-card sc-bull">
+      <div class="sc-label">▲ Bull Case</div>
+      <div class="sc-price up">$7.5</div>
+      <div class="sc-prob">Probability 25%</div>
+      <div class="sc-note">Pangiam 통합 성공 + 대형 DoD 계약 수주 + Ask Sage 정부 플랫폼 채택 → FY2026 매출 $200M+ 회복</div>
+    </div>
+    <div class="sc-card sc-base">
+      <div class="sc-label">— Base Case</div>
+      <div class="sc-price" style="color:var(--text)">$4.8</div>
+      <div class="sc-prob">Probability 45%</div>
+      <div class="sc-note">Pangiam 매출 가세로 FY2026 매출 $170-180M 부분 회복, 총이익률 25% 개선</div>
+    </div>
+    <div class="sc-card sc-bear">
+      <div class="sc-label">▼ Bear Case</div>
+      <div class="sc-price dn">$2.0</div>
+      <div class="sc-prob">Probability 30%</div>
+      <div class="sc-note">DOGE 국방예산 삭감 + 매출 역성장 지속 + 추가 주식 희석으로 재평가 하락</div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══ CH2: BUSINESS OVERVIEW ══════════════════════════════════════════════ -->
+<section class="chapter" id="ch2">
+
+  <!-- Business Model + Platform Overview -->
+  <div class="sec-title">Business Model</div>
+  
+  <div class="biz-text">BigBear.ai Holdings, Inc.는 1988년 설립(전신: Telos Corporation의 자회사), 2021년 SPAC 합병을 통해 NYSE 상장된 방산 AI 기업이다. 버지니아주 McLean에 본사를 두고 579명의 직원을 보유한다. 핵심 플랫폼은 세 축으로 구성된다. 첫째, **Gotham/DI 플랫폼**: 국가 안보·국방을 위한 AI 기반 의사결정 인텔리전스 솔루션으로, 전장 인식·위협 탐지·임무 계획 지원에 활용된다. 둘째, **Ask Sage**: 보안 분류 환경에서 배포 가능한 생성형 AI 오케스트레이션 플랫폼으로, DoD 및 정보기관의 LLM 활용을 지원한다. 셋째, **Pangiam(2025년 인수)**: 공항·국경·포트에서의 생체인식·디지털 신원 검증 AI 솔루션으로, 글로벌 무역·여행 시장을 타깃한다.</div>
+
+  <!-- Platform Cards (v1) -->
+  
+  <div class="sec-title">Platform Architecture</div>
+  <div class="platform-grid">
+    
+    <div class="platform-card">
+      <div class="pc-name">Decision Intelligence Suite</div>
+      
+      <div class="pc-desc">국가 안보 임무를 위한 AI 기반 예측 분석·위협 탐지·운영 계획 지원. Supply Chain 가시성, 이산 사건 시뮬레이션, 거시경제·지정학 예측 모듈 포함.</div>
+    </div>
+    
+    <div class="platform-card">
+      <div class="pc-name">Ask Sage Platform</div>
+      
+      <div class="pc-desc">보안 분류 환경에 특화된 생성형 AI 플랫폼. 다중 LLM 오케스트레이션, 에이전틱 AI 기능, IL4/IL5/IL6 수준의 보안 배포 지원. FedRAMP 인증 추진 중.</div>
+    </div>
+    
+    <div class="platform-card">
+      <div class="pc-name">Pangiam (Digital Identity)</div>
+      
+      <div class="pc-desc">2025년 인수한 생체인식 AI 기업. 얼굴 인식·여권 검증·디지털 신원 확인 솔루션을 미국 CBP(세관국경보호청) 및 글로벌 공항에 배포.</div>
+    </div>
+    
+    <div class="platform-card">
+      <div class="pc-name">Cyber & Autonomous Systems</div>
+      
+      <div class="pc-desc">AI 기반 바이너리 취약점 분석, 사이버-물리 시스템 평가, 자율 시스템 의사결정 AI. 전문 컨설팅 서비스 포함.</div>
+    </div>
+    
+  </div>
+  
+
+  <!-- Competitors Table -->
+  
+  
+  <div class="prose-box" style="margin-top:10px;">
+    <div class="prose-label">Competitive Landscape</div>
+    BigBear.ai의 경쟁 지형은 크게 세 그룹으로 나뉜다. **첫째, 방산 AI 순수 플레이어**: Palantir(PLTR)는 동일한 정부 AI 시장의 지배적 강자로, BBAI보다 훨씬 대규모·고마진 사업을 운영한다. C3.ai(AI)는 엔터프라이즈 AI 플랫폼 경쟁사로 BBAI와 유사한 수익성 문제를 겪고 있다. **둘째, 방산 IT 대형사**: Booz Allen Hamilton(BAH), Leidos(LDOS), SAIC는 AI를 내재화하고 있는 대형 시스템 통합업체로, BBAI의 계약을 잠식할 수 있다. **셋째, 빅테크 방산 진출**: Microsoft(Azure Government), Amazon(AWS GovCloud)은 클라우드 인프라 위에 AI를 얹어 정부 시장에 공격적으로 진입 중이다. BBAI의 차별점은 방산 특화 보안 환경 배포 역량과 Ask Sage의 에이전틱 AI 오케스트레이션이지만, 규모와 브랜드에서 대형사 대비 열위다.
+  </div>
+  
+
+  <!-- Revenue Segments -->
+  
+
+  <!-- Geographic Distribution -->
+  
+
+</section>
+
+<!-- ═══ CH3: FINANCIAL ANALYSIS ════════════════════════════════════════════ -->
+<section class="chapter" id="ch3">
+
+  <!-- Exhibit 1: Revenue Breakdown Stacked Bar -->
+  
+
+  <!-- Exhibit 2: Revenue + Gross Margin Combo -->
+  
+  <div class="sec-title">Exhibit 2 — Revenue & Gross Margin Trend</div>
+  <div class="chart-wrap">
+    <div class="chart-title">Revenue (Bar) + Gross Margin % (Line)</div>
+    <div class="chart-sub">단위: 매출 $M / Gross Margin %</div>
+    <canvas id="chartRevMargin" class="chart-canvas"></canvas>
+  </div>
+  
+
+  <!-- Income Statement -->
+  <div class="sec-title">Income Statement (5Y)</div>
+  
+  <div style="overflow-x:auto; margin-bottom:14px;">
+    <table class="data-table" style="background:var(--bg2);border:1px solid var(--border);border-radius:5px;overflow:hidden;">
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th class="r">Revenue</th>
+          <th class="r">Gross Profit</th>
+          <th class="r">EBITDA</th>
+          <th class="r">Net Income</th>
+          <th class="r">EPS</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td>FY2022</td>
+          <td class="r">$155M</td>
+          <td class="r">$43M</td>
+          <td class="r">$-42M</td>
+          <td class="r dn">$-111M</td>
+          <td class="r">-0.95</td>
+        </tr>
+        
+        <tr>
+          <td>FY2023</td>
+          <td class="r">$155M</td>
+          <td class="r">$41M</td>
+          <td class="r">$-27M</td>
+          <td class="r dn">$-71M</td>
+          <td class="r">-0.4</td>
+        </tr>
+        
+        <tr>
+          <td>FY2024</td>
+          <td class="r">$158M</td>
+          <td class="r">$45M</td>
+          <td class="r">$-32M</td>
+          <td class="r dn">$-296M</td>
+          <td class="r">-1.1</td>
+        </tr>
+        
+        <tr>
+          <td>FY2025</td>
+          <td class="r">$128M</td>
+          <td class="r">$28M</td>
+          <td class="r">$-56M</td>
+          <td class="r dn">$-294M</td>
+          <td class="r">-0.82</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+  
+  
+  <div class="prose-box" style="margin-bottom:14px;">
+    <div class="prose-label">Income Statement Commentary</div>
+    FY2025(회계연도 2025.12 종료)는 BigBear.ai 재무 역사상 가장 어려운 해였다. 매출이 $158M→$128M으로 -19.3% 급감했으며, 이는 일부 DoD 계약 종료와 Pangiam 인수 전환 과정의 공백이 주요 원인이다. 총이익률은 28.6%→22.3%로 6.3%p 하락했는데, 인수 관련 비용과 인력 전환 비용이 영향을 미쳤다. 순손실 $294M 중 비현금성 자산손상차손이 $124M(굿윌 손상)을 차지하며, 정상화 기준 순손실은 약 $84M 수준이다. 주식기반보상(SBC) $23M도 실질 비용 부담을 가중시킨다. 긍정적으로는 Pangiam 인수 완료(2026 Q1 온기 반영 예정)로 FY2026 매출 기반 확대가 기대되며, Ask Sage의 수주 파이프라인이 누적되는 시점이다.
+  </div>
+  
+
+  <!-- Margin Trend -->
+  <div class="sec-title">Margin Trend</div>
+  
+  <div style="overflow-x:auto; margin-bottom:14px;">
+    <table class="data-table" style="background:var(--bg2);border:1px solid var(--border);border-radius:5px;overflow:hidden;">
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th class="r">Gross Margin</th>
+          <th class="r">EBITDA Margin</th>
+          <th class="r">Net Margin</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td>FY2022</td>
+          <td class="r">27.7%</td>
+          <td class="r">-27.4%</td>
+          <td class="r">-71.8%</td>
+        </tr>
+        
+        <tr>
+          <td>FY2023</td>
+          <td class="r">26.2%</td>
+          <td class="r">-17.5%</td>
+          <td class="r">-45.5%</td>
+        </tr>
+        
+        <tr>
+          <td>FY2024</td>
+          <td class="r">28.6%</td>
+          <td class="r">-20.0%</td>
+          <td class="r">-186.8%</td>
+        </tr>
+        
+        <tr>
+          <td>FY2025</td>
+          <td class="r">22.3%</td>
+          <td class="r">-44.2%</td>
+          <td class="r">-230.2%</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+  
+
+  <!-- SBC Analysis (v1) -->
+  
+  <div class="sec-title">SBC & Dilution Analysis</div>
+  <div class="prose-box">
+    <div class="prose-label">Stock-Based Compensation Commentary</div>
+    FY2025 SBC는 $23.3M으로 매출 대비 18.3%에 달한다. 주식수가 2022년 117M주에서 2025년 476M주로 4배 증가한 점과 맞물려 기존 주주의 희석 부담이 심각하다. 2025년 $637M 유상증자와 옵션 행사($70.7M)가 주요 희석 원인이다. SBC 비율이 매출의 18%를 넘는 것은 소규모 방산 AI 기업으로서는 높은 수준이며, 흑자 전환을 위해서는 SBC 억제와 매출 성장이 동반되어야 한다.
+  </div>
+  
+
+  <!-- Cash Flow -->
+  
+  
+  <div class="sec-title">Cash Flow</div>
+  <div style="overflow-x:auto; margin-bottom:14px;">
+    <table class="data-table" style="background:var(--bg2);border:1px solid var(--border);border-radius:5px;overflow:hidden;">
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th class="r">Operating CF</th>
+          <th class="r">CapEx</th>
+          <th class="r">Free CF</th>
+          <th class="r">FCF Margin</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td>FY2022</td>
+          <td class="r">$-49M</td>
+          <td class="r dn">$-1M</td>
+          <td class="r dn">$-50M</td>
+          <td class="r">-32.3%</td>
+        </tr>
+        
+        <tr>
+          <td>FY2023</td>
+          <td class="r">$-18M</td>
+          <td class="r dn">$-4M</td>
+          <td class="r dn">$-22M</td>
+          <td class="r">-14.2%</td>
+        </tr>
+        
+        <tr>
+          <td>FY2024</td>
+          <td class="r">$-38M</td>
+          <td class="r dn">$-11M</td>
+          <td class="r dn">$-49M</td>
+          <td class="r">-31.1%</td>
+        </tr>
+        
+        <tr>
+          <td>FY2025</td>
+          <td class="r">$-42M</td>
+          <td class="r dn">$-4M</td>
+          <td class="r dn">$-46M</td>
+          <td class="r">-36.0%</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="prose-box" style="margin-top:6px;">
+    <div class="prose-label">Cash Flow Commentary</div>
+    영업현금흐름은 FY2023 -$18M에서 FY2025 -$42M으로 악화됐다. 비현금 비용(자산손상차손 $124M, SBC $23M, D&A $15M)을 제외한 현금 손실 규모는 매출 감소와 비례해 증가하는 추세다. 2025년 유상증자($637M)로 현금이 $288M(단기투자 포함)으로 급증, 향후 2-3년의 운영 자금은 확보됐다. CapEx는 $4.4M으로 자본 집약도가 낮은 소프트웨어 사업의 특성을 반영한다. FCF -$46M 기준 현금 런웨이는 약 6.3년으로 단기 유동성 위기는 없으나, 흑자 전환 경로가 불명확하다면 추가 희석이 불가피하다.
+  </div>
+  
+  
+
+  <!-- Balance Sheet Key Metrics -->
+  
+  <div class="sec-title">Balance Sheet Highlights</div>
+  <div class="bs-boxes">
+    
+    <div class="bs-box">
+      <div class="bs-label">Total Assets</div>
+      <div class="bs-val">$895M</div>
+    </div>
+    <div class="bs-box">
+      <div class="bs-label">Debt Ratio</div>
+      <div class="bs-val nt">
+        12.8%
+      </div>
+    </div>
+    <div class="bs-box">
+      <div class="bs-label">Net Cash</div>
+      <div class="bs-val up">
+        $173M
+      </div>
+    </div>
+    <div class="bs-box">
+      <div class="bs-label">ROE</div>
+      <div class="bs-val nt">
+        -48.0%
+      </div>
+    </div>
+  </div>
+  
+
+</section>
+
+<!-- ═══ CH4: VALUATION ══════════════════════════════════════════════════════ -->
+<section class="chapter" id="ch4">
+
+  <!-- DCF Summary -->
+  <div class="sec-title">DCF Analysis</div>
+  
+  
+  <div class="dcf-summary">
+    <div class="dcf-item">
+      <div class="dcf-label">WACC</div>
+      <div class="dcf-val" style="color:var(--purple)">13.0%</div>
+    </div>
+    <div class="dcf-divider"></div>
+    <div class="dcf-item">
+      <div class="dcf-label">Terminal Growth Rate</div>
+      <div class="dcf-val" style="color:var(--blue)">3.0%</div>
+    </div>
+    <div class="dcf-divider"></div>
+    <div class="dcf-item">
+      <div class="dcf-label">DCF Fair Value</div>
+      <div class="dcf-val dcf-fair">4.8</div>
+    </div>
+    
+    <div class="dcf-divider"></div>
+    <div class="dcf-item">
+      <div class="dcf-label">Current Price</div>
+      <div class="dcf-val">3.58</div>
+    </div>
+    
+    
+    <div class="dcf-divider"></div>
+    <div class="dcf-item">
+      <div class="dcf-label">Implied Upside</div>
+      <div class="dcf-val up">
+        +34.1%
+      </div>
+    </div>
+    
+  </div>
+
+  <!-- Sensitivity Heatmap (supports both v1 labels_wacc/labels_tgr/matrix and legacy) -->
+  
+  
+  <div class="sensitivity-wrap">
+    <div class="sec-title">DCF Sensitivity Matrix (WACC × TGR)</div>
+    <div style="overflow-x:auto;">
+      <table class="sens-table">
+        
+        
+        
+        <thead>
+          <tr>
+            <th style="background:#1A1814;border:1px solid #1A1814;color:#FAF8F4;">WACC ↓ / TGR →</th>
+            
+            <th>2.0%</th>
+            
+            <th>2.5%</th>
+            
+            <th>3.0%</th>
+            
+            <th>3.5%</th>
+            
+            <th>4.0%</th>
+            
+          </tr>
+        </thead>
+        
+        <tbody>
+          
+          <tr>
+            
+            <td class="sens-row-label">11%</td>
+            
+            
+              
+              
+              
+                <td class="sens-heat-high">$6.2</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-high">$6.8</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-high">$7.5</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-high">$8.4</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-high">$9.5</td>
+              
+            
+          </tr>
+          
+          <tr>
+            
+            <td class="sens-row-label">12%</td>
+            
+            
+              
+              
+              
+                <td class="sens-heat-high">$5.4</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-high">$5.9</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-high">$6.5</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-high">$7.2</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-high">$8.1</td>
+              
+            
+          </tr>
+          
+          <tr>
+            
+            <td class="sens-row-label">13%</td>
+            
+            
+              
+              
+              
+                <td class="sens-heat-high">$4.6</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-high">$5.0</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-high">$4.8</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-high">$6.1</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-high">$6.8</td>
+              
+            
+          </tr>
+          
+          <tr>
+            
+            <td class="sens-row-label">14%</td>
+            
+            
+              
+              
+              
+                <td class="sens-heat-mid2">$3.9</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-mid2">$4.2</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-high">$4.6</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-high">$5.1</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-high">$5.7</td>
+              
+            
+          </tr>
+          
+          <tr>
+            
+            <td class="sens-row-label">15%</td>
+            
+            
+              
+              
+              
+                <td class="sens-heat-mid3">$3.3</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-mid">$3.6</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-mid2">$3.9</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-high">$4.3</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-high">$4.8</td>
+              
+            
+          </tr>
+          
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+
+  <!-- DCF Commentary (v1) -->
+  
+  <div class="prose-box" style="margin-top:10px;">
+    <div class="prose-label">DCF Assumptions & Interpretation</div>
+    전통적 DCF는 FCF가 지속적으로 음수인 BBAI에 적용하기 어렵다. EV/Revenue 멀티플 기반 접근법이 보다 적절하다. FY2025 EV $1.53B / 매출 $128M = 12.0x EV/Rev으로, 매출이 역성장 중인 기업 대비 과도한 멀티플이다. FY2026 Pangiam 통합 후 추정 매출 $170-180M 기준, 7x EV/Rev(방산 AI 합리적 수준) 적용 시 EV ~$1.26B → 순부채 $20M 감산 → 시가총액 ~$1.24B → 주당 $2.60. 10x 적용 시 ~$3.76/주. 어낼리스트 평균 목표가 $5.33(3명)을 참고해 Base Case를 $4.80으로 설정했으나, 이는 매출 회복이 전제다.
+  </div>
+  
+
+  
+
+  <!-- Comps Table -->
+  <div class="sec-title">Comparable Company Analysis</div>
+  
+  <div style="overflow-x:auto; margin-bottom:14px;">
+    <table class="data-table" style="background:var(--bg2);border:1px solid var(--border);border-radius:5px;overflow:hidden;">
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th class="r">P/E</th>
+          <th class="r">EV/EBITDA</th>
+          <th class="r">EV/Rev</th>
+          <th class="r">P/FCF</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td>PLTR</td>
+          <td class="r">None</td>
+          <td class="r">None</td>
+          <td class="r">35.2</td>
+          <td class="r">None</td>
+        </tr>
+        
+        <tr>
+          <td>AI (C3.ai)</td>
+          <td class="r">None</td>
+          <td class="r">None</td>
+          <td class="r">8.1</td>
+          <td class="r">None</td>
+        </tr>
+        
+        <tr>
+          <td>BAH</td>
+          <td class="r">19.8</td>
+          <td class="r">14.2</td>
+          <td class="r">1.3</td>
+          <td class="r">22.4</td>
+        </tr>
+        
+        <tr>
+          <td>LDOS</td>
+          <td class="r">17.5</td>
+          <td class="r">11.0</td>
+          <td class="r">1.0</td>
+          <td class="r">19.8</td>
+        </tr>
+        
+        <tr>
+          <td>SAIC</td>
+          <td class="r">16.8</td>
+          <td class="r">9.8</td>
+          <td class="r">0.7</td>
+          <td class="r">18.2</td>
+        </tr>
+        
+        
+        <tr class="self-row">
+          <td>BBAI (Subject)</td>
+          <td class="r">None</td>
+          <td class="r">None</td>
+          <td class="r">12.0</td>
+          <td class="r">None</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+  <!-- Comps Commentary (v1) -->
+  
+  <div class="prose-box">
+    <div class="prose-label">Peer Valuation Commentary</div>
+    동종 기업 비교에서 BBAI는 모든 수익성 지표에서 적자이므로 EV/Revenue와 P/S만 유효하다. 12x EV/Rev은 PLTR(35x)보다 낮지만, C3.ai(~8x)보다 높다. 정부 IT 대형사인 BAH(1.3x), LDOS(1.0x), SAIC(0.7x)와 비교하면 극도로 비싸다. 방산 AI 순수 플레이어 프리미엄을 감안해도, 매출 역성장 국면에서의 12x는 실적 턴어라운드를 전제한 선행 평가다. 대형 계약 수주 또는 Pangiam 온기 반영 시 멀티플 조정이 이루어질 것이다.
+  </div>
+  
+
+  
+
+</section>
+
+<!-- ═══ CH5: GROWTH CATALYSTS ═══════════════════════════════════════════════ -->
+<section class="chapter" id="ch5">
+
+  <!-- Short-term Catalysts -->
+  <div class="sec-title">Short-term Catalysts (0-12M)</div>
+  
+  <div class="catalyst-list">
+    
+    <div class="catalyst-item">
+      <div class="c-dot" style="background:var(--blue)"></div>
+      <div class="c-date">2026년 5월 예정</div>
+      <div class="c-body">
+        <div class="c-title">Q1 FY2026 실적 발표</div>
+        
+        <div class="c-desc">Pangiam 온기 매출 첫 반영 분기. 통합 매출 $45-50M이 핵심 서프라이즈 변수. 총이익률 회복 여부 확인 필요</div>
+      </div>
+      
+    </div>
+    
+    <div class="catalyst-item">
+      <div class="c-dot" style="background:var(--blue)"></div>
+      <div class="c-date">수시</div>
+      <div class="c-body">
+        <div class="c-title">DoD AI 계약 수주 발표</div>
+        
+        <div class="c-desc">전략경쟁 및 정보기관의 AI 예산 집행이 가속화되는 시점. JADC2(합동전영역지휘통제) 관련 계약이 대형 카탈리스트</div>
+      </div>
+      
+    </div>
+    
+    <div class="catalyst-item">
+      <div class="c-dot" style="background:var(--blue)"></div>
+      <div class="c-date">2026 H1</div>
+      <div class="c-body">
+        <div class="c-title">Ask Sage 연방 채택 확대</div>
+        
+        <div class="c-desc">FedRAMP 인증 완료 시 연방 기관 확산 가속. IL5/IL6 인증 완료가 주가 촉매제로 작용 가능</div>
+      </div>
+      
+    </div>
+    
+  </div>
+  
+
+  <!-- Mid-term Themes -->
+  <div class="sec-title">Mid-term Themes (1-3Y)</div>
+  
+  <div class="mid-term-grid">
+    
+    <div class="mt-card">
+      <div class="mt-label">Pangiam 통합 시너지</div>
+      <div class="mt-text">2025년 인수한 Pangiam(생체인식 AI)의 완전 통합으로 FY2026 매출 기반 $170-180M 목표. CBP(세관국경보호청), 글로벌 공항과의 기존 계약이 성장 엔진</div>
+      <div style="font-size:9px;color:var(--gold);margin-top:4px;font-weight:600;">EV/Rev 멀티플 정당화를 위한 필수 조건. 성공 시 주가 $5-6대 정상화</div>
+    </div>
+    
+    <div class="mt-card">
+      <div class="mt-label">방산 AI 예산 확대</div>
+      <div class="mt-text">미국 국방예산의 AI·기술 전환 가속. FY2026 국방수권법(NDAA)에 AI 관련 예산 증가 추세. DOGE 효율화 압력은 역설적으로 AI 자동화 수요를 자극할 수 있음</div>
+      <div style="font-size:9px;color:var(--gold);margin-top:4px;font-weight:600;">기존 계약 갱신·확대 및 신규 입찰 기회 증가</div>
+    </div>
+    
+    <div class="mt-card">
+      <div class="mt-label">현금 활용 전략</div>
+      <div class="mt-text">$288M 현금을 활용한 추가 M&A 또는 전략적 파트너십. 방산 AI 틈새 기업 인수로 역량 확장 가능</div>
+      <div style="font-size:9px;color:var(--gold);margin-top:4px;font-weight:600;">단기 주가 변동성 유발 가능. 적절한 M&A는 성장 가속제</div>
+    </div>
+    
+  </div>
+  
+
+  <!-- Long-term Thesis -->
+  
+  <div class="sec-title">Long-term Investment Thesis</div>
+  <div class="lt-thesis-box">
+    <div class="lt-label">Long-term Vision (3Y+)</div>
+    <div class="lt-text">BigBear.ai의 장기 투자 명제는 미국 국방·정보기관의 AI 전환이 구조적 메가트렌드라는 전제에 기반한다. 해당 시장은 DARPA, JAIC, 각 군(육·해·공)의 AI 예산이 2030년까지 연평균 20%+ 성장이 예상되며, BBAI는 방산 특화 보안 AI 배포 역량으로 이 시장의 일정 점유율을 확보할 수 있다. 단, 현재의 매출 역성장과 희석 구조를 극복하려면 FY2027까지 매출 $200M 이상, 총이익률 30%+ 회복, FCF 흑자 전환이라는 세 가지 조건을 충족해야 한다.</div>
+  </div>
+  
+
+</section>
+
+<!-- ═══ CH6: RISK FACTORS ════════════════════════════════════════════════════ -->
+<section class="chapter" id="ch6">
+
+  <!-- Unified risks[] (v1 schema) -->
+  
+  <div class="sec-title">Risk Matrix</div>
+  <div style="overflow-x:auto; margin-bottom:14px;">
+    <table class="data-table" style="background:var(--bg2);border:1px solid var(--border);border-radius:5px;overflow:hidden;">
+      <thead>
+        <tr>
+          <th style="width:70px;">Tier</th>
+          <th>Risk</th>
+          <th style="width:80px;">Category</th>
+          <th style="width:70px;" class="r">Prob</th>
+          <th style="width:70px;" class="r">Impact</th>
+          <th style="width:80px;" class="r">Bear Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td>
+            
+            <span class="risk-tier-badge tier-medium">
+              Medium
+            </span>
+          </td>
+          <td>
+            <div style="font-weight:600;font-size:10px;margin-bottom:3px;">매출 역성장 지속</div>
+            
+            <div style="font-size:9px;color:var(--muted);line-height:1.4;">FY2025 -19.3%에 이어 Pangiam 통합 지연 시 FY2026도 역성장 가능. 정부 계약 특성상 계약 만료 후 공백기가 발생하며, 새 계약 수주까지 매출 절벽이 심화될 수 있다.</div>
+            
+          </td>
+          <td style="font-size:9px;color:var(--muted);">Business</td>
+          <td class="r">
+            —
+          </td>
+          <td class="r">
+            
+            <span class="impact-badge impact-high">
+              높음
+            </span>
+            
+          </td>
+          <td class="r dn">—</td>
+        </tr>
+        
+        <tr>
+          <td>
+            
+            <span class="risk-tier-badge tier-medium">
+              Medium
+            </span>
+          </td>
+          <td>
+            <div style="font-weight:600;font-size:10px;margin-bottom:3px;">주식 희석 리스크</div>
+            
+            <div style="font-size:9px;color:var(--muted);line-height:1.4;">주식수가 2022년 117M→2025년 476M으로 4배 증가. 지속적인 영업손실 구조에서 추가 자본 조달 필요성이 있으며, 이는 EPS 희석과 주가 희석을 동반한다.</div>
+            
+          </td>
+          <td style="font-size:9px;color:var(--muted);">Financial</td>
+          <td class="r">
+            —
+          </td>
+          <td class="r">
+            
+            <span class="impact-badge impact-high">
+              높음
+            </span>
+            
+          </td>
+          <td class="r dn">—</td>
+        </tr>
+        
+        <tr>
+          <td>
+            
+            <span class="risk-tier-badge tier-medium">
+              Medium
+            </span>
+          </td>
+          <td>
+            <div style="font-weight:600;font-size:10px;margin-bottom:3px;">DOGE·국방예산 삭감</div>
+            
+            <div style="font-size:9px;color:var(--muted);line-height:1.4;">트럼프 행정부의 DOGE 정부효율화 움직임이 소규모 방산 AI 기업 계약을 취소·축소할 수 있다. BBAI의 90%+ 정부 매출 집중은 정치적 리스크에 취약하다.</div>
+            
+          </td>
+          <td style="font-size:9px;color:var(--muted);">Regulatory</td>
+          <td class="r">
+            —
+          </td>
+          <td class="r">
+            
+            <span class="impact-badge impact-low">
+              매우 높음
+            </span>
+            
+          </td>
+          <td class="r dn">—</td>
+        </tr>
+        
+        <tr>
+          <td>
+            
+            <span class="risk-tier-badge tier-medium">
+              Medium
+            </span>
+          </td>
+          <td>
+            <div style="font-weight:600;font-size:10px;margin-bottom:3px;">대형 방산 IT사의 AI 내재화</div>
+            
+            <div style="font-size:9px;color:var(--muted);line-height:1.4;">BAH, LDOS, SAIC 등 대형 정부 IT 기업이 자체 AI 역량을 강화하며 BBAI의 시장을 잠식하고 있다. Microsoft, AWS의 Gov 클라우드 AI 서비스도 직접 경쟁 관계에 있다.</div>
+            
+          </td>
+          <td style="font-size:9px;color:var(--muted);">Competitive</td>
+          <td class="r">
+            —
+          </td>
+          <td class="r">
+            
+            <span class="impact-badge impact-mid">
+              중간
+            </span>
+            
+          </td>
+          <td class="r dn">—</td>
+        </tr>
+        
+        <tr>
+          <td>
+            
+            <span class="risk-tier-badge tier-medium">
+              Medium
+            </span>
+          </td>
+          <td>
+            <div style="font-weight:600;font-size:10px;margin-bottom:3px;">굿윌 추가 손상</div>
+            
+            <div style="font-size:9px;color:var(--muted);line-height:1.4;">FY2022 $54M, FY2024 $85M, FY2025 $124M의 굿윌 손상차손이 매년 반복되고 있다. Pangiam 인수($229M)로 굿윌이 $241M까지 증가해 추가 손상 가능성이 상존한다.</div>
+            
+          </td>
+          <td style="font-size:9px;color:var(--muted);">Business</td>
+          <td class="r">
+            —
+          </td>
+          <td class="r">
+            
+            <span class="impact-badge impact-mid">
+              중간
+            </span>
+            
+          </td>
+          <td class="r dn">—</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+  
+
+</section>
+
+<!-- ═══ CH7: INDUSTRY & MACRO ═══════════════════════════════════════════════ -->
+<section class="chapter" id="ch7">
+
+  <!-- Exhibit 3: 12M Relative Performance -->
+  
+
+  <!-- Macro Commentary (v1) -->
+  
+  <div class="sec-title">Macro & Sector Commentary</div>
+  <div class="prose-box">
+    <div class="prose-label">Industry & Macro Analysis</div>
+    BigBear.ai의 매크로 환경은 복잡한 양면성을 지닌다. 긍정적 측면: 미국의 대중국 기술 경쟁 심화와 우크라이나·중동 분쟁 지속으로 DoD의 AI 투자 의지가 강하며, 2026 회계연도 NDAA에서 AI 관련 예산이 확대됐다. 또한 트럼프 행정부의 AI 규제 완화 기조는 방산 AI 배포를 가속할 수 있다. 부정적 측면: DOGE 주도의 연방 지출 효율화가 소규모 계약을 정리하는 과정에서 BBAI가 직접적 피해를 받을 수 있다. 고금리 환경에서 성장주 밸류에이션 프리미엄이 전반적으로 압박받는 상황도 부담이다. 금리 인하 사이클 진입 시 고베타(3.24) 성장주로서의 반등 탄력이 클 수 있다.
+  </div>
+  
+
+  <!-- Institutional Summary Boxes -->
+  
+  
+  <div class="sec-title">Institutional Overview</div>
+  <div class="institutional-summary">
+    <div class="inst-box">
+      <div class="inst-label">Short Interest</div>
+      <div class="inst-val dn">27.3% (숏인터레스트 매우 높음)%</div>
+    </div>
+    <div class="inst-box">
+      <div class="inst-label">Insider Buys (30d)</div>
+      <div class="inst-val up">0</div>
+    </div>
+    <div class="inst-box">
+      <div class="inst-label">Insider Sells (30d)</div>
+      <div class="inst-val dn">0</div>
+    </div>
+  </div>
+
+  <!-- Top Holders Table -->
+  
+  <div class="sec-title">Top Institutional Holders</div>
+  <div style="overflow-x:auto; margin-bottom:14px;">
+    <table class="data-table" style="background:var(--bg2);border:1px solid var(--border);border-radius:5px;overflow:hidden;">
+      <thead>
+        <tr>
+          <th>Institution</th>
+          <th class="r">Shares</th>
+          <th class="r">Change</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td>기관 보유 합계 (44.4%)</td>
+          <td class="r">~211M주</td>
+          <td class="r up">0</td>
+        </tr>
+        
+        <tr>
+          <td>내부자 (0.7%)</td>
+          <td class="r">~3.2M주</td>
+          <td class="r up">0</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+  
+  
+
+  <!-- Technical Analysis -->
+  
+  <div class="sec-title">Technical Analysis</div>
+  
+  <div class="tech-grid">
+    <div class="tech-box">
+      <div class="tech-label">RSI (14)</div>
+      <div class="tech-val nt">
+        —
+      </div>
+      <div class="tech-sub">
+        Neutral
+      </div>
+    </div>
+    <div class="tech-box">
+      <div class="tech-label">MACD</div>
+      <div class="tech-val nt">
+        —
+      </div>
+      <div class="tech-sub">상승 (시그널선 근접)</div>
+    </div>
+    <div class="tech-box">
+      <div class="tech-label">MA50 / MA200</div>
+      <div class="tech-val up">4.22</div>
+      <div class="tech-sub">MA200: 5.81</div>
+    </div>
+    <div class="tech-box">
+      <div class="tech-label">52W High %</div>
+      
+      <div class="tech-val up">
+        0%
+      </div>
+      <div class="tech-sub">From 52W High (—)</div>
+    </div>
+  </div>
+
+  <!-- Support / Resistance -->
+  
+  
+  <div class="prose-box" style="margin-top:10px;">
+    <div class="prose-label">Technical Commentary</div>
+    기술적으로 BBAI는 52주 고점($9.39)에서 -62% 급락 후 저점 형성 중이다. RSI 40.6은 중립~약과매도 구간으로, 추가 하락보다는 횡보·반등 가능성이 높다. 단기 저항은 MA50 $4.22, 중기 저항은 MA200 $5.81로 두 이동평균 모두 하방에 위치해 추세는 여전히 하락이다. MACD는 -0.248/-0.263으로 시그널선 근접, 교차 시 단기 매수 신호 가능. $2.39-2.50 구간이 강력한 지지대(52주 저점 근처)이며, 이 구간 이탈 시 손절 필요. $4.00-4.22(MA50)이 1차 저항, 돌파 시 $5.50-5.81(MA200) 도전 가능.
+  </div>
+  
+  
+
+</section>
+
+<!-- ═══ CH8: INVESTMENT CONCLUSION ══════════════════════════════════════════ -->
+<section class="chapter" id="ch8">
+
+  <!-- Large Rating -->
+  <div class="sec-title">Final Rating</div>
+  <div class="conclusion-rating-wrap">
+    
+    
+      <div class="rating-badge-lg rating-lg-hold">HOLD</div>
+    
+    
+    <div class="conclusion-subtext">BigBear.ai는 방산 AI 테마의 고위험 투기성 포지션이다. Pangiam 통합과 Ask Sage 채택이 FY2026 반등의 핵심 변수이며, 실패 시 추가 하락 리스크가 크다.</div>
+    
+  </div>
+
+  <!-- Conclusion Prose (v1) -->
+  
+  <div class="prose-box" style="border-left:3px solid var(--down);">
+    <div class="prose-label">Investment Conclusion</div>
+    BigBear.ai(BBAI)는 '방산 AI' 테마의 순수 플레이어라는 포지셔닝을 보유하지만, 현재 펀더멘털은 투자 근거를 지지하기 어렵다. FY2025 매출 -19.3% 역성장, 총이익률 22.3%로 하락, 연간 $46M FCF 유출이 지속되는 가운데 EV/Revenue 12x의 밸류에이션은 실적 회복을 상당 부분 선반영한 수준이다. 긍정적 촉매는 명확하다: Pangiam 인수 통합 성공, Ask Sage의 연방정부 침투 확대, 대형 DoD AI 계약 수주가 각각 단독으로도 주가 재평가 트리거가 될 수 있다. 그러나 27.3%에 달하는 숏인터레스트가 시장의 깊은 회의론을 반영하며, 476M주로 급증한 발행주식수는 주당 가치를 구조적으로 희석시킨다. 투자 결론: 현 가격에서 신규 매수보다는 실적 확인 후 접근이 적절하다. Q1 FY2026 실적(2026년 5월)에서 Pangiam 통합 매출과 총이익률 회복이 확인된다면 $4.20-4.80 저항 돌파를 타겟으로 한 포지션 진입을 검토할 수 있다. 포트폴리오 비중은 최대 2-3% 내로 제한할 것을 권고한다.
+  </div>
+  
+
+  <!-- Trade Setup -->
+  
+  
+  <div class="sec-title">Trade Setup</div>
+  <div class="trade-setup-box">
+    <div class="tsb-title">Tactical Entry Plan</div>
+    <div class="tsb-grid">
+      <div class="tsb-item">
+        <div class="tsb-label">Entry Zone</div>
+        <div class="tsb-val">
+          
+            $3.2 – $3.6
+          
+        </div>
+      </div>
+      <div class="tsb-item">
+        <div class="tsb-label">Target 1</div>
+        <div class="tsb-val up">$4.8</div>
+      </div>
+      <div class="tsb-item">
+        <div class="tsb-label">Target 2</div>
+        <div class="tsb-val up">$7.5</div>
+      </div>
+      <div class="tsb-item">
+        <div class="tsb-label">Stop Loss</div>
+        <div class="tsb-val dn">$2.5</div>
+      </div>
+      <div class="tsb-item">
+        <div class="tsb-label">Position Size</div>
+        <div class="tsb-val">포트폴리오의 2-3% 이내 (고위험 투기 포지션)</div>
+      </div>
+      <div class="tsb-item">
+        <div class="tsb-label">Time Horizon</div>
+        <div class="tsb-val" style="color:var(--muted)">—</div>
+      </div>
+    </div>
+    
+  </div>
+  
+
+  <!-- Monitoring KPIs (v1 kpis[] or fallback monitoring[]) -->
+  
+  
+  <div class="sec-title">Monitoring KPIs</div>
+  <div style="overflow-x:auto; margin-bottom:14px;">
+    <table class="data-table" style="background:var(--bg2);border:1px solid var(--border);border-radius:5px;overflow:hidden;">
+      <thead>
+        <tr>
+          <th>Metric / KPI</th>
+          <th>Threshold</th>
+          <th>Current</th>
+          <th style="width:80px;">Signal</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td style="font-weight:600;">분기 매출 YoY</td>
+          <td style="color:var(--gold)">연속 역성장 (-10% 이상)</td>
+          <td style="color:var(--muted);font-size:10px;">—</td>
+          <td>
+            —
+          </td>
+          <td style="color:var(--muted);font-size:10px;">포지션 즉시 재검토</td>
+        </tr>
+        
+        <tr>
+          <td style="font-weight:600;">총이익률</td>
+          <td style="color:var(--gold)"><20%</td>
+          <td style="color:var(--muted);font-size:10px;">—</td>
+          <td>
+            —
+          </td>
+          <td style="color:var(--muted);font-size:10px;">구조적 수익성 훼손 경고, 축소</td>
+        </tr>
+        
+        <tr>
+          <td style="font-weight:600;">현금 번율</td>
+          <td style="color:var(--gold)">>$15M/분기 (운영)</td>
+          <td style="color:var(--muted);font-size:10px;">—</td>
+          <td>
+            —
+          </td>
+          <td style="color:var(--muted);font-size:10px;">유동성 점검, 추가 희석 위험</td>
+        </tr>
+        
+        <tr>
+          <td style="font-weight:600;">대형 계약 수주</td>
+          <td style="color:var(--gold)">$50M+ DoD 계약</td>
+          <td style="color:var(--muted);font-size:10px;">—</td>
+          <td>
+            —
+          </td>
+          <td style="color:var(--muted);font-size:10px;">포지션 확대 고려</td>
+        </tr>
+        
+        <tr>
+          <td style="font-weight:600;">숏인터레스트 변화</td>
+          <td style="color:var(--gold)">>35%로 증가</td>
+          <td style="color:var(--muted);font-size:10px;">—</td>
+          <td>
+            —
+          </td>
+          <td style="color:var(--muted);font-size:10px;">시장 신뢰 추가 하락, 방어 강화</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+  
+
+  <!-- Next Update -->
+  
+  <div class="sec-title">Next Review Trigger</div>
+  <div class="next-update-box">
+    <div style="font-size:11px;color:var(--muted);">Trigger:</div>
+    <div class="nu-trigger">Q1 FY2026 실적 발표 (2026년 5월 예정)</div>
+    <div style="width:1px;height:20px;background:var(--border);"></div>
+    <div class="nu-event">—</div>
+    
+  </div>
+  
+
+</section>
+
+<!-- ═══ SCRIPTS ═══════════════════════════════════════════════════════════════ -->
+<script>
+function switchTab(id, event) {
+  document.querySelectorAll('.chapter').forEach(function(c) {
+    c.classList.remove('active');
+  });
+  document.querySelectorAll('.tab').forEach(function(t) {
+    t.classList.remove('active');
+  });
+  document.getElementById(id).classList.add('active');
+  if (event && event.currentTarget) {
+    event.currentTarget.classList.add('active');
+  }
+  window.scrollTo(0, 0);
+  // Lazy-init charts on first tab visit
+  if (id === 'ch3') { initCh3Charts(); }
+  if (id === 'ch7') { initCh7Charts(); }
+}
+
+// ── Exhibit 1 & 2: Revenue Charts (CH3) ───────────────────────────────────
+var ch3ChartsInited = false;
+function initCh3Charts() {
+  if (ch3ChartsInited) return;
+  ch3ChartsInited = true;
+
+  // Exhibit 1: Revenue Breakdown Stacked Bar
+  var ctxBreak = document.getElementById('chartRevBreakdown');
+  if (ctxBreak && window._revBreakdown) {
+    var rb = window._revBreakdown;
+    new Chart(ctxBreak, {
+      type: 'bar',
+      data: {
+        labels: rb.labels,
+        datasets: [
+          { label: 'Government', data: rb.gov, backgroundColor: '#1E5FA8', stack: 'rev' },
+          { label: 'Commercial', data: rb.com, backgroundColor: '#C8523A', stack: 'rev' }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+          x: { stacked: true, grid: { color: '#E0DBD0' } },
+          y: { stacked: true, grid: { color: '#E0DBD0' },
+               ticks: { callback: function(v) { return '$' + (v/1e6).toFixed(0) + 'M'; } } }
+        }
+      }
+    });
+  }
+
+  // Exhibit 2: Revenue + Gross Margin Combo
+  var ctxCombo = document.getElementById('chartRevMargin');
+  if (ctxCombo && window._revMargin) {
+    var rm = window._revMargin;
+    new Chart(ctxCombo, {
+      type: 'bar',
+      data: {
+        labels: rm.labels,
+        datasets: [
+          { type: 'bar',  label: 'Revenue',       data: rm.revenue, backgroundColor: '#1A1814', yAxisID: 'yRev' },
+          { type: 'line', label: 'Gross Margin %', data: rm.grossM, borderColor: '#C8523A', backgroundColor: 'transparent',
+            pointBackgroundColor: '#C8523A', tension: 0.3, yAxisID: 'yPct', borderWidth: 2 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+          yRev: { position: 'left', grid: { color: '#E0DBD0' },
+                  ticks: { callback: function(v) { return '$' + (v/1e6).toFixed(0) + 'M'; } } },
+          yPct: { position: 'right', min: 0, max: 100, grid: { drawOnChartArea: false },
+                  ticks: { callback: function(v) { return v + '%'; } } },
+          x:    { grid: { color: '#E0DBD0' } }
+        }
+      }
+    });
+  }
+}
+
+// ── Exhibit 3: Relative Performance (CH7) ─────────────────────────────────
+var ch7ChartInited = false;
+function initCh7Charts() {
+  if (ch7ChartInited) return;
+  ch7ChartInited = true;
+
+  var ctxPerf = document.getElementById('chartRelPerf');
+  if (ctxPerf && window._relPerf) {
+    var rp = window._relPerf;
+    new Chart(ctxPerf, {
+      type: 'line',
+      data: {
+        labels: rp.labels,
+        datasets: [
+          { label: 'BBAI', data: rp.ticker, borderColor: '#C8523A', backgroundColor: 'rgba(200,82,58,0.08)',
+            fill: true, tension: 0.3, borderWidth: 2, pointRadius: 3 },
+          { label: 'S&P 500',      data: rp.spy,    borderColor: '#1E5FA8', backgroundColor: 'transparent',
+            tension: 0.3, borderWidth: 1.5, pointRadius: 2 },
+          { label: 'Nasdaq',       data: rp.qqq,    borderColor: '#1E7A45', backgroundColor: 'transparent',
+            tension: 0.3, borderWidth: 1.5, pointRadius: 2, borderDash: [4,3] }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { position: 'top' },
+                   tooltip: { callbacks: { label: function(c) { return c.dataset.label + ': ' + c.parsed.y.toFixed(1) + '%'; } } } },
+        scales: {
+          x: { grid: { color: '#E0DBD0' } },
+          y: { grid: { color: '#E0DBD0' },
+               ticks: { callback: function(v) { return (v >= 0 ? '+' : '') + v + '%'; } } }
+        }
+      }
+    });
+  }
+}
+
+// ── Chart Data Injection (Jinja2 → JS) ────────────────────────────────────
+
+
+
+window._revMargin = {
+  labels:  ["FY2022", "FY2023", "FY2024", "FY2025"],
+  revenue: [155, 155, 158, 128],
+  grossM:  [27.7, 26.2, 28.6, 22.3]
+};
+
+
+
+</script>
+
+</body>
+</html>
