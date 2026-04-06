@@ -427,19 +427,54 @@ def _tojson_filter(val, **kwargs):
 
 def _ensure_v1_defaults(context: dict) -> dict:
     """v1 스키마 필드 기본값 보장 (템플릿 렌더링 오류 방지)"""
+    # 최상위 필드 → ch1으로 매핑 (context.json 호환)
     ch1 = context.setdefault("ch1", {})
+    for top_key, ch1_key in [
+        ("rating", "rating"), ("conviction", "conviction"),
+        ("target_price", "target_price"), ("current_price", "current_price"),
+    ]:
+        if top_key in context and ch1_key not in ch1:
+            ch1[ch1_key] = context[top_key]
+
+    # key_metrics 기본값 (최상위 필드에서 추출)
+    km = ch1.setdefault("key_metrics", {})
+    km.setdefault("market_cap", context.get("market_cap", "—"))
+    km.setdefault("fwd_pe", context.get("forward_pe", "—"))
+    km.setdefault("ev_ebitda", context.get("ev_ebitda", "—"))
+    km.setdefault("revenue_growth", context.get("revenue_growth", "—"))
+    km.setdefault("gross_margin", context.get("gross_margin", "—"))
+    km.setdefault("fcf_yield", context.get("fcf_yield", "—"))
+
+    # upside_pct 자동 계산
+    if "upside_pct" not in ch1 and ch1.get("target_price") and ch1.get("current_price"):
+        try:
+            ch1["upside_pct"] = round((float(ch1["target_price"]) / float(ch1["current_price"]) - 1) * 100, 1)
+        except (ValueError, ZeroDivisionError):
+            ch1["upside_pct"] = 0
+
+    # scenarios: probability → prob 매핑 (템플릿 호환)
+    scenarios = ch1.get("scenarios", {})
+    for case in ["bull", "base", "bear"]:
+        sc = scenarios.get(case, {})
+        if "probability" in sc and "prob" not in sc:
+            sc["prob"] = sc["probability"]
+
     ch1.setdefault("thesis", ch1.get("investment_thesis", ""))
     ch1.setdefault("thesis_points", [])
 
     ch2 = context.setdefault("ch2", {})
     ch2.setdefault("platform_overview", ch2.get("business_model", ""))
     ch2.setdefault("platforms", [])
+    ch2.setdefault("segments", ch2.get("revenue_segments", []))
+    ch2.setdefault("geo", ch2.get("geographic_mix", []))
+    ch2.setdefault("competitors", [])
 
     ch3 = context.setdefault("ch3", {})
+    ch3.setdefault("income_stmt", [])
     ch3.setdefault("revenue_breakdown", [])
     ch3.setdefault("sbc_analysis", "")
     ch3.setdefault("income_commentary", "")
-    # cash_flow 필드명 정규화
+    ch3.setdefault("cashflow", ch3.get("cash_flow", []))
     if not ch3.get("cash_flow") and ch3.get("cashflow"):
         ch3["cash_flow"] = ch3["cashflow"]
 
@@ -458,6 +493,20 @@ def _ensure_v1_defaults(context: dict) -> dict:
 
     ch6 = context.setdefault("ch6", {})
     ch6.setdefault("risks", [])
+    # risks → 카테고리별 분류 (템플릿 호환)
+    if ch6.get("risks") and not ch6.get("business_risk"):
+        for r in ch6["risks"]:
+            cat = r.get("category", "Business").lower()
+            if "business" in cat or "competitive" in cat:
+                ch6.setdefault("business_risk", []).append(r)
+            elif "financial" in cat:
+                ch6.setdefault("financial_risk", []).append(r)
+            elif "regulatory" in cat:
+                ch6.setdefault("regulatory_risk", []).append(r)
+            elif "macro" in cat:
+                ch6.setdefault("macro_risk", []).append(r)
+            else:
+                ch6.setdefault("business_risk", []).append(r)
 
     ch7 = context.setdefault("ch7", {})
     ch7.setdefault("perf_chart_data", [])
