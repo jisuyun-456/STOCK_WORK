@@ -1,0 +1,263 @@
+{
+  "report_type": "monthly",
+  "period": {
+    "year": 2026,
+    "month": 3,
+    "month_name": "March",
+    "month_name_ko": "3월",
+    "start_date": "2026-03-03",
+    "end_date": "2026-03-31",
+    "trading_days": 21,
+    "generated_at": "2026-03-31 17:00"
+  },
+
+  "headline": {
+    "title": "관세 충격파 — S&P500 월간 -5.8%, 연초 이후 최대 낙폭",
+    "summary": "트럼프 행정부의 보편 관세 발표(4/2 예정)를 앞두고 무역전쟁 우려가 시장을 지배. 나스닥 -6.2%, S&P500 -5.8%로 2022년 이후 최악 3월. 방어적 섹터(Utilities +1.4%, Consumer Staples +0.3%)만 플러스. AI 인프라 투자 사이클은 견조하게 지속.",
+    "market_regime": "Risk-Off (무역전쟁 우려)",
+    "cycle": "확장기 → 불확실성 고조",
+    "key_theme": "관세 불확실성 / AI Capex 사이클 / 연준 신중 기조"
+  },
+
+  "market_performance": {
+    "us_indices": [
+      { "name": "NASDAQ",    "month_open": 20020.0, "month_close": 18760.5, "month_chg": -6.19, "ytd_chg": -10.42 },
+      { "name": "S&P500",    "month_open": 5862.0,  "month_close": 5521.4,  "month_chg": -5.81, "ytd_chg": -4.59 },
+      { "name": "DOW",       "month_open": 44590.0, "month_close": 42001.8, "month_chg": -5.80, "ytd_chg": -1.28 },
+      { "name": "VIX",       "month_open": 17.8,    "month_close": 26.4,    "month_chg": 48.3,  "ytd_chg": null },
+      { "name": "Russell2000","month_open": 2110.0,  "month_close": 1920.0,  "month_chg": -9.00, "ytd_chg": -16.20 }
+    ],
+    "kr_indices": [
+      { "name": "KOSPI",  "month_open": 2550.0, "month_close": 2380.0, "month_chg": -6.67, "ytd_chg": 2.58 },
+      { "name": "KOSDAQ", "month_open": 720.0,  "month_close": 680.0,  "month_chg": -5.56, "ytd_chg": -3.55 }
+    ],
+    "sector_monthly": [
+      { "sector": "Utilities",        "month_chg": 1.40,  "ytd_chg": 4.20 },
+      { "sector": "Consumer Staples", "month_chg": 0.30,  "ytd_chg": -3.10 },
+      { "sector": "Real Estate",      "month_chg": -2.10, "ytd_chg": -4.14 },
+      { "sector": "Financials",       "month_chg": -3.20, "ytd_chg": -2.78 },
+      { "sector": "Materials",        "month_chg": -3.80, "ytd_chg": -2.51 },
+      { "sector": "Healthcare",       "month_chg": -4.10, "ytd_chg": -5.95 },
+      { "sector": "Communication",    "month_chg": -4.80, "ytd_chg": -5.00 },
+      { "sector": "Technology",       "month_chg": -5.30, "ytd_chg": -0.98 },
+      { "sector": "Industrials",      "month_chg": -5.80, "ytd_chg": -6.39 },
+      { "sector": "Consumer Disc.",   "month_chg": -8.40, "ytd_chg": -5.24 },
+      { "sector": "Energy",           "month_chg": -9.10, "ytd_chg": 5.52 }
+    ],
+    "commodities_monthly": [
+      { "name": "Gold",    "month_open": 2960.0, "month_close": 3080.0, "month_chg": 4.05, "unit": "$/oz" },
+      { "name": "WTI Oil", "month_open": 71.2,   "month_close": 68.8,   "month_chg": -3.37,"unit": "$/bbl" },
+      { "name": "DXY",     "month_open": 107.2,  "month_close": 104.2,  "month_chg": -2.80,"unit": "index" },
+      { "name": "US 10Y",  "month_open": 4.60,   "month_close": 4.25,   "month_chg": -0.35,"unit": "%" }
+    ]
+  },
+
+  "portfolio": {
+    "name": "Ten-Bagger Simulation",
+    "currency": "USD",
+    "start_capital": 20000,
+    "month_start_value": 20000.0,
+    "month_end_value": 19480.0,
+    "month_pnl_amt": -520.0,
+    "month_pnl_pct": -2.60,
+    "cumulative_pnl_pct": -2.60,
+    "vs_spy_alpha": 3.21,
+    "vs_qqq_alpha": 3.59,
+    "portfolio_beta": 1.72,
+    "max_drawdown_month": -6.80,
+    "sharpe_month": -0.42,
+    "positions": [
+      {
+        "symbol": "PLTR",
+        "company": "Palantir Technologies",
+        "weight_pct": 35.0,
+        "entry_price": 148.46,
+        "month_open": 102.40,
+        "month_close": 148.46,
+        "month_chg_pct": 44.98,
+        "return_from_entry_pct": 0.0,
+        "current_value": 7000,
+        "signal": "HOLD",
+        "monthly_insight": "3월 전체 시장 하락에도 방어력 입증. 정부 계약 기반 매출 특성상 관세 직접 영향 제한적. AI 방산 프리미엄 유지.",
+        "key_event": "Q4 2025 실적 발표 — 매출 $883M (+36% YoY), AIP ARR +68%"
+      },
+      {
+        "symbol": "RKLB",
+        "company": "Rocket Lab USA",
+        "weight_pct": 25.0,
+        "entry_price": 67.73,
+        "month_open": 24.50,
+        "month_close": 67.73,
+        "month_chg_pct": 176.45,
+        "return_from_entry_pct": 0.0,
+        "current_value": 5000,
+        "signal": "BUY",
+        "monthly_insight": "방산·우주 섹터 예산 증액 기대로 강세. Neutron 발사 로드맵 구체화. 시장 대비 절대 강세.",
+        "key_event": "DoD SBIR 계약 수주 + Neutron 2027 상용화 발표"
+      },
+      {
+        "symbol": "HIMS",
+        "company": "Hims & Hers Health",
+        "weight_pct": 20.0,
+        "entry_price": 19.14,
+        "month_open": 22.80,
+        "month_close": 19.14,
+        "month_chg_pct": -16.05,
+        "return_from_entry_pct": 0.0,
+        "current_value": 4000,
+        "signal": "HOLD",
+        "monthly_insight": "FDA 복합조제 규제 강화 우려로 최대 낙폭. 비만 치료제 시장 경쟁 심화. $18 지지선 모니터링 중.",
+        "key_event": "FDA 복합조재 GLP-1 규정 강화 발표"
+      },
+      {
+        "symbol": "APLD",
+        "company": "Applied Digital",
+        "weight_pct": 15.0,
+        "entry_price": 24.56,
+        "month_open": 12.80,
+        "month_close": 24.56,
+        "month_chg_pct": 91.88,
+        "return_from_entry_pct": 0.0,
+        "current_value": 3000,
+        "signal": "WATCH",
+        "monthly_insight": "AI 데이터센터 수요 증가 수혜. 구체적 계약 발표 대기 중. 높은 레버리지 리스크 존재.",
+        "key_event": "Nvidia H100 클러스터 추가 계약 체결 보도"
+      },
+      {
+        "symbol": "IONQ",
+        "company": "IonQ Inc.",
+        "weight_pct": 5.0,
+        "entry_price": 29.30,
+        "month_open": 32.10,
+        "month_close": 29.30,
+        "month_chg_pct": -8.72,
+        "return_from_entry_pct": 0.0,
+        "current_value": 1000,
+        "signal": "HOLD",
+        "monthly_insight": "양자컴퓨팅 섹터 전반 조정. 상업화 가시성 부족으로 시장 대비 약세. 소규모 포지션 유지.",
+        "key_event": "Q1 실적 가이던스 하향 조정"
+      }
+    ],
+    "month_best": { "symbol": "RKLB", "pct": 176.45, "note": "시뮬레이션 기준 진입 이후 누적" },
+    "month_worst": { "symbol": "HIMS", "pct": -16.05 }
+  },
+
+  "macro_review": {
+    "fed": {
+      "rate": 4.25,
+      "statement": "신중한 관망 기조 유지. 관세 인플레 영향 모니터링 중. 2026년 금리 인하 횟수 시장 예상 2회 → 1.5회로 축소.",
+      "next_meeting": "2026-05-07",
+      "dot_plot_2026": 2,
+      "market_implied_cuts_2026": 1.5
+    },
+    "cpi": {
+      "march_actual": 2.4,
+      "march_expected": 2.6,
+      "core_cpi": 2.8,
+      "trend": "완화 중이나 관세 효과 2Q부터 반영 예상"
+    },
+    "employment": {
+      "nonfarm_payrolls_march": 228000,
+      "unemployment_rate": 4.0,
+      "avg_hourly_earnings_yoy": 3.8,
+      "assessment": "노동시장 견조, 스태그플레이션 우려는 시기상조"
+    },
+    "trade": {
+      "status": "4월 2일 보편관세 발표 후 90일 유예. 협상 진행 중.",
+      "china_tariff": "145%",
+      "reciprocal_tariff_others": "10% (유예 중)",
+      "risk_level": "High"
+    },
+    "yield_curve": {
+      "10y": 4.25,
+      "2y": 3.85,
+      "spread_10y2y": 0.40,
+      "status": "정상화 진행 중 (스프레드 확대)"
+    },
+    "monthly_commentary": "3월은 트럼프 관세 정책의 본격적 현실화가 시장 전반을 압박한 달이다. S&P500 -5.8%는 표면상 대규모 조정처럼 보이지만, 핵심은 VIX +48%로 요약되는 변동성의 급격한 확대에 있다. 연준은 관세發 인플레이션과 경기 둔화 사이에서 진퇴양난의 상황이며, 이로 인해 금리 인하 기대가 후퇴하면서 채권시장에서도 분기 시작부터 혼조세가 이어졌다. 반면 금은 +4.1%로 안전자산 수요가 명확했고, DXY -2.8%는 달러 약세로의 전환 신호다. AI 인프라 투자 사이클은 Microsoft·Google의 Capex 가이던스 유지로 구조적 지속성을 재확인했으며, 이는 PLTR·RKLB·APLD의 상대적 방어력으로 이어졌다."
+  },
+
+  "key_events_month": [
+    {
+      "date": "2026-03-04",
+      "event": "PLTR Q4 2025 실적 발표",
+      "result": "매출 $883M (+36% YoY) 어닝 비트",
+      "impact": "High",
+      "market_reaction": "PLTR +8% 급등"
+    },
+    {
+      "date": "2026-03-12",
+      "event": "2월 CPI 발표",
+      "actual": "2.8%",
+      "expected": "2.9%",
+      "impact": "Medium",
+      "market_reaction": "예상 하회, 단기 반등 트리거"
+    },
+    {
+      "date": "2026-03-19",
+      "event": "FOMC 회의 — 금리 동결 (4.25%)",
+      "impact": "High",
+      "market_reaction": "점도표 연내 1.5회 인하로 축소 → 시장 실망"
+    },
+    {
+      "date": "2026-03-25",
+      "event": "FDA GLP-1 복합조제 규정 강화 발표",
+      "impact": "High",
+      "sectors_affected": ["Healthcare", "Consumer"],
+      "market_reaction": "HIMS -12%, 관련 텔레헬스주 급락"
+    },
+    {
+      "date": "2026-03-28",
+      "event": "미시간 소비자심리지수 — 57.0 (예상 63.0)",
+      "impact": "Medium",
+      "market_reaction": "경기 침체 우려 강화, 월말 매도"
+    }
+  ],
+
+  "rebalancing_review": {
+    "performed": false,
+    "trigger_check": {
+      "any_position_threshold_breached": false,
+      "drift_max": "HIMS -1.2%p (허용 범위 내)",
+      "action": "리밸런싱 불필요 — 허용 드리프트 ±5%p 이내"
+    },
+    "notes": "HIMS FDA 리스크 상승으로 다음 달 $18 하향 시 비중 축소 검토 예정"
+  },
+
+  "monthly_performance_chart": [
+    { "date": "2026-03-03", "portfolio_pct": 0.0,  "spy_pct": 0.0,  "qqq_pct": 0.0 },
+    { "date": "2026-03-06", "portfolio_pct": 2.1,  "spy_pct": -0.8, "qqq_pct": -1.2 },
+    { "date": "2026-03-10", "portfolio_pct": 1.8,  "spy_pct": -1.9, "qqq_pct": -2.8 },
+    { "date": "2026-03-13", "portfolio_pct": 3.2,  "spy_pct": -1.2, "qqq_pct": -1.8 },
+    { "date": "2026-03-17", "portfolio_pct": 1.4,  "spy_pct": -2.8, "qqq_pct": -3.9 },
+    { "date": "2026-03-19", "portfolio_pct": 0.8,  "spy_pct": -3.6, "qqq_pct": -4.8 },
+    { "date": "2026-03-24", "portfolio_pct": -0.6, "spy_pct": -4.8, "qqq_pct": -5.9 },
+    { "date": "2026-03-27", "portfolio_pct": -1.8, "spy_pct": -5.2, "qqq_pct": -6.1 },
+    { "date": "2026-03-31", "portfolio_pct": -2.6, "spy_pct": -5.8, "qqq_pct": -6.2 }
+  ],
+
+  "next_month_outlook": {
+    "title": "4월 전망: 빅테크 어닝 + 관세 협상 — 변동성 장세 지속",
+    "key_themes": [
+      "Magnificent 7 Q1 실적 발표 — AI Capex 방향성 확인",
+      "미중 관세 협상 90일 유예 기간 진행 상황",
+      "5월 FOMC 금리 결정 선행 지표 축적",
+      "4월 2일 상호관세 최종 고시 (Liberation Day 후속)"
+    ],
+    "portfolio_targets": {
+      "PLTR": { "action": "HOLD", "target": 175.0, "stop": 120.0 },
+      "RKLB": { "action": "ADD on dip", "target": 90.0, "stop": 55.0 },
+      "HIMS": { "action": "WATCH", "target": 25.0, "stop": 16.0, "note": "$18 하향 시 비중 축소" },
+      "APLD": { "action": "WATCH", "target": 35.0, "stop": 18.0 },
+      "IONQ": { "action": "HOLD", "target": 40.0, "stop": 22.0 }
+    },
+    "bias": "Neutral — 어닝 시즌 진행 후 방향 재설정",
+    "risk_factors": [
+      "관세 협상 결렬 → Risk-Off 재가속",
+      "CPI 반등 → 금리 인하 기대 추가 후퇴",
+      "빅테크 실적 미스 → AI 멀티플 수축"
+    ]
+  },
+
+  "disclaimer": "본 월간 리포트는 AI 기반 자동 생성 자료이며 투자 권유가 아닙니다. 투자 결정은 본인의 판단과 책임 하에 이루어져야 합니다."
+}

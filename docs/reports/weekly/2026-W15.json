@@ -1,0 +1,228 @@
+{
+  "report_type": "weekly",
+  "period": {
+    "week": "W15",
+    "year": 2026,
+    "start_date": "2026-04-07",
+    "end_date": "2026-04-11",
+    "trading_days": 5,
+    "generated_at": "2026-04-11 17:00"
+  },
+
+  "headline": {
+    "title": "관세 불확실성 속 빅테크 어닝 시즌 개막",
+    "summary": "나스닥 주간 +2.1%, S&P500 +1.8%. 트럼프 관세 90일 유예 발표로 중반 급등 후 주 후반 실적 경계로 소폭 반납. PLTR +4.3%, RKLB +6.8%로 포트폴리오 주간 수익률 +2.9% 달성.",
+    "market_mood": "Risk-On (조건부)",
+    "cycle": "확장기 (Expansion)",
+    "macro_theme": "관세 리스크 완화 + AI Capex 사이클 지속"
+  },
+
+  "market_performance": {
+    "us_indices": [
+      { "name": "NASDAQ",  "open": 19450.0, "close": 19858.7, "week_chg": 2.10, "ytd_chg": -4.2 },
+      { "name": "S&P500",  "open": 5420.0,  "close": 5517.8,  "week_chg": 1.80, "ytd_chg": -3.8 },
+      { "name": "DOW",     "open": 40100.0, "close": 40862.3, "week_chg": 1.90, "ytd_chg": -2.1 },
+      { "name": "VIX",     "open": 26.4,    "close": 22.1,    "week_chg": -16.3, "ytd_chg": null },
+      { "name": "Russell2000", "open": 1920.0, "close": 1965.4, "week_chg": 2.37, "ytd_chg": -7.6 }
+    ],
+    "kr_indices": [
+      { "name": "KOSPI",  "open": 2380.0, "close": 2441.2, "week_chg": 2.57, "ytd_chg": 5.3 },
+      { "name": "KOSDAQ", "open": 680.0,  "close": 694.5,  "week_chg": 2.13, "ytd_chg": -1.4 }
+    ],
+    "global_indices": [
+      { "name": "FTSE100",  "close": 8420.3, "week_chg": 1.60 },
+      { "name": "DAX",      "close": 21850.0, "week_chg": 2.10 },
+      { "name": "Nikkei225","close": 35420.0, "week_chg": 3.20 },
+      { "name": "Hang Seng","close": 21850.0, "week_chg": 1.80 }
+    ],
+    "commodities": [
+      { "name": "WTI Oil", "close": 63.8,   "week_chg": -2.40, "unit": "$/bbl" },
+      { "name": "Gold",    "close": 3240.0,  "week_chg": 1.20,  "unit": "$/oz" },
+      { "name": "Silver",  "close": 32.1,    "week_chg": 0.80,  "unit": "$/oz" },
+      { "name": "DXY",     "close": 99.8,    "week_chg": -0.60, "unit": "index" },
+      { "name": "US 10Y",  "close": 4.38,    "week_chg": 0.07,  "unit": "%" }
+    ],
+    "sector_weekly": [
+      { "sector": "Technology",       "week_chg": 3.40, "1m_chg": -0.98, "ytd_chg": -5.20 },
+      { "sector": "Communication",    "week_chg": 2.90, "1m_chg": -5.00, "ytd_chg": -8.10 },
+      { "sector": "Healthcare",       "week_chg": 2.50, "1m_chg": -5.95, "ytd_chg": -4.30 },
+      { "sector": "Financials",       "week_chg": 2.20, "1m_chg": -2.78, "ytd_chg": -3.10 },
+      { "sector": "Real Estate",      "week_chg": 1.80, "1m_chg": -4.14, "ytd_chg": -2.60 },
+      { "sector": "Industrials",      "week_chg": 1.60, "1m_chg": -6.39, "ytd_chg": -6.80 },
+      { "sector": "Materials",        "week_chg": 1.40, "1m_chg": -2.51, "ytd_chg": -4.50 },
+      { "sector": "Utilities",        "week_chg": 1.20, "1m_chg": -0.86, "ytd_chg": 1.40 },
+      { "sector": "Consumer Staples", "week_chg": 0.80, "1m_chg": -6.14, "ytd_chg": -3.20 },
+      { "sector": "Consumer Disc.",   "week_chg": 0.50, "1m_chg": -5.24, "ytd_chg": -12.30 },
+      { "sector": "Energy",           "week_chg": -0.80,"1m_chg": 5.52,  "ytd_chg": -2.10 }
+    ]
+  },
+
+  "portfolio": {
+    "name": "Ten-Bagger Simulation",
+    "currency": "USD",
+    "start_capital": 20000,
+    "week_start_value": 19480.0,
+    "week_end_value": 20045.0,
+    "week_pnl_amt": 565.0,
+    "week_pnl_pct": 2.90,
+    "cumulative_pnl_pct": 0.23,
+    "portfolio_beta": 1.72,
+    "positions": [
+      {
+        "symbol": "PLTR",
+        "company": "Palantir Technologies",
+        "entry_price": 148.46,
+        "week_open": 148.46,
+        "week_close": 154.84,
+        "week_chg_pct": 4.30,
+        "return_pct": 4.30,
+        "current_value": 7297,
+        "weight_pct": 35.0,
+        "signal": "HOLD",
+        "week_high": 157.20,
+        "week_low": 146.80,
+        "weekly_insight": "관세 유예 발표 + AIP 계약 확장 뉴스로 주중 +8% 급등 후 차익 실현. 기술적으로 $150 지지선 회복 확인."
+      },
+      {
+        "symbol": "RKLB",
+        "company": "Rocket Lab USA",
+        "entry_price": 67.73,
+        "week_open": 67.73,
+        "week_close": 72.33,
+        "week_chg_pct": 6.79,
+        "return_pct": 6.79,
+        "current_value": 5433,
+        "weight_pct": 25.0,
+        "signal": "BUY",
+        "week_high": 74.50,
+        "week_low": 66.90,
+        "weekly_insight": "Neutron 로켓 개발 마일스톤 달성 보도로 주간 최강 퍼포먼스. 우주방산 섹터 모멘텀 지속 중."
+      },
+      {
+        "symbol": "HIMS",
+        "company": "Hims & Hers Health",
+        "entry_price": 19.14,
+        "week_open": 19.14,
+        "week_close": 18.76,
+        "week_chg_pct": -1.98,
+        "return_pct": -1.98,
+        "current_value": 3922,
+        "weight_pct": 20.0,
+        "signal": "HOLD",
+        "week_high": 20.10,
+        "week_low": 18.20,
+        "weekly_insight": "FDA 규제 리스크 재부각으로 소폭 하락. GLP-1 시장 경쟁 심화 우려가 단기 압박 요인."
+      },
+      {
+        "symbol": "APLD",
+        "company": "Applied Digital",
+        "entry_price": 24.56,
+        "week_open": 24.56,
+        "week_close": 25.60,
+        "week_chg_pct": 4.23,
+        "return_pct": 4.23,
+        "current_value": 3126,
+        "weight_pct": 15.0,
+        "signal": "WATCH",
+        "week_high": 26.80,
+        "week_low": 24.10,
+        "weekly_insight": "AI 데이터센터 수요 증가로 동반 상승. NVIDIA 파트너십 확대 기대감 반영."
+      },
+      {
+        "symbol": "IONQ",
+        "company": "IonQ Inc.",
+        "entry_price": 29.30,
+        "week_open": 29.30,
+        "week_close": 30.15,
+        "week_chg_pct": 2.90,
+        "return_pct": 2.90,
+        "current_value": 1267,
+        "weight_pct": 5.0,
+        "signal": "HOLD",
+        "week_high": 31.40,
+        "week_low": 28.80,
+        "weekly_insight": "양자컴퓨팅 섹터 전반 상승 흐름 편승. 단독 뉴스 부재, 베타 플레이."
+      }
+    ],
+    "week_best": { "symbol": "RKLB", "pct": 6.79 },
+    "week_worst": { "symbol": "HIMS", "pct": -1.98 }
+  },
+
+  "volume_surge_weekly": [
+    { "rank": 1, "symbol": "NVDA", "week_chg_pct": 5.80, "avg_vol_ratio": 1.62, "catalyst": "GTC 2026 발표 기대감" },
+    { "rank": 2, "symbol": "META", "week_chg_pct": 4.20, "avg_vol_ratio": 1.45, "catalyst": "AI 광고 수익 가이던스 상향" },
+    { "rank": 3, "symbol": "TSLA", "week_chg_pct": -3.10, "avg_vol_ratio": 1.38, "catalyst": "유럽 판매 부진 보도" },
+    { "rank": 4, "symbol": "PLTR", "week_chg_pct": 4.30, "avg_vol_ratio": 1.31, "catalyst": "AIP 계약 확장 뉴스" },
+    { "rank": 5, "symbol": "RKLB", "week_chg_pct": 6.79, "avg_vol_ratio": 1.28, "catalyst": "Neutron 마일스톤 달성" }
+  ],
+
+  "key_events_week": [
+    {
+      "date": "2026-04-07",
+      "event": "트럼프 관세 90일 유예 발표",
+      "impact": "High",
+      "market_reaction": "나스닥 단일일 +7.3% — 2020년 이후 최대 일간 상승",
+      "sectors_affected": ["Technology", "Consumer Disc.", "Industrials"]
+    },
+    {
+      "date": "2026-04-09",
+      "event": "3월 CPI 발표",
+      "actual": "+2.4% YoY",
+      "expected": "+2.6% YoY",
+      "impact": "Medium",
+      "market_reaction": "예상치 하회로 금리 인하 기대 강화, 채권 강세"
+    },
+    {
+      "date": "2026-04-10",
+      "event": "3월 PPI 발표",
+      "actual": "+2.7% YoY",
+      "expected": "+2.9% YoY",
+      "impact": "Low",
+      "market_reaction": "CPI와 함께 인플레 완화 신호 확인"
+    },
+    {
+      "date": "2026-04-11",
+      "event": "대형 은행 실적 시즌 개막 (JPM, WFC, MS)",
+      "impact": "High",
+      "market_reaction": "금융주 혼조, 대손충당금 증가 경계감"
+    }
+  ],
+
+  "next_week_outlook": {
+    "key_events": [
+      { "date": "2026-04-14", "event": "TSLA 실적 발표 (After)", "importance": "High" },
+      { "date": "2026-04-15", "event": "ASML 실적 (Before)", "importance": "High" },
+      { "date": "2026-04-16", "event": "NVDA Developer Conference 키노트", "importance": "High" },
+      { "date": "2026-04-16", "event": "미국 소매판매 3월", "importance": "Medium" },
+      { "date": "2026-04-17", "event": "GOOGL 실적 (After)", "importance": "High" },
+      { "date": "2026-04-17", "event": "MSFT 실적 (After)", "importance": "High" }
+    ],
+    "macro_view": "AI 빅테크 어닝 시즌이 시장 방향을 결정할 핵심 주간. NVDA 개발자 컨퍼런스에서 Blackwell 수요 언급이 관건. 관세 협상 진척 여부가 리스크 변수.",
+    "portfolio_watch": {
+      "PLTR": "$150 지지 유지 확인, HOLD 유지",
+      "RKLB": "Neutron 추가 발표 기대, 모멘텀 관찰",
+      "HIMS": "FDA 발표 모니터링, $18 하향 시 재검토"
+    },
+    "bias": "Cautiously Bullish"
+  },
+
+  "technical_summary": {
+    "spy": { "price": 551.78, "ma50": 545.2, "ma200": 530.8, "rsi": 54.2, "above_ma50": true, "above_ma200": true },
+    "qqq": { "price": 481.6, "ma50": 473.8, "ma200": 454.2, "rsi": 56.1, "above_ma50": true, "above_ma200": true },
+    "vix": { "close": 22.1, "week_chg": -4.3, "signal": "Fear 완화 (25 이하)" }
+  },
+
+  "macro_indicators": {
+    "fed_funds_rate": 4.25,
+    "us_10y_yield": 4.38,
+    "us_2y_yield": 3.94,
+    "yield_curve_10y2y": 0.44,
+    "dxy": 99.8,
+    "gold": 3240.0,
+    "wti": 63.8,
+    "fear_greed_index": 38,
+    "fear_greed_label": "Fear"
+  },
+
+  "disclaimer": "본 주간 리포트는 AI 기반 자동 생성 자료이며 투자 권유가 아닙니다. 투자 결정은 본인의 판단과 책임 하에 이루어져야 합니다."
+}
