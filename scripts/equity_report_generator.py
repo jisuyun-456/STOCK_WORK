@@ -478,14 +478,29 @@ def _ensure_v1_defaults(context: dict) -> dict:
     if not ch3.get("cash_flow") and ch3.get("cashflow"):
         ch3["cash_flow"] = ch3["cashflow"]
 
+    # ch3.balance_sheet 기본값
+    bs = ch3.setdefault("balance_sheet", {})
+    bs.setdefault("total_assets", "—")
+    bs.setdefault("net_cash", "—")
+    bs.setdefault("roe", "—")
+    bs.setdefault("debt_ratio", "—")
+
     ch4 = context.setdefault("ch4", {})
     ch4.setdefault("dcf_commentary", "")
     ch4.setdefault("comps_commentary", "")
+    ch4.setdefault("comps", [])
+    ch4.setdefault("comps_self", {})
     dcf = ch4.setdefault("dcf", {})
-    dcf.setdefault("labels_wacc", [])
-    dcf.setdefault("labels_tgr", [])
-    if not dcf.get("matrix") and dcf.get("sensitivity_matrix"):
-        dcf["matrix"] = dcf["sensitivity_matrix"]
+    dcf.setdefault("sensitivity_headers", dcf.get("labels_tgr", []))
+    dcf.setdefault("sensitivity_row_labels", dcf.get("labels_wacc", []))
+    dcf.setdefault("sensitivity_matrix", dcf.get("matrix", []))
+    dcf.setdefault("current_price", context.get("current_price"))
+    dcf.setdefault("fair_value", None)
+    if dcf.get("fair_value") and dcf.get("current_price"):
+        try:
+            dcf.setdefault("upside", round((float(dcf["fair_value"]) / float(dcf["current_price"]) - 1) * 100, 1))
+        except (ValueError, ZeroDivisionError):
+            dcf.setdefault("upside", None)
 
     ch5 = context.setdefault("ch5", {})
     ch5.setdefault("short_term", [])
@@ -515,6 +530,11 @@ def _ensure_v1_defaults(context: dict) -> dict:
     ch8 = context.setdefault("ch8", {})
     ch8.setdefault("kpis", [])
     ch8.setdefault("conclusion", "")
+    ch8.setdefault("summary", "")
+    ch8.setdefault("rating", ch1.get("rating", "HOLD"))
+    ch8.setdefault("trade_setup", {})
+    ch8.setdefault("monitoring", [])
+    ch8.setdefault("next_update", {})
 
     return context
 

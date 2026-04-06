@@ -101,7 +101,10 @@
       "total_assets": "$6.2B",
       "total_debt": "$229M",
       "cash": "$7.18B",
-      "equity": "$7.49B"
+      "equity": "$7.49B",
+      "net_cash": "$6.95B",
+      "roe": "26.0%",
+      "debt_ratio": "3.1%"
     }
   },
 
@@ -112,9 +115,11 @@
       "wacc": 10.5,
       "tgr": 4.0,
       "fair_value": 155,
-      "labels_wacc": ["9.0%", "9.5%", "10.0%", "10.5%", "11.0%", "11.5%"],
-      "labels_tgr": ["2.0%", "2.5%", "3.0%", "3.5%", "4.0%"],
-      "matrix": [
+      "current_price": 148.46,
+      "upside": 4.4,
+      "sensitivity_headers": ["2.0%", "2.5%", "3.0%", "3.5%", "4.0%"],
+      "sensitivity_row_labels": ["9.0%", "9.5%", "10.0%", "10.5%", "11.0%", "11.5%"],
+      "sensitivity_matrix": [
         [218, 238, 262, 292, 330],
         [192, 208, 228, 252, 282],
         [168, 182, 198, 218, 242],
@@ -228,11 +233,14 @@
         {"name": "BlackRock", "pct": 8.87, "change": "+2.6%"},
         {"name": "State Street", "pct": 4.70, "change": "+1.1%"},
         {"name": "JP Morgan", "pct": 1.63, "change": "-48.7%"}
-      ]
+      ],
+      "insider_activity": {"buys_30d": 0, "sells_30d": 3}
     }
   },
 
   "ch8": {
+    "rating": "HOLD",
+    "summary": "Palantir는 AI 전환 시대의 핵심 인프라 기업이다. FY2025 매출 $4.48B(+56.2%), 순이익률 36.3%의 고성장·고수익 프로필을 보유하나, P/S 79x의 극단적 고평가가 신규 진입 리스크를 높인다. 기존 보유자 Hold, 신규 진입은 $130~$140 구간 대기 권고.",
     "conclusion": "Palantir는 AI 전환 시대의 핵심 인프라 기업이라는 데 이견이 없다. Gotham→Foundry→AIP의 수직 통합 플랫폼은 경쟁사가 단기간에 복제하기 어려운 구조적 해자를 형성하고 있으며, 특히 정부 AI 영역에서의 독점적 위치는 장기 수익성의 강력한 토대다. FY2025 기준 56.2% 매출 성장과 순이익률 36.3%의 조합은 '고성장 + 고수익성'이라는 희귀한 프로필을 보여준다. 그러나 현재 밸류에이션(P/S 79x, Forward P/E 80x)은 이미 낙관적 Base Case를 충분히 반영하고 있으며, 신규 진입 대비 리스크·보상 비율이 우호적이지 않다. 기존 보유자는 Hold 유지, 신규 투자자는 $130~$140 구간의 재진입을 기다리는 전략을 권고한다. MA200($164) 돌파와 상업 ARR 55%+ 성장이 동시에 확인될 경우 BUY로 상향 조정 가능하다.",
     "trade_setup": {
       "entry_zone": "$130 – $140",
@@ -254,7 +262,12 @@
       {"metric": "RSI (주간)", "threshold": "> 80", "action": "과매수 영역 → 포지션 30% 부분 차익 실현"},
       {"metric": "내부자 순매도 (12M)", "threshold": "> $1B", "action": "경영진 신뢰 재평가 → 투자의견 검토"}
     ],
-    "next_review": {
+    "monitoring": [
+      {"metric": "미국 상업 ARR 성장률", "threshold": "< 40% YoY", "action": "Bear Case 전환 검토"},
+      {"metric": "Adj. Op. Margin", "threshold": "< 30%", "action": "수익성 모델 재검토"},
+      {"metric": "주가 vs Stop", "threshold": "< $125", "action": "손절 실행"}
+    ],
+    "next_update": {
       "trigger": "Q1 2026 실적 발표 (5월 예정)",
       "scope": "CH1 투자의견, CH3 재무 모델, CH4 밸류에이션 목표가 즉시 업데이트"
     }
