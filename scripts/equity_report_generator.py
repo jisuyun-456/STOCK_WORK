@@ -657,7 +657,10 @@ def send_email(symbol: str, report_date: str, html_path: str = None, pdf_path: s
             env_mail.filters["fmt_pct"] = _fmt_pct
             env_mail.filters["pct_class"] = _pct_class
             template_mail = env_mail.get_template("equity_email.html")
-            email_html = template_mail.render(**context)
+            GITHUB_PAGES_BASE = "https://jisuyun-456.github.io/STOCK_WORK"
+            pages_url = f"{GITHUB_PAGES_BASE}/reports/equity/{symbol}-{report_date}.html"
+            ctx = {**context, "pages_url": pages_url}
+            email_html = template_mail.render(**ctx)
             msg.attach(MIMEText(email_html, "html", "utf-8"))
             print("  [email] equity_email.html 렌더링 완료", file=sys.stderr)
         except Exception as e:
