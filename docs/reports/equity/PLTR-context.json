@@ -31,17 +31,17 @@
     "scenarios": {
       "bull": {
         "price": 250,
-        "probability": 25,
+        "prob": 25,
         "note": "AIP 기반 상업 고객 ARR이 연 80%+ 성장을 지속하고, 미국 국방·정보 예산 증액이 정부 부문 가속을 이끄는 시나리오. 2027년 EPS $1.80 달성 시 EV/S 40배 적용. SBC 희석이 통제되고 자사주 매입이 본격화될 경우 추가 Upside 가능. Agentic AI 플랫폼으로의 전환이 시장 재평가를 이끌 수 있다."
       },
       "base": {
         "price": 175,
-        "probability": 50,
+        "prob": 50,
         "note": "상업 ARR 연 40~50% 성장 지속, 정부 부문 안정적 유지. FY2026 매출 $6.3B, Adj. Op. Margin 35% 유지를 가정. EV/S 25배 적용. 현재 주가 대비 밸류에이션 부담이 일부 해소되며 점진적 상승 기대."
       },
       "bear": {
         "price": 90,
-        "probability": 25,
+        "prob": 25,
         "note": "AI 예산 역풍 또는 경쟁사(Microsoft Fabric, Databricks) 침식으로 상업 성장이 20% 이하로 둔화되는 시나리오. 정부 부문 계약 갱신 실패가 가세될 경우, SBC 과다로 희석이 심화되며 EV/S 15배 수준으로 멀티플 수축이 불가피하다."
       }
     }
@@ -80,11 +80,29 @@
     "sbc_analysis": "Palantir 재무 분석에서 가장 중요하게 다뤄야 할 항목은 주식 기반 보상(SBC)이다. 연간 $500M 이상의 SBC는 Adjusted 수익성과 GAAP 수익성 사이에 큰 괴리를 만들어낸다. Adjusted EPS 기준으로는 FY25 $0.63 수준이지만, SBC를 진정한 비용으로 처리할 경우 실질 주주 가치 희석이 지속된다는 점에서 밸류에이션 분석 시 반드시 반영이 필요하다. 경영진은 SBC 절대금액을 줄이는 방향으로 조절 중이나, 신규 인재 확보를 위한 보상 패키지 규모를 감안할 때 단기간 내 급감은 어려울 것으로 판단되며, 이는 장기 주주 희석의 구조적 요인으로 남는다.",
     "cashflow_commentary": "FY2025 기준 영업현금흐름(OCF)은 약 $2.13B으로, FCF 마진은 약 28%에 달한다. 이는 동종업계(Snowflake ~18%, Datadog ~21%)를 상회하는 수준이다. 핵심 동인은 CAPEX가 극히 낮은(~$26M/년) 순수 소프트웨어 모델과, 멀티년 선급금 구조가 만들어내는 양성 Working Capital 효과다. 현금 $7.18B 보유, 총부채 $229M으로 사실상 무차입 경영이며, 이는 추가 M&A 또는 자사주 매입 여력을 제공한다.",
     "income_stmt": [
-      {"year": "FY2022", "revenue": 1906, "revenue_growth": null, "gross_margin": 80, "op_margin": -8.5, "net_income": -374},
-      {"year": "FY2023", "revenue": 2225, "revenue_growth": 16.7, "gross_margin": 82, "op_margin": 5.4, "net_income": 210},
-      {"year": "FY2024", "revenue": 2866, "revenue_growth": 28.8, "gross_margin": 82, "op_margin": 10.8, "net_income": 462},
-      {"year": "FY2025", "revenue": 4475, "revenue_growth": 56.2, "gross_margin": 82.4, "op_margin": 31.6, "net_income": 1625}
-    ]
+      {"year": "FY2022", "revenue": 1906, "gp": 1530, "ebitda": -139, "ni": -374, "eps": -0.18},
+      {"year": "FY2023", "revenue": 2225, "gp": 1826, "ebitda": 153, "ni": 210, "eps": 0.09},
+      {"year": "FY2024", "revenue": 2866, "gp": 2363, "ebitda": 342, "ni": 462, "eps": 0.19},
+      {"year": "FY2025", "revenue": 4475, "gp": 3686, "ebitda": 1440, "ni": 1625, "eps": 0.63}
+    ],
+    "margins": [
+      {"year": "FY2022", "gross_m": 80.3, "ebitda_m": -7.3, "net_m": -19.6},
+      {"year": "FY2023", "gross_m": 82.0, "ebitda_m": 6.9, "net_m": 9.4},
+      {"year": "FY2024", "gross_m": 82.5, "ebitda_m": 11.9, "net_m": 16.1},
+      {"year": "FY2025", "gross_m": 82.4, "ebitda_m": 32.2, "net_m": 36.3}
+    ],
+    "cashflow": [
+      {"year": "FY2022", "cfo": 224, "capex": -17, "fcf": 207, "fcf_margin": 10.9},
+      {"year": "FY2023", "cfo": 714, "capex": -22, "fcf": 692, "fcf_margin": 31.1},
+      {"year": "FY2024", "cfo": 1241, "capex": -23, "fcf": 1218, "fcf_margin": 42.5},
+      {"year": "FY2025", "cfo": 2134, "capex": -26, "fcf": 1261, "fcf_margin": 28.2}
+    ],
+    "balance_sheet": {
+      "total_assets": "$6.2B",
+      "total_debt": "$229M",
+      "cash": "$7.18B",
+      "equity": "$7.49B"
+    }
   },
 
   "ch4": {
@@ -106,12 +124,12 @@
       ]
     },
     "comps": [
-      {"ticker": "PLTR", "ev_rev": "79.3x", "pe_fwd": "79.8x", "growth": "+56.2%", "fcf_margin": "28%", "is_subject": true},
-      {"ticker": "SNOW", "ev_rev": "13x", "pe_fwd": "145x", "growth": "+28%", "fcf_margin": "18%", "is_subject": false},
-      {"ticker": "DDOG", "ev_rev": "16x", "pe_fwd": "65x", "growth": "+26%", "fcf_margin": "21%", "is_subject": false},
-      {"ticker": "CRWD", "ev_rev": "19x", "pe_fwd": "72x", "growth": "+33%", "fcf_margin": "28%", "is_subject": false},
-      {"ticker": "NOW", "ev_rev": "16x", "pe_fwd": "52x", "growth": "+21%", "fcf_margin": "29%", "is_subject": false}
-    ]
+      {"name": "Snowflake (SNOW)", "pe": "145x", "ev_ebitda": "N/M", "ev_rev": "13x", "p_fcf": "72x"},
+      {"name": "Datadog (DDOG)", "pe": "65x", "ev_ebitda": "55x", "ev_rev": "16x", "p_fcf": "76x"},
+      {"name": "CrowdStrike (CRWD)", "pe": "72x", "ev_ebitda": "58x", "ev_rev": "19x", "p_fcf": "68x"},
+      {"name": "ServiceNow (NOW)", "pe": "52x", "ev_ebitda": "45x", "ev_rev": "16x", "p_fcf": "55x"}
+    ],
+    "comps_self": {"pe": "240x", "ev_ebitda": "242x", "ev_rev": "79x", "p_fcf": "282x"}
   },
 
   "ch5": {
