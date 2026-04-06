@@ -65,6 +65,12 @@
       "total_value": 20000.0,
       "daily_return_pct": 0.0,
       "cumulative_return_pct": 0.0
+    },
+    {
+      "date": "2026-04-06",
+      "total_value": 20000.0,
+      "daily_return_pct": 0.0,
+      "cumulative_return_pct": 0.0
     }
   ]
 }
