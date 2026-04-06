@@ -25,8 +25,8 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
-      - name: Install system dependencies (WeasyPrint)
-        run: sudo apt-get install -y libpango-1.0-0 libpangocairo-1.0-0 libcairo2 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
+      - name: Install system dependencies (WeasyPrint + Korean fonts)
+        run: sudo apt-get install -y libpango-1.0-0 libpangocairo-1.0-0 libcairo2 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info fonts-noto-cjk
 
       - name: Install Python dependencies
         run: pip install -r requirements.txt
@@ -34,6 +34,7 @@ jobs:
       - name: Generate equity report & send email
         env:
           FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           REPORT_EMAIL_TO: ${{ secrets.REPORT_EMAIL_TO }}
