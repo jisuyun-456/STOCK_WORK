@@ -4,21 +4,37 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ symbol }} Equity Research — {{ report_date }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #FAF8F4;
-    --bg2: #FFFFFF;
-    --bg3: #F2EDE3;
-    --border: #E0DBD0;
-    --text: #1A1814;
-    --muted: #8A857C;
-    --up: #1E7A45;
-    --down: #C8523A;
-    --gold: #A87228;
-    --blue: #1E5FA8;
-    --purple: #6B46C1;
-    --cyan: #0E7490;
-    --font: 'Pretendard', -apple-system, 'Segoe UI', sans-serif;
+    /* ── Material You — Warm Terracotta System ────────────── */
+    --bg:     #fcf9f4;    /* surface / background            */
+    --bg2:    #f6f3ee;    /* surface-container-low           */
+    --bg3:    #f0ede9;    /* surface-container               */
+    --bg4:    #ebe8e3;    /* surface-container-high          */
+    --bg5:    #e5e2dd;    /* surface-container-highest       */
+    --border: #dbc1b9;    /* outline-variant                 */
+    --outline: #88726c;   /* outline                        */
+    --text:   #1c1c19;    /* on-surface                      */
+    --muted:  #55433d;    /* on-surface-variant              */
+    --muted2: #88726c;    /* outline (lighter muted)         */
+
+    --up:     #1E7A45;    /* positive / green                */
+    --down:   #99462a;    /* primary / terracotta coral      */
+    --gold:   #815600;    /* tertiary / amber                */
+    --gold2:  #c58500;    /* tertiary-container              */
+    --blue:   #1E5FA8;    /* accent blue                     */
+    --purple: #6B46C1;    /* accent purple                   */
+    --cyan:   #0E7490;    /* accent cyan                     */
+
+    --primary:    #99462a;   /* brand primary                */
+    --primary-lt: #ffdbd0;   /* primary-fixed (light tint)   */
+    --primary-md: #d97757;   /* primary-container            */
+
+    --font:       'Inter', -apple-system, 'Segoe UI', sans-serif;
+    --font-serif: 'Newsreader', Georgia, serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -36,89 +52,119 @@
 
   /* ── HEADER ─────────────────────────────────────── */
   .hdr {
-    background: #1A1814;
-    border-bottom: 2px solid #C8523A;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
     gap: 0;
-    padding: 0 20px;
-    height: 44px;
+    padding: 0 24px;
+    height: 52px;
     position: sticky;
     top: 0;
     z-index: 100;
+    box-shadow: 0 1px 0 var(--border);
   }
   .hdr-logo {
-    font-size: 14px;
-    font-weight: 700;
-    color: #FAF8F4;
-    letter-spacing: 1px;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text);
+    letter-spacing: 0;
     white-space: nowrap;
-    min-width: 220px;
+    min-width: 240px;
   }
   .hdr-logo span {
-    color: #8A857C;
-    font-weight: 400;
-    font-size: 10px;
-    margin-left: 6px;
+    color: var(--muted2);
+    font-family: var(--font);
+    font-style: normal;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-left: 8px;
   }
 
   /* ── TAB NAV ─────────────────────────────────────── */
   .tab-nav {
     display: flex;
-    gap: 2px;
+    gap: 1px;
     flex: 1;
     justify-content: center;
   }
   .tab {
-    padding: 5px 11px;
-    border-radius: 3px;
-    font-size: 10px;
+    padding: 5px 13px;
+    border-radius: 2px;
+    font-size: 9px;
     font-weight: 600;
-    letter-spacing: 0.4px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
     cursor: pointer;
     border: 1px solid transparent;
-    color: #8A857C;
+    color: var(--muted2);
     background: transparent;
-    transition: all .18s;
+    transition: all .15s;
     white-space: nowrap;
+    font-family: var(--font);
   }
-  .tab:hover { color: #FAF8F4; border-color: #3a3530; }
+  .tab:hover { color: var(--text); background: var(--bg3); }
   .tab.active {
-    background: #C8523A;
+    background: var(--primary);
     color: #fff;
-    border-color: #C8523A;
+    border-color: var(--primary);
   }
 
   .hdr-date {
-    font-size: 10px;
-    color: #8A857C;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--muted2);
     white-space: nowrap;
-    min-width: 90px;
+    min-width: 100px;
     text-align: right;
   }
 
   /* ── CHAPTER PAGES ──────────────────────────────── */
-  .chapter { display: none; padding: 20px 24px; max-width: 1200px; margin: 0 auto; }
+  .chapter { display: none; padding: 28px 32px; max-width: 1200px; margin: 0 auto; }
   .chapter.active { display: block; }
 
   /* ── SECTION TITLE ──────────────────────────────── */
   .sec-title {
+    font-family: var(--font);
     font-size: 9px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--muted);
+    letter-spacing: 1.5px;
+    color: var(--primary);
     border-bottom: 1px solid var(--border);
-    padding-bottom: 5px;
-    margin-bottom: 12px;
-    margin-top: 20px;
+    padding-bottom: 6px;
+    margin-bottom: 14px;
+    margin-top: 24px;
   }
   .sec-title:first-child { margin-top: 0; }
+
+  /* ── CHAPTER HEADLINE (serif italic) ────────────── */
+  .ch-headline {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.25;
+    margin-bottom: 4px;
+  }
+  .ch-subline {
+    font-size: 10px;
+    color: var(--muted2);
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+  }
 
   /* ── UP / DN / NT COLORS ────────────────────────── */
   .up  { color: var(--up); }
   .dn  { color: var(--down); }
-  .nt  { color: var(--muted); }
+  .nt  { color: var(--muted2); }
 
   /* ── CH1: EXECUTIVE SUMMARY ─────────────────────── */
 
@@ -143,8 +189,8 @@
     text-transform: uppercase;
   }
   .rating-buy    { background: #E8F5EE; color: #1E7A45; border: 1px solid #b8d8c4; }
-  .rating-hold   { background: #FBF3E2; color: #A87228; border: 1px solid #e0d5b8; }
-  .rating-sell   { background: #FBF0ED; color: #C8523A; border: 1px solid #f0c4b8; }
+  .rating-hold   { background: #fef3ec; color: #815600; border: 1px solid #e4c88a; }
+  .rating-sell   { background: #fde8e3; color: #99462a; border: 1px solid #e8b9ac; }
 
   .rb-item { display: flex; flex-direction: column; gap: 2px; }
   .rb-label { font-size: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
@@ -156,32 +202,36 @@
     font-weight: 700;
     padding: 3px 9px;
     border-radius: 3px;
-    letter-spacing: .5px;
-    background: #EBF2FB;
-    color: #1E5FA8;
-    border: 1px solid #c4d8f0;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    background: var(--primary-lt);
+    color: var(--primary);
+    border: 1px solid #e8b9ac;
   }
 
   /* Investment Thesis */
   .thesis-box {
     background: var(--bg2);
-    border-left: 3px solid var(--blue);
-    padding: 12px 14px;
+    border-left: 3px solid var(--primary);
+    padding: 14px 18px;
     border-radius: 0 5px 5px 0;
     margin-bottom: 14px;
   }
   .thesis-box .tb-label {
+    font-family: var(--font);
     font-size: 9px;
     font-weight: 700;
-    color: var(--blue);
+    color: var(--primary);
     text-transform: uppercase;
-    letter-spacing: .5px;
-    margin-bottom: 5px;
+    letter-spacing: 1px;
+    margin-bottom: 7px;
   }
   .thesis-box .tb-text {
-    font-size: 11px;
+    font-family: var(--font-serif);
+    font-size: 13px;
+    font-style: italic;
     color: var(--text);
-    line-height: 1.6;
+    line-height: 1.75;
   }
 
   /* Key Metrics 6-grid */
@@ -207,17 +257,29 @@
     gap: 8px;
     margin-bottom: 14px;
   }
-  .sc-card { border-radius: 5px; padding: 10px 12px; }
+  .sc-card { border-radius: 5px; padding: 14px 16px; }
   .sc-bull  { background: #E8F5EE; border: 1px solid #b8d8c4; }
-  .sc-base  { background: var(--bg3); border: 1px solid var(--border); }
-  .sc-bear  { background: #FBF0ED; border: 1px solid #f0c4b8; }
-  .sc-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
+  .sc-base  { background: var(--primary); border: 1px solid var(--primary); box-shadow: 0 4px 16px rgba(153,70,42,.18); }
+  .sc-bear  { background: var(--bg3); border: 1px solid var(--border); }
+  .sc-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
   .sc-bull .sc-label { color: var(--up); }
-  .sc-base .sc-label { color: var(--muted); }
-  .sc-bear .sc-label { color: var(--down); }
-  .sc-price { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
-  .sc-prob  { font-size: 9px; color: var(--muted); margin-bottom: 4px; }
-  .sc-note  { font-size: 9px; color: var(--muted); line-height: 1.4; }
+  .sc-base .sc-label { color: rgba(255,255,255,.7); }
+  .sc-bear .sc-label { color: var(--muted2); }
+  .sc-price {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 24px;
+    font-weight: 400;
+    margin-bottom: 2px;
+  }
+  .sc-base  .sc-price { color: #fff; }
+  .sc-bear  .sc-price { color: var(--muted2); }
+  .sc-prob  { font-size: 9px; margin-bottom: 5px; }
+  .sc-base  .sc-prob { color: rgba(255,255,255,.6); }
+  .sc-bear  .sc-prob { color: var(--muted2); }
+  .sc-note  { font-size: 9px; line-height: 1.5; }
+  .sc-base  .sc-note { color: rgba(255,255,255,.8); }
+  .sc-bear  .sc-note { color: var(--muted2); }
 
   /* ── TABLES (common) ─────────────────────────────── */
   .data-table {
@@ -227,17 +289,17 @@
     font-size: 11px;
   }
   .data-table thead tr {
-    background: #1A1814;
-    border-bottom: 1px solid #1A1814;
+    background: var(--primary);
+    border-bottom: 1px solid var(--primary);
   }
   .data-table th {
     padding: 7px 10px;
     text-align: left;
     font-size: 9px;
     font-weight: 700;
-    color: #FAF8F4;
+    color: #fff;
     text-transform: uppercase;
-    letter-spacing: .5px;
+    letter-spacing: .8px;
     white-space: nowrap;
   }
   .data-table th.r { text-align: right; }
@@ -319,11 +381,11 @@
     padding: 5px 10px;
     font-size: 8px;
     font-weight: 700;
-    color: #FAF8F4;
+    color: #fff;
     text-transform: uppercase;
-    letter-spacing: .4px;
-    background: #1A1814;
-    border: 1px solid #1A1814;
+    letter-spacing: .6px;
+    background: var(--primary);
+    border: 1px solid var(--primary);
     text-align: center;
   }
   .sens-table td {
@@ -342,9 +404,9 @@
   .sens-row-label {
     font-size: 9px;
     font-weight: 600;
-    color: #FAF8F4;
-    background: #1A1814;
-    border: 1px solid #1A1814;
+    color: #fff;
+    background: var(--primary);
+    border: 1px solid var(--primary);
     padding: 5px 10px;
     white-space: nowrap;
   }
@@ -390,21 +452,27 @@
     background: var(--bg3);
     border: 1px solid var(--border);
     border-radius: 5px;
-    padding: 10px 12px;
-    border-left: 3px solid var(--purple);
+    padding: 12px 14px;
+    border-left: 3px solid var(--gold2);
   }
-  .mt-label { font-size: 9px; font-weight: 700; color: var(--purple); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px; }
-  .mt-text  { font-size: 10px; color: var(--text); line-height: 1.5; }
+  .mt-label { font-family: var(--font-serif); font-style: italic; font-size: 12px; font-weight: 400; color: var(--text); margin-bottom: 5px; }
+  .mt-text  { font-size: 10px; color: var(--muted); line-height: 1.6; }
 
   .lt-thesis-box {
     background: var(--bg2);
-    border-left: 3px solid var(--gold);
-    padding: 12px 14px;
+    border-left: 3px solid var(--gold2);
+    padding: 14px 18px;
     border-radius: 0 5px 5px 0;
     margin-bottom: 14px;
   }
-  .lt-thesis-box .lt-label { font-size: 9px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
-  .lt-thesis-box .lt-text  { font-size: 11px; color: var(--text); line-height: 1.6; }
+  .lt-thesis-box .lt-label { font-size: 9px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+  .lt-thesis-box .lt-text  {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.75;
+  }
 
   /* ── CH6: RISK FACTORS ───────────────────────────── */
   .risk-category-grid {
@@ -440,8 +508,8 @@
     letter-spacing: .3px;
     white-space: nowrap;
   }
-  .prob-high { background: #FBF0ED; color: #C8523A; border: 1px solid #f0c4b8; }
-  .prob-mid  { background: #FBF3E2; color: #A87228; border: 1px solid #e0d5b8; }
+  .prob-high { background: #fde8e3; color: #99462a; border: 1px solid #e8b9ac; }
+  .prob-mid  { background: #fef3ec; color: #815600; border: 1px solid #e4c88a; }
   .prob-low  { background: #E8F5EE; color: #1E7A45; border: 1px solid #b8d8c4; }
 
   .impact-badge {
@@ -454,7 +522,7 @@
   }
   .impact-high { background: #EDE9F8; color: #6B46C1; border: 1px solid #c4b8ea; }
   .impact-mid  { background: #EBF2FB; color: #1E5FA8; border: 1px solid #c4d8f0; }
-  .impact-low  { background: var(--bg3); color: var(--muted); border: 1px solid var(--border); }
+  .impact-low  { background: var(--bg3); color: var(--muted2); border: 1px solid var(--border); }
 
   /* ── CH7: INDUSTRY & MACRO ───────────────────────── */
   .institutional-summary {
@@ -505,18 +573,19 @@
     text-transform: uppercase;
   }
   .rating-lg-buy  { background: #E8F5EE; color: #1E7A45; border: 2px solid #b8d8c4; }
-  .rating-lg-hold { background: #FBF3E2; color: #A87228; border: 2px solid #e0d5b8; }
-  .rating-lg-sell { background: #FBF0ED; color: #C8523A; border: 2px solid #f0c4b8; }
+  .rating-lg-hold { background: #fef3ec; color: #815600; border: 2px solid #e4c88a; }
+  .rating-lg-sell { background: #fde8e3; color: #99462a; border: 2px solid #e8b9ac; }
   .conclusion-subtext { font-size: 11px; color: var(--muted); line-height: 1.5; }
 
   .trade-setup-box {
     background: var(--bg2);
-    border: 1px solid #b8d8c4;
-    border-radius: 5px;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--primary);
+    border-radius: 0 5px 5px 0;
     padding: 14px 16px;
     margin-bottom: 14px;
   }
-  .tsb-title { font-size: 9px; font-weight: 700; color: var(--up); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; }
+  .tsb-title { font-size: 9px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 10px; }
   .tsb-grid  { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
   .tsb-item  { background: var(--bg3); border-radius: 4px; padding: 7px 9px; }
   .tsb-label { font-size: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 3px; }
@@ -562,20 +631,24 @@
     background: var(--bg2);
     border: 1px solid var(--border);
     border-radius: 5px;
-    padding: 14px 16px;
-    font-size: 11.5px;
-    line-height: 1.8;
+    padding: 16px 18px;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 13px;
+    line-height: 1.85;
     color: var(--text);
     margin-bottom: 14px;
     white-space: pre-line;
   }
   .prose-label {
+    font-family: var(--font);
+    font-style: normal;
     font-size: 9px;
     font-weight: 700;
-    color: var(--muted);
+    color: var(--primary);
     text-transform: uppercase;
-    letter-spacing: .8px;
-    margin-bottom: 6px;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
   }
 
   /* ── THESIS POINTS ──────────────────────────────────── */
@@ -604,19 +677,26 @@
     background: var(--bg2);
     border: 1px solid var(--border);
     border-radius: 5px;
-    padding: 12px 14px;
-    border-top: 3px solid #1E5FA8;
+    padding: 14px 16px;
+    border-top: 3px solid var(--primary);
   }
-  .platform-card .pc-name { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .platform-card .pc-name {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 14px;
+    font-weight: 400;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
   .platform-card .pc-contrib {
     font-size: 9px;
     font-weight: 700;
     color: var(--gold);
     text-transform: uppercase;
-    letter-spacing: .4px;
+    letter-spacing: .6px;
     margin-bottom: 6px;
   }
-  .platform-card .pc-desc { font-size: 10.5px; line-height: 1.6; color: var(--text); }
+  .platform-card .pc-desc { font-size: 10.5px; line-height: 1.65; color: var(--muted); }
 
   /* ── CHART CONTAINERS ───────────────────────────────── */
   .chart-wrap {
@@ -648,8 +728,8 @@
     white-space: nowrap;
   }
   .signal-ok      { background: #E8F5EE; color: #1E7A45; border: 1px solid #b8d8c4; }
-  .signal-warn    { background: #FBF3E2; color: #A87228; border: 1px solid #e0d5b8; }
-  .signal-danger  { background: #FBF0ED; color: #C8523A; border: 1px solid #f0c4b8; }
+  .signal-warn    { background: #fef3ec; color: #815600; border: 1px solid #e4c88a; }
+  .signal-danger  { background: #fde8e3; color: #99462a; border: 1px solid #e8b9ac; }
 
   /* ── RISK UNIFIED TABLE ─────────────────────────────── */
   .risk-tier-badge {
@@ -659,8 +739,8 @@
     border-radius: 3px;
     white-space: nowrap;
   }
-  .tier-high   { background: #FBF0ED; color: #C8523A; border: 1px solid #f0c4b8; }
-  .tier-medium { background: #FBF3E2; color: #A87228; border: 1px solid #e0d5b8; }
+  .tier-high   { background: #fde8e3; color: #99462a; border: 1px solid #e8b9ac; }
+  .tier-medium { background: #fef3ec; color: #815600; border: 1px solid #e4c88a; }
   .tier-low    { background: #E8F5EE; color: #1E7A45; border: 1px solid #b8d8c4; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
