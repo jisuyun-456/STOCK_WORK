@@ -420,8 +420,59 @@ def _pct_class(val):
         return "nt"
 
 
+def _tojson_filter(val, **kwargs):
+    """Jinja2 tojson filter — Chart.js 데이터 주입용"""
+    return json.dumps(val, ensure_ascii=False, default=str)
+
+
+def _ensure_v1_defaults(context: dict) -> dict:
+    """v1 스키마 필드 기본값 보장 (템플릿 렌더링 오류 방지)"""
+    ch1 = context.setdefault("ch1", {})
+    ch1.setdefault("thesis", ch1.get("investment_thesis", ""))
+    ch1.setdefault("thesis_points", [])
+
+    ch2 = context.setdefault("ch2", {})
+    ch2.setdefault("platform_overview", ch2.get("business_model", ""))
+    ch2.setdefault("platforms", [])
+
+    ch3 = context.setdefault("ch3", {})
+    ch3.setdefault("revenue_breakdown", [])
+    ch3.setdefault("sbc_analysis", "")
+    ch3.setdefault("income_commentary", "")
+    # cash_flow 필드명 정규화
+    if not ch3.get("cash_flow") and ch3.get("cashflow"):
+        ch3["cash_flow"] = ch3["cashflow"]
+
+    ch4 = context.setdefault("ch4", {})
+    ch4.setdefault("dcf_commentary", "")
+    ch4.setdefault("comps_commentary", "")
+    dcf = ch4.setdefault("dcf", {})
+    dcf.setdefault("labels_wacc", [])
+    dcf.setdefault("labels_tgr", [])
+    if not dcf.get("matrix") and dcf.get("sensitivity_matrix"):
+        dcf["matrix"] = dcf["sensitivity_matrix"]
+
+    ch5 = context.setdefault("ch5", {})
+    ch5.setdefault("short_term", [])
+    ch5.setdefault("mid_term", [])
+
+    ch6 = context.setdefault("ch6", {})
+    ch6.setdefault("risks", [])
+
+    ch7 = context.setdefault("ch7", {})
+    ch7.setdefault("perf_chart_data", [])
+    ch7.setdefault("macro_commentary", "")
+
+    ch8 = context.setdefault("ch8", {})
+    ch8.setdefault("kpis", [])
+    ch8.setdefault("conclusion", "")
+
+    return context
+
+
 def generate_equity_report(context: dict, symbol: str) -> dict:
-    """context → HTML (다크) + PDF (크림) + JSON 저장"""
+    """context → HTML (크림) + PDF (크림) + JSON 저장"""
+    context = _ensure_v1_defaults(context)
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     report_date = context.get("report_date", str(date.today()))
     base_name = f"{symbol}-{report_date}"
@@ -436,7 +487,7 @@ def generate_equity_report(context: dict, symbol: str) -> dict:
     results["json"] = str(json_path)
     print(f"  [equity] JSON 저장: {json_path}", file=sys.stderr)
 
-    # HTML (다크 테마)
+    # HTML (크림 테마)
     try:
         from jinja2 import Environment, FileSystemLoader
         env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)), autoescape=False)
@@ -444,6 +495,7 @@ def generate_equity_report(context: dict, symbol: str) -> dict:
         env.filters["fmt_pct"] = _fmt_pct
         env.filters["pct_class"] = _pct_class
         env.filters["abs"] = abs
+        env.filters["tojson"] = _tojson_filter
 
         template = env.get_template("equity_report.html")
         html = template.render(**context)
@@ -468,6 +520,7 @@ def generate_equity_report(context: dict, symbol: str) -> dict:
         env_pdf.filters["fmt_pct"] = _fmt_pct
         env_pdf.filters["pct_class"] = _pct_class
         env_pdf.filters["abs"] = abs
+        env_pdf.filters["tojson"] = _tojson_filter
 
         template_pdf = env_pdf.get_template("equity_report_pdf.html")
         html_pdf = template_pdf.render(**context)

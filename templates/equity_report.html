@@ -557,7 +557,113 @@
     border-radius: 5px;
     margin-bottom: 14px;
   }
+  /* ── PROSE COMMENTARY ──────────────────────────────── */
+  .prose-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 14px 16px;
+    font-size: 11.5px;
+    line-height: 1.8;
+    color: var(--text);
+    margin-bottom: 14px;
+    white-space: pre-line;
+  }
+  .prose-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    margin-bottom: 6px;
+  }
+
+  /* ── THESIS POINTS ──────────────────────────────────── */
+  .thesis-points { list-style: none; padding: 0; margin-bottom: 14px; }
+  .thesis-points li {
+    display: flex;
+    gap: 8px;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    line-height: 1.5;
+    background: var(--bg2);
+  }
+  .thesis-points li:first-child { border-radius: 5px 5px 0 0; }
+  .thesis-points li:last-child  { border-bottom: none; border-radius: 0 0 5px 5px; }
+  .thesis-points li .tp-bullet  { color: #C8523A; font-weight: 700; flex-shrink: 0; }
+
+  /* ── PLATFORM CARDS ─────────────────────────────────── */
+  .platform-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .platform-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 12px 14px;
+    border-top: 3px solid #1E5FA8;
+  }
+  .platform-card .pc-name { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .platform-card .pc-contrib {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    margin-bottom: 6px;
+  }
+  .platform-card .pc-desc { font-size: 10.5px; line-height: 1.6; color: var(--text); }
+
+  /* ── CHART CONTAINERS ───────────────────────────────── */
+  .chart-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .chart-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .chart-sub {
+    font-size: 9px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .chart-canvas { max-height: 280px; }
+
+  /* ── KPI TABLE (v1) ─────────────────────────────────── */
+  .signal-badge {
+    font-size: 8px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .signal-ok      { background: #E8F5EE; color: #1E7A45; border: 1px solid #b8d8c4; }
+  .signal-warn    { background: #FBF3E2; color: #A87228; border: 1px solid #e0d5b8; }
+  .signal-danger  { background: #FBF0ED; color: #C8523A; border: 1px solid #f0c4b8; }
+
+  /* ── RISK UNIFIED TABLE ─────────────────────────────── */
+  .risk-tier-badge {
+    font-size: 8px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .tier-high   { background: #FBF0ED; color: #C8523A; border: 1px solid #f0c4b8; }
+  .tier-medium { background: #FBF3E2; color: #A87228; border: 1px solid #e0d5b8; }
+  .tier-low    { background: #E8F5EE; color: #1E7A45; border: 1px solid #b8d8c4; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -631,11 +737,19 @@
     </div>
   </div>
 
-  <!-- Investment Thesis -->
+  <!-- Investment Thesis (v1: thesis prose + thesis_points, fallback to investment_thesis) -->
+  {% set thesis_text = ch1.thesis if ch1.thesis else ch1.investment_thesis %}
   <div class="thesis-box">
     <div class="tb-label">Investment Thesis</div>
-    <div class="tb-text">{{ ch1.investment_thesis }}</div>
+    <div class="tb-text">{{ thesis_text }}</div>
   </div>
+  {% if ch1.thesis_points %}
+  <ul class="thesis-points">
+    {% for pt in ch1.thesis_points %}
+    <li><span class="tp-bullet">▶</span><span>{{ pt }}</span></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
 
   <!-- Key Metrics 6-grid -->
   <div class="sec-title">Key Metrics</div>
@@ -695,9 +809,26 @@
 <!-- ═══ CH2: BUSINESS OVERVIEW ══════════════════════════════════════════════ -->
 <section class="chapter" id="ch2">
 
-  <!-- Business Model -->
+  <!-- Business Model + Platform Overview -->
   <div class="sec-title">Business Model</div>
-  <div class="biz-text">{{ ch2.business_model }}</div>
+  {% set biz_text = ch2.platform_overview if ch2.platform_overview else ch2.business_model %}
+  <div class="biz-text">{{ biz_text }}</div>
+
+  <!-- Platform Cards (v1) -->
+  {% if ch2.platforms %}
+  <div class="sec-title">Platform Architecture</div>
+  <div class="platform-grid">
+    {% for p in ch2.platforms %}
+    <div class="platform-card">
+      <div class="pc-name">{{ p.name }}</div>
+      {% if p.revenue_contribution %}
+      <div class="pc-contrib">Revenue: {{ p.revenue_contribution }}</div>
+      {% endif %}
+      <div class="pc-desc">{{ p.description }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 
   <!-- Competitors Table -->
   {% if ch2.competitors %}
@@ -785,6 +916,26 @@
 <!-- ═══ CH3: FINANCIAL ANALYSIS ════════════════════════════════════════════ -->
 <section class="chapter" id="ch3">
 
+  <!-- Exhibit 1: Revenue Breakdown Stacked Bar -->
+  {% if ch3.revenue_breakdown %}
+  <div class="sec-title">Exhibit 1 — Revenue Breakdown</div>
+  <div class="chart-wrap">
+    <div class="chart-title">Government vs Commercial Revenue (FY)</div>
+    <div class="chart-sub">단위: $M | 정부(Government) vs 상업(Commercial)</div>
+    <canvas id="chartRevBreakdown" class="chart-canvas"></canvas>
+  </div>
+  {% endif %}
+
+  <!-- Exhibit 2: Revenue + Gross Margin Combo -->
+  {% if ch3.income_stmt %}
+  <div class="sec-title">Exhibit 2 — Revenue & Gross Margin Trend</div>
+  <div class="chart-wrap">
+    <div class="chart-title">Revenue (Bar) + Gross Margin % (Line)</div>
+    <div class="chart-sub">단위: 매출 $M / Gross Margin %</div>
+    <canvas id="chartRevMargin" class="chart-canvas"></canvas>
+  </div>
+  {% endif %}
+
   <!-- Income Statement -->
   <div class="sec-title">Income Statement (5Y)</div>
   {% if ch3.income_stmt %}
@@ -847,8 +998,18 @@
   <div class="empty-state">Margin data unavailable</div>
   {% endif %}
 
+  <!-- SBC Analysis (v1) -->
+  {% if ch3.sbc_analysis %}
+  <div class="sec-title">SBC & Dilution Analysis</div>
+  <div class="prose-box">
+    <div class="prose-label">Stock-Based Compensation Commentary</div>
+    {{ ch3.sbc_analysis }}
+  </div>
+  {% endif %}
+
   <!-- Cash Flow -->
-  {% if ch3.cashflow %}
+  {% set cf_data = ch3.cash_flow if ch3.cash_flow else ch3.cashflow %}
+  {% if cf_data %}
   <div class="sec-title">Cash Flow</div>
   <div style="overflow-x:auto; margin-bottom:14px;">
     <table class="data-table" style="background:var(--bg2);border:1px solid var(--border);border-radius:5px;overflow:hidden;">
@@ -862,10 +1023,10 @@
         </tr>
       </thead>
       <tbody>
-        {% for row in ch3.cashflow %}
+        {% for row in cf_data %}
         <tr>
           <td>{{ row.year }}</td>
-          <td class="r">{{ row.cfo | fmt_num }}</td>
+          <td class="r">{{ (row.ocf or row.cfo) | fmt_num }}</td>
           <td class="r dn">{{ row.capex | fmt_num }}</td>
           <td class="r {{ row.fcf | pct_class | default('nt') }}">{{ row.fcf | fmt_num }}</td>
           <td class="r">{{ row.fcf_margin | default('—') }}%</td>
@@ -948,41 +1109,44 @@
     {% endif %}
   </div>
 
-  <!-- Sensitivity Heatmap -->
-  {% if dcf.sensitivity_matrix %}
+  <!-- Sensitivity Heatmap (supports both v1 labels_wacc/labels_tgr/matrix and legacy) -->
+  {% set sens_matrix = dcf.matrix if dcf.matrix else dcf.sensitivity_matrix %}
+  {% if sens_matrix %}
   <div class="sensitivity-wrap">
-    <div class="sec-title">DCF Sensitivity (WACC x TGR)</div>
+    <div class="sec-title">DCF Sensitivity Matrix (WACC × TGR)</div>
     <div style="overflow-x:auto;">
       <table class="sens-table">
-        {% if dcf.sensitivity_headers %}
+        {% set col_labels = dcf.labels_tgr if dcf.labels_tgr else dcf.sensitivity_headers %}
+        {% set row_labels = dcf.labels_wacc if dcf.labels_wacc else dcf.sensitivity_row_labels %}
+        {% if col_labels %}
         <thead>
           <tr>
-            <th style="background:#1A1814;border:1px solid #1A1814;color:#FAF8F4;">WACC \ TGR</th>
-            {% for h in dcf.sensitivity_headers %}
+            <th style="background:#1A1814;border:1px solid #1A1814;color:#FAF8F4;">WACC ↓ / TGR →</th>
+            {% for h in col_labels %}
             <th>{{ h }}</th>
             {% endfor %}
           </tr>
         </thead>
         {% endif %}
         <tbody>
-          {% for row in dcf.sensitivity_matrix %}
+          {% for row in sens_matrix %}
           <tr>
-            {% if dcf.sensitivity_row_labels %}
-            <td class="sens-row-label">{{ dcf.sensitivity_row_labels[loop.index0] }}</td>
+            {% if row_labels %}
+            <td class="sens-row-label">{{ row_labels[loop.index0] }}</td>
             {% endif %}
             {% for val in row %}
               {% set fval = val | float %}
-              {% set cur  = dcf.current_price_num | default(0) | float %}
+              {% set cur  = ch1.current_price | default(0) | float %}
               {% if fval >= cur * 1.20 %}
-                <td class="sens-heat-high">{{ val }}</td>
+                <td class="sens-heat-high">${{ val }}</td>
               {% elif fval >= cur * 1.05 %}
-                <td class="sens-heat-mid2">{{ val }}</td>
+                <td class="sens-heat-mid2">${{ val }}</td>
               {% elif fval >= cur * 0.95 %}
-                <td class="sens-heat-mid">{{ val }}</td>
+                <td class="sens-heat-mid">${{ val }}</td>
               {% elif fval >= cur * 0.80 %}
-                <td class="sens-heat-mid3">{{ val }}</td>
+                <td class="sens-heat-mid3">${{ val }}</td>
               {% else %}
-                <td class="sens-heat-low">{{ val }}</td>
+                <td class="sens-heat-low">${{ val }}</td>
               {% endif %}
             {% endfor %}
           </tr>
@@ -992,6 +1156,15 @@
     </div>
   </div>
   {% endif %}
+
+  <!-- DCF Commentary (v1) -->
+  {% if ch4.dcf_commentary %}
+  <div class="prose-box" style="margin-top:10px;">
+    <div class="prose-label">DCF Assumptions & Interpretation</div>
+    {{ ch4.dcf_commentary }}
+  </div>
+  {% endif %}
+
   {% else %}
   <div class="empty-state">DCF data unavailable</div>
   {% endif %}
@@ -1032,6 +1205,14 @@
       </tbody>
     </table>
   </div>
+  <!-- Comps Commentary (v1) -->
+  {% if ch4.comps_commentary %}
+  <div class="prose-box">
+    <div class="prose-label">Peer Valuation Commentary</div>
+    {{ ch4.comps_commentary }}
+  </div>
+  {% endif %}
+
   {% else %}
   <div class="empty-state">Comparable company data unavailable</div>
   {% endif %}
@@ -1050,8 +1231,9 @@
       <div class="c-dot" style="background:var(--blue)"></div>
       {% if e.date %}<div class="c-date">{{ e.date }}</div>{% endif %}
       <div class="c-body">
-        <div class="c-title">{{ e.title }}</div>
-        {% if e.desc %}<div class="c-desc">{{ e.desc }}</div>{% endif %}
+        <div class="c-title">{{ e.event or e.title or '' }}</div>
+        {% set desc_text = e.expectation or e.desc or '' %}
+        {% if desc_text %}<div class="c-desc">{{ desc_text }}</div>{% endif %}
       </div>
       {% if e.impact %}
       <div class="prob-badge" style="background:#EBF2FB;color:#1E5FA8;border:1px solid #c4d8f0;">
@@ -1071,8 +1253,9 @@
   <div class="mid-term-grid">
     {% for t in ch5.mid_term %}
     <div class="mt-card">
-      <div class="mt-label">{{ t.title }}</div>
-      <div class="mt-text">{{ t.desc | default('') }}</div>
+      <div class="mt-label">{{ t.theme or t.title or '' }}</div>
+      <div class="mt-text">{{ t.description or t.desc or '' }}</div>
+      {% if t.impact %}<div style="font-size:9px;color:var(--gold);margin-top:4px;font-weight:600;">{{ t.impact }}</div>{% endif %}
     </div>
     {% endfor %}
   </div>
@@ -1093,6 +1276,59 @@
 
 <!-- ═══ CH6: RISK FACTORS ════════════════════════════════════════════════════ -->
 <section class="chapter" id="ch6">
+
+  <!-- Unified risks[] (v1 schema) -->
+  {% if ch6.risks %}
+  <div class="sec-title">Risk Matrix</div>
+  <div style="overflow-x:auto; margin-bottom:14px;">
+    <table class="data-table" style="background:var(--bg2);border:1px solid var(--border);border-radius:5px;overflow:hidden;">
+      <thead>
+        <tr>
+          <th style="width:70px;">Tier</th>
+          <th>Risk</th>
+          <th style="width:80px;">Category</th>
+          <th style="width:70px;" class="r">Prob</th>
+          <th style="width:70px;" class="r">Impact</th>
+          <th style="width:80px;" class="r">Bear Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in ch6.risks %}
+        <tr>
+          <td>
+            {% set tier = r.tier | default('Medium') %}
+            <span class="risk-tier-badge {% if tier in ['High','높음','HIGH'] %}tier-high{% elif tier in ['Medium','중간','MEDIUM'] %}tier-medium{% else %}tier-low{% endif %}">
+              {{ tier }}
+            </span>
+          </td>
+          <td>
+            <div style="font-weight:600;font-size:10px;margin-bottom:3px;">{{ r.title }}</div>
+            {% if r.description %}
+            <div style="font-size:9px;color:var(--muted);line-height:1.4;">{{ r.description }}</div>
+            {% endif %}
+          </td>
+          <td style="font-size:9px;color:var(--muted);">{{ r.category | default('—') }}</td>
+          <td class="r">
+            {% if r.probability %}
+            <span class="prob-badge {% if r.probability in ['High','높음'] %}prob-high{% elif r.probability in ['Medium','중간'] %}prob-mid{% else %}prob-low{% endif %}">
+              {{ r.probability }}
+            </span>
+            {% else %}—{% endif %}
+          </td>
+          <td class="r">
+            {% if r.impact %}
+            <span class="impact-badge {% if r.impact in ['High','높음'] %}impact-high{% elif r.impact in ['Medium','중간'] %}impact-mid{% else %}impact-low{% endif %}">
+              {{ r.impact }}
+            </span>
+            {% else %}—{% endif %}
+          </td>
+          <td class="r dn">{% if r.bear_price %}${{ r.bear_price }}{% else %}—{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
 
   <div class="risk-category-grid">
 
@@ -1225,10 +1461,31 @@
     </div>
 
   </div>
+  {% endif %}
+
 </section>
 
 <!-- ═══ CH7: INDUSTRY & MACRO ═══════════════════════════════════════════════ -->
 <section class="chapter" id="ch7">
+
+  <!-- Exhibit 3: 12M Relative Performance -->
+  {% if ch7.perf_chart_data %}
+  <div class="sec-title">Exhibit 3 — 12M Relative Performance</div>
+  <div class="chart-wrap">
+    <div class="chart-title">{{ symbol }} vs S&P 500 vs Nasdaq (12개월 누적 수익률)</div>
+    <div class="chart-sub">기준 0% = 12개월 전 | 단위: %</div>
+    <canvas id="chartRelPerf" class="chart-canvas"></canvas>
+  </div>
+  {% endif %}
+
+  <!-- Macro Commentary (v1) -->
+  {% if ch7.macro_commentary %}
+  <div class="sec-title">Macro & Sector Commentary</div>
+  <div class="prose-box">
+    <div class="prose-label">Industry & Macro Analysis</div>
+    {{ ch7.macro_commentary }}
+  </div>
+  {% endif %}
 
   <!-- Institutional Summary Boxes -->
   {% if ch7.institutional %}
@@ -1305,10 +1562,11 @@
     </div>
     <div class="tech-box">
       <div class="tech-label">52W High %</div>
-      <div class="tech-val {% if (ta.from_52w_high | default(0) | float) >= -10 %}up{% elif (ta.from_52w_high | default(0) | float) <= -30 %}dn{% else %}nt{% endif %}">
-        {{ ta.from_52w_high | default('—') }}%
+      {% set pct52 = ta.pct_from_high or ta.from_52w_high or 0 %}
+      <div class="tech-val {% if (pct52 | float) >= -10 %}up{% elif (pct52 | float) <= -30 %}dn{% else %}nt{% endif %}">
+        {{ pct52 | default('—') }}%
       </div>
-      <div class="tech-sub">From 52W High</div>
+      <div class="tech-sub">From 52W High ({{ ta.high_52w | default('—') }})</div>
     </div>
   </div>
 
@@ -1346,7 +1604,7 @@
   <!-- Large Rating -->
   <div class="sec-title">Final Rating</div>
   <div class="conclusion-rating-wrap">
-    {% set r8 = ch8.rating | default(ch1.rating) | upper %}
+    {% set r8 = (ch8.final_rating or ch8.rating or ch1.rating) | upper %}
     {% if r8 == 'BUY' %}
       <div class="rating-badge-lg rating-lg-buy">BUY</div>
     {% elif r8 == 'HOLD' %}
@@ -1358,6 +1616,14 @@
     <div class="conclusion-subtext">{{ ch8.summary }}</div>
     {% endif %}
   </div>
+
+  <!-- Conclusion Prose (v1) -->
+  {% if ch8.conclusion %}
+  <div class="prose-box" style="border-left:3px solid var(--down);">
+    <div class="prose-label">Investment Conclusion</div>
+    {{ ch8.conclusion }}
+  </div>
+  {% endif %}
 
   <!-- Trade Setup -->
   {% if ch8.trade_setup %}
@@ -1406,23 +1672,35 @@
   </div>
   {% endif %}
 
-  <!-- Monitoring KPIs -->
-  {% if ch8.monitoring %}
+  <!-- Monitoring KPIs (v1 kpis[] or fallback monitoring[]) -->
+  {% set kpi_list = ch8.kpis if ch8.kpis else ch8.monitoring %}
+  {% if kpi_list %}
   <div class="sec-title">Monitoring KPIs</div>
   <div style="overflow-x:auto; margin-bottom:14px;">
     <table class="data-table" style="background:var(--bg2);border:1px solid var(--border);border-radius:5px;overflow:hidden;">
       <thead>
         <tr>
-          <th>KPI</th>
+          <th>Metric / KPI</th>
           <th>Threshold</th>
+          <th>Current</th>
+          <th style="width:80px;">Signal</th>
           <th>Action</th>
         </tr>
       </thead>
       <tbody>
-        {% for m in ch8.monitoring %}
+        {% for m in kpi_list %}
         <tr>
-          <td>{{ m.kpi }}</td>
+          <td style="font-weight:600;">{{ m.metric or m.kpi or '—' }}</td>
           <td style="color:var(--gold)">{{ m.threshold }}</td>
+          <td style="color:var(--muted);font-size:10px;">{{ m.current | default('—') }}</td>
+          <td>
+            {% if m.signal %}
+            {% set sig = m.signal | lower %}
+            <span class="signal-badge {% if '정상' in sig or 'ok' in sig or 'normal' in sig %}signal-ok{% elif '경고' in sig or 'warn' in sig %}signal-warn{% else %}signal-danger{% endif %}">
+              {{ m.signal }}
+            </span>
+            {% else %}—{% endif %}
+          </td>
           <td style="color:var(--muted);font-size:10px;">{{ m.action }}</td>
         </tr>
         {% endfor %}
@@ -1461,7 +1739,132 @@ function switchTab(id, event) {
     event.currentTarget.classList.add('active');
   }
   window.scrollTo(0, 0);
+  // Lazy-init charts on first tab visit
+  if (id === 'ch3') { initCh3Charts(); }
+  if (id === 'ch7') { initCh7Charts(); }
 }
+
+// ── Exhibit 1 & 2: Revenue Charts (CH3) ───────────────────────────────────
+var ch3ChartsInited = false;
+function initCh3Charts() {
+  if (ch3ChartsInited) return;
+  ch3ChartsInited = true;
+
+  // Exhibit 1: Revenue Breakdown Stacked Bar
+  var ctxBreak = document.getElementById('chartRevBreakdown');
+  if (ctxBreak && window._revBreakdown) {
+    var rb = window._revBreakdown;
+    new Chart(ctxBreak, {
+      type: 'bar',
+      data: {
+        labels: rb.labels,
+        datasets: [
+          { label: 'Government', data: rb.gov, backgroundColor: '#1E5FA8', stack: 'rev' },
+          { label: 'Commercial', data: rb.com, backgroundColor: '#C8523A', stack: 'rev' }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+          x: { stacked: true, grid: { color: '#E0DBD0' } },
+          y: { stacked: true, grid: { color: '#E0DBD0' },
+               ticks: { callback: function(v) { return '$' + (v/1e6).toFixed(0) + 'M'; } } }
+        }
+      }
+    });
+  }
+
+  // Exhibit 2: Revenue + Gross Margin Combo
+  var ctxCombo = document.getElementById('chartRevMargin');
+  if (ctxCombo && window._revMargin) {
+    var rm = window._revMargin;
+    new Chart(ctxCombo, {
+      type: 'bar',
+      data: {
+        labels: rm.labels,
+        datasets: [
+          { type: 'bar',  label: 'Revenue',       data: rm.revenue, backgroundColor: '#1A1814', yAxisID: 'yRev' },
+          { type: 'line', label: 'Gross Margin %', data: rm.grossM, borderColor: '#C8523A', backgroundColor: 'transparent',
+            pointBackgroundColor: '#C8523A', tension: 0.3, yAxisID: 'yPct', borderWidth: 2 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+          yRev: { position: 'left', grid: { color: '#E0DBD0' },
+                  ticks: { callback: function(v) { return '$' + (v/1e6).toFixed(0) + 'M'; } } },
+          yPct: { position: 'right', min: 0, max: 100, grid: { drawOnChartArea: false },
+                  ticks: { callback: function(v) { return v + '%'; } } },
+          x:    { grid: { color: '#E0DBD0' } }
+        }
+      }
+    });
+  }
+}
+
+// ── Exhibit 3: Relative Performance (CH7) ─────────────────────────────────
+var ch7ChartInited = false;
+function initCh7Charts() {
+  if (ch7ChartInited) return;
+  ch7ChartInited = true;
+
+  var ctxPerf = document.getElementById('chartRelPerf');
+  if (ctxPerf && window._relPerf) {
+    var rp = window._relPerf;
+    new Chart(ctxPerf, {
+      type: 'line',
+      data: {
+        labels: rp.labels,
+        datasets: [
+          { label: '{{ symbol }}', data: rp.ticker, borderColor: '#C8523A', backgroundColor: 'rgba(200,82,58,0.08)',
+            fill: true, tension: 0.3, borderWidth: 2, pointRadius: 3 },
+          { label: 'S&P 500',      data: rp.spy,    borderColor: '#1E5FA8', backgroundColor: 'transparent',
+            tension: 0.3, borderWidth: 1.5, pointRadius: 2 },
+          { label: 'Nasdaq',       data: rp.qqq,    borderColor: '#1E7A45', backgroundColor: 'transparent',
+            tension: 0.3, borderWidth: 1.5, pointRadius: 2, borderDash: [4,3] }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { position: 'top' },
+                   tooltip: { callbacks: { label: function(c) { return c.dataset.label + ': ' + c.parsed.y.toFixed(1) + '%'; } } } },
+        scales: {
+          x: { grid: { color: '#E0DBD0' } },
+          y: { grid: { color: '#E0DBD0' },
+               ticks: { callback: function(v) { return (v >= 0 ? '+' : '') + v + '%'; } } }
+        }
+      }
+    });
+  }
+}
+
+// ── Chart Data Injection (Jinja2 → JS) ────────────────────────────────────
+{% if ch3.revenue_breakdown %}
+window._revBreakdown = {
+  labels: {{ ch3.revenue_breakdown | map(attribute='year') | list | tojson }},
+  gov:    {{ ch3.revenue_breakdown | map(attribute='gov_rev') | list | tojson }},
+  com:    {{ ch3.revenue_breakdown | map(attribute='com_rev') | list | tojson }}
+};
+{% endif %}
+
+{% if ch3.income_stmt %}
+window._revMargin = {
+  labels:  {{ ch3.income_stmt | map(attribute='year') | list | tojson }},
+  revenue: {{ ch3.income_stmt | map(attribute='revenue') | list | tojson }},
+  grossM:  {{ ch3.margins | map(attribute='gross_m') | list | tojson if ch3.margins else '[]' }}
+};
+{% endif %}
+
+{% if ch7.perf_chart_data %}
+window._relPerf = {
+  labels: {{ ch7.perf_chart_data | map(attribute='date') | list | tojson }},
+  ticker: {{ ch7.perf_chart_data | map(attribute='ticker_pct') | list | tojson }},
+  spy:    {{ ch7.perf_chart_data | map(attribute='spy_pct') | list | tojson }},
+  qqq:    {{ ch7.perf_chart_data | map(attribute='qqq_pct') | list | tojson }}
+};
+{% endif %}
 </script>
 
 </body>
