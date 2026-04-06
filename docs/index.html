@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STOCK_WORK Reports</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F9F6F1;
+    --surface: #FFFFFF;
+    --primary: #1A1A1A;
+    --accent: #99462a;
+    --border: #E5E1DA;
+    --muted: #8C8375;
+    --font: 'Inter', sans-serif;
+    --serif: 'Newsreader', serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--primary); font-family: var(--font); min-height: 100vh; }
+
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    background: rgba(249,246,241,0.92);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 20px;
+    padding: 0 32px; height: 52px;
+  }
+  .nav-brand { font-family: var(--serif); font-size: 16px; font-weight: 600; color: var(--accent); }
+  .nav-sub { font-size: 12px; color: var(--muted); }
+
+  .page { max-width: 860px; margin: 0 auto; padding: 80px 32px 48px; }
+
+  h1 { font-family: var(--serif); font-size: 28px; font-weight: 600; margin-bottom: 6px; }
+  .subtitle { font-size: 13px; color: var(--muted); margin-bottom: 36px; }
+
+  .section-title {
+    font-size: 11px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .08em;
+    margin: 32px 0 12px;
+  }
+
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px 18px;
+    text-decoration: none; color: inherit;
+    transition: box-shadow .15s, border-color .15s;
+    display: block;
+  }
+  .card:hover { border-color: var(--accent); box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+  .card-ticker { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .card-date { font-size: 12px; color: var(--muted); }
+  .card-badge {
+    display: inline-block; margin-top: 10px;
+    font-size: 10px; font-weight: 500;
+    background: #f0ebe4; color: var(--accent);
+    padding: 2px 8px; border-radius: 4px;
+  }
+
+  .dash-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent); color: #fff;
+    padding: 8px 18px; border-radius: 6px;
+    text-decoration: none; font-size: 13px; font-weight: 500;
+    transition: opacity .15s;
+  }
+  .dash-link:hover { opacity: .88; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <span class="nav-brand">STOCK_WORK</span>
+  <span class="nav-sub">Investment Research</span>
+</nav>
+
+<div class="page">
+  <h1>Reports</h1>
+  <p class="subtitle">Equity research &amp; daily portfolio intelligence</p>
+
+  <div class="section-title">Dashboard</div>
+  <a class="dash-link" href="dashboard.html">Daily Portfolio Dashboard →</a>
+
+  <div class="section-title">Equity Research</div>
+  <div class="card-grid" id="eq-grid"></div>
+</div>
+
+<script>
+const reports = [
+  { symbol: "BBAI", date: "2026-04-06", href: "reports/equity/BBAI-2026-04-06.html" },
+  { symbol: "PLTR", date: "2026-04-06", href: "reports/equity/PLTR-2026-04-06.html" },
+  { symbol: "PLTR", date: "2026-04-03", href: "reports/equity/PLTR-2026-04-03.html" },
+];
+
+const grid = document.getElementById("eq-grid");
+reports.forEach(r => {
+  grid.innerHTML += `
+    <a class="card" href="${r.href}">
+      <div class="card-ticker">${r.symbol}</div>
+      <div class="card-date">${r.date}</div>
+      <span class="card-badge">Full Research</span>
+    </a>`;
+});
+</script>
+</body>
+</html>
