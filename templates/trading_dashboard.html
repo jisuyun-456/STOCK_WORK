@@ -4,25 +4,36 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trading Desk — {{ report_date }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0d0f14;
-    --bg2: #141720;
-    --bg3: #1a1e2a;
-    --border: #252a38;
-    --text: #e2e8f0;
-    --muted: #8892a4;
-    --up: #22c55e;
-    --down: #ef4444;
-    --gold: #f59e0b;
-    --blue: #3b82f6;
-    --purple: #8b5cf6;
-    --cyan: #06b6d4;
-    --sig-buy: #22c55e;
-    --sig-hold: #f59e0b;
-    --sig-watch: #06b6d4;
-    --sig-reduce: #ef4444;
-    --font: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    --bg:          #fcf9f4;
+    --bg2:         #f5f0eb;
+    --bg3:         #f0e8e2;
+    --border:      #dbc1b9;
+    --border-lite: #e8d5ce;
+    --text:        #1c1410;
+    --muted:       #6b5a54;
+    --muted-lite:  #9a8078;
+    --up:          #1E7A45;
+    --up-dim:      #d4f0e0;
+    --down:        #99462a;
+    --down-dim:    #f2e0d9;
+    --gold:        #815600;
+    --gold-dim:    #f5e6c8;
+    --primary:     #99462a;
+    --primary-dim: #f2e0d9;
+    --teal:        #1a6b7a;
+    --teal-dim:    #d4eaf0;
+    --sig-buy:     #1E7A45;
+    --sig-hold:    #815600;
+    --sig-watch:   #1a6b7a;
+    --sig-reduce:  #99462a;
+    --font:        'Inter', system-ui, -apple-system, sans-serif;
+    --font-serif:  'Newsreader', 'Georgia', serif;
+    --font-mono:   'DM Mono', 'Fira Code', 'Consolas', monospace;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -35,89 +46,95 @@
 
   /* ── HEADER ─────────────────────────────────────── */
   .hdr {
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    border-bottom: 1.5px solid var(--border);
     display: flex;
     align-items: center;
     gap: 20px;
     padding: 0 20px;
-    height: 44px;
+    height: 48px;
   }
   .hdr-logo {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--gold);
-    letter-spacing: 1px;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--primary);
+    letter-spacing: 0.5px;
     white-space: nowrap;
   }
-  .hdr-logo span { color: var(--muted); font-weight: 400; font-size: 11px; margin-left: 6px; }
-  .session-tabs { display: flex; gap: 2px; }
+  .hdr-logo span { color: var(--muted); font-style: normal; font-family: var(--font); font-weight: 400; font-size: 10px; margin-left: 6px; letter-spacing: 0; }
+  .session-tabs { display: flex; gap: 4px; }
   .stab {
     padding: 4px 12px;
-    border-radius: 3px;
+    border-radius: 20px;
     font-size: 10px;
     font-weight: 600;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.4px;
     cursor: pointer;
-    border: 1px solid transparent;
+    border: 1px solid var(--border);
     color: var(--muted);
     background: transparent;
+    font-family: var(--font);
     transition: all .2s;
   }
-  .stab.pre  { border-color: #8b5cf640; }
-  .stab.open { border-color: #22c55e40; }
-  .stab.intra { border-color: #3b82f640; }
-  .stab.close { border-color: #64748b40; }
-  .stab.active-pre   { background: #8b5cf6; color: #fff; border-color: #8b5cf6; }
-  .stab.active-open  { background: #22c55e; color: #000; border-color: #22c55e; }
-  .stab.active-intra { background: #3b82f6; color: #fff; border-color: #3b82f6; }
-  .stab.active-close { background: #475569; color: #fff; border-color: #475569; }
-  .hdr-clock { margin-left: auto; font-size: 11px; color: var(--muted); }
-  .hdr-date  { font-size: 10px; color: #475569; }
+  .stab:hover { background: var(--bg3); color: var(--text); }
+  .stab.active-pre   { background: var(--primary-dim); color: var(--primary); border-color: var(--primary); }
+  .stab.active-open  { background: var(--up-dim);      color: var(--up);      border-color: var(--up); }
+  .stab.active-intra { background: var(--gold-dim);    color: var(--gold);    border-color: var(--gold); }
+  .stab.active-close { background: var(--bg3);         color: var(--muted);   border-color: var(--border); }
+  .hdr-clock { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  .hdr-date  { font-size: 10px; color: var(--muted-lite); font-family: var(--font); }
 
   /* ── TICKER BAR ──────────────────────────────────── */
   .ticker-bar {
-    background: #0a0c11;
+    background: var(--bg2);
     border-bottom: 1px solid var(--border);
-    padding: 5px 20px;
+    padding: 6px 20px;
     display: flex;
     gap: 24px;
     overflow-x: auto;
   }
   .ticker-bar::-webkit-scrollbar { display: none; }
   .ti { display: flex; gap: 6px; align-items: center; white-space: nowrap; }
-  .ti-name { color: var(--muted); font-size: 10px; font-weight: 600; }
-  .ti-val  { font-size: 11px; font-weight: 600; }
-  .ti-pct  { font-size: 10px; }
-  .up   { color: var(--up); }
-  .dn   { color: var(--down); }
-  .nt   { color: var(--muted); }
+  .ti-name { color: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: 0.3px; }
+  .ti-val  { font-family: var(--font-mono); font-size: 11px; font-weight: 600; }
+  .ti-pct  { font-family: var(--font-mono); font-size: 10px; }
+  .up  { color: var(--up); }
+  .dn  { color: var(--down); }
+  .nt  { color: var(--muted); }
 
   /* ── MAIN LAYOUT ─────────────────────────────────── */
-  .main { display: flex; gap: 0; height: calc(100vh - 90px); overflow: hidden; }
+  .main { display: flex; gap: 0; height: calc(100vh - 96px); overflow: hidden; }
   .content { flex: 1; overflow-y: auto; padding: 14px 16px; }
   .content::-webkit-scrollbar { width: 4px; }
   .content::-webkit-scrollbar-track { background: var(--bg); }
-  .content::-webkit-scrollbar-thumb { background: #2a2f3e; border-radius: 2px; }
+  .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
   .sidebar { width: 280px; min-width: 280px; border-left: 1px solid var(--border); overflow-y: auto; padding: 14px 12px; background: var(--bg2); }
   .sidebar::-webkit-scrollbar { width: 4px; }
-  .sidebar::-webkit-scrollbar-thumb { background: #2a2f3e; border-radius: 2px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
   /* ── P&L HEADER ──────────────────────────────────── */
   .pnl-bar {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 12px 16px;
+    background: var(--bg2);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
     margin-bottom: 12px;
     display: flex;
     align-items: center;
     gap: 24px;
   }
-  .pnl-total-val { font-size: 22px; font-weight: 700; color: var(--text); }
-  .pnl-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; }
+  .pnl-total-val {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 24px;
+    font-weight: 400;
+    color: var(--text);
+  }
+  .pnl-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 3px; font-weight: 600; }
   .pnl-cell { min-width: 90px; }
-  .pnl-cell .val { font-size: 14px; font-weight: 600; }
+  .pnl-cell .val { font-family: var(--font-serif); font-style: italic; font-size: 15px; font-weight: 400; }
   .pnl-divider { width: 1px; height: 36px; background: var(--border); }
   .pnl-meta { margin-left: auto; text-align: right; }
   .pnl-meta .days { font-size: 10px; color: var(--muted); }
@@ -130,20 +147,20 @@
     margin-bottom: 12px;
   }
   .mcard {
-    background: var(--bg3);
+    background: var(--bg2);
     border: 1px solid var(--border);
-    border-radius: 5px;
-    padding: 10px 12px;
+    border-radius: 6px;
+    padding: 11px 13px;
   }
-  .mcard-name { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
-  .mcard-val  { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
-  .mcard-chg  { font-size: 10px; }
+  .mcard-name { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; font-weight: 600; }
+  .mcard-val  { font-family: var(--font-serif); font-style: italic; font-size: 17px; font-weight: 400; margin-bottom: 2px; }
+  .mcard-chg  { font-family: var(--font-mono); font-size: 10px; }
 
   /* ── STOCK PANELS ────────────────────────────────── */
   .stock-panel {
-    background: var(--bg3);
+    background: var(--bg2);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 8px;
     margin-bottom: 8px;
     overflow: hidden;
   }
@@ -151,32 +168,33 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 14px;
+    padding: 11px 14px;
     cursor: pointer;
     user-select: none;
     transition: background .15s;
   }
-  .sp-hdr:hover { background: #1e2535; }
-  .sp-sym  { font-size: 14px; font-weight: 700; min-width: 52px; }
+  .sp-hdr:hover { background: var(--bg3); }
+  .sp-sym  { font-family: var(--font-serif); font-style: italic; font-size: 15px; font-weight: 400; color: var(--primary); min-width: 52px; }
   .sp-co   { font-size: 10px; color: var(--muted); flex: 1; }
-  .sp-price { font-size: 14px; font-weight: 600; }
-  .sp-chg  { font-size: 11px; min-width: 56px; text-align: right; }
+  .sp-price { font-family: var(--font-mono); font-size: 14px; font-weight: 600; color: var(--text); }
+  .sp-chg  { font-family: var(--font-mono); font-size: 11px; min-width: 56px; text-align: right; }
   .sig-pill {
     font-size: 9px;
     font-weight: 700;
-    padding: 2px 7px;
-    border-radius: 3px;
-    letter-spacing: .5px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: .4px;
+    font-family: var(--font);
   }
-  .sig-buy    { background: #166534; color: #22c55e; border: 1px solid #22c55e44; }
-  .sig-hold   { background: #78350f; color: #f59e0b; border: 1px solid #f59e0b44; }
-  .sig-watch  { background: #0c4a6e; color: #06b6d4; border: 1px solid #06b6d444; }
-  .sig-reduce { background: #7f1d1d; color: #ef4444; border: 1px solid #ef444444; }
-  .sp-ret { font-size: 11px; min-width: 60px; text-align: right; }
-  .sp-chevron { color: var(--muted); font-size: 10px; transition: transform .2s; }
+  .sig-buy    { background: var(--up-dim);    color: var(--up);       border: 1px solid var(--up); }
+  .sig-hold   { background: var(--gold-dim);  color: var(--gold);     border: 1px solid var(--gold); }
+  .sig-watch  { background: var(--teal-dim);  color: var(--teal);     border: 1px solid var(--teal); }
+  .sig-reduce { background: var(--down-dim);  color: var(--down);     border: 1px solid var(--down); }
+  .sp-ret { font-family: var(--font-mono); font-size: 11px; min-width: 60px; text-align: right; }
+  .sp-chevron { color: var(--muted-lite); font-size: 10px; transition: transform .2s; }
   .sp-chevron.open { transform: rotate(180deg); }
 
-  .sp-body { display: none; padding: 0 14px 14px; border-top: 1px solid var(--border); }
+  .sp-body { display: none; padding: 0 14px 14px; border-top: 1px solid var(--border-lite); }
   .sp-body.open { display: block; }
 
   /* metrics row */
@@ -187,13 +205,13 @@
     margin: 10px 0;
   }
   .metric-box {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 7px 9px;
+    background: var(--bg3);
+    border: 1px solid var(--border-lite);
+    border-radius: 5px;
+    padding: 8px 10px;
   }
-  .metric-box .mlabel { font-size: 9px; color: var(--muted); margin-bottom: 3px; }
-  .metric-box .mval   { font-size: 12px; font-weight: 600; }
+  .metric-box .mlabel { font-size: 9px; color: var(--muted); margin-bottom: 3px; font-weight: 500; }
+  .metric-box .mval   { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--text); }
 
   /* scenario cards */
   .scenario-row {
@@ -203,19 +221,19 @@
     margin-bottom: 10px;
   }
   .sc-card {
-    border-radius: 4px;
-    padding: 8px 10px;
+    border-radius: 6px;
+    padding: 9px 11px;
   }
-  .sc-bull { background: #052e16; border: 1px solid #22c55e44; }
-  .sc-base { background: #1c1917; border: 1px solid #78716c44; }
-  .sc-bear { background: #450a0a; border: 1px solid #ef444444; }
-  .sc-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  .sc-bull { background: var(--up-dim);      border: 1px solid var(--up); }
+  .sc-base { background: var(--primary-dim); border: 1px solid var(--primary); }
+  .sc-bear { background: var(--bg3);         border: 1px solid var(--border); }
+  .sc-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; font-family: var(--font); }
   .sc-bull .sc-label { color: var(--up); }
-  .sc-base .sc-label { color: var(--muted); }
-  .sc-bear .sc-label { color: var(--down); }
-  .sc-price { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .sc-base .sc-label { color: var(--primary); }
+  .sc-bear .sc-label { color: var(--muted); }
+  .sc-price { font-family: var(--font-serif); font-style: italic; font-size: 15px; font-weight: 400; margin-bottom: 2px; }
   .sc-prob  { font-size: 9px; color: var(--muted); margin-bottom: 3px; }
-  .sc-note  { font-size: 9px; color: #94a3b8; line-height: 1.3; }
+  .sc-note  { font-size: 9px; color: var(--muted); line-height: 1.4; }
 
   /* risk bar */
   .risk-row {
@@ -225,24 +243,34 @@
     margin-bottom: 10px;
   }
   .risk-label-txt { font-size: 9px; color: var(--muted); min-width: 52px; }
-  .risk-bar-wrap { flex: 1; height: 6px; background: var(--bg2); border-radius: 3px; overflow: hidden; }
+  .risk-bar-wrap { flex: 1; height: 5px; background: var(--border-lite); border-radius: 3px; overflow: hidden; }
   .risk-bar-fill { height: 100%; border-radius: 3px; }
-  .risk-score-txt { font-size: 10px; font-weight: 600; min-width: 38px; text-align: right; }
-  .risk-extra { font-size: 9px; color: var(--muted); }
+  .risk-score-txt { font-family: var(--font-mono); font-size: 10px; font-weight: 600; min-width: 38px; text-align: right; }
+  .risk-extra { font-size: 9px; color: var(--muted-lite); font-family: var(--font-mono); }
 
   /* insight box */
   .insight-box {
-    background: var(--bg2);
-    border-left: 3px solid var(--blue);
-    padding: 8px 10px;
-    border-radius: 0 4px 4px 0;
-    font-size: 10px;
-    line-height: 1.5;
-    color: #cbd5e1;
+    background: var(--bg3);
+    border-left: 3px solid var(--primary);
+    padding: 9px 11px;
+    border-radius: 0 5px 5px 0;
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--text);
     margin-bottom: 6px;
+    font-family: var(--font-serif);
   }
-  .insight-box .ib-label { font-size: 9px; font-weight: 700; color: var(--blue); text-transform: uppercase; margin-bottom: 3px; }
-  .thesis-line { font-size: 9px; color: #64748b; font-style: italic; }
+  .insight-box .ib-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: 3px;
+    font-family: var(--font);
+    font-style: normal;
+  }
+  .thesis-line { font-size: 10px; color: var(--muted); font-family: var(--font-serif); font-style: italic; }
 
   /* ── SIDEBAR ─────────────────────────────────────── */
   .sb-section { margin-bottom: 18px; }
@@ -255,66 +283,67 @@
     border-bottom: 1px solid var(--border);
     padding-bottom: 5px;
     margin-bottom: 8px;
+    font-family: var(--font);
   }
 
   /* alloc bars */
-  .alloc-item { margin-bottom: 7px; }
+  .alloc-item { margin-bottom: 8px; }
   .alloc-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 3px; }
-  .alloc-sym { font-size: 11px; font-weight: 700; }
-  .alloc-val { font-size: 10px; color: var(--muted); }
-  .alloc-meta { display: flex; justify-content: space-between; font-size: 9px; color: var(--muted); }
-  .alloc-bar-wrap { height: 4px; background: var(--bg); border-radius: 2px; margin-bottom: 2px; overflow: hidden; }
-  .alloc-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--blue), var(--purple)); }
+  .alloc-sym { font-family: var(--font-serif); font-style: italic; font-size: 12px; color: var(--primary); }
+  .alloc-val { font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
+  .alloc-meta { display: flex; justify-content: space-between; font-size: 9px; color: var(--muted); font-family: var(--font-mono); }
+  .alloc-bar-wrap { height: 3px; background: var(--border-lite); border-radius: 2px; margin-bottom: 2px; overflow: hidden; }
+  .alloc-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--primary), var(--gold)); }
 
   /* risk summary */
   .risk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-  .rg-item { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 7px 8px; }
-  .rg-label { font-size: 8px; color: var(--muted); margin-bottom: 3px; text-transform: uppercase; }
-  .rg-val   { font-size: 12px; font-weight: 700; }
+  .rg-item { background: var(--bg3); border: 1px solid var(--border-lite); border-radius: 5px; padding: 8px 9px; }
+  .rg-label { font-size: 8px; color: var(--muted); margin-bottom: 3px; text-transform: uppercase; letter-spacing: .4px; font-weight: 600; }
+  .rg-val   { font-family: var(--font-serif); font-style: italic; font-size: 14px; font-weight: 400; }
 
   /* trade idea */
   .trade-card {
-    background: var(--bg3);
-    border: 1px solid #22c55e44;
-    border-radius: 5px;
-    padding: 10px;
+    background: var(--up-dim);
+    border: 1.5px solid var(--up);
+    border-radius: 7px;
+    padding: 11px 12px;
   }
   .trade-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
-  .trade-sym  { font-size: 14px; font-weight: 700; }
+  .trade-sym  { font-family: var(--font-serif); font-style: italic; font-size: 16px; font-weight: 400; color: var(--up); }
   .trade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-  .tg-item { background: var(--bg2); border-radius: 3px; padding: 5px 7px; }
-  .tg-label { font-size: 8px; color: var(--muted); margin-bottom: 2px; }
-  .tg-val   { font-size: 11px; font-weight: 600; }
-  .trade-note { font-size: 9px; color: #94a3b8; margin-top: 7px; line-height: 1.4; }
+  .tg-item { background: #fff8; border: 1px solid var(--up-dim); border-radius: 4px; padding: 5px 7px; }
+  .tg-label { font-size: 8px; color: var(--muted); margin-bottom: 2px; font-weight: 500; }
+  .tg-val   { font-family: var(--font-mono); font-size: 11px; font-weight: 600; }
+  .trade-note { font-size: 9px; color: var(--muted); margin-top: 7px; line-height: 1.4; font-family: var(--font); }
 
   /* macro events */
   .macro-item {
     display: flex;
     gap: 8px;
-    padding: 6px 0;
-    border-bottom: 1px solid var(--border);
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border-lite);
   }
   .macro-item:last-child { border-bottom: none; }
-  .macro-time { font-size: 9px; color: var(--muted); min-width: 60px; padding-top: 1px; }
+  .macro-time { font-family: var(--font-mono); font-size: 9px; color: var(--muted); min-width: 60px; padding-top: 1px; }
   .macro-body {}
-  .macro-name { font-size: 10px; font-weight: 600; margin-bottom: 1px; }
+  .macro-name { font-size: 10px; font-weight: 600; margin-bottom: 1px; color: var(--text); }
   .macro-meta { font-size: 9px; color: var(--muted); }
   .imp-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
   .imp-high { background: var(--down); }
   .imp-mid  { background: var(--gold); }
-  .imp-low  { background: var(--muted); }
+  .imp-low  { background: var(--muted-lite); }
 
   /* ── SCROLLBAR ───────────────────────────────────── */
   ::-webkit-scrollbar { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #2a2f3e; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 </style>
 </head>
 <body>
 
 <!-- ═══ HEADER ══════════════════════════════════════════════════════════════ -->
 <header class="hdr">
-  <div class="hdr-logo">TRADING DESK <span>SIMULATION</span></div>
+  <div class="hdr-logo">Trading Desk <span>SIMULATION</span></div>
 
   <div class="session-tabs">
     <button class="stab pre"   onclick="setSession('pre')">PRE-MARKET</button>
@@ -324,7 +353,7 @@
   </div>
 
   <div class="hdr-clock">
-    <span id="et-clock">—</span>&nbsp;<span style="color:#475569">ET</span>
+    <span id="et-clock">—</span>&nbsp;<span style="color:var(--muted-lite)">ET</span>
   </div>
   <div class="hdr-date">{{ report_date }} &nbsp;·&nbsp; {{ generated_at }}</div>
 </header>
@@ -342,7 +371,7 @@
     </span>
   </div>
 {% else %}
-  <div class="ti"><span class="ti-name" style="color:#475569">데이터 로딩 중...</span></div>
+  <div class="ti"><span class="ti-name" style="color:var(--muted-lite)">데이터 로딩 중...</span></div>
 {% endfor %}
 </div>
 
@@ -362,23 +391,23 @@
       <div class="pnl-cell">
         <div class="pnl-label">당일 손익</div>
         <div class="val {{ daily_cls }}">{{ daily_change_amt }}</div>
-        <div style="font-size:10px" class="{{ daily_cls }}">{{ daily_pct }}</div>
+        <div style="font-size:10px;font-family:var(--font-mono)" class="{{ daily_cls }}">{{ daily_pct }}</div>
       </div>
       <div class="pnl-divider"></div>
       <div class="pnl-cell">
         <div class="pnl-label">누적 수익률</div>
         <div class="val {{ cum_cls }}">{{ cum_pct }}</div>
-        <div style="font-size:10px;color:#475569">원금 {{ total_capital }}</div>
+        <div style="font-size:10px;color:var(--muted-lite)">원금 {{ total_capital }}</div>
       </div>
       <div class="pnl-divider"></div>
       <div class="pnl-cell">
         <div class="pnl-label">최고 성과</div>
         <div class="val up">{{ best_sym }}</div>
-        <div style="font-size:10px" class="up">{{ best_pct }}</div>
+        <div style="font-size:10px;font-family:var(--font-mono)" class="up">{{ best_pct }}</div>
       </div>
       <div class="pnl-meta">
         <div class="days">Day {{ days_running }} &nbsp;·&nbsp; {{ cycle }}</div>
-        <div style="font-size:9px;color:#475569">β {{ portfolio_beta }} &nbsp;·&nbsp; MDD한도 {{ max_loss }}</div>
+        <div style="font-size:9px;color:var(--muted-lite)">β {{ portfolio_beta }} &nbsp;·&nbsp; MDD한도 {{ max_loss }}</div>
       </div>
     </div>
 
@@ -403,7 +432,7 @@
         <span class="sp-chg {{ stock.chg_cls }}">{{ stock.arrow }} {{ stock.chg_pct }}</span>
         <span class="sig-pill {{ stock.sig_cls }}">{{ stock.signal }}</span>
         <span class="sp-ret {{ stock.return_cls }}">{{ stock.return_pct }}</span>
-        <span style="font-size:9px;color:#475569">{{ stock.weight_pct }}%</span>
+        <span style="font-size:9px;color:var(--muted-lite)">{{ stock.weight_pct }}%</span>
         <span class="sp-chevron" id="chev-{{ loop.index }}">▼</span>
       </div>
 
@@ -429,7 +458,7 @@
           </div>
           <div class="sc-card sc-base">
             <div class="sc-label">— Base Case</div>
-            <div class="sc-price" style="color:#e2e8f0">${{ "{:,.2f}".format(stock.targets.base.price) }}</div>
+            <div class="sc-price" style="color:var(--primary)">${{ "{:,.2f}".format(stock.targets.base.price) }}</div>
             <div class="sc-prob">확률 {{ stock.targets.base.prob }}%</div>
             <div class="sc-note">{{ stock.targets.base.note }}</div>
           </div>
@@ -511,7 +540,7 @@
         </div>
         <div class="rg-item">
           <div class="rg-label">경기 사이클</div>
-          <div class="rg-val" style="color:var(--cyan)">{{ cycle }}</div>
+          <div class="rg-val" style="color:var(--teal)">{{ cycle }}</div>
         </div>
         <div class="rg-item">
           <div class="rg-label">현금 비중</div>
@@ -526,10 +555,10 @@
       <div class="sb-title">Top Trade Idea</div>
       <div class="trade-card">
         <div class="trade-hdr">
-          <span class="trade-sym up">{{ trade_idea.symbol }}</span>
+          <span class="trade-sym">{{ trade_idea.symbol }}</span>
           <span class="sig-pill {{ trade_idea.sig_cls }}">{{ trade_idea.signal }}</span>
         </div>
-        <div style="font-size:9px;color:#94a3b8;margin-bottom:7px">{{ trade_idea.company }}</div>
+        <div style="font-size:9px;color:var(--muted);margin-bottom:7px">{{ trade_idea.company }}</div>
         <div class="trade-grid">
           <div class="tg-item">
             <div class="tg-label">현재가</div>

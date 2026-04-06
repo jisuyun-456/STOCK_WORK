@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Investment Report {{ report_date }}</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,600&display=swap');
 
 @page {
   size: A4;
@@ -13,31 +13,36 @@
   @bottom-right {
     content: counter(page) " / " counter(pages);
     font-size: 8pt;
-    color: #888;
+    color: #9a8078;
   }
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: 'Noto Sans KR', Arial, sans-serif;
+  font-family: 'Inter', 'Noto Sans KR', Arial, sans-serif;
   font-size: 9.5pt;
-  color: #1a1a2e;
-  line-height: 1.45;
+  color: #1c1410;
+  line-height: 1.5;
+  background: #fcf9f4;
 }
 
 .page-break { page-break-before: always; }
 
-/* ── 색상 팔레트 ── */
+/* ── 색상 팔레트 (Warm Terracotta) ── */
 :root {
-  --navy: #0a1628;
-  --gold: #c9a227;
-  --accent: #1e3a5f;
-  --green: #0a6640;
-  --red: #8b1a1a;
-  --light-bg: #f7f8fc;
-  --border: #d0d7e3;
-  --muted: #6b7280;
+  --navy:     #99462a;   /* primary terracotta (구 navy 역할) */
+  --gold:     #815600;   /* warm gold */
+  --accent:   #7a3920;   /* primary-dark */
+  --green:    #1E7A45;   /* semantic up */
+  --red:      #99462a;   /* semantic down (= primary) */
+  --light-bg: #f5f0eb;   /* surface-container-low */
+  --border:   #dbc1b9;   /* outline-variant */
+  --muted:    #6b5a54;   /* on-surface-variant */
+  --cream:    #fcf9f4;   /* surface */
+  --primary-dim: #f2e0d9; /* primary-container */
+  --up-dim:   #d4f0e0;
+  --down-dim: #f2e0d9;
 }
 
 /* ── 표지 ── */
@@ -390,9 +395,9 @@ table.data-table tr:last-child td { border-bottom: 2px solid var(--navy); }
 
 .thesis-box .tb-content { font-size: 8.5pt; line-height: 1.45; }
 
-.bull-box { border: 1px solid #a3d977; background: #f0fae8; }
+.bull-box { border: 1px solid #7ac49a; background: var(--up-dim); }
 .bull-box .tb-label { color: var(--green); }
-.bear-box { border: 1px solid #e8a0a0; background: #fdf3f3; }
+.bear-box { border: 1px solid #d4a090; background: var(--down-dim); }
 .bear-box .tb-label { color: var(--red); }
 
 .risks-box {
