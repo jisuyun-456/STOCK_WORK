@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLTR Equity Research — 2026-04-06</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* ── Material You — Warm Terracotta System ────────────── */
+    --bg:     #fcf9f4;    /* surface / background            */
+    --bg2:    #f6f3ee;    /* surface-container-low           */
+    --bg3:    #f0ede9;    /* surface-container               */
+    --bg4:    #ebe8e3;    /* surface-container-high          */
+    --bg5:    #e5e2dd;    /* surface-container-highest       */
+    --border: #dbc1b9;    /* outline-variant                 */
+    --outline: #88726c;   /* outline                        */
+    --text:   #1c1c19;    /* on-surface                      */
+    --muted:  #55433d;    /* on-surface-variant              */
+    --muted2: #88726c;    /* outline (lighter muted)         */
+
+    --up:     #1E7A45;    /* positive / green                */
+    --down:   #99462a;    /* primary / terracotta coral      */
+    --gold:   #815600;    /* tertiary / amber                */
+    --gold2:  #c58500;    /* tertiary-container              */
+    --blue:   #1E5FA8;    /* accent blue                     */
+    --purple: #6B46C1;    /* accent purple                   */
+    --cyan:   #0E7490;    /* accent cyan                     */
+
+    --primary:    #99462a;   /* brand primary                */
+    --primary-lt: #ffdbd0;   /* primary-fixed (light tint)   */
+    --primary-md: #d97757;   /* primary-container            */
+
+    --font:       'Inter', -apple-system, 'Segoe UI', sans-serif;
+    --font-serif: 'Newsreader', Georgia, serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    min-height: 100vh;
+  }
+
+  /* ── SCROLLBAR ──────────────────────────────────── */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #d4cfc6; border-radius: 2px; }
+
+  /* ── HEADER ─────────────────────────────────────── */
+  .hdr {
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 24px;
+    height: 52px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 0 var(--border);
+  }
+  .hdr-logo {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text);
+    letter-spacing: 0;
+    white-space: nowrap;
+    min-width: 240px;
+  }
+  .hdr-logo span {
+    color: var(--muted2);
+    font-family: var(--font);
+    font-style: normal;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-left: 8px;
+  }
+
+  /* ── TAB NAV ─────────────────────────────────────── */
+  .tab-nav {
+    display: flex;
+    gap: 1px;
+    flex: 1;
+    justify-content: center;
+  }
+  .tab {
+    padding: 5px 13px;
+    border-radius: 2px;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid transparent;
+    color: var(--muted2);
+    background: transparent;
+    transition: all .15s;
+    white-space: nowrap;
+    font-family: var(--font);
+  }
+  .tab:hover { color: var(--text); background: var(--bg3); }
+  .tab.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+  }
+
+  .hdr-date {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--muted2);
+    white-space: nowrap;
+    min-width: 100px;
+    text-align: right;
+  }
+
+  /* ── CHAPTER PAGES ──────────────────────────────── */
+  .chapter { display: none; padding: 28px 32px; max-width: 1200px; margin: 0 auto; }
+  .chapter.active { display: block; }
+
+  /* ── SECTION TITLE ──────────────────────────────── */
+  .sec-title {
+    font-family: var(--font);
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--primary);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
+    margin-bottom: 14px;
+    margin-top: 24px;
+  }
+  .sec-title:first-child { margin-top: 0; }
+
+  /* ── CHAPTER HEADLINE (serif italic) ────────────── */
+  .ch-headline {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.25;
+    margin-bottom: 4px;
+  }
+  .ch-subline {
+    font-size: 10px;
+    color: var(--muted2);
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+  }
+
+  /* ── UP / DN / NT COLORS ────────────────────────── */
+  .up  { color: var(--up); }
+  .dn  { color: var(--down); }
+  .nt  { color: var(--muted2); }
+
+  /* ── CH1: EXECUTIVE SUMMARY ─────────────────────── */
+
+  /* Rating bar */
+  .rating-bar {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .rating-badge {
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 14px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .rating-buy    { background: #E8F5EE; color: #1E7A45; border: 1px solid #b8d8c4; }
+  .rating-hold   { background: #fef3ec; color: #815600; border: 1px solid #e4c88a; }
+  .rating-sell   { background: #fde8e3; color: #99462a; border: 1px solid #e8b9ac; }
+
+  .rb-item { display: flex; flex-direction: column; gap: 2px; }
+  .rb-label { font-size: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .rb-val   { font-size: 14px; font-weight: 700; }
+  .rb-divider { width: 1px; height: 32px; background: var(--border); }
+
+  .conviction-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 3px;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    background: var(--primary-lt);
+    color: var(--primary);
+    border: 1px solid #e8b9ac;
+  }
+
+  /* Investment Thesis */
+  .thesis-box {
+    background: var(--bg2);
+    border-left: 3px solid var(--primary);
+    padding: 14px 18px;
+    border-radius: 0 5px 5px 0;
+    margin-bottom: 14px;
+  }
+  .thesis-box .tb-label {
+    font-family: var(--font);
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 7px;
+  }
+  .thesis-box .tb-text {
+    font-family: var(--font-serif);
+    font-size: 13px;
+    font-style: italic;
+    color: var(--text);
+    line-height: 1.75;
+  }
+
+  /* Key Metrics 6-grid */
+  .key-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .km-cell {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px 10px;
+  }
+  .km-label { font-size: 9px; color: var(--muted); margin-bottom: 3px; text-transform: uppercase; letter-spacing: .3px; }
+  .km-val   { font-size: 14px; font-weight: 700; }
+
+  /* Scenario Cards */
+  .scenario-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .sc-card { border-radius: 5px; padding: 14px 16px; }
+  .sc-bull  { background: #E8F5EE; border: 1px solid #b8d8c4; }
+  .sc-base  { background: var(--primary); border: 1px solid var(--primary); box-shadow: 0 4px 16px rgba(153,70,42,.18); }
+  .sc-bear  { background: var(--bg3); border: 1px solid var(--border); }
+  .sc-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+  .sc-bull .sc-label { color: var(--up); }
+  .sc-base .sc-label { color: rgba(255,255,255,.7); }
+  .sc-bear .sc-label { color: var(--muted2); }
+  .sc-price {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 24px;
+    font-weight: 400;
+    margin-bottom: 2px;
+  }
+  .sc-base  .sc-price { color: #fff; }
+  .sc-bear  .sc-price { color: var(--muted2); }
+  .sc-prob  { font-size: 9px; margin-bottom: 5px; }
+  .sc-base  .sc-prob { color: rgba(255,255,255,.6); }
+  .sc-bear  .sc-prob { color: var(--muted2); }
+  .sc-note  { font-size: 9px; line-height: 1.5; }
+  .sc-base  .sc-note { color: rgba(255,255,255,.8); }
+  .sc-bear  .sc-note { color: var(--muted2); }
+
+  /* ── TABLES (common) ─────────────────────────────── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 14px;
+    font-size: 11px;
+  }
+  .data-table thead tr {
+    background: var(--primary);
+    border-bottom: 1px solid var(--primary);
+  }
+  .data-table th {
+    padding: 7px 10px;
+    text-align: left;
+    font-size: 9px;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    white-space: nowrap;
+  }
+  .data-table th.r { text-align: right; }
+  .data-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .data-table td.r { text-align: right; }
+  .data-table tbody tr:last-child td { border-bottom: none; }
+  .data-table tbody tr:hover { background: var(--bg3); }
+  .data-table tbody tr.self-row td { color: var(--gold); font-weight: 700; }
+  .data-table .tbl-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+
+  /* ── CH2: BUSINESS OVERVIEW ──────────────────────── */
+  .biz-text {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 14px 16px;
+    font-size: 11px;
+    line-height: 1.7;
+    color: var(--text);
+    margin-bottom: 14px;
+    white-space: pre-line;
+  }
+
+  /* ── CH3: FINANCIALS ─────────────────────────────── */
+  .bs-boxes {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .bs-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 10px 12px;
+  }
+  .bs-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px; }
+  .bs-val   { font-size: 15px; font-weight: 700; }
+
+  /* ── CH4: VALUATION ──────────────────────────────── */
+  .dcf-summary {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 14px 16px;
+    display: flex;
+    gap: 28px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .dcf-item { display: flex; flex-direction: column; gap: 3px; }
+  .dcf-label { font-size: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .dcf-val   { font-size: 16px; font-weight: 700; }
+  .dcf-fair  { color: var(--cyan); }
+  .dcf-divider { width: 1px; height: 36px; background: var(--border); }
+
+  /* Sensitivity heatmap */
+  .sensitivity-wrap {
+    margin-bottom: 14px;
+  }
+  .sensitivity-wrap .sec-title { margin-top: 0; }
+  .sens-table {
+    border-collapse: collapse;
+    font-size: 10px;
+    margin-top: 4px;
+  }
+  .sens-table th {
+    padding: 5px 10px;
+    font-size: 8px;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    background: var(--primary);
+    border: 1px solid var(--primary);
+    text-align: center;
+  }
+  .sens-table td {
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    text-align: center;
+    font-weight: 600;
+    font-size: 11px;
+    min-width: 70px;
+  }
+  .sens-heat-high { background: #1E7A45; color: #E8F5EE; }
+  .sens-heat-mid  { background: #E8F5EE; color: #1E7A45; }
+  .sens-heat-low  { background: #C8523A; color: #FBF0ED; }
+  .sens-heat-mid2 { background: #c8e8d4; color: #1E7A45; }
+  .sens-heat-mid3 { background: #f0c4b8; color: #C8523A; }
+  .sens-row-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--primary);
+    border: 1px solid var(--primary);
+    padding: 5px 10px;
+    white-space: nowrap;
+  }
+
+  /* ── CH5: CATALYSTS ──────────────────────────────── */
+  .catalyst-list { margin-bottom: 14px; }
+  .catalyst-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin-bottom: 5px;
+  }
+  .catalyst-item .c-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--blue);
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+  .catalyst-item .c-date {
+    font-size: 9px;
+    color: var(--muted);
+    min-width: 80px;
+    padding-top: 1px;
+    white-space: nowrap;
+  }
+  .catalyst-item .c-body { flex: 1; }
+  .catalyst-item .c-title { font-size: 11px; font-weight: 600; margin-bottom: 2px; }
+  .catalyst-item .c-desc  { font-size: 9px; color: var(--muted); line-height: 1.4; }
+
+  .mid-term-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .mt-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 12px 14px;
+    border-left: 3px solid var(--gold2);
+  }
+  .mt-label { font-family: var(--font-serif); font-style: italic; font-size: 12px; font-weight: 400; color: var(--text); margin-bottom: 5px; }
+  .mt-text  { font-size: 10px; color: var(--muted); line-height: 1.6; }
+
+  .lt-thesis-box {
+    background: var(--bg2);
+    border-left: 3px solid var(--gold2);
+    padding: 14px 18px;
+    border-radius: 0 5px 5px 0;
+    margin-bottom: 14px;
+  }
+  .lt-thesis-box .lt-label { font-size: 9px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+  .lt-thesis-box .lt-text  {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.75;
+  }
+
+  /* ── CH6: RISK FACTORS ───────────────────────────── */
+  .risk-category-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .risk-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 10px 12px;
+  }
+  .risk-card-title { font-size: 10px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+  .risk-row-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .risk-row-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .risk-row-item .ri-title  { font-size: 10px; font-weight: 600; flex: 1; }
+  .risk-row-item .ri-badges { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+  .risk-row-item .ri-bear   { font-size: 9px; color: var(--down); }
+
+  .prob-badge {
+    font-size: 8px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    letter-spacing: .3px;
+    white-space: nowrap;
+  }
+  .prob-high { background: #fde8e3; color: #99462a; border: 1px solid #e8b9ac; }
+  .prob-mid  { background: #fef3ec; color: #815600; border: 1px solid #e4c88a; }
+  .prob-low  { background: #E8F5EE; color: #1E7A45; border: 1px solid #b8d8c4; }
+
+  .impact-badge {
+    font-size: 8px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    letter-spacing: .3px;
+    white-space: nowrap;
+  }
+  .impact-high { background: #EDE9F8; color: #6B46C1; border: 1px solid #c4b8ea; }
+  .impact-mid  { background: #EBF2FB; color: #1E5FA8; border: 1px solid #c4d8f0; }
+  .impact-low  { background: var(--bg3); color: var(--muted2); border: 1px solid var(--border); }
+
+  /* ── CH7: INDUSTRY & MACRO ───────────────────────── */
+  .institutional-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .inst-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 9px 11px;
+  }
+  .inst-label { font-size: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 3px; }
+  .inst-val   { font-size: 14px; font-weight: 700; }
+
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .tech-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 9px 11px;
+  }
+  .tech-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 3px; }
+  .tech-val   { font-size: 13px; font-weight: 700; }
+  .tech-sub   { font-size: 9px; color: var(--muted); margin-top: 2px; }
+
+  /* ── CH8: CONCLUSION ─────────────────────────────── */
+  .conclusion-rating-wrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .rating-badge-lg {
+    font-size: 20px;
+    font-weight: 700;
+    padding: 8px 28px;
+    border-radius: 6px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .rating-lg-buy  { background: #E8F5EE; color: #1E7A45; border: 2px solid #b8d8c4; }
+  .rating-lg-hold { background: #fef3ec; color: #815600; border: 2px solid #e4c88a; }
+  .rating-lg-sell { background: #fde8e3; color: #99462a; border: 2px solid #e8b9ac; }
+  .conclusion-subtext { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+  .trade-setup-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--primary);
+    border-radius: 0 5px 5px 0;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .tsb-title { font-size: 9px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 10px; }
+  .tsb-grid  { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
+  .tsb-item  { background: var(--bg3); border-radius: 4px; padding: 7px 9px; }
+  .tsb-label { font-size: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 3px; }
+  .tsb-val   { font-size: 13px; font-weight: 700; }
+  .tsb-rr    {
+    background: var(--bg3);
+    border-radius: 4px;
+    padding: 7px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+  }
+  .tsb-rr-label { font-size: 9px; color: var(--muted); }
+  .tsb-rr-val   { font-size: 14px; font-weight: 700; color: var(--cyan); }
+
+  .next-update-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+  }
+  .nu-trigger { font-size: 9px; color: var(--muted); }
+  .nu-event   { font-size: 11px; font-weight: 600; color: var(--gold); }
+
+  /* ── EMPTY STATE ─────────────────────────────────── */
+  .empty-state {
+    padding: 24px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 11px;
+    background: var(--bg2);
+    border: 1px dashed var(--border);
+    border-radius: 5px;
+    margin-bottom: 14px;
+  }
+  /* ── PROSE COMMENTARY ──────────────────────────────── */
+  .prose-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 16px 18px;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 13px;
+    line-height: 1.85;
+    color: var(--text);
+    margin-bottom: 14px;
+    white-space: pre-line;
+  }
+  .prose-label {
+    font-family: var(--font);
+    font-style: normal;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  /* ── THESIS POINTS ──────────────────────────────────── */
+  .thesis-points { list-style: none; padding: 0; margin-bottom: 14px; }
+  .thesis-points li {
+    display: flex;
+    gap: 8px;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    line-height: 1.5;
+    background: var(--bg2);
+  }
+  .thesis-points li:first-child { border-radius: 5px 5px 0 0; }
+  .thesis-points li:last-child  { border-bottom: none; border-radius: 0 0 5px 5px; }
+  .thesis-points li .tp-bullet  { color: #C8523A; font-weight: 700; flex-shrink: 0; }
+
+  /* ── PLATFORM CARDS ─────────────────────────────────── */
+  .platform-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .platform-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 14px 16px;
+    border-top: 3px solid var(--primary);
+  }
+  .platform-card .pc-name {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 14px;
+    font-weight: 400;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+  .platform-card .pc-contrib {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    margin-bottom: 6px;
+  }
+  .platform-card .pc-desc { font-size: 10.5px; line-height: 1.65; color: var(--muted); }
+
+  /* ── CHART CONTAINERS ───────────────────────────────── */
+  .chart-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .chart-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .chart-sub {
+    font-size: 9px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .chart-canvas { max-height: 280px; }
+
+  /* ── KPI TABLE (v1) ─────────────────────────────────── */
+  .signal-badge {
+    font-size: 8px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .signal-ok      { background: #E8F5EE; color: #1E7A45; border: 1px solid #b8d8c4; }
+  .signal-warn    { background: #fef3ec; color: #815600; border: 1px solid #e4c88a; }
+  .signal-danger  { background: #fde8e3; color: #99462a; border: 1px solid #e8b9ac; }
+
+  /* ── RISK UNIFIED TABLE ─────────────────────────────── */
+  .risk-tier-badge {
+    font-size: 8px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .tier-high   { background: #fde8e3; color: #99462a; border: 1px solid #e8b9ac; }
+  .tier-medium { background: #fef3ec; color: #815600; border: 1px solid #e4c88a; }
+  .tier-low    { background: #E8F5EE; color: #1E7A45; border: 1px solid #b8d8c4; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══════════════════════════════════════════════════════════════ -->
+<header class="hdr">
+  <div class="hdr-logo">
+    PLTR <span>EQUITY RESEARCH</span>
+  </div>
+
+  <nav class="tab-nav">
+    <button class="tab active" onclick="switchTab('ch1', event)">Summary</button>
+    <button class="tab"        onclick="switchTab('ch2', event)">Business</button>
+    <button class="tab"        onclick="switchTab('ch3', event)">Financials</button>
+    <button class="tab"        onclick="switchTab('ch4', event)">Valuation</button>
+    <button class="tab"        onclick="switchTab('ch5', event)">Catalysts</button>
+    <button class="tab"        onclick="switchTab('ch6', event)">Risks</button>
+    <button class="tab"        onclick="switchTab('ch7', event)">Industry</button>
+    <button class="tab"        onclick="switchTab('ch8', event)">Conclusion</button>
+  </nav>
+
+  <div class="hdr-date">2026-04-06</div>
+</header>
+
+<!-- ═══ CH1: EXECUTIVE SUMMARY ══════════════════════════════════════════════ -->
+<section class="chapter active" id="ch1">
+
+  <!-- Rating Bar -->
+  <div class="rating-bar">
+    
+    
+      <div class="rating-badge rating-hold">HOLD</div>
+    
+
+    <div class="rb-divider"></div>
+
+    <div class="rb-item">
+      <div class="rb-label">Target Price</div>
+      <div class="rb-val up">148.46</div>
+    </div>
+
+    <div class="rb-divider"></div>
+
+    <div class="rb-item">
+      <div class="rb-label">Current Price</div>
+      <div class="rb-val">148.46</div>
+    </div>
+
+    <div class="rb-divider"></div>
+
+    <div class="rb-item">
+      <div class="rb-label">Upside</div>
+      
+        
+        <div class="rb-val up">
+          +0.0%
+        </div>
+      
+    </div>
+
+    <div class="rb-divider"></div>
+
+    <div class="rb-item">
+      <div class="rb-label">Conviction</div>
+      <div class="conviction-badge">MEDIUM</div>
+    </div>
+  </div>
+
+  <!-- Investment Thesis (v1: thesis prose + thesis_points, fallback to investment_thesis) -->
+  
+  <div class="thesis-box">
+    <div class="tb-label">Investment Thesis</div>
+    <div class="tb-text">정부/기업 AI 플랫폼 독점, 미-이란 분쟁 수혜, 흑자 전환 완료</div>
+  </div>
+  
+
+  <!-- Key Metrics 6-grid -->
+  <div class="sec-title">Key Metrics</div>
+  <div class="key-metrics">
+    
+    <div class="km-cell">
+      <div class="km-label">Market Cap</div>
+      <div class="km-val">None</div>
+    </div>
+    <div class="km-cell">
+      <div class="km-label">Fwd P/E</div>
+      <div class="km-val">None</div>
+    </div>
+    <div class="km-cell">
+      <div class="km-label">EV/EBITDA</div>
+      <div class="km-val">None</div>
+    </div>
+    <div class="km-cell">
+      <div class="km-label">Revenue Growth</div>
+      <div class="km-val nt">None</div>
+    </div>
+    <div class="km-cell">
+      <div class="km-label">Gross Margin</div>
+      <div class="km-val">None</div>
+    </div>
+    <div class="km-cell">
+      <div class="km-label">FCF Yield</div>
+      <div class="km-val nt">None</div>
+    </div>
+  </div>
+
+  <!-- Bull / Base / Bear Scenarios -->
+  <div class="sec-title">Price Scenarios</div>
+  <div class="scenario-row">
+    <div class="sc-card sc-bull">
+      <div class="sc-label">▲ Bull Case</div>
+      <div class="sc-price up">$217.54</div>
+      <div class="sc-prob">Probability 30%</div>
+      <div class="sc-note">AIP 상업 고객 연 100%+ 성장, 정부 AI 예산 2배 증가, 흑자 기반 자사주 매입 개시</div>
+    </div>
+    <div class="sc-card sc-base">
+      <div class="sc-label">— Base Case</div>
+      <div class="sc-price" style="color:var(--text)">$148.46</div>
+      <div class="sc-prob">Probability 45%</div>
+      <div class="sc-note">현 thesis 유지, 카탈리스트 대기</div>
+    </div>
+    <div class="sc-card sc-bear">
+      <div class="sc-label">▼ Bear Case</div>
+      <div class="sc-price dn">$147.74</div>
+      <div class="sc-prob">Probability 25%</div>
+      <div class="sc-note">경쟁사(Microsoft, Palantir-clone) 진입, 정부 예산 삭감, 높은 주식 기반 보상 희석</div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══ CH2: BUSINESS OVERVIEW ══════════════════════════════════════════════ -->
+<section class="chapter" id="ch2">
+
+  <!-- Business Model + Platform Overview -->
+  <div class="sec-title">Business Model</div>
+  
+  <div class="biz-text">미국 + 동맹국 정부 AI 플랫폼 표준 자리 잡기. Gotham(정부)→Foundry(기업)→AIP(AI) 3단계 성장 구조. 상업 고객 ARR 연 50%+ 성장 기대.</div>
+
+  <!-- Platform Cards (v1) -->
+  
+
+  <!-- Competitors Table -->
+  
+
+  <!-- Revenue Segments -->
+  
+
+  <!-- Geographic Distribution -->
+  
+
+</section>
+
+<!-- ═══ CH3: FINANCIAL ANALYSIS ════════════════════════════════════════════ -->
+<section class="chapter" id="ch3">
+
+  <!-- Exhibit 1: Revenue Breakdown Stacked Bar -->
+  
+
+  <!-- Exhibit 2: Revenue + Gross Margin Combo -->
+  
+
+  <!-- Income Statement -->
+  <div class="sec-title">Income Statement (5Y)</div>
+  
+  <div class="empty-state">Income statement data unavailable</div>
+  
+
+  <!-- Margin Trend -->
+  <div class="sec-title">Margin Trend</div>
+  
+  <div class="empty-state">Margin data unavailable</div>
+  
+
+  <!-- SBC Analysis (v1) -->
+  
+
+  <!-- Cash Flow -->
+  
+  
+
+  <!-- Balance Sheet Key Metrics -->
+  
+
+</section>
+
+<!-- ═══ CH4: VALUATION ══════════════════════════════════════════════════════ -->
+<section class="chapter" id="ch4">
+
+  <!-- DCF Summary -->
+  <div class="sec-title">DCF Analysis</div>
+  
+  
+  <div class="dcf-summary">
+    <div class="dcf-item">
+      <div class="dcf-label">WACC</div>
+      <div class="dcf-val" style="color:var(--purple)">10.0%</div>
+    </div>
+    <div class="dcf-divider"></div>
+    <div class="dcf-item">
+      <div class="dcf-label">Terminal Growth Rate</div>
+      <div class="dcf-val" style="color:var(--blue)">3.0%</div>
+    </div>
+    <div class="dcf-divider"></div>
+    <div class="dcf-item">
+      <div class="dcf-label">DCF Fair Value</div>
+      <div class="dcf-val dcf-fair">None</div>
+    </div>
+    
+    
+  </div>
+
+  <!-- Sensitivity Heatmap (supports both v1 labels_wacc/labels_tgr/matrix and legacy) -->
+  
+  
+  <div class="sensitivity-wrap">
+    <div class="sec-title">DCF Sensitivity Matrix (WACC × TGR)</div>
+    <div style="overflow-x:auto;">
+      <table class="sens-table">
+        
+        
+        
+        <tbody>
+          
+          <tr>
+            
+            
+              
+              
+              
+                <td class="sens-heat-low">$96.88</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$106.25</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$115.62</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-mid3">$125.0</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-mid3">$134.38</td>
+              
+            
+          </tr>
+          
+          <tr>
+            
+            
+              
+              
+              
+                <td class="sens-heat-low">$86.11</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$94.44</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$102.78</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$111.11</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-mid3">$119.44</td>
+              
+            
+          </tr>
+          
+          <tr>
+            
+            
+              
+              
+              
+                <td class="sens-heat-low">$77.5</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$85.0</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$92.5</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$100.0</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$107.5</td>
+              
+            
+          </tr>
+          
+          <tr>
+            
+            
+              
+              
+              
+                <td class="sens-heat-low">$70.45</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$77.27</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$84.09</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$90.91</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$97.73</td>
+              
+            
+          </tr>
+          
+          <tr>
+            
+            
+              
+              
+              
+                <td class="sens-heat-low">$64.58</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$70.83</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$77.08</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$83.33</td>
+              
+            
+              
+              
+              
+                <td class="sens-heat-low">$89.58</td>
+              
+            
+          </tr>
+          
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+
+  <!-- DCF Commentary (v1) -->
+  
+
+  
+
+  <!-- Comps Table -->
+  <div class="sec-title">Comparable Company Analysis</div>
+  
+  <div class="empty-state">Comparable company data unavailable</div>
+  
+
+</section>
+
+<!-- ═══ CH5: GROWTH CATALYSTS ═══════════════════════════════════════════════ -->
+<section class="chapter" id="ch5">
+
+  <!-- Short-term Catalysts -->
+  <div class="sec-title">Short-term Catalysts (0-12M)</div>
+  
+  <div class="catalyst-list">
+    
+    <div class="catalyst-item">
+      <div class="c-dot" style="background:var(--blue)"></div>
+      
+      <div class="c-body">
+        <div class="c-title">Q1 2026 실적 발표 (5월 예정)</div>
+        
+        
+      </div>
+      
+    </div>
+    
+    <div class="catalyst-item">
+      <div class="c-dot" style="background:var(--blue)"></div>
+      
+      <div class="c-body">
+        <div class="c-title">NDF-X 계약 갱신 결과</div>
+        
+        
+      </div>
+      
+    </div>
+    
+  </div>
+  
+
+  <!-- Mid-term Themes -->
+  <div class="sec-title">Mid-term Themes (1-3Y)</div>
+  
+  <div class="mid-term-grid">
+    
+    <div class="mt-card">
+      <div class="mt-label">DoD/정부 신규 계약 공시</div>
+      <div class="mt-text"></div>
+      
+    </div>
+    
+    <div class="mt-card">
+      <div class="mt-label">AIP 상업 고객 수 분기 발표</div>
+      <div class="mt-text"></div>
+      
+    </div>
+    
+    <div class="mt-card">
+      <div class="mt-label">미-이란 분쟁 국방 예산 확대</div>
+      <div class="mt-text"></div>
+      
+    </div>
+    
+  </div>
+  
+
+  <!-- Long-term Thesis -->
+  
+  <div class="sec-title">Long-term Investment Thesis</div>
+  <div class="lt-thesis-box">
+    <div class="lt-label">Long-term Vision (3Y+)</div>
+    <div class="lt-text">AI 시대의 핵심 인프라 레이어. 데이터 통합-분석-의사결정 자동화 전 주기 장악. 10년 TAM $500B+ 시장에서 핵심 플레이어. 텐배거 시나리오: AIP 글로벌 확장 + 국방 AI 독점.</div>
+  </div>
+  
+
+</section>
+
+<!-- ═══ CH6: RISK FACTORS ════════════════════════════════════════════════════ -->
+<section class="chapter" id="ch6">
+
+  <!-- Unified risks[] (v1 schema) -->
+  
+
+  <div class="risk-category-grid">
+
+    <!-- Business Risk -->
+    <div class="risk-card">
+      <div class="risk-card-title" style="color:var(--down)">Business Risks</div>
+      
+        
+        <div class="risk-row-item">
+          <div class="c-dot" style="width:5px;height:5px;background:var(--down);border-radius:50%;margin-top:5px;flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div style="font-size:10px;font-weight:600;margin-bottom:3px;">고밸류에이션 (PSR 30x+)</div>
+            <div class="ri-badges">
+              
+              <span class="prob-badge prob-mid">
+                P: 중간
+              </span>
+              
+              
+              <span class="impact-badge impact-high">
+                I: 높음
+              </span>
+              
+              
+              <span class="ri-bear">Bear $147.74</span>
+              
+            </div>
+          </div>
+        </div>
+        
+        <div class="risk-row-item">
+          <div class="c-dot" style="width:5px;height:5px;background:var(--down);border-radius:50%;margin-top:5px;flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div style="font-size:10px;font-weight:600;margin-bottom:3px;">내부자 대규모 매도 이력</div>
+            <div class="ri-badges">
+              
+              <span class="prob-badge prob-mid">
+                P: 중간
+              </span>
+              
+              
+              <span class="impact-badge impact-high">
+                I: 높음
+              </span>
+              
+              
+              <span class="ri-bear">Bear $147.74</span>
+              
+            </div>
+          </div>
+        </div>
+        
+        <div class="risk-row-item">
+          <div class="c-dot" style="width:5px;height:5px;background:var(--down);border-radius:50%;margin-top:5px;flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div style="font-size:10px;font-weight:600;margin-bottom:3px;">정부 의존도 60%+</div>
+            <div class="ri-badges">
+              
+              <span class="prob-badge prob-mid">
+                P: 중간
+              </span>
+              
+              
+              <span class="impact-badge impact-high">
+                I: 높음
+              </span>
+              
+              
+              <span class="ri-bear">Bear $147.74</span>
+              
+            </div>
+          </div>
+        </div>
+        
+      
+    </div>
+
+    <!-- Financial Risk -->
+    <div class="risk-card">
+      <div class="risk-card-title" style="color:var(--gold)">Financial Risks</div>
+      
+        <div style="color:var(--muted);font-size:10px;padding:8px 0;">—</div>
+      
+    </div>
+
+    <!-- Regulatory Risk -->
+    <div class="risk-card">
+      <div class="risk-card-title" style="color:var(--purple)">Regulatory Risks</div>
+      
+        <div style="color:var(--muted);font-size:10px;padding:8px 0;">—</div>
+      
+    </div>
+
+    <!-- Macro Risk -->
+    <div class="risk-card">
+      <div class="risk-card-title" style="color:var(--cyan)">Macro Risks</div>
+      
+        <div style="color:var(--muted);font-size:10px;padding:8px 0;">—</div>
+      
+    </div>
+
+  </div>
+  
+
+</section>
+
+<!-- ═══ CH7: INDUSTRY & MACRO ═══════════════════════════════════════════════ -->
+<section class="chapter" id="ch7">
+
+  <!-- Exhibit 3: 12M Relative Performance -->
+  
+
+  <!-- Macro Commentary (v1) -->
+  
+
+  <!-- Institutional Summary Boxes -->
+  
+  
+  <div class="sec-title">Institutional Overview</div>
+  <div class="institutional-summary">
+    <div class="inst-box">
+      <div class="inst-label">Short Interest</div>
+      <div class="inst-val dn">None%</div>
+    </div>
+    <div class="inst-box">
+      <div class="inst-label">Insider Buys (30d)</div>
+      <div class="inst-val up">0</div>
+    </div>
+    <div class="inst-box">
+      <div class="inst-label">Insider Sells (30d)</div>
+      <div class="inst-val dn">0</div>
+    </div>
+  </div>
+
+  <!-- Top Holders Table -->
+  
+  
+
+  <!-- Technical Analysis -->
+  
+  <div class="sec-title">Technical Analysis</div>
+  
+  <div class="tech-grid">
+    <div class="tech-box">
+      <div class="tech-label">RSI (14)</div>
+      <div class="tech-val nt">
+        47.9
+      </div>
+      <div class="tech-sub">
+        Neutral
+      </div>
+    </div>
+    <div class="tech-box">
+      <div class="tech-label">MACD</div>
+      <div class="tech-val nt">
+        하락
+      </div>
+      <div class="tech-sub">—</div>
+    </div>
+    <div class="tech-box">
+      <div class="tech-label">MA50 / MA200</div>
+      <div class="tech-val up">146.91</div>
+      <div class="tech-sub">MA200: 164.16</div>
+    </div>
+    <div class="tech-box">
+      <div class="tech-label">52W High %</div>
+      
+      <div class="tech-val nt">
+        -28.3%
+      </div>
+      <div class="tech-sub">From 52W High (207.18)</div>
+    </div>
+  </div>
+
+  <!-- Support / Resistance -->
+  
+  
+
+</section>
+
+<!-- ═══ CH8: INVESTMENT CONCLUSION ══════════════════════════════════════════ -->
+<section class="chapter" id="ch8">
+
+  <!-- Large Rating -->
+  <div class="sec-title">Final Rating</div>
+  <div class="conclusion-rating-wrap">
+    
+    
+      <div class="rating-badge-lg rating-lg-hold">HOLD</div>
+    
+    
+  </div>
+
+  <!-- Conclusion Prose (v1) -->
+  
+
+  <!-- Trade Setup -->
+  
+  
+  <div class="sec-title">Trade Setup</div>
+  <div class="trade-setup-box">
+    <div class="tsb-title">Tactical Entry Plan</div>
+    <div class="tsb-grid">
+      <div class="tsb-item">
+        <div class="tsb-label">Entry Zone</div>
+        <div class="tsb-val">
+          
+            $144.01 – $151.43
+          
+        </div>
+      </div>
+      <div class="tsb-item">
+        <div class="tsb-label">Target 1</div>
+        <div class="tsb-val up">$148.46</div>
+      </div>
+      <div class="tsb-item">
+        <div class="tsb-label">Target 2</div>
+        <div class="tsb-val up">$217.54</div>
+      </div>
+      <div class="tsb-item">
+        <div class="tsb-label">Stop Loss</div>
+        <div class="tsb-val dn">$130.64</div>
+      </div>
+      <div class="tsb-item">
+        <div class="tsb-label">Position Size</div>
+        <div class="tsb-val">—</div>
+      </div>
+      <div class="tsb-item">
+        <div class="tsb-label">Time Horizon</div>
+        <div class="tsb-val" style="color:var(--muted)">—</div>
+      </div>
+    </div>
+    
+  </div>
+  
+
+  <!-- Monitoring KPIs (v1 kpis[] or fallback monitoring[]) -->
+  
+  
+  <div class="sec-title">Monitoring KPIs</div>
+  <div style="overflow-x:auto; margin-bottom:14px;">
+    <table class="data-table" style="background:var(--bg2);border:1px solid var(--border);border-radius:5px;overflow:hidden;">
+      <thead>
+        <tr>
+          <th>Metric / KPI</th>
+          <th>Threshold</th>
+          <th>Current</th>
+          <th style="width:80px;">Signal</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td style="font-weight:600;">분기 매출 성장률</td>
+          <td style="color:var(--gold)"><15%</td>
+          <td style="color:var(--muted);font-size:10px;">—</td>
+          <td>
+            —
+          </td>
+          <td style="color:var(--muted);font-size:10px;">성장 둔화 경고</td>
+        </tr>
+        
+        <tr>
+          <td style="font-weight:600;">FCF Margin</td>
+          <td style="color:var(--gold)"><10%</td>
+          <td style="color:var(--muted);font-size:10px;">—</td>
+          <td>
+            —
+          </td>
+          <td style="color:var(--muted);font-size:10px;">수익성 점검</td>
+        </tr>
+        
+        <tr>
+          <td style="font-weight:600;">RSI</td>
+          <td style="color:var(--gold)">>80</td>
+          <td style="color:var(--muted);font-size:10px;">—</td>
+          <td>
+            —
+          </td>
+          <td style="color:var(--muted);font-size:10px;">과매수 경고, 부분 차익 실현 검토</td>
+        </tr>
+        
+        <tr>
+          <td style="font-weight:600;">주가 vs Stop</td>
+          <td style="color:var(--gold)"><$130.64</td>
+          <td style="color:var(--muted);font-size:10px;">—</td>
+          <td>
+            —
+          </td>
+          <td style="color:var(--muted);font-size:10px;">손절 실행</td>
+        </tr>
+        
+        <tr>
+          <td style="font-weight:600;">내부자 거래</td>
+          <td style="color:var(--gold)">대규모 매도</td>
+          <td style="color:var(--muted);font-size:10px;">—</td>
+          <td>
+            —
+          </td>
+          <td style="color:var(--muted);font-size:10px;">경영진 신뢰 재평가</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+  
+
+  <!-- Next Update -->
+  
+  <div class="sec-title">Next Review Trigger</div>
+  <div class="next-update-box">
+    <div style="font-size:11px;color:var(--muted);">Trigger:</div>
+    <div class="nu-trigger">Q1 2026 실적 발표 (5월 예정)</div>
+    <div style="width:1px;height:20px;background:var(--border);"></div>
+    <div class="nu-event">실적 발표 후 CH1, CH3, CH4 업데이트</div>
+    
+  </div>
+  
+
+</section>
+
+<!-- ═══ SCRIPTS ═══════════════════════════════════════════════════════════════ -->
+<script>
+function switchTab(id, event) {
+  document.querySelectorAll('.chapter').forEach(function(c) {
+    c.classList.remove('active');
+  });
+  document.querySelectorAll('.tab').forEach(function(t) {
+    t.classList.remove('active');
+  });
+  document.getElementById(id).classList.add('active');
+  if (event && event.currentTarget) {
+    event.currentTarget.classList.add('active');
+  }
+  window.scrollTo(0, 0);
+  // Lazy-init charts on first tab visit
+  if (id === 'ch3') { initCh3Charts(); }
+  if (id === 'ch7') { initCh7Charts(); }
+}
+
+// ── Exhibit 1 & 2: Revenue Charts (CH3) ───────────────────────────────────
+var ch3ChartsInited = false;
+function initCh3Charts() {
+  if (ch3ChartsInited) return;
+  ch3ChartsInited = true;
+
+  // Exhibit 1: Revenue Breakdown Stacked Bar
+  var ctxBreak = document.getElementById('chartRevBreakdown');
+  if (ctxBreak && window._revBreakdown) {
+    var rb = window._revBreakdown;
+    new Chart(ctxBreak, {
+      type: 'bar',
+      data: {
+        labels: rb.labels,
+        datasets: [
+          { label: 'Government', data: rb.gov, backgroundColor: '#1E5FA8', stack: 'rev' },
+          { label: 'Commercial', data: rb.com, backgroundColor: '#C8523A', stack: 'rev' }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+          x: { stacked: true, grid: { color: '#E0DBD0' } },
+          y: { stacked: true, grid: { color: '#E0DBD0' },
+               ticks: { callback: function(v) { return '$' + (v/1e6).toFixed(0) + 'M'; } } }
+        }
+      }
+    });
+  }
+
+  // Exhibit 2: Revenue + Gross Margin Combo
+  var ctxCombo = document.getElementById('chartRevMargin');
+  if (ctxCombo && window._revMargin) {
+    var rm = window._revMargin;
+    new Chart(ctxCombo, {
+      type: 'bar',
+      data: {
+        labels: rm.labels,
+        datasets: [
+          { type: 'bar',  label: 'Revenue',       data: rm.revenue, backgroundColor: '#1A1814', yAxisID: 'yRev' },
+          { type: 'line', label: 'Gross Margin %', data: rm.grossM, borderColor: '#C8523A', backgroundColor: 'transparent',
+            pointBackgroundColor: '#C8523A', tension: 0.3, yAxisID: 'yPct', borderWidth: 2 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+          yRev: { position: 'left', grid: { color: '#E0DBD0' },
+                  ticks: { callback: function(v) { return '$' + (v/1e6).toFixed(0) + 'M'; } } },
+          yPct: { position: 'right', min: 0, max: 100, grid: { drawOnChartArea: false },
+                  ticks: { callback: function(v) { return v + '%'; } } },
+          x:    { grid: { color: '#E0DBD0' } }
+        }
+      }
+    });
+  }
+}
+
+// ── Exhibit 3: Relative Performance (CH7) ─────────────────────────────────
+var ch7ChartInited = false;
+function initCh7Charts() {
+  if (ch7ChartInited) return;
+  ch7ChartInited = true;
+
+  var ctxPerf = document.getElementById('chartRelPerf');
+  if (ctxPerf && window._relPerf) {
+    var rp = window._relPerf;
+    new Chart(ctxPerf, {
+      type: 'line',
+      data: {
+        labels: rp.labels,
+        datasets: [
+          { label: 'PLTR', data: rp.ticker, borderColor: '#C8523A', backgroundColor: 'rgba(200,82,58,0.08)',
+            fill: true, tension: 0.3, borderWidth: 2, pointRadius: 3 },
+          { label: 'S&P 500',      data: rp.spy,    borderColor: '#1E5FA8', backgroundColor: 'transparent',
+            tension: 0.3, borderWidth: 1.5, pointRadius: 2 },
+          { label: 'Nasdaq',       data: rp.qqq,    borderColor: '#1E7A45', backgroundColor: 'transparent',
+            tension: 0.3, borderWidth: 1.5, pointRadius: 2, borderDash: [4,3] }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { position: 'top' },
+                   tooltip: { callbacks: { label: function(c) { return c.dataset.label + ': ' + c.parsed.y.toFixed(1) + '%'; } } } },
+        scales: {
+          x: { grid: { color: '#E0DBD0' } },
+          y: { grid: { color: '#E0DBD0' },
+               ticks: { callback: function(v) { return (v >= 0 ? '+' : '') + v + '%'; } } }
+        }
+      }
+    });
+  }
+}
+
+// ── Chart Data Injection (Jinja2 → JS) ────────────────────────────────────
+
+
+
+
+
+</script>
+
+</body>
+</html>
