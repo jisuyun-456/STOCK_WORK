@@ -1,0 +1,1 @@
+- [Equity Report Template](project_equity_report_template.md) — 크림 에디토리얼 2종 (브라우저=검은NAV+크림본문, PDF=WeasyPrint), 동일 Jinja2 변수, fmt_num/fmt_pct/pct_class 필터 필요

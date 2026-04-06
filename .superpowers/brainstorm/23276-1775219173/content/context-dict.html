@@ -1,0 +1,109 @@
+<h2>Equity Report — Context Dict 구조</h2>
+<p class="subtitle">8챕터 데이터 매핑 — equity_report_generator.py가 조립하는 context</p>
+
+<div class="mockup">
+  <div class="mockup-header">report_context: dict — 챕터별 데이터 키</div>
+  <div class="mockup-body" style="padding:20px;background:#0d0f14;color:#e2e8f0;font-family:Consolas,monospace;font-size:11px;line-height:1.7">
+
+    <div style="color:#475569;margin-bottom:8px"># ── 메타 정보 ──</div>
+    <div><span style="color:#c8523a">"symbol"</span>: <span style="color:#e8c070">"PLTR"</span>,</div>
+    <div><span style="color:#c8523a">"company_name"</span>: <span style="color:#e8c070">"Palantir Technologies"</span>,</div>
+    <div><span style="color:#c8523a">"report_date"</span>: <span style="color:#e8c070">"2026-04-03"</span>,</div>
+    <div><span style="color:#c8523a">"sector"</span>: <span style="color:#e8c070">"Technology"</span>,</div>
+    <div><span style="color:#c8523a">"exchange"</span>: <span style="color:#e8c070">"NASDAQ"</span>,</div>
+    <div style="height:12px"></div>
+
+    <div style="color:#475569"># ── CH1: Executive Summary ──</div>
+    <div style="background:#141720;border-left:3px solid #f59e0b;padding:10px 12px;border-radius:0 4px 4px 0;margin:4px 0 8px">
+      <div><span style="color:#7bb3c0">"ch1"</span>: {</div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"rating"</span>: <span style="color:#e8c070">"BUY"</span>, &nbsp;<span style="color:#475569">// BUY/HOLD/SELL</span></div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"conviction"</span>: <span style="color:#e8c070">"HIGH"</span>, &nbsp;<span style="color:#475569">// HIGH/MEDIUM/LOW</span></div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"target_price"</span>: <span style="color:#a8c4e8">125.00</span>,</div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"current_price"</span>: <span style="color:#a8c4e8">148.46</span>,</div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"upside_pct"</span>: <span style="color:#a8c4e8">-15.8</span>,</div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"investment_thesis"</span>: <span style="color:#e8c070">"정부/기업 AI 플랫폼..."</span>,</div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"key_metrics"</span>: { <span style="color:#475569">// 6개 핵심 지표</span></div>
+      <div style="padding-left:32px"><span style="color:#c8523a">"market_cap"</span>, <span style="color:#c8523a">"fwd_pe"</span>, <span style="color:#c8523a">"ev_ebitda"</span>,</div>
+      <div style="padding-left:32px"><span style="color:#c8523a">"revenue_growth"</span>, <span style="color:#c8523a">"gross_margin"</span>, <span style="color:#c8523a">"fcf_yield"</span></div>
+      <div style="padding-left:16px">},</div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"scenarios"</span>: { <span style="color:#475569">// Bull/Base/Bear</span></div>
+      <div style="padding-left:32px"><span style="color:#22c55e">"bull"</span>: { price, prob, note },</div>
+      <div style="padding-left:32px"><span style="color:#8892a4">"base"</span>: { price, prob, note },</div>
+      <div style="padding-left:32px"><span style="color:#ef4444">"bear"</span>: { price, prob, note }</div>
+      <div style="padding-left:16px">}</div>
+      <div>}</div>
+    </div>
+
+    <div style="color:#475569"># ── CH2: Business Overview ──</div>
+    <div style="background:#141720;border-left:3px solid #3b82f6;padding:10px 12px;border-radius:0 4px 4px 0;margin:4px 0 8px">
+      <div><span style="color:#7bb3c0">"ch2"</span>: {</div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"business_model"</span>: <span style="color:#e8c070">"..."</span>, &nbsp;<span style="color:#475569">// 사업모델 설명</span></div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"revenue_segments"</span>: [ <span style="color:#475569">// 매출 세그먼트 [{name, pct, yoy}]</span></div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"geographic_mix"</span>: [ <span style="color:#475569">// 지역별 [{region, pct}]</span></div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"competitors"</span>: [ <span style="color:#475569">// 경쟁사 [{name, mkt_cap, growth, margin}]</span></div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"tam_sam_som"</span>: { <span style="color:#475569">// 시장규모 {tam, sam, som, share_pct}</span></div>
+      <div>}</div>
+    </div>
+
+    <div style="color:#475569"># ── CH3: Financial Analysis ──</div>
+    <div style="background:#141720;border-left:3px solid #22c55e;padding:10px 12px;border-radius:0 4px 4px 0;margin:4px 0 8px">
+      <div><span style="color:#7bb3c0">"ch3"</span>: {</div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"income_stmt"</span>: [ <span style="color:#475569">// 5개년 [{year, revenue, gp, ebitda, ebit, ni, eps}]</span></div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"balance_sheet"</span>: { <span style="color:#475569">// {total_assets, debt_ratio, net_cash, roic, roe}</span></div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"cash_flow"</span>: [ <span style="color:#475569">// 5개년 [{year, ocf, capex, fcf, fcf_margin}]</span></div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"margins"</span>: [ <span style="color:#475569">// 5개년 [{year, gross_m, ebitda_m, net_m}]</span></div>
+      <div>}</div>
+    </div>
+
+    <div style="color:#475569"># ── CH4: Valuation ──</div>
+    <div style="background:#141720;border-left:3px solid #8b5cf6;padding:10px 12px;border-radius:0 4px 4px 0;margin:4px 0 8px">
+      <div><span style="color:#7bb3c0">"ch4"</span>: {</div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"dcf"</span>: { <span style="color:#475569">// {wacc, tgr, fair_value, sensitivity_matrix}</span></div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"comps"</span>: [ <span style="color:#475569">// Peer 5개 [{name, pe, ev_ebitda, ev_rev, p_fcf}]</span></div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"historical_val"</span>: [ <span style="color:#475569">// 3년 [{date, pe, avg, std_up, std_dn}]</span></div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"target_method"</span>: <span style="color:#e8c070">"DCF 50% + Comps 50%"</span></div>
+      <div>}</div>
+    </div>
+
+    <div style="color:#475569"># ── CH5: Growth Catalysts ──</div>
+    <div style="background:#141720;border-left:3px solid #06b6d4;padding:10px 12px;border-radius:0 4px 4px 0;margin:4px 0 8px">
+      <div><span style="color:#7bb3c0">"ch5"</span>: {</div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"short_term"</span>: [ <span style="color:#475569">// 0-6개월 [{event, date, expectation}]</span></div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"mid_term"</span>: [ <span style="color:#475569">// 1-3년 [{theme, description, impact}]</span></div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"margin_leverage"</span>: [ <span style="color:#475569">// [{point, current, potential}]</span></div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"capital_allocation"</span>: { <span style="color:#475569">// {dividend_yield, buyback_yield, ma_strategy}</span></div>
+      <div>}</div>
+    </div>
+
+    <div style="color:#475569"># ── CH6: Risk Factors ──</div>
+    <div style="background:#141720;border-left:3px solid #ef4444;padding:10px 12px;border-radius:0 4px 4px 0;margin:4px 0 8px">
+      <div><span style="color:#7bb3c0">"ch6"</span>: {</div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"business_risk"</span>: [ <span style="color:#475569">// [{title, desc, prob, impact, bear_price}]</span></div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"financial_risk"</span>: [</div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"regulatory_risk"</span>: [</div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"macro_risk"</span>: [</div>
+      <div>}</div>
+    </div>
+
+    <div style="color:#475569"># ── CH7: Industry & Macro Context ──</div>
+    <div style="background:#141720;border-left:3px solid #8892a4;padding:10px 12px;border-radius:0 4px 4px 0;margin:4px 0 8px">
+      <div><span style="color:#7bb3c0">"ch7"</span>: {</div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"sector_performance"</span>: { <span style="color:#475569">// {vs_sp500_12m, vs_nasdaq_12m, sector_rank}</span></div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"macro_sensitivity"</span>: { <span style="color:#475569">// {rate_impact, cycle_position, beta}</span></div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"institutional"</span>: { <span style="color:#475569">// {top_holders, insider_activity, short_interest}</span></div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"technical"</span>: { <span style="color:#475569">// {support, resistance, rsi, macd, ma50, ma200}</span></div>
+      <div>}</div>
+    </div>
+
+    <div style="color:#475569"># ── CH8: Investment Conclusion ──</div>
+    <div style="background:#141720;border-left:3px solid #f59e0b;padding:10px 12px;border-radius:0 4px 4px 0;margin:4px 0 8px">
+      <div><span style="color:#7bb3c0">"ch8"</span>: {</div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"final_rating"</span>: <span style="color:#e8c070">"BUY"</span>,</div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"trade_setup"</span>: { <span style="color:#475569">// {entry_zone, target1, target2, stop_loss, rr_ratio}</span></div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"monitoring"</span>: [ <span style="color:#475569">// [{kpi, threshold, action}] × 5</span></div>
+      <div style="padding-left:16px"><span style="color:#c8523a">"next_update"</span>: { <span style="color:#475569">// {trigger, date, event}</span></div>
+      <div>}</div>
+    </div>
+
+  </div>
+</div>
