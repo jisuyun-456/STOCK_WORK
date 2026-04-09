@@ -11,6 +11,12 @@ from __future__ import annotations
 
 import os
 from functools import lru_cache
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+# Load .env from project root
+load_dotenv(Path(__file__).parent.parent / ".env")
 
 from alpaca.trading.client import TradingClient
 from alpaca.trading.requests import (
