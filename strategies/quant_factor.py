@@ -16,20 +16,21 @@ References:
 
 from __future__ import annotations
 
+import io
+import zipfile
 import numpy as np
 import pandas as pd
+import requests
 import yfinance as yf
 from datetime import datetime, timedelta
 
 from strategies.base_strategy import BaseStrategy, Signal, Direction
 
-# pandas_datareader: Kenneth French 팩터 데이터 다운로드용
-try:
-    import pandas_datareader.data as web
-    _PDRWEB_AVAILABLE = True
-except ImportError:
-    _PDRWEB_AVAILABLE = False
-    print("[QNT] WARNING: pandas_datareader 미설치 — FF5 팩터 비활성화, MOM 전용 모드로 동작")
+# Kenneth French FF5 일별 팩터 CSV (직접 ZIP 다운로드)
+_FF5_DAILY_URL = (
+    "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/"
+    "F-F_Research_Data_5_Factors_2x3_daily_CSV.zip"
+)
 
 
 # Russell 1000 대표 종목 (상위 80개 — 계산 효율 최적화)
@@ -169,29 +170,54 @@ def fetch_factor_data(
     else:
         prices = raw[["Close"]].rename(columns={"Close": tickers[0]})
 
-    # --- Kenneth French FF5 팩터 ---
+    # --- Kenneth French FF5 팩터 (직접 ZIP 다운로드) ---
     factors = pd.DataFrame()
-    if _PDRWEB_AVAILABLE:
-        try:
-            print("[QNT] Kenneth French FF5 일별 팩터 다운로드 중...")
-            ff5_raw = web.DataReader(
-                "F-F_Research_Data_5_Factors_2x3_daily",
-                "famafrench",
-                start=start.strftime("%Y-%m-%d"),
-                end=end.strftime("%Y-%m-%d"),
-            )
-            # ff5_raw[0]: DataFrame with columns Mkt-RF, SMB, HML, RMW, CMA, RF
-            factors = ff5_raw[0] / 100.0  # % → 소수 변환
-            # 인덱스가 Period 타입일 경우 DatetimeIndex로 변환
-            if hasattr(factors.index, "to_timestamp"):
-                factors.index = factors.index.to_timestamp()
-            factors.index = pd.to_datetime(factors.index)
-            print(f"[QNT] FF5 팩터 다운로드 완료: {len(factors)}일치 데이터")
-        except Exception as e:
-            print(f"[QNT] WARNING: FF5 팩터 다운로드 실패 ({e}) — MOM 전용 모드로 폴백")
-            factors = pd.DataFrame()
-    else:
-        print("[QNT] pandas_datareader 없음 — MOM 전용 모드로 동작")
+    try:
+        print("[QNT] Kenneth French FF5 일별 팩터 다운로드 중...")
+        resp = requests.get(_FF5_DAILY_URL, timeout=30)
+        resp.raise_for_status()
+
+        with zipfile.ZipFile(io.BytesIO(resp.content)) as zf:
+            csv_name = [n for n in zf.namelist() if n.endswith(".CSV")][0]
+            with zf.open(csv_name) as f:
+                raw_text = f.read().decode("utf-8", errors="ignore")
+
+        # CSV 헤더 블록 스킵 — 첫 번째 숫자 행 찾기
+        lines = raw_text.splitlines()
+        data_start = None
+        for i, line in enumerate(lines):
+            stripped = line.strip()
+            if stripped and stripped[0].isdigit() and len(stripped) >= 8:
+                data_start = i
+                break
+
+        if data_start is None:
+            raise ValueError("FF5 CSV 데이터 시작점 찾기 실패")
+
+        # 데이터 행 추출 (빈 줄 또는 비숫자 행에서 종료)
+        data_lines = []
+        for line in lines[data_start:]:
+            stripped = line.strip()
+            if not stripped or not stripped[0].isdigit():
+                break
+            data_lines.append(stripped)
+
+        factors = pd.read_csv(
+            io.StringIO("\n".join(data_lines)),
+            header=None,
+            names=["date", "Mkt-RF", "SMB", "HML", "RMW", "CMA", "RF"],
+        )
+        factors["date"] = pd.to_datetime(factors["date"].astype(str), format="%Y%m%d")
+        factors = factors.set_index("date")
+        factors = factors / 100.0  # % → 소수 변환
+        factors = factors[
+            (factors.index >= pd.Timestamp(start))
+            & (factors.index <= pd.Timestamp(end))
+        ]
+        print(f"[QNT] FF5 팩터 다운로드 완료: {len(factors)}일치 데이터")
+    except Exception as e:
+        print(f"[QNT] WARNING: FF5 팩터 다운로드 실패 ({e}) — MOM 전용 모드로 폴백")
+        factors = pd.DataFrame()
 
     return {"prices": prices, "factors": factors}
 

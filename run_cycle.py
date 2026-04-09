@@ -372,76 +372,169 @@ def phase_execute(signals: list, dry_run: bool = False) -> list:
     return results
 
 
+# ─── Phase 5.5: REBALANCE (NEW) ────────────────────────────────────────
+
+def phase_rebalance(market_data: dict, dry_run: bool = False) -> tuple[list, list]:
+    """Check rebalancing schedules, generate rebalance orders if triggered."""
+    from scripts.rebalancer import run_rebalance_check
+
+    portfolios = load_portfolios()
+    result = run_rebalance_check(portfolios, market_data, dry_run=dry_run)
+
+    if result["rebalanced"] and not dry_run:
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        for code in result["rebalanced"]:
+            portfolios["strategies"][code]["last_rebalance"] = today
+        save_portfolios(portfolios)
+
+    return result.get("signals", []), result.get("rebalanced", [])
+
+
 # ─── Phase 6: REPORT ────────────────────────────────────────────────────
 
-def phase_report(signals: list, execution_results: list, regime=None):
-    """Update performance.json and generate daily report."""
+def phase_report(signals: list, execution_results: list, regime=None, rebalanced_strategies: list = None):
+    """Update performance.json, generate daily report + dashboard."""
     print("[Phase 6: REPORT] Generating report...")
 
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     portfolios = load_portfolios()
 
+    # Update NAV history (deduplicate: keep only one entry per date)
     for code, strat in portfolios["strategies"].items():
         nav = strat["cash"]
         for sym, pos in strat.get("positions", {}).items():
             nav += pos.get("qty", 0) * pos.get("current", 0)
 
-        strat.setdefault("nav_history", []).append({
-            "date": today,
-            "nav": round(nav, 2),
-        })
+        nav_history = strat.setdefault("nav_history", [])
+        # Full dedup: remove all entries with today's date, then append once
+        nav_history[:] = [h for h in nav_history if h.get("date") != today]
+        nav_history.append({"date": today, "nav": round(nav, 2)})
 
     save_portfolios(portfolios)
 
+    # ─── Performance Calculator ───
+    trade_log = []
+    try:
+        from scripts.performance_calculator import (
+            load_existing_performance, load_trade_log,
+            fetch_benchmark_prices, build_daily_snapshot, append_and_save,
+            generate_strategy_monthly_report,
+        )
+
+        benchmark_prices = fetch_benchmark_prices()
+        trade_log = load_trade_log()
+        existing_perf = load_existing_performance()
+
+        regime_str = _extract_regime_str(regime)
+        snapshot = build_daily_snapshot(
+            portfolios, regime_str, len(signals),
+            benchmark_prices, rebalanced_strategies or [],
+        )
+        performance_data = append_and_save(existing_perf, snapshot, portfolios, trade_log)
+
+        # Monthly strategy reports (all strategies)
+        strategy_report_dir = ROOT / "reports" / "strategy"
+        for code, strat in portfolios["strategies"].items():
+            generate_strategy_monthly_report(
+                code, strat["name"], performance_data, trade_log, strategy_report_dir,
+            )
+    except Exception as e:
+        print(f"  [perf] Performance calculation failed: {e}")
+        import traceback; traceback.print_exc()
+        performance_data = {}
+        benchmark_prices = {}
+
+    # ─── Paper Dashboard ───
+    try:
+        from scripts.dashboard_generator import generate_paper_dashboard
+        regime_str = _extract_regime_str(regime)
+        if not trade_log:
+            trade_log = load_trade_log()
+        generate_paper_dashboard(
+            performance_data, portfolios, trade_log, regime_str,
+            output_path=str(ROOT / "docs" / "paper_dashboard.html"),
+        )
+    except Exception as e:
+        print(f"  [dashboard] Paper dashboard failed: {e}")
+
+    # ─── Daily Report Markdown ───
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     report_path = REPORTS_DIR / f"{today}-daily.md"
 
-    lines = [
-        f"# Daily Trading Report -{today}",
-        "",
-    ]
+    regime_str = _extract_regime_str(regime)
+    regime_reasoning = _extract_regime_reasoning(regime)
 
-    # Regime info
-    if regime:
-        if hasattr(regime, 'regime'):
-            regime_str = regime.regime
-            regime_reasoning = getattr(regime, 'reasoning', '')
-        elif isinstance(regime, str):
-            regime_str = regime
-            regime_reasoning = ''
-        else:
-            regime_str = "UNKNOWN"
-            regime_reasoning = ''
-        lines.extend([
-            f"## Market Regime: {regime_str}",
-            f"{regime_reasoning}",
-            "",
-        ])
+    lines = [f"# Daily Trading Report — {today}", ""]
 
+    if regime_str:
+        lines.extend([f"## Market Regime: {regime_str}", f"{regime_reasoning}", ""])
+
+    # Performance Summary Table
+    strats = performance_data.get("strategies", {})
+    total_info = strats.get("TOTAL", {})
     lines.extend([
-        "## Signals Generated",
-        f"Total: {len(signals)}",
+        "## Performance Summary",
         "",
+        "| Strategy | NAV | Today | Total | MDD | Sharpe | Trades |",
+        "|----------|-----|-------|-------|-----|--------|--------|",
     ])
+    for code in ["MOM", "VAL", "QNT", "LEV"]:
+        m = strats.get(code, {})
+        lines.append(
+            f"| {code} | ${m.get('current_nav', 0):,.0f} | "
+            f"{m.get('daily_return_pct', 0):+.2f}% | "
+            f"{m.get('total_return_pct', 0):+.2f}% | "
+            f"{m.get('mdd_pct', 0):.2f}% | "
+            f"{m.get('sharpe_ratio', 'N/A')} | "
+            f"{m.get('trade_count', 0)} |"
+        )
+    lines.append(
+        f"| **TOTAL** | **${total_info.get('current_nav', 0):,.0f}** | | "
+        f"**{total_info.get('total_return_pct', 0):+.2f}%** | | | |"
+    )
+    spy_r = total_info.get("spy_return_pct", 0)
+    qqq_r = total_info.get("qqq_return_pct", 0)
+    lines.append(f"| SPY | | | {spy_r:+.2f}% | | | |")
+    lines.append(f"| QQQ | | | {qqq_r:+.2f}% | | | |")
+    lines.append("")
 
+    # Signals
+    lines.extend(["## Signals Generated", f"Total: {len(signals)}", ""])
     for s in signals:
         lines.append(f"- **{s.symbol}** ({s.strategy}) {s.direction.value} {s.weight_pct:.0%} conf={s.confidence:.2f}")
         lines.append(f"  {s.reason}")
 
+    # Execution
     lines.extend(["", "## Execution Results", ""])
     for r in execution_results:
         lines.append(f"- {r.get('symbol', '?')}: {r.get('status', '?')}")
         if r.get("error_reason"):
             lines.append(f"  Reason: {r['error_reason']}")
 
-    lines.extend(["", "## Portfolio State", ""])
-    for code, strat in portfolios["strategies"].items():
-        nav_list = strat.get("nav_history", [])
-        latest_nav = nav_list[-1]["nav"] if nav_list else strat["allocated"]
-        lines.append(f"- **{code}** ({strat['name']}): NAV=${latest_nav:,.2f} / Allocated=${strat['allocated']:,.2f}")
+    # Rebalances
+    if rebalanced_strategies:
+        lines.extend(["", "## Rebalances", ""])
+        for code in rebalanced_strategies:
+            lines.append(f"- **{code}** rebalanced")
 
     report_path.write_text("\n".join(lines), encoding="utf-8")
     print(f"  Report saved: {report_path}")
+
+
+def _extract_regime_str(regime) -> str:
+    if regime is None:
+        return "UNKNOWN"
+    if hasattr(regime, 'regime'):
+        return regime.regime
+    if isinstance(regime, str):
+        return regime
+    return "UNKNOWN"
+
+
+def _extract_regime_reasoning(regime) -> str:
+    if regime and hasattr(regime, 'reasoning'):
+        return getattr(regime, 'reasoning', '')
+    return ''
 
 
 # ─── Main ────────────────────────────────────────────────────────────────
@@ -449,7 +542,7 @@ def phase_report(signals: list, execution_results: list, regime=None):
 def main():
     parser = argparse.ArgumentParser(description="Paper Trading Cycle (Phase 2.5)")
     parser.add_argument("--phase", required=True,
-                        choices=["all", "data", "signals", "research", "risk", "resolve", "execute", "report"])
+                        choices=["all", "data", "signals", "research", "risk", "resolve", "rebalance", "execute", "report"])
     parser.add_argument("--dry-run", action="store_true", help="Simulate without placing real orders")
     parser.add_argument("--research-mode", default=None, choices=["full", "selective", "skip"],
                         help="Research overlay depth (default: full, dry-run default: selective)")
@@ -532,6 +625,15 @@ def main():
     else:
         resolved = approved
 
+    # Phase 5.5: REBALANCE (NEW)
+    rebalanced_strategies = []
+    if args.phase in ("all", "rebalance"):
+        if market_data is None:
+            market_data = phase_data()  # Full data fetch (LEV/VAL/QNT need their own data)
+        rebalance_signals, rebalanced_strategies = phase_rebalance(market_data, dry_run=args.dry_run)
+        resolved = resolved + rebalance_signals
+        print()
+
     # Phase 5: EXECUTE
     if args.phase in ("all", "execute"):
         results = phase_execute(resolved, dry_run=args.dry_run)
@@ -541,7 +643,7 @@ def main():
 
     # Phase 6: REPORT
     if args.phase in ("all", "report"):
-        phase_report(resolved, results, regime=regime_info)
+        phase_report(resolved, results, regime=regime_info, rebalanced_strategies=rebalanced_strategies)
         print()
 
     print("=== Cycle Complete ===")

@@ -76,7 +76,10 @@ jobs:
             state/snapshot.json \
             state/research_cache.json \
             state/dissent_log.jsonl \
-            reports/daily/
+            state/performance.json \
+            reports/daily/ \
+            reports/strategy/ \
+            docs/paper_dashboard.html
 
           git diff --cached --quiet || \
             git commit -m "chore: trading cycle 자동 실행 $(date +'%Y-%m-%d %H:%M UTC')"
@@ -89,6 +92,9 @@ jobs:
           name: trading-cycle-${{ github.run_id }}
           path: |
             reports/daily/
+            reports/strategy/
             state/trade_log.jsonl
             state/snapshot.json
+            state/performance.json
+            docs/paper_dashboard.html
           retention-days: 30

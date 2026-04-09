@@ -100,10 +100,10 @@ class LeveragedETFStrategy(BaseStrategy):
         Returns:
             매수 Signal 리스트. BEAR/CRISIS regime이면 빈 리스트.
         """
-        # 데이터 추출 — 두 가지 키 패턴 지원
-        _prices = market_data.get("prices")
+        # 데이터 추출 — leveraged 전용 키 우선, 없으면 공통 prices 폴백
         _lev_prices = market_data.get("leveraged", {}).get("prices")
-        prices = _prices if _prices is not None and not getattr(_prices, 'empty', True) else _lev_prices
+        _prices = market_data.get("prices")
+        prices = _lev_prices if _lev_prices is not None and not getattr(_lev_prices, 'empty', True) else _prices
         if prices is None or prices.empty:
             print("  LEV: prices 데이터 없음 → 빈 리스트 반환")
             return []

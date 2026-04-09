@@ -362,6 +362,154 @@ def generate_dashboard(context: dict, output_path: str) -> bool:
         return False
 
 
+# ─── Paper Trading Dashboard ────────────────────────────────────────────
+
+def _build_paper_dashboard_context(
+    performance_data: dict,
+    portfolios: dict,
+    trade_log_entries: list,
+    regime: str,
+) -> dict:
+    """Build Jinja2 context for paper_dashboard.html."""
+    from scripts.performance_calculator import build_sparkline_path
+
+    today = datetime.now().strftime("%Y-%m-%d")
+    generated_at = datetime.now().strftime("%Y-%m-%d %H:%M UTC")
+
+    strats = performance_data.get("strategies", {})
+    total_info = strats.get("TOTAL", {})
+    total_nav = total_info.get("current_nav", portfolios.get("account_total", 100000))
+    total_initial = total_info.get("initial_nav", portfolios.get("account_total", 100000))
+    total_return_pct = total_info.get("total_return_pct", 0.0)
+    spy_return_pct = total_info.get("spy_return_pct", 0.0)
+    qqq_return_pct = total_info.get("qqq_return_pct", 0.0)
+    alpha_vs_spy = total_info.get("alpha_vs_spy", 0.0)
+
+    total_change = total_nav - total_initial
+    inception_date = performance_data.get("inception_date", today)
+    try:
+        days_running = (datetime.strptime(today, "%Y-%m-%d") - datetime.strptime(inception_date, "%Y-%m-%d")).days + 1
+    except ValueError:
+        days_running = 1
+
+    # Strategy cards
+    strategy_cards = []
+    for code in ["MOM", "VAL", "QNT", "LEV"]:
+        strat_perf = strats.get(code, {})
+        port_strat = portfolios.get("strategies", {}).get(code, {})
+
+        nav = strat_perf.get("current_nav", port_strat.get("allocated", 0))
+        tr = strat_perf.get("total_return_pct", 0)
+        dr = strat_perf.get("daily_return_pct", 0)
+        mdd = strat_perf.get("mdd_pct", 0)
+        sharpe = strat_perf.get("sharpe_ratio")
+        trades = strat_perf.get("trade_count", 0)
+        last_reb = strat_perf.get("last_rebalance") or port_strat.get("last_rebalance") or "Never"
+        nav_history = port_strat.get("nav_history", [])
+
+        strategy_cards.append({
+            "code": code,
+            "name": port_strat.get("name", code),
+            "nav": _fmt_value(nav),
+            "total_return_pct": _fmt_pct(tr),
+            "total_return_cls": "up" if tr >= 0 else "dn",
+            "daily_return_pct": _fmt_pct(dr),
+            "mdd_pct": f"{mdd:.2f}%" if mdd else "0.00%",
+            "sharpe": f"{sharpe:.2f}" if sharpe is not None else "N/A",
+            "trade_count": trades,
+            "last_rebalance": last_reb if last_reb != "Never" else "—",
+            "sparkline_path": build_sparkline_path(nav_history),
+            "beat_spy": tr > spy_return_pct,
+        })
+
+    # Benchmark comparison bars
+    max_abs_return = max(abs(total_return_pct), abs(spy_return_pct), abs(qqq_return_pct), 0.01)
+    benchmarks = []
+    for name, val in [("Portfolio", total_return_pct), ("SPY", spy_return_pct), ("QQQ", qqq_return_pct)]:
+        benchmarks.append({
+            "name": name,
+            "return_val": val,
+            "return_pct": _fmt_pct(val),
+            "bar_width": min(100, abs(val) / max_abs_return * 100),
+        })
+
+    # Recent trades
+    recent_trades = []
+    for t in trade_log_entries[-15:]:
+        recent_trades.append({
+            "date": t.get("ts", "")[:10],
+            "strategy": t.get("strategy", ""),
+            "symbol": t.get("symbol", ""),
+            "side": t.get("side", ""),
+            "weight": f"{t.get('weight_pct', 0):.0%}",
+            "confidence": f"{t.get('confidence', 0):.2f}",
+            "status": t.get("status", ""),
+            "status_cls": "filled" if t.get("status") == "filled" else "dry",
+        })
+    recent_trades.reverse()
+
+    # Rebalance log from daily entries
+    rebalance_log = []
+    for entry in performance_data.get("daily", []):
+        for reb_code in entry.get("rebalances", []):
+            rebalance_log.append({
+                "date": entry.get("date", ""),
+                "strategy": reb_code,
+                "reason": "scheduled rebalance",
+            })
+
+    return {
+        "report_date": today,
+        "generated_at": generated_at,
+        "regime": regime,
+        "days_running": days_running,
+        "total_nav": _fmt_value(total_nav),
+        "total_change_amt": f"{'+'if total_change >= 0 else ''}{total_change:,.0f}",
+        "total_return_pct": _fmt_pct(total_return_pct),
+        "total_return_cls": "up" if total_return_pct >= 0 else "dn",
+        "spy_return_pct": _fmt_pct(spy_return_pct),
+        "qqq_return_pct": _fmt_pct(qqq_return_pct),
+        "alpha_vs_spy": _fmt_pct(alpha_vs_spy),
+        "strategies": strategy_cards,
+        "benchmarks": benchmarks,
+        "recent_trades": recent_trades,
+        "rebalance_log": rebalance_log,
+    }
+
+
+def generate_paper_dashboard(
+    performance_data: dict,
+    portfolios: dict,
+    trade_log_entries: list,
+    regime: str,
+    output_path: str = "docs/paper_dashboard.html",
+) -> bool:
+    """Paper Trading data → paper_dashboard.html 생성.
+
+    Completely separate from legacy generate_dashboard().
+    """
+    try:
+        from jinja2 import Environment, FileSystemLoader
+        templates_dir = Path(__file__).parent.parent / "templates"
+        env = Environment(loader=FileSystemLoader(str(templates_dir)), autoescape=False)
+
+        template = env.get_template("paper_dashboard.html")
+        ctx = _build_paper_dashboard_context(performance_data, portfolios, trade_log_entries, regime)
+        html = template.render(**ctx)
+
+        out = Path(output_path)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(html, encoding="utf-8")
+        print(f"  [paper-dashboard] saved: {out}", file=sys.stderr)
+        return True
+
+    except Exception as e:
+        print(f"  [paper-dashboard] generation failed: {e}", file=sys.stderr)
+        import traceback
+        traceback.print_exc(file=sys.stderr)
+        return False
+
+
 if __name__ == "__main__":
     # 독립 테스트 실행 (mock context)
     import json
