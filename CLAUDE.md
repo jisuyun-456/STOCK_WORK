@@ -34,12 +34,24 @@ ALPACA_MODE=paper          # "paper" or "live" — 코드 변경 없이 전환
 ```
 
 ## 전략 (strategies/)
-| 코드 | 전략 | 자본 | 리밸런싱 | 파일 |
-|------|------|------|---------|------|
-| MOM | Momentum (12-1M top 10) | 25% | 월간 | momentum.py |
-| VAL | Value Quality (P/E+ROE+FCF) | 25% | 분기 | value_quality.py |
-| QNT | Quant Factor (FF5) | 30% | 월간 | quant_factor.py |
-| LEV | Leveraged ETF 추세추종 | 20% | 일간 | leveraged_etf.py |
+| 코드 | 전략 | 자본 | 리밸런싱 | 파일 | 상태 |
+|------|------|------|---------|------|------|
+| MOM | Momentum (12-1M top 10) | Regime 동적 | 월간 | momentum.py | 운영 중 |
+| VAL | Value Quality (P/E+ROE+FCF) | Regime 동적 | 분기 | value_quality.py | 운영 중 |
+| QNT | Quant Factor (FF5) | Regime 동적 | 월간 | quant_factor.py | 운영 중 |
+| LEV | Leveraged ETF 추세추종 | Regime 동적 | 일간 | leveraged_etf.py | 운영 중 |
+
+### Regime Gateway (Phase 1.5)
+Bridgewater식 동적 배분. VIX(40%) + SPY/SMA200(30%) + Gemini 뉴스감성(30%)으로 Regime 판별.
+| Regime | MOM | VAL | QNT | LEV | CASH |
+|--------|-----|-----|-----|-----|------|
+| BULL | 30% | 20% | 25% | 25% | 0% |
+| NEUTRAL | 25% | 25% | 30% | 20% | 0% |
+| BEAR | 15% | 35% | 30% | 0% | 20% |
+| CRISIS | 10% | 30% | 20% | 0% | 40% |
+
+### 뉴스 감성 분석
+`news/` 모듈: yfinance 뉴스 수집 + Gemini API (무료) 감성 분석. Regime Detection에 30% 가중치.
 
 ## 에이전트 팀 (10명 하이브리드)
 
@@ -80,6 +92,7 @@ ALPACA_MODE=paper          # "paper" or "live" — 코드 변경 없이 전환
 
 ```
 Phase 1:   DATA      -> yfinance + Alpaca positions -> snapshot
+Phase 1.5: REGIME    -> VIX + SPY/SMA200 + Gemini 뉴스감성 -> Regime 판별 -> 전략별 자본 비중 결정
 Phase 2:   SIGNALS   -> strategy modules -> raw Signal[]
 Phase 2.5: RESEARCH  -> Research Division 5명 병렬 -> confidence 보정
 Phase 3:   RISK      -> risk_validator.py -> approved / failed

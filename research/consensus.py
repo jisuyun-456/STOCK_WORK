@@ -98,6 +98,114 @@ def _neutral_fallback(reason: str) -> RegimeDetection:
     )
 
 
+def detect_regime_enhanced(news_sentiment_score: float = 0.0) -> RegimeDetection:
+    """확장된 Regime Detection: VIX(40%) + SPY/SMA200(30%) + 뉴스감성(30%).
+
+    Args:
+        news_sentiment_score: -1.0 ~ +1.0 (뉴스 감성 점수, 기본값 0.0=중립)
+
+    VIX 점수 (0~1):
+        <20  → 1.0 (BULL)
+        20-25 → 0.6 (NEUTRAL)
+        25-30 → 0.3 (BEAR)
+        >30  → 0.0 (CRISIS)
+
+    SPY/SMA200 점수 (0~1):
+        >1.05        → 1.0 (BULL)
+        1.0-1.05     → 0.7 (NEUTRAL)
+        0.95-1.0     → 0.3 (BEAR)
+        <0.95        → 0.0 (CRISIS)
+
+    뉴스 감성 점수 변환 (0~1):
+        (news_sentiment_score + 1.0) / 2.0
+
+    합산:
+        composite = vix_score * 0.4 + spy_score * 0.3 + news_score * 0.3
+        composite > 0.7          → BULL
+        0.4 < composite <= 0.7   → NEUTRAL
+        0.2 < composite <= 0.4   → BEAR
+        composite <= 0.2         → CRISIS
+    """
+    try:
+        import yfinance as yf
+
+        spy = yf.Ticker("SPY")
+        hist = spy.history(period="1y")
+        if hist.empty:
+            return _neutral_fallback("No SPY data available (enhanced)")
+
+        current_price = hist["Close"].iloc[-1]
+        sma200 = hist["Close"].rolling(200).mean().iloc[-1]
+
+        vix_ticker = yf.Ticker("^VIX")
+        vix_hist = vix_ticker.history(period="5d")
+        vix_level = vix_hist["Close"].iloc[-1] if not vix_hist.empty else 20.0
+
+    except Exception as e:
+        return _neutral_fallback(f"Data fetch error (enhanced): {e}")
+
+    ratio = current_price / sma200 if sma200 > 0 else 1.0
+
+    # ── VIX 점수 (0~1) ──────────────────────────────────────────────────────
+    if vix_level < 20:
+        vix_score = 1.0
+    elif vix_level <= 25:
+        vix_score = 0.6
+    elif vix_level <= 30:
+        vix_score = 0.3
+    else:
+        vix_score = 0.0
+
+    # ── SPY/SMA200 점수 (0~1) ────────────────────────────────────────────────
+    if ratio > 1.05:
+        spy_score = 1.0
+    elif ratio >= 1.0:
+        spy_score = 0.7
+    elif ratio >= 0.95:
+        spy_score = 0.3
+    else:
+        spy_score = 0.0
+
+    # ── 뉴스 감성 점수 정규화 (0~1) ──────────────────────────────────────────
+    news_sentiment_score = max(-1.0, min(1.0, news_sentiment_score))  # clamp
+    news_score = (news_sentiment_score + 1.0) / 2.0
+
+    # ── 가중 합산 ────────────────────────────────────────────────────────────
+    composite = vix_score * 0.4 + spy_score * 0.3 + news_score * 0.3
+
+    print(
+        f"[detect_regime_enhanced] "
+        f"VIX={vix_level:.1f} → vix_score={vix_score:.2f} | "
+        f"SPY/SMA200={ratio:.4f} → spy_score={spy_score:.2f} | "
+        f"news_sentiment={news_sentiment_score:.2f} → news_score={news_score:.2f} | "
+        f"composite={composite:.4f}"
+    )
+
+    if composite > 0.7:
+        regime = "BULL"
+    elif composite > 0.4:
+        regime = "NEUTRAL"
+    elif composite > 0.2:
+        regime = "BEAR"
+    else:
+        regime = "CRISIS"
+
+    reasoning = (
+        f"Enhanced: VIX={vix_level:.1f}(score={vix_score:.2f}×0.4), "
+        f"SPY/SMA200={ratio:.4f}(score={spy_score:.2f}×0.3), "
+        f"news_sentiment={news_sentiment_score:.2f}(score={news_score:.2f}×0.3) "
+        f"→ composite={composite:.4f} → {regime}"
+    )
+
+    return RegimeDetection(
+        regime=regime,
+        sp500_vs_sma200=round(ratio, 4),
+        vix_level=round(vix_level, 2),
+        reasoning=reasoning,
+        timestamp=datetime.now(timezone.utc).isoformat(),
+    )
+
+
 def calculate_consensus(
     verdicts: list[ResearchVerdict],
     regime: str,

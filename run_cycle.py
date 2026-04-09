@@ -57,7 +57,7 @@ def save_portfolios(data: dict):
 # ─── Phase 1: DATA ──────────────────────────────────────────────────────
 
 def phase_data() -> dict:
-    """Fetch market data and current Alpaca positions."""
+    """Fetch all market data for 4 strategies + news."""
     print("[Phase 1: DATA] Fetching market data...")
 
     from strategies.momentum import fetch_momentum_data
@@ -90,28 +90,128 @@ def phase_data() -> dict:
     with open(SNAPSHOT_PATH, "w") as f:
         json.dump(snapshot, f, indent=2)
 
+    # VAL: FMP + yfinance 재무 데이터
+    try:
+        from strategies.value_quality import fetch_value_data
+        val_data = fetch_value_data()
+        market_data["fundamentals"] = val_data.get("fundamentals", {})
+        print(f"  VAL data: {len(market_data['fundamentals'])} stocks")
+    except Exception as e:
+        print(f"  VAL data fetch failed: {e}")
+        market_data["fundamentals"] = {}
+
+    # QNT: Kenneth French 팩터 데이터
+    try:
+        from strategies.quant_factor import fetch_factor_data
+        qnt_data = fetch_factor_data()
+        market_data["factors"] = qnt_data.get("factors")
+        market_data["qnt_prices"] = qnt_data.get("prices")  # QNT 전용 가격 추가
+        print(f"  QNT factor data: {'loaded' if market_data['factors'] is not None else 'failed'}")
+    except Exception as e:
+        print(f"  QNT factor fetch failed: {e}")
+        market_data["factors"] = None
+
+    # LEV: 레버리지 ETF 가격
+    try:
+        from strategies.leveraged_etf import fetch_leveraged_data
+        lev_data = fetch_leveraged_data()
+        market_data["leveraged"] = lev_data
+        lev_prices = lev_data.get('prices')
+        etf_count = len(lev_prices.columns) if lev_prices is not None and hasattr(lev_prices, 'columns') else 0
+        print(f"  LEV data: {etf_count} ETFs")
+    except Exception as e:
+        print(f"  LEV data fetch failed: {e}")
+        market_data["leveraged"] = {"prices": None}
+
+    # 뉴스 수집 (종목 리스트는 나중에 결정 — 여기서는 매크로만)
+    try:
+        from news.fetcher import fetch_macro_news
+        market_data["news"] = {"_MACRO": fetch_macro_news()}
+        print(f"  Macro news: {len(market_data['news']['_MACRO'])} articles")
+    except Exception as e:
+        print(f"  News fetch failed: {e}")
+        market_data["news"] = {}
+
     return market_data
+
+
+# ─── Phase 1.5: REGIME ──────────────────────────────────────────────────
+
+def phase_regime(market_data: dict) -> tuple:
+    """Phase 1.5: Regime Detection + Dynamic Allocation."""
+    print("[Phase 1.5: REGIME] Detecting market regime...")
+
+    # 뉴스 감성 분석
+    news_sentiment_score = 0.0
+    try:
+        from news.sentiment import analyze_sentiment
+        macro_news = market_data.get("news", {}).get("_MACRO", [])
+        if macro_news:
+            result = analyze_sentiment("_MACRO", macro_news)
+            news_sentiment_score = result.score
+            print(f"  News sentiment: {news_sentiment_score:+.2f} ({result.summary})")
+        else:
+            print("  News sentiment: 0.00 (no macro news)")
+    except Exception as e:
+        print(f"  News sentiment failed: {e} (using 0.0)")
+
+    # 확장된 Regime Detection
+    try:
+        from research.consensus import detect_regime_enhanced
+        regime_info = detect_regime_enhanced(news_sentiment_score)
+    except Exception as e:
+        print(f"  Regime detection failed: {e}")
+        from research.models import RegimeDetection
+        regime_info = RegimeDetection(
+            regime="NEUTRAL", sp500_vs_sma200=1.0, vix_level=20.0,
+            reasoning=f"Fallback: {e}", timestamp=datetime.now(timezone.utc).isoformat()
+        )
+
+    # 동적 배분
+    from strategies.regime_allocator import allocate
+
+    portfolios = load_portfolios()
+    total = portfolios.get("account_total", 100000)
+    allocations = allocate(regime_info.regime, total)
+
+    print(f"  Regime: {regime_info.regime} | VIX: {regime_info.vix_level}")
+    print(f"  Allocations: {', '.join(f'{k}=${v:,.0f}' for k, v in allocations.items())}")
+
+    return regime_info, allocations
 
 
 # ─── Phase 2: SIGNALS ───────────────────────────────────────────────────
 
-def phase_signals(market_data: dict) -> list:
+def phase_signals(market_data: dict, regime: str = "NEUTRAL", allocations: dict = None) -> list:
     """Run all strategy modules and collect signals."""
     print("[Phase 2: SIGNALS] Running strategy modules...")
 
     from strategies.momentum import MomentumStrategy
+    from strategies.value_quality import ValueQualityStrategy
+    from strategies.quant_factor import QuantFactorStrategy
+    from strategies.leveraged_etf import LeveragedETFStrategy
 
     strategies = [
         MomentumStrategy(),
-        # Phase 4 will add: ValueQualityStrategy(), QuantFactorStrategy(), LeveragedETFStrategy()
+        ValueQualityStrategy(),
+        QuantFactorStrategy(),
+        LeveragedETFStrategy(),
     ]
 
     all_signals = []
     for strat in strategies:
+        # 배분 $1 미만이면 사실상 0으로 스킵 (부동소수점 비교 회피)
+        if allocations and allocations.get(strat.name, 0) < 1.0:
+            print(f"  {strat.name}: SKIPPED (regime={regime}, allocation=$0)")
+            continue
+
+        # Regime 정보 주입
+        strat.regime = regime
+
         signals = strat.generate_signals(market_data)
         print(f"  {strat.name}: {len(signals)} signals")
         for s in signals:
-            print(f"    {s.symbol} {s.direction.value} {s.weight_pct:.0%} conf={s.confidence:.2f} -{s.reason}")
+            print(f"    {s.symbol} {s.direction.value} {s.weight_pct:.0%} conf={s.confidence:.2f} — {s.reason}")
         all_signals.extend(signals)
 
     return all_signals
@@ -303,9 +403,18 @@ def phase_report(signals: list, execution_results: list, regime=None):
 
     # Regime info
     if regime:
+        if hasattr(regime, 'regime'):
+            regime_str = regime.regime
+            regime_reasoning = getattr(regime, 'reasoning', '')
+        elif isinstance(regime, str):
+            regime_str = regime
+            regime_reasoning = ''
+        else:
+            regime_str = "UNKNOWN"
+            regime_reasoning = ''
         lines.extend([
-            f"## Market Regime: {regime.regime}",
-            f"{regime.reasoning}",
+            f"## Market Regime: {regime_str}",
+            f"{regime_reasoning}",
             "",
         ])
 
@@ -365,24 +474,36 @@ def main():
     else:
         market_data = None
 
+    # Phase 1.5: REGIME (NEW)
+    regime_info = None
+    allocations = None
+    if args.phase in ("all",):
+        if market_data is None:
+            from strategies.momentum import fetch_momentum_data
+            market_data = fetch_momentum_data(days=400)
+        regime_info, allocations = phase_regime(market_data)
+        regime = regime_info.regime if regime_info else "NEUTRAL"
+        print()
+    else:
+        regime = "NEUTRAL"
+
     # Phase 2: SIGNALS
     if args.phase in ("all", "signals"):
         if market_data is None:
             from strategies.momentum import fetch_momentum_data
             market_data = fetch_momentum_data(days=400)
-        signals = phase_signals(market_data)
+        signals = phase_signals(market_data, regime=regime, allocations=allocations)
         print()
     else:
         signals = []
 
     # Phase 2.5: RESEARCH
-    regime = None
     research_verdicts = {}
     if args.phase in ("all", "research"):
         if market_data is None:
             from strategies.momentum import fetch_momentum_data
             market_data = fetch_momentum_data(days=400)
-        signals, regime, research_verdicts = phase_research(
+        signals, _research_regime, research_verdicts = phase_research(
             signals, market_data, research_mode, args.no_cache
         )
         print()
@@ -420,7 +541,7 @@ def main():
 
     # Phase 6: REPORT
     if args.phase in ("all", "report"):
-        phase_report(resolved, results, regime=regime)
+        phase_report(resolved, results, regime=regime_info)
         print()
 
     print("=== Cycle Complete ===")
