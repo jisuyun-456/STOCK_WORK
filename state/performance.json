@@ -18,7 +18,7 @@
       "sharpe_ratio": null,
       "win_rate": null,
       "trade_count": 0,
-      "dry_run_count": 50,
+      "dry_run_count": 60,
       "peak_nav": 25000,
       "last_rebalance": null
     },
@@ -30,7 +30,7 @@
       "sharpe_ratio": null,
       "win_rate": null,
       "trade_count": 0,
-      "dry_run_count": 15,
+      "dry_run_count": 20,
       "peak_nav": 25000,
       "last_rebalance": null
     },
@@ -42,7 +42,7 @@
       "sharpe_ratio": null,
       "win_rate": null,
       "trade_count": 0,
-      "dry_run_count": 60,
+      "dry_run_count": 80,
       "peak_nav": 30000,
       "last_rebalance": null
     },
