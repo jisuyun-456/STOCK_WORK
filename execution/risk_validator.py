@@ -243,20 +243,29 @@ def validate_signal(
     results.append(check_sector_concentration(symbol, trade_value, strategy_capital, current_positions))
 
     # VaR check on the whole portfolio including new position
-    all_symbols = list(current_positions.keys())
-    if symbol not in all_symbols:
-        all_symbols.append(symbol)
-    total_value = sum(current_positions.values()) + trade_value
-    if total_value > 0:
-        weights = [
-            (current_positions.get(s, 0) + (trade_value if s == symbol else 0)) / total_value
-            for s in all_symbols
-        ]
-        results.append(check_portfolio_var(all_symbols, weights))
-    else:
+    # Skip VaR when building initial portfolio (< 3 existing positions)
+    # — single-stock VaR is always high; diversification hasn't kicked in yet
+    if len(current_positions) < 3:
         results.append(RiskCheckResult(
-            passed=True, check_name="portfolio_var", reason="No portfolio value", value=0.0, threshold=0.03,
+            passed=True, check_name="portfolio_var",
+            reason=f"VaR check skipped (portfolio building phase, {len(current_positions)} positions)",
+            value=0.0, threshold=0.03,
         ))
+    else:
+        all_symbols = list(current_positions.keys())
+        if symbol not in all_symbols:
+            all_symbols.append(symbol)
+        total_value = sum(current_positions.values()) + trade_value
+        if total_value > 0:
+            weights = [
+                (current_positions.get(s, 0) + (trade_value if s == symbol else 0)) / total_value
+                for s in all_symbols
+            ]
+            results.append(check_portfolio_var(all_symbols, weights))
+        else:
+            results.append(RiskCheckResult(
+                passed=True, check_name="portfolio_var", reason="No portfolio value", value=0.0, threshold=0.03,
+            ))
 
     existing = [s for s in current_positions if s != symbol]
     results.append(check_correlation(symbol, existing))

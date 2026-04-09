@@ -1,13 +1,26 @@
 {
   "account_total": 100000,
-  "last_updated": null,
+  "last_updated": "2026-04-09T02:52:56.642844+00:00",
   "strategies": {
     "MOM": {
       "name": "Momentum",
       "allocated": 25000,
       "cash": 25000,
       "positions": {},
-      "nav_history": [],
+      "nav_history": [
+        {
+          "date": "2026-04-09",
+          "nav": 25000
+        },
+        {
+          "date": "2026-04-09",
+          "nav": 25000
+        },
+        {
+          "date": "2026-04-09",
+          "nav": 25000
+        }
+      ],
       "last_rebalance": null
     },
     "VAL": {
@@ -15,7 +28,20 @@
       "allocated": 25000,
       "cash": 25000,
       "positions": {},
-      "nav_history": [],
+      "nav_history": [
+        {
+          "date": "2026-04-09",
+          "nav": 25000
+        },
+        {
+          "date": "2026-04-09",
+          "nav": 25000
+        },
+        {
+          "date": "2026-04-09",
+          "nav": 25000
+        }
+      ],
       "last_rebalance": null
     },
     "QNT": {
@@ -23,7 +49,20 @@
       "allocated": 30000,
       "cash": 30000,
       "positions": {},
-      "nav_history": [],
+      "nav_history": [
+        {
+          "date": "2026-04-09",
+          "nav": 30000
+        },
+        {
+          "date": "2026-04-09",
+          "nav": 30000
+        },
+        {
+          "date": "2026-04-09",
+          "nav": 30000
+        }
+      ],
       "last_rebalance": null
     },
     "LEV": {
@@ -31,7 +70,20 @@
       "allocated": 20000,
       "cash": 20000,
       "positions": {},
-      "nav_history": [],
+      "nav_history": [
+        {
+          "date": "2026-04-09",
+          "nav": 20000
+        },
+        {
+          "date": "2026-04-09",
+          "nav": 20000
+        },
+        {
+          "date": "2026-04-09",
+          "nav": 20000
+        }
+      ],
       "last_rebalance": null
     }
   }
