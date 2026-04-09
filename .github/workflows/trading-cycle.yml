@@ -1,0 +1,92 @@
+name: 🤖 Paper Trading Cycle
+
+on:
+  schedule:
+    # 평일 22:30 KST = 13:30 UTC (US 시장 오픈 직후)
+    - cron: '30 13 * * 1-5'  # Mon-Fri UTC
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (주문 미실행, 시뮬레이션만)'
+        type: boolean
+        default: false
+      research_mode:
+        description: 'Research Overlay 깊이'
+        type: choice
+        options:
+          - selective
+          - full
+          - skip
+        default: selective
+
+jobs:
+  run-trading-cycle:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # state/*.json, reports/ push 권한
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run trading cycle
+        env:
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+          ALPACA_MODE: ${{ secrets.ALPACA_MODE || 'paper' }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          # workflow_dispatch: 입력값 사용 / schedule: selective + 실전 paper
+          DRY_RUN_FLAG=""
+          RESEARCH_MODE="${{ github.event.inputs.research_mode || 'skip' }}"
+
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            DRY_RUN_FLAG="--dry-run"
+            echo "Mode: DRY RUN | Research: $RESEARCH_MODE"
+          else
+            echo "Mode: LIVE PAPER | Research: $RESEARCH_MODE"
+          fi
+
+          python run_cycle.py \
+            --phase all \
+            --research-mode "$RESEARCH_MODE" \
+            $DRY_RUN_FLAG
+
+      - name: Commit state & reports
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add \
+            state/portfolios.json \
+            state/trade_log.jsonl \
+            state/snapshot.json \
+            state/research_cache.json \
+            state/dissent_log.jsonl \
+            reports/daily/
+
+          git diff --cached --quiet || \
+            git commit -m "chore: trading cycle 자동 실행 $(date +'%Y-%m-%d %H:%M UTC')"
+          git push
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trading-cycle-${{ github.run_id }}
+          path: |
+            reports/daily/
+            state/trade_log.jsonl
+            state/snapshot.json
+          retention-days: 30
