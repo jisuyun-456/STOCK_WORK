@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paper Trading Dashboard — 2026-04-09</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,600&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:          #fcf9f4;
+    --bg2:         #f5f0eb;
+    --bg3:         #f0e8e2;
+    --border:      #dbc1b9;
+    --border-lite: #e8d5ce;
+    --text:        #1c1410;
+    --muted:       #6b5a54;
+    --muted-lite:  #9a8078;
+    --up:          #1E7A45;
+    --up-dim:      #d4f0e0;
+    --down:        #99462a;
+    --down-dim:    #f2e0d9;
+    --gold:        #815600;
+    --gold-dim:    #f5e6c8;
+    --primary:     #99462a;
+    --teal:        #1a6b7a;
+    --teal-dim:    #d4eaf0;
+    --font:        'Inter', 'Noto Sans KR', system-ui, sans-serif;
+    --font-serif:  'Newsreader', 'Noto Sans KR', Georgia, serif;
+    --font-mono:   'DM Mono', 'Fira Code', Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 13px; min-height: 100vh; }
+
+  /* ── HEADER ── */
+  .hdr {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    background: rgba(252,249,244,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1.5px solid var(--border);
+    display: flex; align-items: center; gap: 20px;
+    padding: 0 24px; height: 48px;
+  }
+  .hdr-logo { font-family: var(--font-serif); font-style: italic; font-size: 15px; color: var(--primary); }
+  .hdr-logo span { color: var(--muted); font-style: normal; font-family: var(--font); font-size: 10px; margin-left: 6px; }
+  .hdr-nav { display: flex; align-items: center; gap: 16px; margin-left: auto; font-size: 11px; color: var(--muted); }
+  .hdr-regime {
+    padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: 600;
+    letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  .regime-BULL, .regime-NEUTRAL { background: var(--up-dim); color: var(--up); }
+  .regime-BEAR { background: var(--down-dim); color: var(--down); }
+  .regime-CRISIS { background: var(--down-dim); color: var(--down); border: 1px solid var(--down); }
+
+  /* ── MAIN ── */
+  .main { padding: 64px 24px 24px; max-width: 1200px; margin: 0 auto; }
+
+  /* ── HERO ── */
+  .hero { text-align: center; margin-bottom: 28px; }
+  .hero-nav { font-family: var(--font-mono); font-size: 32px; font-weight: 700; letter-spacing: -1px; }
+  .hero-change { font-size: 14px; margin-top: 4px; }
+  .hero-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .up { color: var(--up); }
+  .dn { color: var(--down); }
+  .nt { color: var(--muted); }
+
+  /* ── STRATEGY CARDS ── */
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  @media (max-width: 800px) { .cards { grid-template-columns: repeat(2, 1fr); } }
+  .card {
+    background: var(--bg2); border: 1px solid var(--border-lite); border-radius: 10px;
+    padding: 16px; position: relative; overflow: hidden;
+  }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .card-code { font-weight: 700; font-size: 14px; }
+  .card-name { font-size: 10px; color: var(--muted); }
+  .card-beat { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 8px; }
+  .beat-yes { background: var(--up-dim); color: var(--up); }
+  .beat-no { background: var(--down-dim); color: var(--down); }
+
+  .card-nav { font-family: var(--font-mono); font-size: 20px; font-weight: 600; }
+  .card-return { font-size: 12px; margin-top: 4px; }
+  .card-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 12px; font-size: 11px; }
+  .card-metric-label { color: var(--muted); }
+  .card-metric-val { font-weight: 500; text-align: right; }
+
+  .sparkline { margin-top: 8px; }
+  .sparkline svg { width: 100%; height: 30px; }
+  .sparkline path { fill: none; stroke: var(--teal); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ── BENCHMARK BAR ── */
+  .bench { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+  .bench-item { flex: 1; min-width: 160px; background: var(--bg2); border: 1px solid var(--border-lite); border-radius: 8px; padding: 12px; }
+  .bench-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .bench-bar-wrap { height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+  .bench-bar { height: 100%; border-radius: 3px; transition: width 0.5s; }
+  .bench-bar.pos { background: var(--up); }
+  .bench-bar.neg { background: var(--down); }
+  .bench-val { font-size: 12px; font-weight: 600; margin-top: 4px; }
+
+  /* ── TABLES ── */
+  .section { margin-bottom: 24px; }
+  .section-title { font-size: 13px; font-weight: 700; letter-spacing: 0.3px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border-lite); }
+  table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  th { text-align: left; font-weight: 600; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--border); font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; }
+  td { padding: 6px 8px; border-bottom: 1px solid var(--border-lite); }
+  tr:last-child td { border-bottom: none; }
+
+  .tag { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 600; }
+  .tag-buy { background: var(--up-dim); color: var(--up); }
+  .tag-sell { background: var(--down-dim); color: var(--down); }
+  .tag-dry { background: var(--gold-dim); color: var(--gold); }
+  .tag-filled { background: var(--up-dim); color: var(--up); }
+  .tag-rebal { background: var(--teal-dim); color: var(--teal); }
+
+  /* ── FOOTER ── */
+  .footer { text-align: center; padding: 16px; font-size: 10px; color: var(--muted-lite); border-top: 1px solid var(--border-lite); margin-top: 16px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-logo">Paper Trading Desk <span>4-Strategy Quant System</span></div>
+  <div class="hdr-nav">
+    <span class="hdr-regime regime-NEUTRAL">NEUTRAL</span>
+    <span>Day 1</span>
+    <span>2026-04-09 16:49 UTC</span>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-nav">$100,000</div>
+    <div class="hero-change">
+      <span class="up">+0 (+0.00%)</span>
+    </div>
+    <div class="hero-meta">
+      vs SPY +0.00% · vs QQQ +0.00% · Alpha +0.00%
+    </div>
+  </div>
+
+  <!-- STRATEGY CARDS -->
+  <div class="cards">
+    
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <span class="card-code">MOM</span>
+          <span class="card-name">Momentum</span>
+        </div>
+        
+        <span class="card-beat beat-no">▼ SPY</span>
+        
+      </div>
+      <div class="card-nav up">$25,000</div>
+      <div class="card-return">
+        <span class="up">+0.00%</span>
+        <span class="nt"> · today +0.00%</span>
+      </div>
+      <div class="card-metrics">
+        <span class="card-metric-label">MDD</span>
+        <span class="card-metric-val">0.00%</span>
+        <span class="card-metric-label">Sharpe</span>
+        <span class="card-metric-val">N/A</span>
+        <span class="card-metric-label">Trades</span>
+        <span class="card-metric-val">0</span>
+        <span class="card-metric-label">Rebalance</span>
+        <span class="card-metric-val">—</span>
+      </div>
+      
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <span class="card-code">VAL</span>
+          <span class="card-name">Value Quality</span>
+        </div>
+        
+        <span class="card-beat beat-no">▼ SPY</span>
+        
+      </div>
+      <div class="card-nav up">$25,000</div>
+      <div class="card-return">
+        <span class="up">+0.00%</span>
+        <span class="nt"> · today +0.00%</span>
+      </div>
+      <div class="card-metrics">
+        <span class="card-metric-label">MDD</span>
+        <span class="card-metric-val">0.00%</span>
+        <span class="card-metric-label">Sharpe</span>
+        <span class="card-metric-val">N/A</span>
+        <span class="card-metric-label">Trades</span>
+        <span class="card-metric-val">0</span>
+        <span class="card-metric-label">Rebalance</span>
+        <span class="card-metric-val">—</span>
+      </div>
+      
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <span class="card-code">QNT</span>
+          <span class="card-name">Quant Factor</span>
+        </div>
+        
+        <span class="card-beat beat-no">▼ SPY</span>
+        
+      </div>
+      <div class="card-nav up">$30,000</div>
+      <div class="card-return">
+        <span class="up">+0.00%</span>
+        <span class="nt"> · today +0.00%</span>
+      </div>
+      <div class="card-metrics">
+        <span class="card-metric-label">MDD</span>
+        <span class="card-metric-val">0.00%</span>
+        <span class="card-metric-label">Sharpe</span>
+        <span class="card-metric-val">N/A</span>
+        <span class="card-metric-label">Trades</span>
+        <span class="card-metric-val">0</span>
+        <span class="card-metric-label">Rebalance</span>
+        <span class="card-metric-val">—</span>
+      </div>
+      
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <span class="card-code">LEV</span>
+          <span class="card-name">Leveraged ETF</span>
+        </div>
+        
+        <span class="card-beat beat-no">▼ SPY</span>
+        
+      </div>
+      <div class="card-nav up">$20,000</div>
+      <div class="card-return">
+        <span class="up">+0.00%</span>
+        <span class="nt"> · today +0.00%</span>
+      </div>
+      <div class="card-metrics">
+        <span class="card-metric-label">MDD</span>
+        <span class="card-metric-val">0.00%</span>
+        <span class="card-metric-label">Sharpe</span>
+        <span class="card-metric-val">N/A</span>
+        <span class="card-metric-label">Trades</span>
+        <span class="card-metric-val">0</span>
+        <span class="card-metric-label">Rebalance</span>
+        <span class="card-metric-val">—</span>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  <!-- BENCHMARK COMPARISON -->
+  <div class="bench">
+    
+    <div class="bench-item">
+      <div class="bench-label">Portfolio</div>
+      <div class="bench-bar-wrap">
+        <div class="bench-bar pos" style="width: 0.0%"></div>
+      </div>
+      <div class="bench-val up">+0.00%</div>
+    </div>
+    
+    <div class="bench-item">
+      <div class="bench-label">SPY</div>
+      <div class="bench-bar-wrap">
+        <div class="bench-bar pos" style="width: 0.0%"></div>
+      </div>
+      <div class="bench-val up">+0.00%</div>
+    </div>
+    
+    <div class="bench-item">
+      <div class="bench-label">QQQ</div>
+      <div class="bench-bar-wrap">
+        <div class="bench-bar pos" style="width: 0.0%"></div>
+      </div>
+      <div class="bench-val up">+0.00%</div>
+    </div>
+    
+  </div>
+
+  <!-- RECENT TRADES -->
+  <div class="section">
+    <div class="section-title">Recent Trades</div>
+    <table>
+      <thead>
+        <tr><th>Date</th><th>Strategy</th><th>Symbol</th><th>Side</th><th>Weight</th><th>Confidence</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td>2026-04-09</td>
+          <td>QNT</td>
+          <td><strong>FDX</strong></td>
+          <td><span class="tag tag-buy">buy</span></td>
+          <td>5%</td>
+          <td>0.50</td>
+          <td><span class="tag tag-dry">dry_run</span></td>
+        </tr>
+        
+        <tr>
+          <td>2026-04-09</td>
+          <td>QNT</td>
+          <td><strong>HAL</strong></td>
+          <td><span class="tag tag-buy">buy</span></td>
+          <td>5%</td>
+          <td>0.50</td>
+          <td><span class="tag tag-dry">dry_run</span></td>
+        </tr>
+        
+        <tr>
+          <td>2026-04-09</td>
+          <td>QNT</td>
+          <td><strong>RTX</strong></td>
+          <td><span class="tag tag-buy">buy</span></td>
+          <td>5%</td>
+          <td>0.51</td>
+          <td><span class="tag tag-dry">dry_run</span></td>
+        </tr>
+        
+        <tr>
+          <td>2026-04-09</td>
+          <td>QNT</td>
+          <td><strong>GS</strong></td>
+          <td><span class="tag tag-buy">buy</span></td>
+          <td>5%</td>
+          <td>0.51</td>
+          <td><span class="tag tag-dry">dry_run</span></td>
+        </tr>
+        
+        <tr>
+          <td>2026-04-09</td>
+          <td>QNT</td>
+          <td><strong>MPC</strong></td>
+          <td><span class="tag tag-buy">buy</span></td>
+          <td>5%</td>
+          <td>0.51</td>
+          <td><span class="tag tag-dry">dry_run</span></td>
+        </tr>
+        
+        <tr>
+          <td>2026-04-09</td>
+          <td>QNT</td>
+          <td><strong>MRVL</strong></td>
+          <td><span class="tag tag-buy">buy</span></td>
+          <td>5%</td>
+          <td>0.51</td>
+          <td><span class="tag tag-dry">dry_run</span></td>
+        </tr>
+        
+        <tr>
+          <td>2026-04-09</td>
+          <td>QNT</td>
+          <td><strong>C</strong></td>
+          <td><span class="tag tag-buy">buy</span></td>
+          <td>5%</td>
+          <td>0.51</td>
+          <td><span class="tag tag-dry">dry_run</span></td>
+        </tr>
+        
+        <tr>
+          <td>2026-04-09</td>
+          <td>QNT</td>
+          <td><strong>NVDA</strong></td>
+          <td><span class="tag tag-buy">buy</span></td>
+          <td>5%</td>
+          <td>0.52</td>
+          <td><span class="tag tag-dry">dry_run</span></td>
+        </tr>
+        
+        <tr>
+          <td>2026-04-09</td>
+          <td>QNT</td>
+          <td><strong>GE</strong></td>
+          <td><span class="tag tag-buy">buy</span></td>
+          <td>5%</td>
+          <td>0.52</td>
+          <td><span class="tag tag-dry">dry_run</span></td>
+        </tr>
+        
+        <tr>
+          <td>2026-04-09</td>
+          <td>QNT</td>
+          <td><strong>ADI</strong></td>
+          <td><span class="tag tag-buy">buy</span></td>
+          <td>5%</td>
+          <td>0.53</td>
+          <td><span class="tag tag-dry">dry_run</span></td>
+        </tr>
+        
+        <tr>
+          <td>2026-04-09</td>
+          <td>QNT</td>
+          <td><strong>GOOGL</strong></td>
+          <td><span class="tag tag-buy">buy</span></td>
+          <td>5%</td>
+          <td>0.54</td>
+          <td><span class="tag tag-dry">dry_run</span></td>
+        </tr>
+        
+        <tr>
+          <td>2026-04-09</td>
+          <td>QNT</td>
+          <td><strong>VLO</strong></td>
+          <td><span class="tag tag-buy">buy</span></td>
+          <td>5%</td>
+          <td>0.54</td>
+          <td><span class="tag tag-dry">dry_run</span></td>
+        </tr>
+        
+        <tr>
+          <td>2026-04-09</td>
+          <td>QNT</td>
+          <td><strong>CAT</strong></td>
+          <td><span class="tag tag-buy">buy</span></td>
+          <td>5%</td>
+          <td>0.58</td>
+          <td><span class="tag tag-dry">dry_run</span></td>
+        </tr>
+        
+        <tr>
+          <td>2026-04-09</td>
+          <td>QNT</td>
+          <td><strong>MU</strong></td>
+          <td><span class="tag tag-buy">buy</span></td>
+          <td>5%</td>
+          <td>1.00</td>
+          <td><span class="tag tag-dry">dry_run</span></td>
+        </tr>
+        
+        <tr>
+          <td>2026-04-09</td>
+          <td>VAL</td>
+          <td><strong>CB</strong></td>
+          <td><span class="tag tag-buy">buy</span></td>
+          <td>20%</td>
+          <td>0.50</td>
+          <td><span class="tag tag-dry">dry_run</span></td>
+        </tr>
+        
+        
+      </tbody>
+    </table>
+  </div>
+
+  <!-- REBALANCE LOG -->
+  
+
+</div>
+
+<footer class="footer">
+  Paper Trading System · 4 Strategies · Alpaca Paper API · Generated 2026-04-09 16:49 UTC
+</footer>
+
+</body>
+</html>
