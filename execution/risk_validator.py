@@ -205,6 +205,23 @@ def check_cash_buffer(
 
 # ---------- Aggregate validator ----------
 
+# Strategy-specific position limits (default 20%, LEV allows 50% per ETF)
+STRATEGY_POSITION_LIMITS: dict[str, float] = {
+    "MOM": 0.20,
+    "VAL": 0.25,
+    "QNT": 0.15,
+    "LEV": 0.50,  # Only 3 ETFs, each can hold up to 50%
+}
+
+# Strategy-specific sector concentration limits (default 40%, LEV allows 100%)
+STRATEGY_SECTOR_LIMITS: dict[str, float] = {
+    "MOM": 0.40,
+    "VAL": 0.40,
+    "QNT": 0.40,
+    "LEV": 1.00,  # All ETF-Leveraged sector by design
+}
+
+
 def validate_signal(
     symbol: str,
     side: str,
@@ -212,6 +229,7 @@ def validate_signal(
     strategy_capital: float,
     strategy_cash: float,
     current_positions: dict[str, float],
+    strategy_code: str = "",
 ) -> tuple[bool, list[RiskCheckResult]]:
     """Run all 5 risk checks on a proposed trade.
 
@@ -222,6 +240,7 @@ def validate_signal(
         strategy_capital: Total allocated capital for this strategy
         strategy_cash: Available cash in this strategy
         current_positions: Dict of {symbol: market_value} for current holdings
+        strategy_code: Strategy identifier ("MOM", "VAL", "QNT", "LEV")
 
     Returns:
         (all_passed, list of RiskCheckResult)
@@ -239,8 +258,11 @@ def validate_signal(
         return all(r.passed for r in results), results
 
     # Buy orders: full 5-gate validation
-    results.append(check_position_limit(symbol, trade_value, strategy_capital, current_positions))
-    results.append(check_sector_concentration(symbol, trade_value, strategy_capital, current_positions))
+    pos_limit = STRATEGY_POSITION_LIMITS.get(strategy_code, 0.20)
+    results.append(check_position_limit(symbol, trade_value, strategy_capital, current_positions, max_pct=pos_limit))
+
+    sector_limit = STRATEGY_SECTOR_LIMITS.get(strategy_code, 0.40)
+    results.append(check_sector_concentration(symbol, trade_value, strategy_capital, current_positions, max_pct=sector_limit))
 
     # VaR check on the whole portfolio including new position
     # Skip VaR when building initial portfolio (< 3 existing positions)

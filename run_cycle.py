@@ -269,6 +269,7 @@ def phase_risk(signals: list) -> tuple[list, list, list]:
             strategy_capital=capital,
             strategy_cash=cash,
             current_positions=current_positions,
+            strategy_code=signal.strategy,
         )
 
         status = "PASS" if passed else "FAIL"
