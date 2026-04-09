@@ -1,23 +1,29 @@
 #!/usr/bin/env python3
-"""Paper Trading Cycle -7-phase automated pipeline.
+"""Paper Trading Cycle -9-phase automated pipeline (Phase 2.5 Research Overlay).
 
 Usage:
     python run_cycle.py --phase all              # Run full cycle
     python run_cycle.py --phase all --dry-run    # Simulate without orders
     python run_cycle.py --phase data             # Data fetch only
     python run_cycle.py --phase signals          # Generate signals only
+    python run_cycle.py --phase research         # Research overlay only
     python run_cycle.py --phase risk             # Risk validation only
     python run_cycle.py --phase execute          # Execute approved signals
     python run_cycle.py --phase report           # Generate report only
 
+    --research-mode {full|selective|skip}         # Research depth (default: full)
+    --no-cache                                    # Bypass research cache
+
 Phases:
-    1. DATA      -fetch market data + Alpaca positions
-    2. SIGNALS   -run strategy modules, generate signals
-    3. RISK      -validate each signal through risk gates
-    4. RESOLVE   -resolve conflicting signals (rule-based)
-    5. EXECUTE   -submit orders to Alpaca Paper API
-    6. REPORT    -update performance.json + daily report
-    7. COMMIT    -(handled by GitHub Actions, not this script)
+    1.   DATA      -fetch market data + Alpaca positions
+    2.   SIGNALS   -run strategy modules, generate signals
+    2.5  RESEARCH  -Research Division 5-agent parallel analysis (NEW)
+    3.   RISK      -validate each signal through risk gates
+    3.5  APPEAL    -Risk-FAIL signals → Research appeal (NEW)
+    4.   RESOLVE   -resolve conflicting signals (rule-based)
+    5.   EXECUTE   -submit orders to Alpaca Paper API
+    6.   REPORT    -update performance.json + daily report
+    7.   COMMIT    -(handled by GitHub Actions, not this script)
 """
 
 from __future__ import annotations
@@ -56,7 +62,6 @@ def phase_data() -> dict:
 
     from strategies.momentum import fetch_momentum_data
 
-    # Fetch price data for all strategies (momentum needs 252+ days)
     market_data = fetch_momentum_data(days=400)
     prices = market_data.get("prices")
 
@@ -65,7 +70,6 @@ def phase_data() -> dict:
     else:
         print("  WARNING: No price data fetched")
 
-    # Try to fetch Alpaca positions (may fail if no .env)
     alpaca_positions = []
     try:
         from execution.alpaca_client import get_positions, get_account_info
@@ -82,7 +86,6 @@ def phase_data() -> dict:
         "alpaca_positions": alpaca_positions,
     }
 
-    # Save snapshot metadata (not the full price data -too large)
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     with open(SNAPSHOT_PATH, "w") as f:
         json.dump(snapshot, f, indent=2)
@@ -114,23 +117,45 @@ def phase_signals(market_data: dict) -> list:
     return all_signals
 
 
+# ─── Phase 2.5: RESEARCH (NEW) ──────────────────────────────────────────
+
+def phase_research(signals: list, market_data: dict, research_mode: str, no_cache: bool):
+    """Run Research Overlay -5-agent parallel analysis + confidence adjustment."""
+    from research.overlay import run_research_overlay
+
+    portfolios = load_portfolios()
+    adjusted_signals, regime, verdicts = run_research_overlay(
+        signals=signals,
+        market_data=market_data,
+        portfolio_state=portfolios,
+        research_mode=research_mode,
+        no_cache=no_cache,
+    )
+    return adjusted_signals, regime, verdicts
+
+
 # ─── Phase 3: RISK ──────────────────────────────────────────────────────
 
-def phase_risk(signals: list) -> list:
-    """Validate each signal through risk gates."""
+def phase_risk(signals: list) -> tuple[list, list, list]:
+    """Validate each signal through risk gates.
+
+    Returns:
+        (approved, failed_signals, failed_details)
+    """
     print("[Phase 3: RISK] Validating signals...")
 
     from execution.risk_validator import validate_signal
 
     portfolios = load_portfolios()
     approved = []
+    failed_signals = []
+    failed_details = []
 
     for signal in signals:
         strat_data = portfolios["strategies"].get(signal.strategy, {})
         capital = strat_data.get("allocated", 0)
         cash = strat_data.get("cash", 0)
 
-        # Build current positions map for this strategy
         current_positions = {}
         for sym, pos in strat_data.get("positions", {}).items():
             current_positions[sym] = pos.get("qty", 0) * pos.get("current", 0)
@@ -156,9 +181,35 @@ def phase_risk(signals: list) -> list:
 
         if passed:
             approved.append(signal)
+        else:
+            failed_signals.append(signal)
+            failed_details.append({
+                "symbol": signal.symbol,
+                "strategy": signal.strategy,
+                "failed_checks": failed_checks,
+            })
 
     print(f"  Approved: {len(approved)} / {len(signals)}")
-    return approved
+    return approved, failed_signals, failed_details
+
+
+# ─── Phase 3.5: APPEAL (NEW) ────────────────────────────────────────────
+
+def phase_appeal(failed_signals: list, failed_details: list,
+                 research_verdicts: dict, market_data: dict, regime):
+    """Appeal loop: Risk-FAIL signals get Research Division re-review."""
+    from research.overlay import run_appeal
+
+    portfolios = load_portfolios()
+    appealed = run_appeal(
+        failed_signals=failed_signals,
+        risk_results=failed_details,
+        research_verdicts=research_verdicts,
+        market_data=market_data,
+        portfolio_state=portfolios,
+        regime=regime,
+    )
+    return appealed
 
 
 # ─── Phase 4: RESOLVE ───────────────────────────────────────────────────
@@ -167,7 +218,8 @@ def phase_resolve(signals: list) -> list:
     """Resolve conflicting signals (same symbol, different strategies)."""
     print("[Phase 4: RESOLVE] Checking for conflicts...")
 
-    # Group signals by symbol
+    from strategies.base_strategy import Direction
+
     by_symbol: dict[str, list] = {}
     for s in signals:
         by_symbol.setdefault(s.symbol, []).append(s)
@@ -178,21 +230,17 @@ def phase_resolve(signals: list) -> list:
             resolved.append(group[0])
             continue
 
-        # Conflict: multiple strategies want the same symbol
         buy_signals = [s for s in group if s.direction == Direction.BUY]
         sell_signals = [s for s in group if s.direction == Direction.SELL]
 
         if buy_signals and sell_signals:
-            # BUY vs SELL conflict -pick higher confidence
             all_sorted = sorted(group, key=lambda s: s.confidence, reverse=True)
             winner = all_sorted[0]
             print(f"  CONFLICT {symbol}: {len(buy_signals)} BUY vs {len(sell_signals)} SELL → {winner.strategy} {winner.direction.value} (conf={winner.confidence:.2f})")
             resolved.append(winner)
         else:
-            # Multiple strategies want same direction -allow all (different sub-portfolios)
             resolved.extend(group)
 
-    from strategies.base_strategy import Direction
     print(f"  Resolved: {len(resolved)} signals")
     return resolved
 
@@ -226,14 +274,13 @@ def phase_execute(signals: list, dry_run: bool = False) -> list:
 
 # ─── Phase 6: REPORT ────────────────────────────────────────────────────
 
-def phase_report(signals: list, execution_results: list):
+def phase_report(signals: list, execution_results: list, regime=None):
     """Update performance.json and generate daily report."""
     print("[Phase 6: REPORT] Generating report...")
 
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     portfolios = load_portfolios()
 
-    # Update NAV history (simplified -full version will use Alpaca positions)
     for code, strat in portfolios["strategies"].items():
         nav = strat["cash"]
         for sym, pos in strat.get("positions", {}).items():
@@ -246,17 +293,27 @@ def phase_report(signals: list, execution_results: list):
 
     save_portfolios(portfolios)
 
-    # Generate daily report markdown
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     report_path = REPORTS_DIR / f"{today}-daily.md"
 
     lines = [
         f"# Daily Trading Report -{today}",
         "",
+    ]
+
+    # Regime info
+    if regime:
+        lines.extend([
+            f"## Market Regime: {regime.regime}",
+            f"{regime.reasoning}",
+            "",
+        ])
+
+    lines.extend([
         "## Signals Generated",
         f"Total: {len(signals)}",
         "",
-    ]
+    ])
 
     for s in signals:
         lines.append(f"- **{s.symbol}** ({s.strategy}) {s.direction.value} {s.weight_pct:.0%} conf={s.confidence:.2f}")
@@ -281,24 +338,34 @@ def phase_report(signals: list, execution_results: list):
 # ─── Main ────────────────────────────────────────────────────────────────
 
 def main():
-    parser = argparse.ArgumentParser(description="Paper Trading Cycle")
-    parser.add_argument("--phase", required=True, choices=["all", "data", "signals", "risk", "resolve", "execute", "report"])
+    parser = argparse.ArgumentParser(description="Paper Trading Cycle (Phase 2.5)")
+    parser.add_argument("--phase", required=True,
+                        choices=["all", "data", "signals", "research", "risk", "resolve", "execute", "report"])
     parser.add_argument("--dry-run", action="store_true", help="Simulate without placing real orders")
+    parser.add_argument("--research-mode", default=None, choices=["full", "selective", "skip"],
+                        help="Research overlay depth (default: full, dry-run default: selective)")
+    parser.add_argument("--no-cache", action="store_true", help="Bypass research cache")
     args = parser.parse_args()
 
+    # Default research mode: selective for dry-run, full otherwise
+    research_mode = args.research_mode
+    if research_mode is None:
+        research_mode = "selective" if args.dry_run else "full"
+
     print(f"=== Paper Trading Cycle -{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} ===")
-    print(f"Mode: {'DRY RUN' if args.dry_run else 'LIVE'}")
+    print(f"Mode: {'DRY RUN' if args.dry_run else 'LIVE'} | Research: {research_mode}")
     print()
 
-    # Import Direction here for phase_resolve
     from strategies.base_strategy import Direction
 
+    # Phase 1: DATA
     if args.phase in ("all", "data"):
         market_data = phase_data()
         print()
     else:
         market_data = None
 
+    # Phase 2: SIGNALS
     if args.phase in ("all", "signals"):
         if market_data is None:
             from strategies.momentum import fetch_momentum_data
@@ -308,26 +375,52 @@ def main():
     else:
         signals = []
 
+    # Phase 2.5: RESEARCH
+    regime = None
+    research_verdicts = {}
+    if args.phase in ("all", "research"):
+        if market_data is None:
+            from strategies.momentum import fetch_momentum_data
+            market_data = fetch_momentum_data(days=400)
+        signals, regime, research_verdicts = phase_research(
+            signals, market_data, research_mode, args.no_cache
+        )
+        print()
+
+    # Phase 3: RISK
+    failed_signals = []
+    failed_details = []
     if args.phase in ("all", "risk"):
-        approved = phase_risk(signals)
+        approved, failed_signals, failed_details = phase_risk(signals)
         print()
     else:
         approved = signals
 
+    # Phase 3.5: APPEAL
+    if args.phase in ("all",) and failed_signals and research_mode != "skip":
+        appealed = phase_appeal(
+            failed_signals, failed_details, research_verdicts, market_data, regime
+        )
+        approved.extend(appealed)
+        print()
+
+    # Phase 4: RESOLVE
     if args.phase in ("all", "resolve"):
         resolved = phase_resolve(approved)
         print()
     else:
         resolved = approved
 
+    # Phase 5: EXECUTE
     if args.phase in ("all", "execute"):
         results = phase_execute(resolved, dry_run=args.dry_run)
         print()
     else:
         results = []
 
+    # Phase 6: REPORT
     if args.phase in ("all", "report"):
-        phase_report(resolved, results)
+        phase_report(resolved, results, regime=regime)
         print()
 
     print("=== Cycle Complete ===")

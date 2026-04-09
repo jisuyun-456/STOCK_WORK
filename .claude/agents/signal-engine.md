@@ -57,7 +57,15 @@ python run_cycle.py --phase all --dry-run
 | Symbol | Strategy | Direction | Weight | Confidence | Reason |
 ```
 
+## Research Overlay 연동
+
+Phase 2에서 생성한 시그널은 Phase 2.5 Research Overlay를 거침:
+- Research Division 5명이 각 시그널의 confidence를 보정
+- 보정된 시그널이 Phase 3 Risk로 전달
+- `run_cycle.py --research-mode skip` 시 기존처럼 바로 Risk로 전달
+
 ## 금지 사항
 - 전략 모듈 외부에서 시그널 임의 생성 금지
 - 시그널 confidence 임의 조작 금지
 - Risk Guardian 우회 금지
+- Research Overlay 결과 무시 금지

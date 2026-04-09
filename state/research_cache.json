@@ -1,0 +1,732 @@
+{
+  "APLD": {
+    "cached_at": "2026-04-09T05:24:16.303968+00:00",
+    "expires_at": "2026-04-16T05:24:16.303968+00:00",
+    "regime_at_cache": "NEUTRAL",
+    "verdicts": [
+      {
+        "agent": "equity_research",
+        "symbol": "APLD",
+        "direction": "AGREE",
+        "confidence_delta": 0.05,
+        "conviction": "MODERATE",
+        "reasoning": "Momentum signal conf=1.00 aligns with valuation view",
+        "key_metrics": {
+          "signal_confidence": 1.0
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.303417+00:00"
+      },
+      {
+        "agent": "technical_strategist",
+        "symbol": "APLD",
+        "direction": "AGREE",
+        "confidence_delta": 0.08,
+        "conviction": "STRONG",
+        "reasoning": "Technical trend confirms momentum",
+        "key_metrics": {
+          "momentum_aligned": true
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.303417+00:00"
+      },
+      {
+        "agent": "macro_economist",
+        "symbol": "APLD",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.08,
+        "conviction": "WEAK",
+        "reasoning": "Regime NEUTRAL: unfavorable for buy",
+        "key_metrics": {
+          "regime": "NEUTRAL",
+          "vix": 25.78
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.303417+00:00"
+      },
+      {
+        "agent": "portfolio_architect",
+        "symbol": "APLD",
+        "direction": "AGREE",
+        "confidence_delta": 0.02,
+        "conviction": "MODERATE",
+        "reasoning": "Portfolio allocation acceptable for APLD at 10% weight",
+        "key_metrics": {
+          "target_weight": 0.1
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.303417+00:00"
+      },
+      {
+        "agent": "risk_controller",
+        "symbol": "APLD",
+        "direction": "AGREE",
+        "confidence_delta": 0.0,
+        "conviction": "MODERATE",
+        "reasoning": "Risk assessment: acceptable (regime=NEUTRAL)",
+        "key_metrics": {
+          "regime_risk": false
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.303417+00:00"
+      }
+    ]
+  },
+  "RKLB": {
+    "cached_at": "2026-04-09T05:24:16.324114+00:00",
+    "expires_at": "2026-04-16T05:24:16.324114+00:00",
+    "regime_at_cache": "NEUTRAL",
+    "verdicts": [
+      {
+        "agent": "equity_research",
+        "symbol": "RKLB",
+        "direction": "AGREE",
+        "confidence_delta": 0.05,
+        "conviction": "MODERATE",
+        "reasoning": "Momentum signal conf=1.00 aligns with valuation view",
+        "key_metrics": {
+          "signal_confidence": 1.0
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.323583+00:00"
+      },
+      {
+        "agent": "technical_strategist",
+        "symbol": "RKLB",
+        "direction": "AGREE",
+        "confidence_delta": 0.08,
+        "conviction": "STRONG",
+        "reasoning": "Technical trend confirms momentum",
+        "key_metrics": {
+          "momentum_aligned": true
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.323583+00:00"
+      },
+      {
+        "agent": "macro_economist",
+        "symbol": "RKLB",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.08,
+        "conviction": "WEAK",
+        "reasoning": "Regime NEUTRAL: unfavorable for buy",
+        "key_metrics": {
+          "regime": "NEUTRAL",
+          "vix": 25.78
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.323583+00:00"
+      },
+      {
+        "agent": "portfolio_architect",
+        "symbol": "RKLB",
+        "direction": "AGREE",
+        "confidence_delta": 0.02,
+        "conviction": "MODERATE",
+        "reasoning": "Portfolio allocation acceptable for RKLB at 10% weight",
+        "key_metrics": {
+          "target_weight": 0.1
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.323583+00:00"
+      },
+      {
+        "agent": "risk_controller",
+        "symbol": "RKLB",
+        "direction": "AGREE",
+        "confidence_delta": 0.0,
+        "conviction": "MODERATE",
+        "reasoning": "Risk assessment: acceptable (regime=NEUTRAL)",
+        "key_metrics": {
+          "regime_risk": false
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.323583+00:00"
+      }
+    ]
+  },
+  "LRCX": {
+    "cached_at": "2026-04-09T05:24:16.344565+00:00",
+    "expires_at": "2026-04-16T05:24:16.344565+00:00",
+    "regime_at_cache": "NEUTRAL",
+    "verdicts": [
+      {
+        "agent": "equity_research",
+        "symbol": "LRCX",
+        "direction": "AGREE",
+        "confidence_delta": 0.05,
+        "conviction": "MODERATE",
+        "reasoning": "Momentum signal conf=1.00 aligns with valuation view",
+        "key_metrics": {
+          "signal_confidence": 1.0
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.344226+00:00"
+      },
+      {
+        "agent": "technical_strategist",
+        "symbol": "LRCX",
+        "direction": "AGREE",
+        "confidence_delta": 0.08,
+        "conviction": "STRONG",
+        "reasoning": "Technical trend confirms momentum",
+        "key_metrics": {
+          "momentum_aligned": true
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.344226+00:00"
+      },
+      {
+        "agent": "macro_economist",
+        "symbol": "LRCX",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.08,
+        "conviction": "WEAK",
+        "reasoning": "Regime NEUTRAL: unfavorable for buy",
+        "key_metrics": {
+          "regime": "NEUTRAL",
+          "vix": 25.78
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.344226+00:00"
+      },
+      {
+        "agent": "portfolio_architect",
+        "symbol": "LRCX",
+        "direction": "AGREE",
+        "confidence_delta": 0.02,
+        "conviction": "MODERATE",
+        "reasoning": "Portfolio allocation acceptable for LRCX at 10% weight",
+        "key_metrics": {
+          "target_weight": 0.1
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.344226+00:00"
+      },
+      {
+        "agent": "risk_controller",
+        "symbol": "LRCX",
+        "direction": "AGREE",
+        "confidence_delta": 0.0,
+        "conviction": "MODERATE",
+        "reasoning": "Risk assessment: acceptable (regime=NEUTRAL)",
+        "key_metrics": {
+          "regime_risk": false
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.344226+00:00"
+      }
+    ]
+  },
+  "WBD": {
+    "cached_at": "2026-04-09T05:24:16.362778+00:00",
+    "expires_at": "2026-04-16T05:24:16.362778+00:00",
+    "regime_at_cache": "NEUTRAL",
+    "verdicts": [
+      {
+        "agent": "equity_research",
+        "symbol": "WBD",
+        "direction": "AGREE",
+        "confidence_delta": 0.05,
+        "conviction": "MODERATE",
+        "reasoning": "Momentum signal conf=1.00 aligns with valuation view",
+        "key_metrics": {
+          "signal_confidence": 1.0
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.362441+00:00"
+      },
+      {
+        "agent": "technical_strategist",
+        "symbol": "WBD",
+        "direction": "AGREE",
+        "confidence_delta": 0.08,
+        "conviction": "STRONG",
+        "reasoning": "Technical trend confirms momentum",
+        "key_metrics": {
+          "momentum_aligned": true
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.362441+00:00"
+      },
+      {
+        "agent": "macro_economist",
+        "symbol": "WBD",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.08,
+        "conviction": "WEAK",
+        "reasoning": "Regime NEUTRAL: unfavorable for buy",
+        "key_metrics": {
+          "regime": "NEUTRAL",
+          "vix": 25.78
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.362441+00:00"
+      },
+      {
+        "agent": "portfolio_architect",
+        "symbol": "WBD",
+        "direction": "AGREE",
+        "confidence_delta": 0.02,
+        "conviction": "MODERATE",
+        "reasoning": "Portfolio allocation acceptable for WBD at 10% weight",
+        "key_metrics": {
+          "target_weight": 0.1
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.362441+00:00"
+      },
+      {
+        "agent": "risk_controller",
+        "symbol": "WBD",
+        "direction": "AGREE",
+        "confidence_delta": 0.0,
+        "conviction": "MODERATE",
+        "reasoning": "Risk assessment: acceptable (regime=NEUTRAL)",
+        "key_metrics": {
+          "regime_risk": false
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.362441+00:00"
+      }
+    ]
+  },
+  "AMAT": {
+    "cached_at": "2026-04-09T05:24:16.379861+00:00",
+    "expires_at": "2026-04-16T05:24:16.379861+00:00",
+    "regime_at_cache": "NEUTRAL",
+    "verdicts": [
+      {
+        "agent": "equity_research",
+        "symbol": "AMAT",
+        "direction": "AGREE",
+        "confidence_delta": 0.05,
+        "conviction": "MODERATE",
+        "reasoning": "Momentum signal conf=1.00 aligns with valuation view",
+        "key_metrics": {
+          "signal_confidence": 1.0
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.379422+00:00"
+      },
+      {
+        "agent": "technical_strategist",
+        "symbol": "AMAT",
+        "direction": "AGREE",
+        "confidence_delta": 0.08,
+        "conviction": "STRONG",
+        "reasoning": "Technical trend confirms momentum",
+        "key_metrics": {
+          "momentum_aligned": true
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.379422+00:00"
+      },
+      {
+        "agent": "macro_economist",
+        "symbol": "AMAT",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.08,
+        "conviction": "WEAK",
+        "reasoning": "Regime NEUTRAL: unfavorable for buy",
+        "key_metrics": {
+          "regime": "NEUTRAL",
+          "vix": 25.78
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.379422+00:00"
+      },
+      {
+        "agent": "portfolio_architect",
+        "symbol": "AMAT",
+        "direction": "AGREE",
+        "confidence_delta": 0.02,
+        "conviction": "MODERATE",
+        "reasoning": "Portfolio allocation acceptable for AMAT at 10% weight",
+        "key_metrics": {
+          "target_weight": 0.1
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.379422+00:00"
+      },
+      {
+        "agent": "risk_controller",
+        "symbol": "AMAT",
+        "direction": "AGREE",
+        "confidence_delta": 0.0,
+        "conviction": "MODERATE",
+        "reasoning": "Risk assessment: acceptable (regime=NEUTRAL)",
+        "key_metrics": {
+          "regime_risk": false
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.379422+00:00"
+      }
+    ]
+  },
+  "KLAC": {
+    "cached_at": "2026-04-09T05:24:16.399370+00:00",
+    "expires_at": "2026-04-16T05:24:16.399370+00:00",
+    "regime_at_cache": "NEUTRAL",
+    "verdicts": [
+      {
+        "agent": "equity_research",
+        "symbol": "KLAC",
+        "direction": "AGREE",
+        "confidence_delta": 0.05,
+        "conviction": "MODERATE",
+        "reasoning": "Momentum signal conf=1.00 aligns with valuation view",
+        "key_metrics": {
+          "signal_confidence": 1.0
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.398710+00:00"
+      },
+      {
+        "agent": "technical_strategist",
+        "symbol": "KLAC",
+        "direction": "AGREE",
+        "confidence_delta": 0.08,
+        "conviction": "STRONG",
+        "reasoning": "Technical trend confirms momentum",
+        "key_metrics": {
+          "momentum_aligned": true
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.398710+00:00"
+      },
+      {
+        "agent": "macro_economist",
+        "symbol": "KLAC",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.08,
+        "conviction": "WEAK",
+        "reasoning": "Regime NEUTRAL: unfavorable for buy",
+        "key_metrics": {
+          "regime": "NEUTRAL",
+          "vix": 25.78
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.398710+00:00"
+      },
+      {
+        "agent": "portfolio_architect",
+        "symbol": "KLAC",
+        "direction": "AGREE",
+        "confidence_delta": 0.02,
+        "conviction": "MODERATE",
+        "reasoning": "Portfolio allocation acceptable for KLAC at 10% weight",
+        "key_metrics": {
+          "target_weight": 0.1
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.398710+00:00"
+      },
+      {
+        "agent": "risk_controller",
+        "symbol": "KLAC",
+        "direction": "AGREE",
+        "confidence_delta": 0.0,
+        "conviction": "MODERATE",
+        "reasoning": "Risk assessment: acceptable (regime=NEUTRAL)",
+        "key_metrics": {
+          "regime_risk": false
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.398710+00:00"
+      }
+    ]
+  },
+  "AVGO": {
+    "cached_at": "2026-04-09T05:24:16.419329+00:00",
+    "expires_at": "2026-04-16T05:24:16.419329+00:00",
+    "regime_at_cache": "NEUTRAL",
+    "verdicts": [
+      {
+        "agent": "equity_research",
+        "symbol": "AVGO",
+        "direction": "AGREE",
+        "confidence_delta": 0.05,
+        "conviction": "MODERATE",
+        "reasoning": "Momentum signal conf=1.00 aligns with valuation view",
+        "key_metrics": {
+          "signal_confidence": 1.0
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.418668+00:00"
+      },
+      {
+        "agent": "technical_strategist",
+        "symbol": "AVGO",
+        "direction": "AGREE",
+        "confidence_delta": 0.08,
+        "conviction": "STRONG",
+        "reasoning": "Technical trend confirms momentum",
+        "key_metrics": {
+          "momentum_aligned": true
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.418668+00:00"
+      },
+      {
+        "agent": "macro_economist",
+        "symbol": "AVGO",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.08,
+        "conviction": "WEAK",
+        "reasoning": "Regime NEUTRAL: unfavorable for buy",
+        "key_metrics": {
+          "regime": "NEUTRAL",
+          "vix": 25.78
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.418668+00:00"
+      },
+      {
+        "agent": "portfolio_architect",
+        "symbol": "AVGO",
+        "direction": "AGREE",
+        "confidence_delta": 0.02,
+        "conviction": "MODERATE",
+        "reasoning": "Portfolio allocation acceptable for AVGO at 10% weight",
+        "key_metrics": {
+          "target_weight": 0.1
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.418668+00:00"
+      },
+      {
+        "agent": "risk_controller",
+        "symbol": "AVGO",
+        "direction": "AGREE",
+        "confidence_delta": 0.0,
+        "conviction": "MODERATE",
+        "reasoning": "Risk assessment: acceptable (regime=NEUTRAL)",
+        "key_metrics": {
+          "regime_risk": false
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.418668+00:00"
+      }
+    ]
+  },
+  "AMD": {
+    "cached_at": "2026-04-09T05:24:16.437620+00:00",
+    "expires_at": "2026-04-16T05:24:16.437620+00:00",
+    "regime_at_cache": "NEUTRAL",
+    "verdicts": [
+      {
+        "agent": "equity_research",
+        "symbol": "AMD",
+        "direction": "AGREE",
+        "confidence_delta": 0.05,
+        "conviction": "MODERATE",
+        "reasoning": "Momentum signal conf=1.00 aligns with valuation view",
+        "key_metrics": {
+          "signal_confidence": 1.0
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.437143+00:00"
+      },
+      {
+        "agent": "technical_strategist",
+        "symbol": "AMD",
+        "direction": "AGREE",
+        "confidence_delta": 0.08,
+        "conviction": "STRONG",
+        "reasoning": "Technical trend confirms momentum",
+        "key_metrics": {
+          "momentum_aligned": true
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.437143+00:00"
+      },
+      {
+        "agent": "macro_economist",
+        "symbol": "AMD",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.08,
+        "conviction": "WEAK",
+        "reasoning": "Regime NEUTRAL: unfavorable for buy",
+        "key_metrics": {
+          "regime": "NEUTRAL",
+          "vix": 25.78
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.437143+00:00"
+      },
+      {
+        "agent": "portfolio_architect",
+        "symbol": "AMD",
+        "direction": "AGREE",
+        "confidence_delta": 0.02,
+        "conviction": "MODERATE",
+        "reasoning": "Portfolio allocation acceptable for AMD at 10% weight",
+        "key_metrics": {
+          "target_weight": 0.1
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.437143+00:00"
+      },
+      {
+        "agent": "risk_controller",
+        "symbol": "AMD",
+        "direction": "AGREE",
+        "confidence_delta": 0.0,
+        "conviction": "MODERATE",
+        "reasoning": "Risk assessment: acceptable (regime=NEUTRAL)",
+        "key_metrics": {
+          "regime_risk": false
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.437143+00:00"
+      }
+    ]
+  },
+  "INTC": {
+    "cached_at": "2026-04-09T05:24:16.457052+00:00",
+    "expires_at": "2026-04-16T05:24:16.457052+00:00",
+    "regime_at_cache": "NEUTRAL",
+    "verdicts": [
+      {
+        "agent": "equity_research",
+        "symbol": "INTC",
+        "direction": "AGREE",
+        "confidence_delta": 0.05,
+        "conviction": "MODERATE",
+        "reasoning": "Momentum signal conf=1.00 aligns with valuation view",
+        "key_metrics": {
+          "signal_confidence": 1.0
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.456673+00:00"
+      },
+      {
+        "agent": "technical_strategist",
+        "symbol": "INTC",
+        "direction": "AGREE",
+        "confidence_delta": 0.08,
+        "conviction": "STRONG",
+        "reasoning": "Technical trend confirms momentum",
+        "key_metrics": {
+          "momentum_aligned": true
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.456673+00:00"
+      },
+      {
+        "agent": "macro_economist",
+        "symbol": "INTC",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.08,
+        "conviction": "WEAK",
+        "reasoning": "Regime NEUTRAL: unfavorable for buy",
+        "key_metrics": {
+          "regime": "NEUTRAL",
+          "vix": 25.78
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.456673+00:00"
+      },
+      {
+        "agent": "portfolio_architect",
+        "symbol": "INTC",
+        "direction": "AGREE",
+        "confidence_delta": 0.02,
+        "conviction": "MODERATE",
+        "reasoning": "Portfolio allocation acceptable for INTC at 10% weight",
+        "key_metrics": {
+          "target_weight": 0.1
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.456673+00:00"
+      },
+      {
+        "agent": "risk_controller",
+        "symbol": "INTC",
+        "direction": "AGREE",
+        "confidence_delta": 0.0,
+        "conviction": "MODERATE",
+        "reasoning": "Risk assessment: acceptable (regime=NEUTRAL)",
+        "key_metrics": {
+          "regime_risk": false
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.456673+00:00"
+      }
+    ]
+  },
+  "ASML": {
+    "cached_at": "2026-04-09T05:24:16.476502+00:00",
+    "expires_at": "2026-04-16T05:24:16.476502+00:00",
+    "regime_at_cache": "NEUTRAL",
+    "verdicts": [
+      {
+        "agent": "equity_research",
+        "symbol": "ASML",
+        "direction": "AGREE",
+        "confidence_delta": 0.05,
+        "conviction": "MODERATE",
+        "reasoning": "Momentum signal conf=1.00 aligns with valuation view",
+        "key_metrics": {
+          "signal_confidence": 1.0
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.476090+00:00"
+      },
+      {
+        "agent": "technical_strategist",
+        "symbol": "ASML",
+        "direction": "AGREE",
+        "confidence_delta": 0.08,
+        "conviction": "STRONG",
+        "reasoning": "Technical trend confirms momentum",
+        "key_metrics": {
+          "momentum_aligned": true
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.476090+00:00"
+      },
+      {
+        "agent": "macro_economist",
+        "symbol": "ASML",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.08,
+        "conviction": "WEAK",
+        "reasoning": "Regime NEUTRAL: unfavorable for buy",
+        "key_metrics": {
+          "regime": "NEUTRAL",
+          "vix": 25.78
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.476090+00:00"
+      },
+      {
+        "agent": "portfolio_architect",
+        "symbol": "ASML",
+        "direction": "AGREE",
+        "confidence_delta": 0.02,
+        "conviction": "MODERATE",
+        "reasoning": "Portfolio allocation acceptable for ASML at 10% weight",
+        "key_metrics": {
+          "target_weight": 0.1
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.476090+00:00"
+      },
+      {
+        "agent": "risk_controller",
+        "symbol": "ASML",
+        "direction": "AGREE",
+        "confidence_delta": 0.0,
+        "conviction": "MODERATE",
+        "reasoning": "Risk assessment: acceptable (regime=NEUTRAL)",
+        "key_metrics": {
+          "regime_risk": false
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-09T05:24:16.476090+00:00"
+      }
+    ]
+  }
+}
