@@ -234,7 +234,8 @@ class QuantFactorStrategy(BaseStrategy):
             상위 max_positions개 종목의 BUY Signal 리스트. 데이터 부족 시 빈 리스트.
         """
         # QNT 전용 가격 우선 사용, 없으면 공통 prices로 폴백
-        prices: pd.DataFrame = market_data.get("qnt_prices") or market_data.get("prices", pd.DataFrame())
+        qnt_prices = market_data.get("qnt_prices")
+        prices: pd.DataFrame = qnt_prices if qnt_prices is not None and not qnt_prices.empty else market_data.get("prices", pd.DataFrame())
         factors: pd.DataFrame = market_data.get("factors", pd.DataFrame())
 
         if prices is None or prices.empty:
