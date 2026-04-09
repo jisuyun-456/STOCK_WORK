@@ -11,7 +11,7 @@
   },
   "strategies": {
     "MOM": {
-      "current_nav": 25000,
+      "current_nav": 25000.0,
       "total_return_pct": 0.0,
       "daily_return_pct": 0.0,
       "mdd_pct": 0.0,
@@ -19,11 +19,11 @@
       "win_rate": null,
       "trade_count": 0,
       "dry_run_count": 60,
-      "peak_nav": 25000,
+      "peak_nav": 25000.0,
       "last_rebalance": null
     },
     "VAL": {
-      "current_nav": 25000,
+      "current_nav": 25000.0,
       "total_return_pct": 0.0,
       "daily_return_pct": 0.0,
       "mdd_pct": 0.0,
@@ -31,11 +31,11 @@
       "win_rate": null,
       "trade_count": 0,
       "dry_run_count": 20,
-      "peak_nav": 25000,
+      "peak_nav": 25000.0,
       "last_rebalance": null
     },
     "QNT": {
-      "current_nav": 30000,
+      "current_nav": 30000.0,
       "total_return_pct": 0.0,
       "daily_return_pct": 0.0,
       "mdd_pct": 0.0,
@@ -43,7 +43,7 @@
       "win_rate": null,
       "trade_count": 0,
       "dry_run_count": 80,
-      "peak_nav": 30000,
+      "peak_nav": 30000.0,
       "last_rebalance": null
     },
     "LEV": {
@@ -59,30 +59,30 @@
       "last_rebalance": null
     },
     "TOTAL": {
-      "initial_nav": 100000,
-      "current_nav": 100000,
+      "initial_nav": -111.53,
+      "current_nav": 100000.0,
       "total_return_pct": 0.0,
-      "spy_return_pct": 0.0,
-      "qqq_return_pct": 0.0,
-      "alpha_vs_spy": 0.0
+      "spy_return_pct": -0.1553,
+      "qqq_return_pct": -0.2475,
+      "alpha_vs_spy": 0.1553
     }
   },
   "daily": [
     {
       "date": "2026-04-09",
-      "total_nav": 100000.0,
+      "total_nav": 99999.99,
       "strategy_navs": {
-        "MOM": 25000,
-        "VAL": 25000,
-        "QNT": 30000,
+        "MOM": 25000.0,
+        "VAL": 25000.0,
+        "QNT": 30000.0,
         "LEV": 20000
       },
       "benchmark_prices": {
-        "SPY": 676.01,
-        "QQQ": 606.09
+        "SPY": 674.9600219726562,
+        "QQQ": 604.5900268554688
       },
       "regime": "NEUTRAL",
-      "signals_count": 35,
+      "signals_count": 38,
       "rebalances": []
     }
   ]
