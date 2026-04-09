@@ -123,14 +123,36 @@ def phase_data() -> dict:
         print(f"  LEV data fetch failed: {e}")
         market_data["leveraged"] = {"prices": None}
 
-    # 뉴스 수집 (종목 리스트는 나중에 결정 -여기서는 매크로만)
+    # 뉴스 수집 (yfinance + 6개 RSS 소스 병합)
     try:
-        from news.fetcher import fetch_macro_news
-        market_data["news"] = {"_MACRO": fetch_macro_news()}
-        print(f"  Macro news: {len(market_data['news']['_MACRO'])} articles")
+        from news.fetcher import fetch_macro_news_enhanced
+        macro_articles = fetch_macro_news_enhanced()
+        market_data["news"] = {"_MACRO": macro_articles}
+        sources = set(a.get("source", "?") for a in macro_articles)
+        print(f"  Macro news: {len(macro_articles)} articles from {sources}")
     except Exception as e:
         print(f"  News fetch failed: {e}")
         market_data["news"] = {}
+
+    # 기술지표 계산 (Phase 8: RSI, MACD, Bollinger, Volume)
+    try:
+        from strategies.indicators import compute_indicators
+        indicators = {}
+        if prices is not None and not prices.empty:
+            volumes = market_data.get("volumes")
+            for symbol in prices.columns:
+                try:
+                    series = prices[symbol].dropna()
+                    if len(series) >= 50:
+                        vol_series = volumes[symbol] if volumes is not None and symbol in volumes.columns else None
+                        indicators[symbol] = compute_indicators(series, vol_series)
+                except Exception:
+                    indicators[symbol] = {}
+        market_data["indicators"] = indicators
+        print(f"  Indicators: {len(indicators)} symbols computed")
+    except Exception as e:
+        print(f"  Indicators computation failed: {e}")
+        market_data["indicators"] = {}
 
     return market_data
 
@@ -155,10 +177,24 @@ def phase_regime(market_data: dict) -> tuple:
     except Exception as e:
         print(f"  News sentiment failed: {e} (using 0.0)")
 
-    # 확장된 Regime Detection
+    # Polymarket 예측시장 데이터 (Phase 9)
+    polymarket_score = 0.0
+    try:
+        from research.polymarket import fetch_macro_markets, compute_polymarket_score
+        pm_signals = fetch_macro_markets(max_markets=20)
+        polymarket_score = compute_polymarket_score(pm_signals)
+        market_data["polymarket"] = [
+            {"question": s.question, "probabilities": s.probabilities, "volume": s.volume_usd}
+            for s in pm_signals
+        ]
+        print(f"  Polymarket: score={polymarket_score:+.2f} ({len(pm_signals)} markets)")
+    except Exception as e:
+        print(f"  Polymarket fetch failed: {e} (using 0.0)")
+
+    # 확장된 Regime Detection (뉴스 + Polymarket)
     try:
         from research.consensus import detect_regime_enhanced
-        regime_info = detect_regime_enhanced(news_sentiment_score)
+        regime_info = detect_regime_enhanced(news_sentiment_score, polymarket_score)
     except Exception as e:
         print(f"  Regime detection failed: {e}")
         from research.models import RegimeDetection

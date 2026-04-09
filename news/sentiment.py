@@ -51,8 +51,10 @@ def _build_prompt(symbol: str, articles: list[dict]) -> str:
     for i, article in enumerate(articles[:_MAX_ARTICLES_PER_PROMPT], start=1):
         title = article.get("title", "")
         body = article.get("body", "")
-        snippet = body[:200] if body else ""
-        entry = f"{i}. [{title}]"
+        source = article.get("source", "")
+        snippet = body[:800] if body else ""  # Phase 7: 200→800자
+        source_tag = f" ({source})" if source else ""
+        entry = f"{i}. [{title}]{source_tag}"
         if snippet:
             entry += f" {snippet}"
         lines.append(entry)

@@ -98,33 +98,19 @@ def _neutral_fallback(reason: str) -> RegimeDetection:
     )
 
 
-def detect_regime_enhanced(news_sentiment_score: float = 0.0) -> RegimeDetection:
-    """확장된 Regime Detection: VIX(40%) + SPY/SMA200(30%) + 뉴스감성(30%).
+def detect_regime_enhanced(
+    news_sentiment_score: float = 0.0,
+    polymarket_score: float = 0.0,
+) -> RegimeDetection:
+    """확장된 Regime Detection: VIX + SPY/SMA200 + 뉴스감성 + Polymarket.
+
+    가중치 (Polymarket 데이터 유무에 따라 동적):
+        Polymarket 없음: VIX(40%) + SPY/SMA200(30%) + 뉴스(30%)
+        Polymarket 있음: VIX(35%) + SPY/SMA200(25%) + 뉴스(30%) + Polymarket(10%)
 
     Args:
         news_sentiment_score: -1.0 ~ +1.0 (뉴스 감성 점수, 기본값 0.0=중립)
-
-    VIX 점수 (0~1):
-        <20  → 1.0 (BULL)
-        20-25 → 0.6 (NEUTRAL)
-        25-30 → 0.3 (BEAR)
-        >30  → 0.0 (CRISIS)
-
-    SPY/SMA200 점수 (0~1):
-        >1.05        → 1.0 (BULL)
-        1.0-1.05     → 0.7 (NEUTRAL)
-        0.95-1.0     → 0.3 (BEAR)
-        <0.95        → 0.0 (CRISIS)
-
-    뉴스 감성 점수 변환 (0~1):
-        (news_sentiment_score + 1.0) / 2.0
-
-    합산:
-        composite = vix_score * 0.4 + spy_score * 0.3 + news_score * 0.3
-        composite > 0.7          → BULL
-        0.4 < composite <= 0.7   → NEUTRAL
-        0.2 < composite <= 0.4   → BEAR
-        composite <= 0.2         → CRISIS
+        polymarket_score: -1.0 ~ +1.0 (예측시장 매크로 점수, 기본값 0.0)
     """
     try:
         import yfinance as yf
@@ -170,14 +156,26 @@ def detect_regime_enhanced(news_sentiment_score: float = 0.0) -> RegimeDetection
     news_sentiment_score = max(-1.0, min(1.0, news_sentiment_score))  # clamp
     news_score = (news_sentiment_score + 1.0) / 2.0
 
-    # ── 가중 합산 ────────────────────────────────────────────────────────────
-    composite = vix_score * 0.4 + spy_score * 0.3 + news_score * 0.3
+    # ── Polymarket 점수 정규화 (0~1) ─────────────────────────────────────────
+    polymarket_score = max(-1.0, min(1.0, polymarket_score))
+    poly_score = (polymarket_score + 1.0) / 2.0
+
+    # ── 가중 합산 (Polymarket 유무에 따라 동적) ──────────────────────────────
+    if polymarket_score != 0.0:
+        # Polymarket 10% 배분: VIX 35% + SPY 25% + News 30% + Poly 10%
+        composite = vix_score * 0.35 + spy_score * 0.25 + news_score * 0.30 + poly_score * 0.10
+        poly_msg = f"polymarket={polymarket_score:+.2f} → poly_score={poly_score:.2f}×0.10 | "
+    else:
+        # 기존 가중치 유지: VIX 40% + SPY 30% + News 30%
+        composite = vix_score * 0.4 + spy_score * 0.3 + news_score * 0.3
+        poly_msg = ""
 
     print(
         f"[detect_regime_enhanced] "
         f"VIX={vix_level:.1f} → vix_score={vix_score:.2f} | "
         f"SPY/SMA200={ratio:.4f} → spy_score={spy_score:.2f} | "
         f"news_sentiment={news_sentiment_score:.2f} → news_score={news_score:.2f} | "
+        f"{poly_msg}"
         f"composite={composite:.4f}"
     )
 
@@ -190,11 +188,13 @@ def detect_regime_enhanced(news_sentiment_score: float = 0.0) -> RegimeDetection
     else:
         regime = "CRISIS"
 
+    poly_reason = f", polymarket={polymarket_score:+.2f}(score={poly_score:.2f}×0.10)" if polymarket_score != 0.0 else ""
+    weights = "VIX×0.35+SPY×0.25+news×0.30+poly×0.10" if polymarket_score != 0.0 else "VIX×0.40+SPY×0.30+news×0.30"
     reasoning = (
-        f"Enhanced: VIX={vix_level:.1f}(score={vix_score:.2f}×0.4), "
-        f"SPY/SMA200={ratio:.4f}(score={spy_score:.2f}×0.3), "
-        f"news_sentiment={news_sentiment_score:.2f}(score={news_score:.2f}×0.3) "
-        f"→ composite={composite:.4f} → {regime}"
+        f"Enhanced ({weights}): VIX={vix_level:.1f}(score={vix_score:.2f}), "
+        f"SPY/SMA200={ratio:.4f}(score={spy_score:.2f}), "
+        f"news_sentiment={news_sentiment_score:.2f}(score={news_score:.2f})"
+        f"{poly_reason} → composite={composite:.4f} → {regime}"
     )
 
     return RegimeDetection(
@@ -203,6 +203,7 @@ def detect_regime_enhanced(news_sentiment_score: float = 0.0) -> RegimeDetection
         vix_level=round(vix_level, 2),
         reasoning=reasoning,
         timestamp=datetime.now(timezone.utc).isoformat(),
+        polymarket_score=round(polymarket_score, 3),
     )
 
 

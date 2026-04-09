@@ -141,13 +141,15 @@ def fetch_momentum_data(universe: list[str] | None = None, days: int = 400) -> d
     )
 
     if data.empty:
-        return {"prices": pd.DataFrame()}
+        return {"prices": pd.DataFrame(), "volumes": pd.DataFrame()}
 
     # yfinance returns multi-level columns for multiple tickers
     if isinstance(data.columns, pd.MultiIndex):
         prices = data["Close"]
+        volumes = data["Volume"] if "Volume" in data.columns.get_level_values(0) else pd.DataFrame()
     else:
         # Single ticker case
         prices = data[["Close"]].rename(columns={"Close": tickers[0]})
+        volumes = data[["Volume"]].rename(columns={"Volume": tickers[0]}) if "Volume" in data.columns else pd.DataFrame()
 
-    return {"prices": prices}
+    return {"prices": prices, "volumes": volumes}

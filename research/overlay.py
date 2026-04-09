@@ -17,6 +17,7 @@ from pathlib import Path
 
 from strategies.base_strategy import Signal
 
+from .agent_runner import get_research_mode, run_all_agents, run_all_agents_appeal
 from .cache import get_cached, set_cache
 from .consensus import calculate_consensus, detect_regime
 from .models import RegimeDetection, ResearchRequest, ResearchVerdict
@@ -191,7 +192,7 @@ def run_appeal(
     return appealed
 
 
-# ─── Verdict Generation (Rule-Based Simulation) ──────────────────────────
+# ─── Verdict Generation ────────────────────────────────────────────────────
 
 def _generate_verdicts(
     signal: Signal,
@@ -199,11 +200,28 @@ def _generate_verdicts(
     portfolio_state: dict,
     regime: RegimeDetection,
 ) -> list[ResearchVerdict]:
-    """Generate simulated research verdicts for a signal.
+    """Generate research verdicts — hybrid routing.
 
-    This is the rule-based simulation. When agents run interactively,
-    they replace this with actual LLM-powered analysis.
+    Routes to LLM agents (Gemini/Claude) if RESEARCH_MODE is set,
+    otherwise uses rule-based heuristics.
     """
+    mode = get_research_mode()
+    if mode in ("gemini", "claude"):
+        real_verdicts = run_all_agents(signal, market_data, portfolio_state, regime, mode)
+        if real_verdicts:
+            return real_verdicts
+        print(f"  [{signal.symbol}] LLM agents returned empty, falling back to rules")
+
+    return _generate_verdicts_rules(signal, market_data, portfolio_state, regime)
+
+
+def _generate_verdicts_rules(
+    signal: Signal,
+    market_data: dict,
+    portfolio_state: dict,
+    regime: RegimeDetection,
+) -> list[ResearchVerdict]:
+    """Rule-based verdict generation (original logic, kept as fallback)."""
     now = datetime.now(timezone.utc).isoformat()
     verdicts = []
 
@@ -282,7 +300,28 @@ def _generate_appeal_verdicts(
     regime: RegimeDetection,
     appeal_context: dict,
 ) -> list[ResearchVerdict]:
-    """Generate appeal verdicts — more conservative than initial."""
+    """Generate appeal verdicts — hybrid routing."""
+    mode = get_research_mode()
+    if mode in ("gemini", "claude"):
+        real_verdicts = run_all_agents_appeal(
+            signal, market_data, portfolio_state, regime, appeal_context, mode
+        )
+        if real_verdicts:
+            return real_verdicts
+
+    return _generate_appeal_verdicts_rules(
+        signal, market_data, portfolio_state, regime, appeal_context
+    )
+
+
+def _generate_appeal_verdicts_rules(
+    signal: Signal,
+    market_data: dict,
+    portfolio_state: dict,
+    regime: RegimeDetection,
+    appeal_context: dict,
+) -> list[ResearchVerdict]:
+    """Rule-based appeal verdicts (original logic, kept as fallback)."""
     now = datetime.now(timezone.utc).isoformat()
     failed_checks = appeal_context.get("failed_checks", [])
     verdicts = []

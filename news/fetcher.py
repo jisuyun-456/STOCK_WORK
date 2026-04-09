@@ -32,7 +32,7 @@ _HEADERS = {
 }
 
 _REQUEST_TIMEOUT = 10   # 초
-_BODY_MAX_CHARS = 500   # 기사당 본문 최대 문자 수
+_BODY_MAX_CHARS = 3000  # 기사당 본문 최대 문자 수 (Phase 7: 500→3000)
 
 
 def _scrape_body(url: str) -> str:
@@ -171,6 +171,102 @@ def fetch_macro_news() -> list[dict]:
 
     print(f"[fetcher] 매크로: {len(combined)}건 수집 완료")
     return combined[:30]
+
+
+def fetch_rss_news(max_articles_per_source: int = 15) -> list[dict]:
+    """6개 RSS 소스에서 금융 뉴스를 병렬 수집한다.
+
+    Reuters, AP, CNBC, MarketWatch, NYT, WSJ 소스를 ThreadPoolExecutor로
+    병렬 호출하여 기사를 수집한다. 개별 소스 실패는 skip하며 전체에 영향 없음.
+
+    Args:
+        max_articles_per_source: 소스당 최대 기사 수 (기본 15).
+
+    Returns:
+        [{"title", "body", "url", "published", "source"}, ...]
+        전체 실패 시 빈 리스트.
+    """
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    try:
+        from news.sources import ALL_SOURCES
+    except ImportError as exc:
+        print(f"[fetcher] RSS sources import 실패: {exc}")
+        return []
+
+    print(f"[fetcher] RSS 뉴스 수집 중 ({len(ALL_SOURCES)}개 소스)...")
+    articles: list[dict] = []
+
+    def _fetch_source(source_cls):
+        try:
+            source = source_cls()
+            return source.fetch(max_articles=max_articles_per_source)
+        except Exception as exc:
+            print(f"  [fetcher] {source_cls.name} 실패: {exc}")
+            return []
+
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        futures = {
+            executor.submit(_fetch_source, cls): cls.name
+            for cls in ALL_SOURCES
+        }
+        for future in as_completed(futures, timeout=60):
+            source_name = futures[future]
+            try:
+                result = future.result(timeout=10)
+                articles.extend(result)
+                if result:
+                    print(f"  [fetcher] {source_name}: {len(result)}건")
+            except Exception as exc:
+                print(f"  [fetcher] {source_name} 타임아웃/실패: {exc}")
+
+    print(f"[fetcher] RSS 수집 완료: 총 {len(articles)}건")
+    return articles
+
+
+def fetch_macro_news_enhanced() -> list[dict]:
+    """yfinance + RSS 소스를 병합하여 풍부한 매크로 뉴스를 수집한다.
+
+    기존 yfinance(SPY+VIX) 뉴스에 6개 RSS 소스를 추가하여 최대 60건의
+    매크로 뉴스를 반환한다. URL 기준 중복 제거.
+
+    Returns:
+        [{"title", "body", "url", "published", "source"}, ...]
+    """
+    print("[fetcher] 강화 매크로 뉴스 수집 중 (yfinance + RSS)...")
+
+    # 1) 기존 yfinance 뉴스 (source 필드 추가)
+    yf_articles = []
+    try:
+        spy_news = fetch_news("SPY", max_articles=15)
+        vix_news = fetch_news("^VIX", max_articles=15)
+        for article in spy_news + vix_news:
+            article.setdefault("source", "yfinance")
+            yf_articles.append(article)
+    except Exception as exc:
+        print(f"[fetcher] yfinance 뉴스 실패: {exc}")
+
+    # 2) RSS 뉴스
+    rss_articles = fetch_rss_news(max_articles_per_source=15)
+
+    # 3) 병합 + URL 중복 제거
+    seen: set[str] = set()
+    combined: list[dict] = []
+    for article in yf_articles + rss_articles:
+        url = article.get("url", "")
+        if url and url in seen:
+            continue
+        if url:
+            seen.add(url)
+        combined.append(article)
+
+    source_counts = {}
+    for a in combined:
+        s = a.get("source", "unknown")
+        source_counts[s] = source_counts.get(s, 0) + 1
+
+    print(f"[fetcher] 강화 매크로: {len(combined)}건 (소스별: {source_counts})")
+    return combined[:60]
 
 
 def fetch_all_news(symbols: list[str]) -> dict[str, list[dict]]:

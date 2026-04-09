@@ -59,3 +59,5 @@ class RegimeDetection:
     vix_level: float
     reasoning: str
     timestamp: str = ""
+    polymarket_score: float = 0.0  # Phase 9: prediction market macro score
+    news_source_count: int = 0     # Phase 7: how many news sources contributed
