@@ -590,6 +590,17 @@ def phase_report(signals: list, execution_results: list, regime=None, rebalanced
     report_path.write_text("\n".join(lines), encoding="utf-8")
     print(f"  Report saved: {report_path}")
 
+    # Daily Analysis report (Obsidian-ready)
+    try:
+        from scripts.daily_analysis import generate_daily_analysis, copy_to_obsidian
+        analysis_path = generate_daily_analysis(date_str=today)
+        # Copy to Obsidian if running locally (vault exists)
+        from pathlib import Path as _P
+        if _P(r"C:\Users\yjisu\Documents\ClaudeVault").exists():
+            copy_to_obsidian(analysis_path)
+    except Exception as e:
+        print(f"  [analysis] Daily analysis failed: {e}")
+
 
 def _extract_regime_str(regime) -> str:
     if regime is None:
