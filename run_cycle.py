@@ -123,7 +123,7 @@ def phase_data() -> dict:
         print(f"  LEV data fetch failed: {e}")
         market_data["leveraged"] = {"prices": None}
 
-    # 뉴스 수집 (종목 리스트는 나중에 결정 — 여기서는 매크로만)
+    # 뉴스 수집 (종목 리스트는 나중에 결정 -여기서는 매크로만)
     try:
         from news.fetcher import fetch_macro_news
         market_data["news"] = {"_MACRO": fetch_macro_news()}
@@ -211,7 +211,7 @@ def phase_signals(market_data: dict, regime: str = "NEUTRAL", allocations: dict 
         signals = strat.generate_signals(market_data)
         print(f"  {strat.name}: {len(signals)} signals")
         for s in signals:
-            print(f"    {s.symbol} {s.direction.value} {s.weight_pct:.0%} conf={s.confidence:.2f} — {s.reason}")
+            print(f"    {s.symbol} {s.direction.value} {s.weight_pct:.0%} conf={s.confidence:.2f} -{s.reason}")
         all_signals.extend(signals)
 
     return all_signals
@@ -392,12 +392,81 @@ def phase_rebalance(market_data: dict, dry_run: bool = False) -> tuple[list, lis
 
 # ─── Phase 6: REPORT ────────────────────────────────────────────────────
 
+def _sync_alpaca_positions(portfolios: dict) -> dict:
+    """Sync Alpaca actual positions into portfolios.json.
+
+    Builds symbol→strategy mapping from trade_log.jsonl, then updates
+    each strategy's positions dict with live Alpaca data.
+    """
+    try:
+        from execution.alpaca_client import get_positions, get_account_info
+
+        alpaca_positions = get_positions()
+        account = get_account_info()
+    except Exception as e:
+        print(f"  [sync] Alpaca sync skipped: {e}")
+        return portfolios
+
+    # Build symbol→strategy map from trade_log
+    symbol_strategy_map = {}
+    trade_log_path = STATE_DIR / "trade_log.jsonl"
+    if trade_log_path.exists():
+        with open(trade_log_path) as f:
+            for line in f:
+                entry = json.loads(line.strip())
+                sym = entry.get("symbol")
+                strat = entry.get("strategy")
+                if sym and strat and entry.get("side") == "buy":
+                    symbol_strategy_map[sym] = strat
+
+    # Clear all existing positions
+    for code, strat in portfolios["strategies"].items():
+        strat["positions"] = {}
+
+    # Place Alpaca positions into correct strategy
+    unmatched = []
+    for pos in alpaca_positions:
+        sym = pos["symbol"]
+        strategy_code = symbol_strategy_map.get(sym)
+        if strategy_code and strategy_code in portfolios["strategies"]:
+            portfolios["strategies"][strategy_code]["positions"][sym] = {
+                "qty": pos["qty"],
+                "avg_entry": pos["avg_entry_price"],
+                "current": pos["current_price"],
+                "market_value": pos["market_value"],
+                "unrealized_pl": pos["unrealized_pl"],
+                "unrealized_plpc": pos["unrealized_plpc"],
+            }
+        else:
+            unmatched.append(sym)
+
+    # Update strategy cash from account-level data
+    total_position_value = sum(p["market_value"] for p in alpaca_positions)
+    total_cash = account["cash"]
+    portfolios["account_total"] = account["equity"]
+
+    # Recalculate per-strategy cash: allocated - sum(position values in strategy)
+    for code, strat in portfolios["strategies"].items():
+        strat_pos_value = sum(p["market_value"] for p in strat["positions"].values())
+        strat["cash"] = round(strat["allocated"] - strat_pos_value, 2)
+
+    pos_count = sum(len(s["positions"]) for s in portfolios["strategies"].values())
+    print(f"  [sync] Alpaca: {len(alpaca_positions)} positions synced ({pos_count} mapped, {len(unmatched)} unmatched)")
+    if unmatched:
+        print(f"  [sync] Unmatched symbols: {', '.join(unmatched)}")
+
+    return portfolios
+
+
 def phase_report(signals: list, execution_results: list, regime=None, rebalanced_strategies: list = None):
     """Update performance.json, generate daily report + dashboard."""
     print("[Phase 6: REPORT] Generating report...")
 
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     portfolios = load_portfolios()
+
+    # Sync Alpaca positions into portfolios.json (source of truth)
+    portfolios = _sync_alpaca_positions(portfolios)
 
     # Update NAV history (deduplicate: keep only one entry per date)
     for code, strat in portfolios["strategies"].items():
@@ -464,7 +533,7 @@ def phase_report(signals: list, execution_results: list, regime=None, rebalanced
     regime_str = _extract_regime_str(regime)
     regime_reasoning = _extract_regime_reasoning(regime)
 
-    lines = [f"# Daily Trading Report — {today}", ""]
+    lines = [f"# Daily Trading Report -{today}", ""]
 
     if regime_str:
         lines.extend([f"## Market Regime: {regime_str}", f"{regime_reasoning}", ""])
@@ -537,12 +606,263 @@ def _extract_regime_reasoning(regime) -> str:
     return ''
 
 
+# ─── Phase 7: MONITOR (Intraday) ───────────────────────────────────────
+
+MONITOR_PEAKS_PATH = STATE_DIR / "monitor_peaks.json"
+MONITOR_LOG_PATH = STATE_DIR / "monitor_log.jsonl"
+
+
+def _load_monitor_peaks() -> dict:
+    if MONITOR_PEAKS_PATH.exists():
+        with open(MONITOR_PEAKS_PATH) as f:
+            return json.load(f)
+    return {"last_updated": None, "peaks": {}}
+
+
+def _save_monitor_peaks(data: dict):
+    data["last_updated"] = datetime.now(timezone.utc).isoformat()
+    with open(MONITOR_PEAKS_PATH, "w") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+
+def _append_monitor_log(entry: dict):
+    MONITOR_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(MONITOR_LOG_PATH, "a") as f:
+        f.write(json.dumps(entry) + "\n")
+
+
+def _build_symbol_strategy_map(portfolios: dict) -> dict[str, str]:
+    """Build symbol→strategy mapping from portfolios.json positions."""
+    mapping = {}
+    for code, strat in portfolios["strategies"].items():
+        for sym in strat.get("positions", {}):
+            mapping[sym] = code
+
+    # Fallback: check trade_log for unmapped symbols
+    if not mapping:
+        trade_log_path = STATE_DIR / "trade_log.jsonl"
+        if trade_log_path.exists():
+            with open(trade_log_path) as f:
+                for line in f:
+                    entry = json.loads(line.strip())
+                    sym = entry.get("symbol")
+                    strat = entry.get("strategy")
+                    if sym and strat and entry.get("side") == "buy":
+                        mapping[sym] = strat
+
+    return mapping
+
+
+def phase_monitor(dry_run: bool = False) -> list[dict]:
+    """Intraday 30-min monitor -stop-loss, take-profit, trailing stop.
+
+    Flow:
+      1. Check market open
+      2. Get open orders (skip symbols with pending sells)
+      3. Get Alpaca positions (source of truth)
+      4. Map symbol→strategy
+      5. Load peak tracker
+      6. Evaluate each position
+      7. Execute SELL signals if triggered
+      8. Update peaks + monitor log
+    """
+    from execution.alpaca_client import (
+        is_market_open, get_open_orders, get_positions, get_account_info,
+    )
+    from execution.monitor_rules import evaluate_position, check_strategy_mdd, check_portfolio_mdd
+    from strategies.base_strategy import Signal, Direction
+
+    print("[Phase 7: MONITOR] Intraday position monitoring...")
+
+    # 1. Market open check
+    try:
+        market_open = is_market_open()
+    except Exception as e:
+        print(f"  Market check failed: {e} -treating as closed")
+        market_open = False
+
+    if not market_open:
+        print("  Market is CLOSED -skipping monitor")
+        _append_monitor_log({
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "run_type": "monitor",
+            "market_open": False,
+            "positions_checked": 0,
+            "exits": [],
+        })
+        return []
+
+    # 2. Open orders -skip symbols with pending SELL orders
+    try:
+        open_orders = get_open_orders()
+        pending_sell_symbols = {
+            o["symbol"] for o in open_orders
+            if "sell" in o.get("side", "").lower()
+        }
+        if pending_sell_symbols:
+            print(f"  Pending sell orders: {', '.join(pending_sell_symbols)} -will skip")
+    except Exception as e:
+        print(f"  Open orders check failed: {e}")
+        pending_sell_symbols = set()
+
+    # 3. Alpaca positions
+    try:
+        positions = get_positions()
+        account = get_account_info()
+        print(f"  Alpaca: {len(positions)} positions, equity=${account['equity']:,.2f}")
+    except Exception as e:
+        print(f"  Alpaca connection failed: {e}")
+        return []
+
+    if not positions:
+        print("  No positions to monitor")
+        _append_monitor_log({
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "run_type": "monitor",
+            "market_open": True,
+            "positions_checked": 0,
+            "exits": [],
+        })
+        return []
+
+    # 4. Symbol→Strategy mapping
+    portfolios = load_portfolios()
+    sym_map = _build_symbol_strategy_map(portfolios)
+
+    # 5. Load peak tracker
+    peaks_data = _load_monitor_peaks()
+    peaks = peaks_data.get("peaks", {})
+
+    # 6. Evaluate each position
+    exits = []
+    checked = 0
+
+    for pos in positions:
+        sym = pos["symbol"]
+        if sym in pending_sell_symbols:
+            continue
+
+        checked += 1
+        strategy = sym_map.get(sym, "UNKNOWN")
+        plpc = pos["unrealized_plpc"]
+
+        # Update peak tracking
+        current_peak = peaks.get(sym, {}).get("peak_plpc", plpc)
+        if plpc > current_peak:
+            current_peak = plpc
+        peaks[sym] = {
+            "peak_plpc": current_peak,
+            "strategy": strategy,
+            "last_plpc": plpc,
+        }
+
+        # Evaluate
+        should_exit, reason = evaluate_position(plpc, current_peak, strategy)
+
+        if should_exit:
+            print(f"  EXIT {sym} ({strategy}): {reason}")
+            exits.append({
+                "symbol": sym,
+                "strategy": strategy,
+                "reason": reason,
+                "plpc": plpc,
+                "qty": pos["qty"],
+            })
+
+    # 7. Strategy-level MDD check
+    mdd_status = {}
+    for code, strat in portfolios["strategies"].items():
+        mdd_triggered, mdd_reason = check_strategy_mdd(strat.get("nav_history", []))
+        mdd_status[code] = mdd_reason if mdd_triggered else "ok"
+        if mdd_triggered:
+            print(f"  MDD ALERT {code}: {mdd_reason}")
+            # Add all positions of this strategy to exits
+            for pos in positions:
+                sym = pos["symbol"]
+                if sym_map.get(sym) == code and sym not in [e["symbol"] for e in exits]:
+                    exits.append({
+                        "symbol": sym,
+                        "strategy": code,
+                        "reason": f"strategy_mdd: {mdd_reason}",
+                        "plpc": pos["unrealized_plpc"],
+                        "qty": pos["qty"],
+                    })
+
+    port_mdd_triggered, port_mdd_reason = check_portfolio_mdd(portfolios["strategies"])
+    if port_mdd_triggered:
+        print(f"  PORTFOLIO MDD ALERT: {port_mdd_reason}")
+
+    # 8. Execute exit orders
+    execution_results = []
+    if exits:
+        from execution.order_manager import execute_signal as exec_sig
+
+        for exit_info in exits:
+            signal = Signal(
+                strategy=exit_info["strategy"],
+                symbol=exit_info["symbol"],
+                direction=Direction.SELL,
+                weight_pct=1.0,
+                confidence=1.0,
+                reason=f"[MONITOR] {exit_info['reason']}",
+            )
+
+            if dry_run:
+                result = {
+                    "symbol": exit_info["symbol"],
+                    "status": "dry_run",
+                    "reason": exit_info["reason"],
+                }
+                print(f"  DRY RUN: would sell {exit_info['symbol']} ({exit_info['reason']})")
+            else:
+                strat_data = portfolios["strategies"].get(exit_info["strategy"], {})
+                result = exec_sig(
+                    signal,
+                    strategy_capital=strat_data.get("allocated", 0),
+                    strategy_cash=strat_data.get("cash", 0),
+                    dry_run=False,
+                )
+                print(f"  SOLD {exit_info['symbol']}: {result.get('status', '?')}")
+
+            execution_results.append(result)
+
+            # Remove from peaks if sold
+            peaks.pop(exit_info["symbol"], None)
+
+    # 9. Save state
+    peaks_data["peaks"] = peaks
+    _save_monitor_peaks(peaks_data)
+
+    # Sync portfolios if any exits executed (not dry-run)
+    if exits and not dry_run:
+        portfolios = _sync_alpaca_positions(portfolios)
+        save_portfolios(portfolios)
+
+    # 10. Append monitor log
+    _append_monitor_log({
+        "ts": datetime.now(timezone.utc).isoformat(),
+        "run_type": "monitor",
+        "market_open": True,
+        "positions_checked": checked,
+        "exits": [
+            {"symbol": e["symbol"], "strategy": e["strategy"], "reason": e["reason"],
+             "plpc": e["plpc"], "status": execution_results[i].get("status", "?") if i < len(execution_results) else "?"}
+            for i, e in enumerate(exits)
+        ],
+        "mdd_status": mdd_status,
+        "portfolio_mdd": port_mdd_reason if port_mdd_triggered else "ok",
+    })
+
+    print(f"  Monitor complete: {checked} checked, {len(exits)} exits")
+    return execution_results
+
+
 # ─── Main ────────────────────────────────────────────────────────────────
 
 def main():
     parser = argparse.ArgumentParser(description="Paper Trading Cycle (Phase 2.5)")
     parser.add_argument("--phase", required=True,
-                        choices=["all", "data", "signals", "research", "risk", "resolve", "rebalance", "execute", "report"])
+                        choices=["all", "data", "signals", "research", "risk", "resolve", "rebalance", "execute", "report", "monitor"])
     parser.add_argument("--dry-run", action="store_true", help="Simulate without placing real orders")
     parser.add_argument("--research-mode", default=None, choices=["full", "selective", "skip"],
                         help="Research overlay depth (default: full, dry-run default: selective)")
@@ -553,6 +873,16 @@ def main():
     research_mode = args.research_mode
     if research_mode is None:
         research_mode = "selective" if args.dry_run else "full"
+
+    # Phase Monitor -independent lightweight path
+    if args.phase == "monitor":
+        print(f"=== Intraday Monitor - {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} ===")
+        print(f"Mode: {'DRY RUN' if args.dry_run else 'LIVE'}")
+        print()
+        monitor_results = phase_monitor(dry_run=args.dry_run)
+        print()
+        print("=== Monitor Cycle Complete ===")
+        return
 
     print(f"=== Paper Trading Cycle -{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} ===")
     print(f"Mode: {'DRY RUN' if args.dry_run else 'LIVE'} | Research: {research_mode}")

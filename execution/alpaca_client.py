@@ -24,7 +24,7 @@ from alpaca.trading.requests import (
     LimitOrderRequest,
     MarketOrderRequest,
 )
-from alpaca.trading.enums import OrderSide, TimeInForce
+from alpaca.trading.enums import OrderSide, QueryOrderStatus, TimeInForce
 
 
 @lru_cache(maxsize=1)
@@ -126,6 +126,27 @@ def submit_limit_order(
     )
     order = client.submit_order(request)
     return _order_to_dict(order)
+
+
+def close_position(symbol: str) -> dict:
+    """Close entire position for a symbol (market order)."""
+    client = get_client()
+    result = client.close_position(symbol)
+    return _order_to_dict(result)
+
+
+def get_open_orders() -> list[dict]:
+    """Get all open (pending) orders."""
+    client = get_client()
+    orders = client.get_orders(GetOrdersRequest(status=QueryOrderStatus.OPEN))
+    return [_order_to_dict(o) for o in orders]
+
+
+def is_market_open() -> bool:
+    """Check if US market is currently open."""
+    client = get_client()
+    clock = client.get_clock()
+    return clock.is_open
 
 
 def get_order_by_client_id(client_order_id: str) -> dict | None:

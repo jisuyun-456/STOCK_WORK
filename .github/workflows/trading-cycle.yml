@@ -19,6 +19,10 @@ on:
           - skip
         default: selective
 
+concurrency:
+  group: state-files
+  cancel-in-progress: false
+
 jobs:
   run-trading-cycle:
     runs-on: ubuntu-latest

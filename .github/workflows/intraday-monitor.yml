@@ -1,0 +1,67 @@
+name: "\U0001F4E1 Intraday Monitor"
+
+on:
+  schedule:
+    # US market hours 09:00~16:30 ET = 14:00~21:30 UTC, every 30 min
+    # First run 14:00 UTC (30min buffer after daily 13:30 UTC)
+    - cron: '0,30 14-21 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (no actual sell orders)'
+        type: boolean
+        default: true
+
+concurrency:
+  group: state-files
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run intraday monitor
+        env:
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+          ALPACA_MODE: ${{ secrets.ALPACA_MODE || 'paper' }}
+        run: |
+          DRY_RUN_FLAG=""
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            DRY_RUN_FLAG="--dry-run"
+            echo "Mode: DRY RUN"
+          else
+            echo "Mode: LIVE PAPER"
+          fi
+          python run_cycle.py --phase monitor $DRY_RUN_FLAG
+
+      - name: Commit monitor state
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase || true
+          git add \
+            state/monitor_peaks.json \
+            state/monitor_log.jsonl \
+            state/portfolios.json \
+            state/trade_log.jsonl
+          git diff --cached --quiet || \
+            git commit -m "chore: intraday monitor $(date +'%Y-%m-%d %H:%M UTC')"
+          git push
