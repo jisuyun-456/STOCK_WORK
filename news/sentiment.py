@@ -14,12 +14,12 @@ from dataclasses import dataclass, field
 
 # Gemini SDK 임포트 (없으면 graceful fallback)
 try:
-    import google.generativeai as genai
+    from google import genai as _genai_client_module
     _GENAI_AVAILABLE = True
 except ImportError:  # pragma: no cover
+    _genai_client_module = None  # type: ignore
     _GENAI_AVAILABLE = False
-    genai = None  # type: ignore
-    print("[sentiment] WARNING: google-generativeai not installed -- all scores will be 0.0")
+    print("[sentiment] WARNING: google-genai not installed -- all scores will be 0.0")
 
 
 _GEMINI_MODEL = "gemini-2.0-flash"
@@ -100,8 +100,8 @@ def _parse_gemini_response(response_text: str) -> tuple[float, str]:
     return score, ""
 
 
-def _get_model():
-    """Gemini 모델 인스턴스를 반환한다.
+def _get_client():
+    """Gemini Client 인스턴스를 반환한다.
 
     GEMINI_API_KEY가 없거나 SDK 미설치 시 None 반환.
     """
@@ -112,8 +112,7 @@ def _get_model():
     if not api_key:
         return None
 
-    genai.configure(api_key=api_key)
-    return genai.GenerativeModel(_GEMINI_MODEL)
+    return _genai_client_module.Client(api_key=api_key)
 
 
 def analyze_sentiment(symbol: str, articles: list[dict]) -> SentimentResult:
@@ -153,8 +152,8 @@ def analyze_sentiment(symbol: str, articles: list[dict]) -> SentimentResult:
             error="GEMINI_API_KEY not set",
         )
 
-    model = _get_model()
-    if model is None:
+    client = _get_client()
+    if client is None:
         return SentimentResult(
             symbol=symbol,
             score=0.0,
@@ -166,7 +165,10 @@ def analyze_sentiment(symbol: str, articles: list[dict]) -> SentimentResult:
     prompt = _build_prompt(symbol, articles)
 
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model=_GEMINI_MODEL,
+            contents=prompt,
+        )
         score, summary = _parse_gemini_response(response.text)
         print(f"[sentiment] {symbol}: score={score:.2f}, summary={summary[:50]}")
         return SentimentResult(
