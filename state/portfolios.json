@@ -1,0 +1,38 @@
+{
+  "account_total": 100000,
+  "last_updated": null,
+  "strategies": {
+    "MOM": {
+      "name": "Momentum",
+      "allocated": 25000,
+      "cash": 25000,
+      "positions": {},
+      "nav_history": [],
+      "last_rebalance": null
+    },
+    "VAL": {
+      "name": "Value Quality",
+      "allocated": 25000,
+      "cash": 25000,
+      "positions": {},
+      "nav_history": [],
+      "last_rebalance": null
+    },
+    "QNT": {
+      "name": "Quant Factor",
+      "allocated": 30000,
+      "cash": 30000,
+      "positions": {},
+      "nav_history": [],
+      "last_rebalance": null
+    },
+    "LEV": {
+      "name": "Leveraged ETF",
+      "allocated": 20000,
+      "cash": 20000,
+      "positions": {},
+      "nav_history": [],
+      "last_rebalance": null
+    }
+  }
+}

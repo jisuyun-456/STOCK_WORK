@@ -2,6 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(python3 -:*)",
+      "Bash(python -:*)",
+      "Bash(pip:*)",
       "Bash(git:*)",
       "Bash(bash .claude/hooks/*)"
     ],
@@ -16,35 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/protect-sensitive-files.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Agent",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/pre-trade-gate.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/fmp-budget-check.sh"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/session-portfolio-snapshot.sh"
+            "command": "bash .claude/hooks/protect-api-keys.sh"
           }
         ]
       }
@@ -54,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/log-agent-usage.sh"
+            "command": "bash .claude/hooks/log-execution.sh"
           }
         ]
       }

@@ -1,87 +1,94 @@
-# STOCK_WORK — 미국/한국 주식 투자 분석 시스템
+# Paper Trading System
+
+Alpaca Paper Trading API를 통한 완전 자동 다중 전략 시뮬레이션 시스템.
+전략 = Python 모듈 (결정론적), 에이전트 = 오케스트레이션 (충돌 해소, 리스크 판단).
 
 ## 이 프로젝트 열면 자동 실행
-다른 것보다 먼저, 아래를 즉시 실행할 것:
-1. `git log --oneline -5` → 최근 작업 히스토리 확인
-실행 후 "현재 상태 요약 + 다음 추천 태스크 1개"를 나에게 말해줄 것.
+1. `git log --oneline -10` → 최근 작업 확인
+2. `python -c "from execution.alpaca_client import get_account_info; print(get_account_info())"` → 계좌 상태 확인 (실패 시 .env 미세팅 안내)
+실행 후 "현재 상태 요약 + 다음 추천 태스크 1개" 말해줄 것.
 세션 종료 시: git commit 필수.
 
-## 투자 원칙 (불변)
-- 분산투자: 단일 종목 최대 20%, 단일 섹터 최대 40%
-- 손절 원칙: 개별 종목 -10%, 포트폴리오 MDD -20% 시 검토 의무화
-- 세금 선행: 매도 전 Tax & Compliance 시뮬레이션 필수
-- 데이터 기반: 뉴스·감·소문에 의한 매매 금지, 정량 분석 선행
-- 레버리지 경고: 인버스/곱버스는 반드시 Market Scanner + Quant Strategist 동시 분석 후 진입
+## 투자 원칙 (Immutable)
+- 분산투자: 단일 종목 20% 이하, 단일 섹터 40% 이하
+- 손절 기준: 종목 -10% 리뷰, 포트폴리오 MDD -20% 필수 검토
+- 데이터 기반: 뉴스/감 거래 금지, 정량 분석 우선
+- 레버리지 경고: 인버스/레버리지 ETF는 추세 필터(SMA200) 통과 필수
 
-## 투자 스타일
-- 코어: 장기 가치투자 (Graham→Buffett 계보)
-- 새틀라이트: 모멘텀/테마/인버스·곱버스 (기회 포착형)
-- 시장: 미국/한국 동등 ��버, 기회에 따라 ��동적
+## 기술 스택
+| 레이어 | 도구 | 상태 |
+|--------|------|------|
+| 브로커 API | Alpaca (alpaca-py) | Paper Trading |
+| 시장 데이터 | yfinance + Alpaca Data API | 무료 |
+| 기술 지표 | pandas / numpy | |
+| CI/CD | GitHub Actions | 평일 cron |
+| 에이전트 하네스 | Claude Code .claude/agents/ | 5 에이전트 |
+| 상태 저장 | JSON (git tracked) | portfolios.json |
 
-## 에이전트 팀 — Lean Trading Desk (5명)
-
-> 핵심 철학: "에이전트는 사고한다. 스킬은 실행한다. 도구가 차별화한다."
-
+## 환경변수 (.env)
 ```
-Chief Strategist (opus) — 다관점 ��합 + 최종 판단 + 동적 오케스트레이션
-├── Fundamental Analyst (sonnet) — 기업가치 + 매크로 경제
-├── Quant Strategist (sonnet) — 기술적 분석 + 리스크 + ���트폴리오
-├── Tax & Compliance (sonnet) — 세금 최적화 + 투자원칙 게이트키퍼
-└─��� Market Scanner (sonnet) — 공시/수���/뉴스 + ���버리지ETF
+ALPACA_API_KEY=xxx
+ALPACA_SECRET_KEY=xxx
+ALPACA_MODE=paper          # "paper" or "live" — 코드 변경 없이 전환
 ```
 
-### 라우팅 키워드
+## 전략 (strategies/)
+| 코드 | 전략 | 자본 | 리밸런싱 | 파일 |
+|------|------|------|---------|------|
+| MOM | Momentum (12-1M top 10) | 25% | 월간 | momentum.py |
+| VAL | Value Quality (P/E+ROE+FCF) | 25% | 분기 | value_quality.py |
+| QNT | Quant Factor (FF5) | 30% | 월간 | quant_factor.py |
+| LEV | Leveraged ETF 추세추종 | 20% | 일간 | leveraged_etf.py |
+
+## 에이전트 팀
+
+| 에이전트 | 모델 | 역할 |
+|---------|------|------|
+| Trading Commander | opus | 오케스트레이션, 시그널 충돌 중재 |
+| Signal Engine | sonnet | 전략 모듈 실행 + 시그널 종합 |
+| Risk Guardian | sonnet | 5가지 사전 거래 리스크 검증 |
+| Execution Broker | sonnet | Alpaca 주문 실행 + 체결 추적 |
+| Performance Accountant | sonnet | 전략별 P&L 귀속 + 리포트 |
+
+### 에이전트 라우팅
 
 | 키워드 | 에이전트 |
 |--------|---------|
-| PER, PBR, ROE, DCF, 밸류에이션, 실적, Moat, 금리, 환율, GDP, CPI, 연준, 매크로 | Fundamental Analyst |
-| 이동평균, RSI, MACD, 볼린저, 차트, VaR, MDD, 포지션사이징, 포트폴리오, 리밸런싱, 팩터 | Quant Strategist |
-| 양도세, 배당���, ISA, 연금저축, 세금, 절세, 손익통산 | Tax & Compliance |
-| 공시, 뉴스, 수급, 13F, 내부자거래, 센티멘트, 인버스, 곱버스, 레버리지ETF, 괴리율 | Market Scanner |
-| 종합 분석, 매수/매도 판단, 복합 요청 | Chief Strategist |
+| 시그널, 전략, 매수, 매도, 분석 | Signal Engine |
+| 리스크, VaR, 한도, 집중도 | Risk Guardian |
+| 주문, 체결, Alpaca, 포지션 | Execution Broker |
+| 성과, P&L, NAV, 수익률, 대시보드 | Performance Accountant |
+| 종합, 충돌, 전체 사이클 | Trading Commander |
 
-> **라우팅 우선순위:** 스킬 매칭 > 단일 에이전트 직접 위임 > Chief Strategist 통합
+## 실행 파이프라인 (run_cycle.py)
 
-### 동적 오케스트레이션 규칙 (4개)
+```
+Phase 1: DATA      -> yfinance + Alpaca positions -> snapshot
+Phase 2: SIGNALS   -> 4 strategy modules -> Signal[]
+Phase 3: RISK      -> risk_validator.py -> approved Signal[]
+Phase 4: RESOLVE   -> 충돌 해소 (Python 규칙 / 에이전트 판단)
+Phase 5: EXECUTE   -> Alpaca Paper API -> fills
+Phase 6: REPORT    -> performance.json + daily report
+Phase 7: COMMIT    -> git add + commit + push
+```
 
-| 규칙 | 조건 | 동작 |
-|------|------|------|
-| 1 | 매수/매도 판단 | Tax & Compliance 경유 필수 |
-| 2 | 레버리지 ETF | Quant Strategist 병렬 분석 필수 |
-| 3 | 단일 도메인 질문 | 해당 에이전트 직접 위임 |
-| 4 | 2개+ 도메인 교차 | Chief Strategist 동적 조합 |
-
-### 스킬 (8개)
-
-| 스킬 | 트리거 | 호출 에이전트 |
-|------|--------|-------------|
-| `/analyze {SYMBOL}` | 분석해줘, 보고서 | Fundamental + Quant + Market Scanner |
-| `/screen` | 스크리닝, 종목 찾아줘 | Market Scanner |
-| `/portfolio` | 포트폴리오, ��밸런싱 | Quant + Tax & Compliance |
-| `/macro` | 매크로, 경기, ��리 | Fundamental Analyst |
-| `/trade-check {SYMBOL}` | 매수해도 돼?, 매도? | Chief Strategist (전체 조율) |
-| `/daily` | 일일 리포트, 오늘 시장 | Market Scanner + Quant |
-| `/tax-sim` | 세금, 양도세, 절세 | Tax & Compliance |
-| `/leverage-check` | 인버스, 곱버스, 레버리지 | Market Scanner + Quant (병렬 필수) |
-
-### 범용 전문가 (전역 CLAUDE.md 상속)
-
-| 역할 | 에이전트 | 트리거 |
-|------|---------|--------|
-| 코드/인프라 | D3 tech-architect (전역) | 코드, API, DB, 배포 |
-| 프로젝트 관리 | D5 project-manager (전역) | 프로젝트 계획, KPI, MECE |
-
-## 데이터 소스
-- 한���: Korean Stock MCP (DART+KRX), 네이버 금융, BOK ECOS
-- 미국: Yahoo Finance MCP, FMP MCP (SEC 재무 심층), FRED
-- API 키: .env 파일 (절대 커밋 금지)
-
-## FMP API 제한 (필수 준수)
-- **일일 한도: 250콜** (무료 플랜)
-- FMP 호출 전 반드시 `python scripts/fmp_rate_limiter.py check` 실행
-- 200콜(80%): WARNING — 알림 표시, 계속 가능
-- 245콜(98%): CRITICAL — 필수 분석�� 허용
-- 250콜(100%): BLOCKED — FMP 호출 완전 차단, 내일 자동 리셋
+## 리스크 게이트 (execution/risk_validator.py)
+| 체크 | 임계값 | 실패 시 |
+|------|--------|--------|
+| 포지션 한도 | <= 20% | REJECT |
+| 섹터 집중 | <= 40% | REJECT |
+| VaR (95%, 1d) | <= 3% | REJECT |
+| 상관관계 | <= 0.85 | REJECT |
+| 현금 버퍼 | >= 5% | REJECT |
 
 ## 태스크 관리
-`.claude/feature_list.json` — 분석 대기 종목, 리밸런싱 태스크, 세금 이벤트 목록
+`.claude/feature_list.json` -- 전체 태스크 목록
+
+## 검증 체크포인트 (코딩 완료 후 필수)
+1. 훅 결과 확인
+2. "typecheck: pass / test: pass N개 통과" 형식 보고
+3. "다음 단계로 진행할까요?" 사용자에게 확인
+
+### 금지 표현 (검증 없이 사용 불가)
+- "완료됐습니다", "구현했습니다" -> 훅 결과 없이 사용 금지
+- "잘 동작할 것입니다" -> 실행 증거 없이 사용 금지

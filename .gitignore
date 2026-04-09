@@ -6,5 +6,6 @@
 __pycache__/
 *.pyc
 node_modules/
-# PDF는 GitHub Actions artifact로 관리 (repo에 커밋 안 함)
-docs/reports/*.pdf
+.worktrees/
+# Trade log is append-only, tracked in git
+# state/trade_log.jsonl
