@@ -178,37 +178,32 @@ def fetch_factor_data(
         resp.raise_for_status()
 
         with zipfile.ZipFile(io.BytesIO(resp.content)) as zf:
-            csv_name = [n for n in zf.namelist() if n.endswith(".CSV")][0]
+            csv_name = [n for n in zf.namelist() if n.lower().endswith(".csv")][0]
             with zf.open(csv_name) as f:
                 raw_text = f.read().decode("utf-8", errors="ignore")
 
-        # CSV 헤더 블록 스킵 — 첫 번째 숫자 행 찾기
+        # CSV 구조: 헤더 텍스트 → 빈줄 → ",Mkt-RF,SMB,HML,RMW,CMA,RF" → 데이터행
         lines = raw_text.splitlines()
-        data_start = None
+        header_idx = None
         for i, line in enumerate(lines):
-            stripped = line.strip()
-            if stripped and stripped[0].isdigit() and len(stripped) >= 8:
-                data_start = i
+            if line.strip().startswith(",Mkt-RF"):
+                header_idx = i
                 break
 
-        if data_start is None:
-            raise ValueError("FF5 CSV 데이터 시작점 찾기 실패")
+        if header_idx is None:
+            raise ValueError("FF5 CSV 헤더행 ',Mkt-RF,...' 찾기 실패")
 
-        # 데이터 행 추출 (빈 줄 또는 비숫자 행에서 종료)
-        data_lines = []
-        for line in lines[data_start:]:
+        # 헤더행 + 데이터행 추출
+        csv_lines = [lines[header_idx]]
+        for line in lines[header_idx + 1:]:
             stripped = line.strip()
             if not stripped or not stripped[0].isdigit():
                 break
-            data_lines.append(stripped)
+            csv_lines.append(stripped)
 
-        factors = pd.read_csv(
-            io.StringIO("\n".join(data_lines)),
-            header=None,
-            names=["date", "Mkt-RF", "SMB", "HML", "RMW", "CMA", "RF"],
-        )
-        factors["date"] = pd.to_datetime(factors["date"].astype(str), format="%Y%m%d")
-        factors = factors.set_index("date")
+        factors = pd.read_csv(io.StringIO("\n".join(csv_lines)), index_col=0)
+        factors.index = pd.to_datetime(factors.index.astype(str), format="%Y%m%d")
+        factors.index.name = "date"
         factors = factors / 100.0  # % → 소수 변환
         factors = factors[
             (factors.index >= pd.Timestamp(start))
