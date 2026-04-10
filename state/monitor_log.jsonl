@@ -10,3 +10,4 @@
 {"ts": "2026-04-10T15:41:00.379881+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 35, "exits": [], "mdd_status": {"MOM": "ok", "VAL": "ok", "QNT": "ok", "LEV": "ok"}, "portfolio_mdd": "ok"}
 {"ts": "2026-04-10T16:39:54.282080+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 35, "exits": [], "mdd_status": {"MOM": "ok", "VAL": "ok", "QNT": "ok", "LEV": "ok"}, "portfolio_mdd": "ok"}
 {"ts": "2026-04-10T17:40:18.806784+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 35, "exits": [], "mdd_status": {"MOM": "ok", "VAL": "ok", "QNT": "ok", "LEV": "ok"}, "portfolio_mdd": "ok"}
+{"ts": "2026-04-10T18:38:41.744719+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 35, "exits": [], "mdd_status": {"MOM": "ok", "VAL": "ok", "QNT": "ok", "LEV": "ok"}, "portfolio_mdd": "ok"}
