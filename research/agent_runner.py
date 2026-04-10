@@ -451,6 +451,20 @@ def _run_data_driven_agents(
 
     verdicts: list[ResearchVerdict] = []
 
+    # ── Phase 1.6 펀더멘털 데이터 추출 ──────────────────────────────────────
+    _fund = market_data.get("fundamental", {})
+    _days_earn = _fund.get("earnings_blackout", {}).get(sym, 99)
+    _ec = _fund.get("economic_blackout", {})
+    _fomc_days = _ec.get("FOMC", 99)
+    _cpi_days = _ec.get("CPI", 99)
+    _ppi_days = _ec.get("PPI", 99)
+    _analyst_info = _fund.get("analyst", {}).get(sym, {})
+    _rec_mean = _analyst_info.get("rec_mean", 3.0)
+    _target_price = _analyst_info.get("target_price", 0.0)
+    _analyst_count = _analyst_info.get("analyst_count", 0)
+    _insider_info = _fund.get("insider", {}).get(sym, {})
+    _insider_net = _insider_info.get("net_30d", 0)
+
     # ── 1. technical_strategist ─────────────────────────────────────────────
     rsi = indicators.get("rsi")
     macd_cross = indicators.get("macd_cross", "")
@@ -513,6 +527,35 @@ def _run_data_driven_agents(
         verdicts.append(_verdict("equity_research", "AGREE", 0.0, "WEAK",
             f"펀더멘탈 중립. PE={pe}, FCF_Yield={fcf_yield}.", metrics_eq))
 
+    # ── 3a. equity_research (Phase 1.6: 실적발표 블랙아웃) ──────────────────
+    if _days_earn <= 3 and direction == "BUY":
+        metrics_earn = {"days_to_earnings": _days_earn}
+        verdicts.append(_verdict("equity_research", "DISAGREE", -0.20, "STRONG",
+            f"실적발표 D-{_days_earn} — 이벤트 리스크. 포지션 50% 축소 권고.", metrics_earn))
+
+    # ── 3b. equity_research (Phase 1.6: 애널리스트 컨센서스) ────────────────
+    if _analyst_count >= 5:  # 커버리지 충분할 때만 적용
+        metrics_ana = {"rec_mean": _rec_mean, "target_price": _target_price, "analyst_count": _analyst_count}
+        if _rec_mean >= 4.0:
+            verdicts.append(_verdict("equity_research", "DISAGREE", -0.15, "MODERATE",
+                f"애널리스트 컨센서스 매도 (rec={_rec_mean:.1f}/5.0, N={_analyst_count}).", metrics_ana))
+        elif _rec_mean <= 2.0 and _target_price > 0 and signal.price > 0:
+            current_price = signal.price
+            upside = (_target_price - current_price) / current_price
+            if upside >= 0.10:
+                verdicts.append(_verdict("equity_research", "AGREE", +0.10, "MODERATE",
+                    f"애널리스트 강력매수 (rec={_rec_mean:.1f}) + 목표가 업사이드 {upside:.0%}.", metrics_ana))
+
+    # ── 3c. equity_research (Phase 1.6: 내부자 거래) ─────────────────────────
+    if _insider_net <= -3:
+        metrics_ins = {"insider_net_30d": _insider_net}
+        verdicts.append(_verdict("equity_research", "DISAGREE", -0.10, "MODERATE",
+            f"내부자 순매도 {abs(_insider_net)}건 (30일) — 경영진 신뢰 저하.", metrics_ins))
+    elif _insider_net >= 3 and direction == "BUY":
+        metrics_ins = {"insider_net_30d": _insider_net}
+        verdicts.append(_verdict("equity_research", "AGREE", +0.05, "WEAK",
+            f"내부자 순매수 {_insider_net}건 (30일) — 경영진 신뢰.", metrics_ins))
+
     # ── 4. macro_economist ──────────────────────────────────────────────────
     macro_news = market_data.get("news", {}).get("_MACRO", [])
     macro_neg = sum(1 for n in macro_news[:10] if any(
@@ -530,6 +573,21 @@ def _run_data_driven_agents(
     else:
         verdicts.append(_verdict("macro_economist", "AGREE", 0.0, "WEAK",
             f"매크로 중립. Regime={regime.regime}.", metrics_macro))
+
+    # ── 4a. macro_economist (Phase 1.6: FOMC/CPI 블랙아웃) ──────────────────
+    metrics_ec = {"fomc_days": _fomc_days, "cpi_days": _cpi_days, "ppi_days": _ppi_days}
+    if _fomc_days <= 2 and direction == "BUY":
+        verdicts.append(_verdict("macro_economist", "DISAGREE", -0.25, "STRONG",
+            f"FOMC D-{_fomc_days} — 금리 결정 대기. 신규 BUY 전면 차단.", metrics_ec))
+    elif _fomc_days <= 5:
+        verdicts.append(_verdict("macro_economist", "DISAGREE", -0.10, "MODERATE",
+            f"FOMC D-{_fomc_days} — 포지션 축소 권고.", metrics_ec))
+    elif _cpi_days <= 1 and direction == "BUY":
+        verdicts.append(_verdict("macro_economist", "DISAGREE", -0.15, "MODERATE",
+            f"CPI D-{_cpi_days} — 인플레이션 데이터 대기. 포지션 30% 축소 권고.", metrics_ec))
+    elif _ppi_days <= 1 and direction == "BUY":
+        verdicts.append(_verdict("macro_economist", "DISAGREE", -0.08, "WEAK",
+            f"PPI D-{_ppi_days} — 생산자물가 발표 임박.", metrics_ec))
 
     # ── 5. portfolio_architect ──────────────────────────────────────────────
     pos_count = len(positions)

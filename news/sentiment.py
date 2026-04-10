@@ -8,11 +8,23 @@ GEMINI_API_KEY 미설정 시 score=0.0 (NEUTRAL) fallback.
 
 from __future__ import annotations
 
+import io
 import json
 import os
 import re
+import sys
 import time
 from dataclasses import dataclass, field
+
+# Windows cp949/euc-kr 콘솔에서 한글/유니코드 print 시 UnicodeEncodeError 방지
+if hasattr(sys.stdout, "buffer"):
+    _enc = (getattr(sys.stdout, "encoding", None) or "").lower().replace("-", "")
+    if _enc in ("cp949", "euckr", "mskr"):
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "buffer"):
+    _enc = (getattr(sys.stderr, "encoding", None) or "").lower().replace("-", "")
+    if _enc in ("cp949", "euckr", "mskr"):
+        sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 # Gemini SDK 임포트 (없으면 graceful fallback)
 try:

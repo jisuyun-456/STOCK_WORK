@@ -29,10 +29,24 @@ Phases:
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+
+# Windows cp949/euc-kr 콘솔에서 한글·유니코드 print 시 UnicodeEncodeError 방지
+# 모든 하위 모듈(strategies, news, fundamentals 등)에 전역 적용
+def _fix_console_encoding() -> None:
+    for _stream_name in ("stdout", "stderr"):
+        _stream = getattr(sys, _stream_name)
+        if hasattr(_stream, "buffer"):
+            _enc = (getattr(_stream, "encoding", None) or "").lower().replace("-", "")
+            if _enc in ("cp949", "euckr", "mskr"):
+                setattr(sys, _stream_name,
+                        io.TextIOWrapper(_stream.buffer, encoding="utf-8", errors="replace"))
+
+_fix_console_encoding()
 
 # ─── Paths ───────────────────────────────────────────────────────────────
 ROOT = Path(__file__).parent
@@ -639,10 +653,10 @@ def _sync_alpaca_positions(portfolios: dict) -> dict:
     total_position_value = sum(p["market_value"] for p in alpaca_positions)
     total_cash = account["cash"]
     new_equity = float(account["equity"])
-    if new_equity >= 1000:
+    if new_equity >= 100:
         portfolios["account_total"] = new_equity
     else:
-        print(f"  [sync] WARNING: Alpaca equity ${new_equity:,.2f} < $1,000 — skipping account_total update")
+        print(f"  [sync] WARNING: Alpaca equity ${new_equity:,.2f} < $100 — skipping account_total update")
 
     # Recalculate per-strategy cash: allocated - sum(position values in strategy)
     for code, strat in portfolios["strategies"].items():
@@ -1187,6 +1201,27 @@ def main():
                 json.dump(_regime_state, f, indent=2)
         except Exception as e:
             print(f"  [regime_state] Save failed: {e}")
+
+    # Phase 1.6: FUNDAMENTALS — 실적캘린더/경제지표/애널리스트/내부자 거래
+    fundamental_data: dict = {}
+    if args.phase in ("all",):
+        try:
+            # 전략 유니버스 심볼 수집 (price 데이터 컬럼 기준)
+            _prices = market_data.get("prices") if market_data else None
+            _fund_symbols: list[str] = (
+                [c for c in _prices.columns if not c.startswith("^")]
+                if _prices is not None else []
+            )
+            if _fund_symbols:
+                print(f"[Phase 1.6: FUNDAMENTALS] {len(_fund_symbols)} 종목 펀더멘털 수집...")
+                from fundamentals import collect_all as _fund_collect_all
+                fundamental_data = _fund_collect_all(_fund_symbols)
+                if market_data is not None:
+                    market_data["fundamental"] = fundamental_data
+                print()
+        except Exception as _fe:
+            print(f"  [Phase 1.6] 수집 실패 (fallback 빈 데이터): {_fe}")
+            print()
 
     # Phase 2: SIGNALS
     if args.phase in ("all", "signals"):
