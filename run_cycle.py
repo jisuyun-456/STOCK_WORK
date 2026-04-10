@@ -739,7 +739,14 @@ def _phase_cross_strategy_check(signals: list, max_aggregate_pct: float = 0.25) 
 # ─── Phase 5: EXECUTE ───────────────────────────────────────────────────
 
 def phase_execute(signals: list, dry_run: bool = False) -> list:
-    """Submit orders to Alpaca."""
+    """Submit orders to Alpaca with network-failure protection.
+
+    C7 fix (20회 시뮬레이션 중 발견): SIM 3에서 Alpaca DNS 장애 시
+    execute_signal() 내부의 get_positions() 호출이 예외로 전파되어
+    전체 사이클이 exit=1로 중단, phase_report 미실행 → nav_history 유실.
+    이제 execute_signals 전체를 try/except로 감싸서 실패 시 빈 결과를
+    반환하고 사이클을 계속 진행한다 (report 단계에서 전일 NAV 유지).
+    """
     mode = "DRY RUN" if dry_run else "LIVE"
     print(f"[Phase 5: EXECUTE] Submitting orders ({mode})...")
 
@@ -753,7 +760,24 @@ def phase_execute(signals: list, dry_run: bool = False) -> list:
             "cash": strat["cash"],
         }
 
-    results = execute_signals(signals, allocations, dry_run=dry_run)
+    try:
+        results = execute_signals(signals, allocations, dry_run=dry_run)
+    except Exception as e:
+        # C7: 네트워크·API 장애 시 전체 사이클 중단 방지
+        print(f"  [CRITICAL] phase_execute 예외 — 모든 주문 스킵: {e}")
+        import traceback
+        traceback.print_exc()
+        results = [
+            {
+                "ts": datetime.now(timezone.utc).isoformat(),
+                "strategy": s.strategy,
+                "symbol": s.symbol,
+                "side": s.direction.value,
+                "status": "error",
+                "error_reason": f"phase_execute_exception: {type(e).__name__}: {e}",
+            }
+            for s in signals
+        ]
 
     for r in results:
         symbol = r.get("symbol", "?")
