@@ -172,6 +172,15 @@ def check_sector_concentration(
 ) -> RiskCheckResult:
     """Check that sector exposure doesn't exceed max_pct."""
     target_sector = get_sector(symbol)
+    # L-1: Unknown 섹터는 게이트 skip (가짜 집중도 방지)
+    if target_sector == "Unknown":
+        return RiskCheckResult(
+            passed=True,
+            check_name="sector_concentration",
+            reason=f"Sector unknown for {symbol} — gate skipped",
+            value=0.0,
+            threshold=max_pct,
+        )
     sector_value = trade_value
 
     for sym, val in current_positions.items():

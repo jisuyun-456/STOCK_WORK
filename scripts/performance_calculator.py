@@ -169,7 +169,7 @@ def _compute_sharpe(navs: list[float]) -> float | None:
     rf_daily = RISK_FREE_RATE / 252
     excess = mean_ret - rf_daily
 
-    variance = sum((r - mean_ret) ** 2 for r in daily_returns) / len(daily_returns)
+    variance = sum((r - mean_ret) ** 2 for r in daily_returns) / (len(daily_returns) - 1)
     std_ret = math.sqrt(variance)
 
     if std_ret == 0:
@@ -278,6 +278,14 @@ def append_and_save(
     inception_qqq = existing.get("benchmarks", {}).get("QQQ", {}).get("inception_price", 0)
     current_spy = new_daily_entry.get("benchmark_prices", {}).get("SPY", 0)
     current_qqq = new_daily_entry.get("benchmark_prices", {}).get("QQQ", 0)
+
+    # L-5: inception_price=0 자동 보정
+    if inception_spy == 0 and current_spy > 0:
+        existing["benchmarks"]["SPY"]["inception_price"] = current_spy
+        inception_spy = current_spy
+    if inception_qqq == 0 and current_qqq > 0:
+        existing["benchmarks"]["QQQ"]["inception_price"] = current_qqq
+        inception_qqq = current_qqq
 
     spy_return_pct = ((current_spy / inception_spy) - 1) * 100 if inception_spy > 0 else 0.0
     qqq_return_pct = ((current_qqq / inception_qqq) - 1) * 100 if inception_qqq > 0 else 0.0
