@@ -178,7 +178,7 @@ def phase_regime(market_data: dict) -> tuple:
         print(f"  News sentiment failed: {e} (using 0.0)")
 
     # Polymarket 예측시장 데이터 (Phase 9)
-    polymarket_score = 0.0
+    polymarket_score = None  # None = no data, 0.0 = neutral
     try:
         from research.polymarket import fetch_macro_markets, compute_polymarket_score
         pm_signals = fetch_macro_markets(max_markets=20)
@@ -189,7 +189,7 @@ def phase_regime(market_data: dict) -> tuple:
         ]
         print(f"  Polymarket: score={polymarket_score:+.2f} ({len(pm_signals)} markets)")
     except Exception as e:
-        print(f"  Polymarket fetch failed: {e} (using 0.0)")
+        print(f"  Polymarket fetch failed: {e} (score=None, excluded from regime)")
 
     # 확장된 Regime Detection (뉴스 + Polymarket)
     try:
@@ -209,6 +209,16 @@ def phase_regime(market_data: dict) -> tuple:
     portfolios = load_portfolios()
     total = portfolios.get("account_total", 100000)
     allocations = allocate(regime_info.regime, total)
+
+    # Apply CASH allocation: reduce strategy allocations and update portfolios.json
+    cash_amount = allocations.pop("CASH", 0)
+    if cash_amount > 0:
+        print(f"  CASH reserve: ${cash_amount:,.0f} (not deployed)")
+        # Update each strategy's allocated amount in portfolios.json
+        for code in ["MOM", "VAL", "QNT", "LEV"]:
+            if code in allocations and code in portfolios["strategies"]:
+                portfolios["strategies"][code]["allocated"] = allocations[code]
+        save_portfolios(portfolios)
 
     print(f"  Regime: {regime_info.regime} | VIX: {regime_info.vix_level}")
     print(f"  Allocations: {', '.join(f'{k}=${v:,.0f}' for k, v in allocations.items())}")
@@ -234,6 +244,8 @@ def phase_signals(market_data: dict, regime: str = "NEUTRAL", allocations: dict 
         LeveragedETFStrategy(),
     ]
 
+    portfolios = load_portfolios()
+
     all_signals = []
     for strat in strategies:
         # 배분 $1 미만이면 사실상 0으로 스킵 (부동소수점 비교 회피)
@@ -244,7 +256,11 @@ def phase_signals(market_data: dict, regime: str = "NEUTRAL", allocations: dict 
         # Regime 정보 주입
         strat.regime = regime
 
-        signals = strat.generate_signals(market_data)
+        # Current positions for SELL signal generation
+        strat_data = portfolios["strategies"].get(strat.name, {})
+        current_positions = strat_data.get("positions", {}) or None
+
+        signals = strat.generate_signals(market_data, current_positions)
         print(f"  {strat.name}: {len(signals)} signals")
         for s in signals:
             print(f"    {s.symbol} {s.direction.value} {s.weight_pct:.0%} conf={s.confidence:.2f} -{s.reason}")
@@ -380,6 +396,68 @@ def phase_resolve(signals: list) -> list:
 
     print(f"  Resolved: {len(resolved)} signals")
     return resolved
+
+
+# ─── Phase 4.5: CROSS-STRATEGY CHECK ──────────────────────────────────
+
+def _phase_cross_strategy_check(signals: list, max_aggregate_pct: float = 0.25) -> list:
+    """Check aggregate symbol exposure across all strategies.
+
+    If the same symbol appears in multiple strategies, ensure combined
+    allocation doesn't exceed max_aggregate_pct of total AUM.
+    Drops the lowest-confidence duplicate if exceeded.
+    """
+    from strategies.base_strategy import Direction
+
+    print("[Phase 4.5: CROSS-STRATEGY CHECK] Checking aggregate exposure...")
+
+    portfolios = load_portfolios()
+    total_aum = portfolios.get("account_total", 100000)
+
+    # Group BUY signals by symbol
+    by_symbol: dict[str, list] = {}
+    for s in signals:
+        if s.direction == Direction.BUY:
+            by_symbol.setdefault(s.symbol, []).append(s)
+
+    approved = []
+    rejected_count = 0
+
+    for s in signals:
+        if s.direction != Direction.BUY:
+            approved.append(s)
+            continue
+
+        group = by_symbol.get(s.symbol, [s])
+        if len(group) <= 1:
+            approved.append(s)
+            continue
+
+        # Calculate aggregate: sum of (strategy_capital * weight_pct) / total_aum
+        total_exposure = 0.0
+        for g in group:
+            strat_capital = portfolios["strategies"].get(g.strategy, {}).get("allocated", 0)
+            total_exposure += strat_capital * g.weight_pct
+
+        aggregate_pct = total_exposure / total_aum if total_aum > 0 else 1.0
+
+        if aggregate_pct > max_aggregate_pct:
+            # Keep only the highest-confidence signal, reject others
+            best = max(group, key=lambda x: x.confidence)
+            if s is best:
+                approved.append(s)
+            else:
+                rejected_count += 1
+                print(f"  REJECT {s.symbol} ({s.strategy}): aggregate {aggregate_pct:.1%} > {max_aggregate_pct:.0%}")
+        else:
+            approved.append(s)
+
+    if rejected_count:
+        print(f"  Cross-strategy check: {rejected_count} signals rejected")
+    else:
+        print(f"  Cross-strategy check: all clear ({len(signals)} signals)")
+
+    return approved
 
 
 # ─── Phase 5: EXECUTE ───────────────────────────────────────────────────
@@ -945,7 +1023,7 @@ def main():
     else:
         market_data = None
 
-    # Phase 1.5: REGIME (NEW)
+    # Phase 1.5: REGIME (NEW) + Hysteresis
     regime_info = None
     allocations = None
     if args.phase in ("all",):
@@ -953,10 +1031,67 @@ def main():
             from strategies.momentum import fetch_momentum_data
             market_data = fetch_momentum_data(days=400)
         regime_info, allocations = phase_regime(market_data)
-        regime = regime_info.regime if regime_info else "NEUTRAL"
+        detected_regime = regime_info.regime if regime_info else "NEUTRAL"
+
+        # Hysteresis: require 2 consecutive cycles in same regime before switching
+        _regime_state_path = STATE_DIR / "regime_state.json"
+        try:
+            if _regime_state_path.exists():
+                with open(_regime_state_path) as f:
+                    _rs = json.load(f)
+                prev = _rs.get("regime", "NEUTRAL")
+                consec = _rs.get("consecutive_cycles", 0)
+                if detected_regime != prev and consec < 2:
+                    print(f"  [Hysteresis] {prev}→{detected_regime} detected but only {consec} cycle(s). Holding {prev}.")
+                    regime = prev
+                else:
+                    regime = detected_regime
+            else:
+                regime = detected_regime
+        except Exception:
+            regime = detected_regime
+
         print()
     else:
         regime = "NEUTRAL"
+
+    # Phase 1.7: REGIME EXIT — emergency liquidation on regime downgrade
+    if args.phase in ("all",) and regime_info:
+        _regime_state_path = STATE_DIR / "regime_state.json"
+        previous_regime = "NEUTRAL"
+        try:
+            if _regime_state_path.exists():
+                with open(_regime_state_path) as f:
+                    _rs = json.load(f)
+                    previous_regime = _rs.get("regime", "NEUTRAL")
+        except Exception:
+            pass
+
+        if previous_regime != regime:
+            from strategies.regime_allocator import generate_regime_exit_signals
+            exit_signals = generate_regime_exit_signals(regime, previous_regime, load_portfolios())
+            if exit_signals:
+                print(f"[Phase 1.7: REGIME EXIT] {previous_regime}→{regime}: {len(exit_signals)} emergency exits")
+                phase_execute(exit_signals, dry_run=args.dry_run)
+                print()
+
+        # Save current regime state
+        _regime_state = {
+            "regime": regime,
+            "since": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+            "consecutive_cycles": 1,
+        }
+        try:
+            if _regime_state_path.exists():
+                with open(_regime_state_path) as f:
+                    _rs = json.load(f)
+                if _rs.get("regime") == regime:
+                    _regime_state["consecutive_cycles"] = _rs.get("consecutive_cycles", 0) + 1
+                    _regime_state["since"] = _rs.get("since", _regime_state["since"])
+            with open(_regime_state_path, "w") as f:
+                json.dump(_regime_state, f, indent=2)
+        except Exception as e:
+            print(f"  [regime_state] Save failed: {e}")
 
     # Phase 2: SIGNALS
     if args.phase in ("all", "signals"):
@@ -1002,6 +1137,11 @@ def main():
         print()
     else:
         resolved = approved
+
+    # Phase 4.5: CROSS-STRATEGY CHECK — aggregate symbol exposure
+    if args.phase in ("all",) and resolved:
+        resolved = _phase_cross_strategy_check(resolved)
+        print()
 
     # Phase 5.5: REBALANCE (NEW)
     rebalanced_strategies = []

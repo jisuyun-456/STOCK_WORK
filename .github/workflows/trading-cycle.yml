@@ -56,7 +56,7 @@ jobs:
         run: |
           # workflow_dispatch: 입력값 사용 / schedule: selective + 실전 paper
           DRY_RUN_FLAG=""
-          RESEARCH_MODE="${{ github.event.inputs.research_mode || 'skip' }}"
+          RESEARCH_MODE="${{ github.event.inputs.research_mode || 'selective' }}"
 
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
             DRY_RUN_FLAG="--dry-run"

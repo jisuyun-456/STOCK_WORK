@@ -10,7 +10,10 @@ Gates:
 
 from __future__ import annotations
 
+import json
+import time
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
@@ -29,24 +32,112 @@ class RiskCheckResult:
 
 # ---------- Sector mapping (GICS-like) ----------
 
+# Hardcoded fallback for known symbols (instant lookup, no API call)
 SECTOR_MAP: dict[str, str] = {
     # Tech
     "AAPL": "Technology", "MSFT": "Technology", "NVDA": "Technology",
     "GOOGL": "Technology", "META": "Technology", "AMZN": "Technology",
     "PLTR": "Technology", "APLD": "Technology", "IONQ": "Technology",
+    "AMD": "Technology", "INTC": "Technology", "AVGO": "Technology",
+    "CSCO": "Technology", "TXN": "Technology", "QCOM": "Technology",
+    "AMAT": "Technology", "LRCX": "Technology", "KLAC": "Technology",
+    "MU": "Technology", "MRVL": "Technology", "ADI": "Technology",
+    "ASML": "Technology", "SNPS": "Technology", "CDNS": "Technology",
+    "CRM": "Technology", "ORCL": "Technology", "ADBE": "Technology",
+    "INTU": "Technology", "PANW": "Technology", "CRWD": "Technology",
+    "NFLX": "Communication Services", "GOOG": "Communication Services",
+    "TMUS": "Communication Services", "VZ": "Communication Services",
+    "T": "Communication Services", "DIS": "Communication Services",
     # Healthcare
     "JNJ": "Healthcare", "UNH": "Healthcare", "HIMS": "Healthcare",
-    # Space / Industrials
-    "RKLB": "Industrials",
+    "LLY": "Healthcare", "ABBV": "Healthcare", "MRK": "Healthcare",
+    "PFE": "Healthcare", "TMO": "Healthcare", "ABT": "Healthcare",
+    "AMGN": "Healthcare", "GILD": "Healthcare", "ISRG": "Healthcare",
+    "VRTX": "Healthcare", "REGN": "Healthcare", "BSX": "Healthcare",
+    # Financials
+    "JPM": "Financials", "BAC": "Financials", "WFC": "Financials",
+    "GS": "Financials", "MS": "Financials", "BLK": "Financials",
+    "SCHW": "Financials", "C": "Financials", "USB": "Financials",
+    "PNC": "Financials", "CB": "Financials", "ICE": "Financials",
+    "CME": "Financials", "SPGI": "Financials", "MMC": "Financials",
+    # Consumer
+    "WMT": "Consumer Staples", "COST": "Consumer Staples", "PG": "Consumer Staples",
+    "KO": "Consumer Staples", "PEP": "Consumer Staples", "PM": "Consumer Staples",
+    "MO": "Consumer Staples", "CL": "Consumer Staples", "KDP": "Consumer Staples",
+    "MDLZ": "Consumer Staples", "KHC": "Consumer Staples", "MCD": "Consumer Discretionary",
+    "HD": "Consumer Discretionary", "LOW": "Consumer Discretionary",
+    "NKE": "Consumer Discretionary", "SBUX": "Consumer Discretionary",
+    "TJX": "Consumer Discretionary", "BKNG": "Consumer Discretionary",
+    "ABNB": "Consumer Discretionary", "TSLA": "Consumer Discretionary",
+    "LULU": "Consumer Discretionary", "ROST": "Consumer Discretionary",
+    # Industrials
+    "RKLB": "Industrials", "CAT": "Industrials", "HON": "Industrials",
+    "UNP": "Industrials", "RTX": "Industrials", "GE": "Industrials",
+    "DE": "Industrials", "BA": "Industrials", "LMT": "Industrials",
+    "FDX": "Industrials", "MMM": "Industrials", "NOC": "Industrials",
+    "GD": "Industrials", "EMR": "Industrials",
+    # Energy
+    "XOM": "Energy", "CVX": "Energy", "COP": "Energy",
+    "SLB": "Energy", "EOG": "Energy", "PSX": "Energy",
+    "MPC": "Energy", "VLO": "Energy", "OXY": "Energy",
+    "HAL": "Energy", "FANG": "Energy",
+    # Utilities
+    "NEE": "Utilities", "DUK": "Utilities", "SO": "Utilities",
+    "AEP": "Utilities", "D": "Utilities", "EXC": "Utilities",
+    "XEL": "Utilities", "CEG": "Utilities",
+    # Real Estate
+    "PLD": "Real Estate", "CCI": "Real Estate", "AMT": "Real Estate",
+    # Materials
+    "LIN": "Materials", "APD": "Materials", "SHW": "Materials",
     # Leveraged ETFs
     "TQQQ": "ETF-Leveraged", "UPRO": "ETF-Leveraged",
     "SQQQ": "ETF-Leveraged", "SPXU": "ETF-Leveraged",
+    "SOXL": "ETF-Leveraged", "SOXS": "ETF-Leveraged",
 }
+
+# Dynamic sector cache (yfinance fallback for symbols not in SECTOR_MAP)
+_SECTOR_CACHE_PATH = Path(__file__).parent.parent / "state" / "sector_cache.json"
+_SECTOR_CACHE_TTL = 86400  # 24 hours
+
+
+def _load_sector_cache() -> dict:
+    if not _SECTOR_CACHE_PATH.exists():
+        return {}
+    try:
+        with open(_SECTOR_CACHE_PATH) as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+def _save_sector_cache(symbol: str, sector: str):
+    cache = _load_sector_cache()
+    cache[symbol] = {"sector": sector, "ts": time.time()}
+    _SECTOR_CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(_SECTOR_CACHE_PATH, "w") as f:
+        json.dump(cache, f, indent=2)
 
 
 def get_sector(symbol: str) -> str:
-    """Get sector for a symbol. Falls back to 'Unknown'."""
-    return SECTOR_MAP.get(symbol, "Unknown")
+    """Get sector for a symbol. Uses hardcoded map → cache → yfinance fallback."""
+    # 1. Hardcoded map (instant, no API call)
+    if symbol in SECTOR_MAP:
+        return SECTOR_MAP[symbol]
+
+    # 2. Check dynamic cache
+    cache = _load_sector_cache()
+    if symbol in cache:
+        entry = cache[symbol]
+        if time.time() - entry.get("ts", 0) < _SECTOR_CACHE_TTL:
+            return entry["sector"]
+
+    # 3. yfinance dynamic lookup
+    try:
+        sector = yf.Ticker(symbol).info.get("sector", "Unknown")
+        _save_sector_cache(symbol, sector)
+        return sector
+    except Exception:
+        return "Unknown"
 
 
 # ---------- Individual risk checks ----------
@@ -124,7 +215,7 @@ def check_portfolio_var(
             w = np.array(weights)
             port_returns = returns.dot(w)
 
-        z_score = abs(np.percentile(np.random.standard_normal(10000), (1 - confidence) * 100))
+        z_score = 1.6449  # norm.ppf(0.95), deterministic
         var_value = float(port_returns.std() * z_score)
 
         return RiskCheckResult(
@@ -177,10 +268,10 @@ def check_correlation(
             threshold=max_corr,
         )
     except Exception as e:
-        # On data fetch failure, pass with warning
+        # On data fetch failure, REJECT (never silently pass)
         return RiskCheckResult(
-            passed=True, check_name="correlation",
-            reason=f"Correlation check skipped (data error): {e}",
+            passed=False, check_name="correlation",
+            reason=f"Correlation check FAILED (data unavailable): {e}",
         )
 
 

@@ -100,7 +100,7 @@ def _neutral_fallback(reason: str) -> RegimeDetection:
 
 def detect_regime_enhanced(
     news_sentiment_score: float = 0.0,
-    polymarket_score: float = 0.0,
+    polymarket_score: float | None = None,
 ) -> RegimeDetection:
     """확장된 Regime Detection: VIX + SPY/SMA200 + 뉴스감성 + Polymarket.
 
@@ -157,14 +157,14 @@ def detect_regime_enhanced(
     news_score = (news_sentiment_score + 1.0) / 2.0
 
     # ── Polymarket 점수 정규화 (0~1) ─────────────────────────────────────────
-    polymarket_score = max(-1.0, min(1.0, polymarket_score))
-    poly_score = (polymarket_score + 1.0) / 2.0
+    _pm = max(-1.0, min(1.0, polymarket_score)) if polymarket_score is not None else 0.0
+    poly_score = (_pm + 1.0) / 2.0
 
     # ── 가중 합산 (Polymarket 유무에 따라 동적) ──────────────────────────────
-    if polymarket_score != 0.0:
+    if polymarket_score is not None:
         # Polymarket 10% 배분: VIX 35% + SPY 25% + News 30% + Poly 10%
         composite = vix_score * 0.35 + spy_score * 0.25 + news_score * 0.30 + poly_score * 0.10
-        poly_msg = f"polymarket={polymarket_score:+.2f} → poly_score={poly_score:.2f}×0.10 | "
+        poly_msg = f"polymarket={_pm:+.2f} → poly_score={poly_score:.2f}×0.10 | "
     else:
         # 기존 가중치 유지: VIX 40% + SPY 30% + News 30%
         composite = vix_score * 0.4 + spy_score * 0.3 + news_score * 0.3
@@ -188,8 +188,8 @@ def detect_regime_enhanced(
     else:
         regime = "CRISIS"
 
-    poly_reason = f", polymarket={polymarket_score:+.2f}(score={poly_score:.2f}×0.10)" if polymarket_score != 0.0 else ""
-    weights = "VIX×0.35+SPY×0.25+news×0.30+poly×0.10" if polymarket_score != 0.0 else "VIX×0.40+SPY×0.30+news×0.30"
+    poly_reason = f", polymarket={_pm:+.2f}(score={poly_score:.2f}×0.10)" if polymarket_score is not None else ""
+    weights = "VIX×0.35+SPY×0.25+news×0.30+poly×0.10" if polymarket_score is not None else "VIX×0.40+SPY×0.30+news×0.30"
     reasoning = (
         f"Enhanced ({weights}): VIX={vix_level:.1f}(score={vix_score:.2f}), "
         f"SPY/SMA200={ratio:.4f}(score={spy_score:.2f}), "
@@ -203,7 +203,7 @@ def detect_regime_enhanced(
         vix_level=round(vix_level, 2),
         reasoning=reasoning,
         timestamp=datetime.now(timezone.utc).isoformat(),
-        polymarket_score=round(polymarket_score, 3),
+        polymarket_score=round(_pm, 3),
     )
 
 

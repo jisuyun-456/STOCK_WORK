@@ -48,13 +48,14 @@ class MomentumStrategy(BaseStrategy):
     stop_loss_pct = 0.10
     take_profit_pct = 0.30
 
-    def generate_signals(self, market_data: dict) -> list[Signal]:
-        """Generate momentum signals from market data.
+    def generate_signals(self, market_data: dict, current_positions: dict | None = None) -> list[Signal]:
+        """Generate momentum BUY + SELL signals from market data.
 
         Args:
             market_data: Must contain 'prices' key with DataFrame of
                          daily close prices (columns=symbols, index=dates)
                          for at least 252 trading days.
+            current_positions: Dict of {symbol: {qty, current, ...}} for existing holdings.
         """
         prices = market_data.get("prices")
         if prices is None or prices.empty:
@@ -92,8 +93,38 @@ class MomentumStrategy(BaseStrategy):
                 "sma200": sma200,
             }
 
+        # ── SELL signals for existing positions that no longer qualify ──
+        if current_positions:
+            for symbol in list(current_positions.keys()):
+                if symbol not in prices.columns:
+                    continue
+                series = prices[symbol].dropna()
+                if len(series) < 252:
+                    continue
+
+                price_now = series.iloc[-1]
+                sma200 = series.iloc[-200:].mean()
+                price_12m_ago = series.iloc[-252]
+                price_1m_ago = series.iloc[-21]
+                mom_12_1 = (price_1m_ago / price_12m_ago) - 1.0 if price_12m_ago > 0 else 0.0
+
+                # EXIT: momentum < 0 OR price < SMA200
+                should_sell = mom_12_1 < 0 or price_now < sma200
+                if should_sell:
+                    pos = current_positions[symbol]
+                    weight = pos.get("market_value", 0) / 1.0  # actual weight resolved at execution
+                    signals.append(Signal(
+                        strategy=self.name,
+                        symbol=symbol,
+                        direction=Direction.SELL,
+                        weight_pct=0.0,
+                        confidence=0.9,
+                        reason=f"EXIT: mom={mom_12_1:.1%}, price={price_now:.2f} {'< SMA200=' + f'{sma200:.2f}' if price_now < sma200 else 'mom<0'}",
+                        order_type="market",
+                    ))
+
         if not momentum_scores:
-            return []
+            return signals  # return SELL signals even if no BUY candidates
 
         # Rank and select top N
         ranked = sorted(
@@ -105,13 +136,20 @@ class MomentumStrategy(BaseStrategy):
         # Equal weight within strategy
         target_weight = 1.0 / len(ranked) if ranked else 0.0
 
+        # Confidence: scale by relative rank (top=1.0, bottom=0.5)
+        max_mom = ranked[0][1]["score"] if ranked else 1.0
+
         for symbol, data in ranked:
+            # Scale confidence: 0.5 (lowest ranked) to 1.0 (highest ranked)
+            relative = data["score"] / max_mom if max_mom > 0 else 0.5
+            confidence = 0.5 + 0.5 * relative
+
             signals.append(Signal(
                 strategy=self.name,
                 symbol=symbol,
                 direction=Direction.BUY,
                 weight_pct=target_weight,
-                confidence=min(1.0, 0.5 + data["score"]),  # higher momentum = higher confidence
+                confidence=round(min(1.0, confidence), 4),
                 reason=f"12-1 mom={data['score']:.1%}, price={data['price']:.2f} > SMA200={data['sma200']:.2f}",
                 order_type="market",
             ))

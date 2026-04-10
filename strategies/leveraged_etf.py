@@ -90,15 +90,16 @@ class LeveragedETFStrategy(BaseStrategy):
 
     regime: str = "NEUTRAL"
 
-    def generate_signals(self, market_data: dict) -> list[Signal]:
-        """SMA 크로스오버 기반 레버리지 ETF 매수 시그널 생성.
+    def generate_signals(self, market_data: dict, current_positions: dict | None = None) -> list[Signal]:
+        """SMA 크로스오버 기반 레버리지 ETF 매수/매도 시그널 생성.
 
         Args:
             market_data: 'prices' 키 또는 'leveraged.prices' 키에
                          DataFrame (columns=tickers, index=dates) 포함.
+            current_positions: Dict of {symbol: {qty, current, ...}} for SELL signal generation.
 
         Returns:
-            매수 Signal 리스트. BEAR/CRISIS regime이면 빈 리스트.
+            BUY + SELL Signal 리스트. BEAR/CRISIS regime이면 기존 포지션 전량 SELL.
         """
         # 데이터 추출 — leveraged 전용 키 우선, 없으면 공통 prices 폴백
         _lev_prices = market_data.get("leveraged", {}).get("prices")
@@ -108,10 +109,22 @@ class LeveragedETFStrategy(BaseStrategy):
             print("  LEV: prices 데이터 없음 → 빈 리스트 반환")
             return []
 
-        # BEAR/CRISIS 방어 — regime gateway에서 배분 0% 처리되지만 이중 방어
+        # BEAR/CRISIS 방어 — 기존 포지션 전량 청산 + 신규 매수 차단
         if self.regime in ("BEAR", "CRISIS"):
             print(f"  LEV: regime={self.regime}, all positions to CASH")
-            return []
+            sell_signals: list[Signal] = []
+            if current_positions:
+                for symbol in list(current_positions.keys()):
+                    sell_signals.append(Signal(
+                        strategy=self.name,
+                        symbol=symbol,
+                        direction=Direction.SELL,
+                        weight_pct=0.0,
+                        confidence=0.95,
+                        reason=f"EXIT: regime={self.regime}, liquidate all LEV positions",
+                        order_type="market",
+                    ))
+            return sell_signals
 
         signals: list[Signal] = []
 
@@ -160,10 +173,31 @@ class LeveragedETFStrategy(BaseStrategy):
                     order_type="market",
                 ))
 
+        # ── SELL signals for held ETFs where base index has dead cross ──
+        sell_signals: list[Signal] = []
+        if current_positions:
+            # Build reverse map: long ETF → base index
+            etf_to_base = {info["long"]: base for base, info in ETF_MAP.items()}
+            buy_etfs = {s.symbol for s in signals}
+
+            for symbol in list(current_positions.keys()):
+                base_index = etf_to_base.get(symbol)
+                if base_index and symbol not in buy_etfs:
+                    # Not in current BUY set = dead cross or insufficient data
+                    sell_signals.append(Signal(
+                        strategy=self.name,
+                        symbol=symbol,
+                        direction=Direction.SELL,
+                        weight_pct=0.0,
+                        confidence=0.9,
+                        reason=f"EXIT: {base_index} SMA50 < SMA200 (dead cross)",
+                        order_type="market",
+                    ))
+
         # 등가중 배분: 활성 포지션 수에 따라 1/N 할당
         if signals:
             weight = 1.0 / len(signals)
             for s in signals:
                 s.weight_pct = round(weight, 6)
 
-        return signals
+        return sell_signals + signals

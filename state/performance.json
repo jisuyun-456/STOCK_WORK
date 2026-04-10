@@ -11,38 +11,38 @@
   },
   "strategies": {
     "MOM": {
-      "current_nav": 25000,
+      "current_nav": 25000.0,
       "total_return_pct": 0.0,
       "daily_return_pct": 0.0,
       "mdd_pct": 0.0,
       "sharpe_ratio": null,
       "win_rate": null,
       "trade_count": 0,
-      "dry_run_count": 60,
+      "dry_run_count": 70,
       "peak_nav": 25000,
       "last_rebalance": null
     },
     "VAL": {
-      "current_nav": 25000,
+      "current_nav": 25000.0,
       "total_return_pct": 0.0,
       "daily_return_pct": 0.0,
       "mdd_pct": 0.0,
       "sharpe_ratio": null,
       "win_rate": null,
       "trade_count": 0,
-      "dry_run_count": 20,
+      "dry_run_count": 26,
       "peak_nav": 25000,
       "last_rebalance": null
     },
     "QNT": {
-      "current_nav": 30000,
+      "current_nav": 30000.0,
       "total_return_pct": 0.0,
       "daily_return_pct": 0.0,
       "mdd_pct": 0.0,
       "sharpe_ratio": null,
       "win_rate": null,
       "trade_count": 0,
-      "dry_run_count": 80,
+      "dry_run_count": 100,
       "peak_nav": 30000,
       "last_rebalance": null
     },
@@ -59,12 +59,12 @@
       "last_rebalance": null
     },
     "TOTAL": {
-      "initial_nav": 100000,
-      "current_nav": 100000,
-      "total_return_pct": 0.0,
-      "spy_return_pct": 0.0,
-      "qqq_return_pct": 0.0,
-      "alpha_vs_spy": 0.0
+      "initial_nav": 16.4,
+      "current_nav": 100000.0,
+      "total_return_pct": 609656.0976,
+      "spy_return_pct": 0.5769,
+      "qqq_return_pct": 0.6765,
+      "alpha_vs_spy": 609655.5207
     }
   },
   "daily": [
@@ -83,6 +83,23 @@
       },
       "regime": "NEUTRAL",
       "signals_count": 35,
+      "rebalances": []
+    },
+    {
+      "date": "2026-04-10",
+      "total_nav": 100000.01,
+      "strategy_navs": {
+        "MOM": 25000.0,
+        "VAL": 25000.0,
+        "QNT": 30000.0,
+        "LEV": 20000
+      },
+      "benchmark_prices": {
+        "SPY": 679.9099731445312,
+        "QQQ": 610.1900024414062
+      },
+      "regime": "NEUTRAL",
+      "signals_count": 36,
       "rebalances": []
     }
   ]

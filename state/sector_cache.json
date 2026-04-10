@@ -1,0 +1,22 @@
+{
+  "WBD": {
+    "sector": "Communication Services",
+    "ts": 1775779850.2618582
+  },
+  "ADP": {
+    "sector": "Technology",
+    "ts": 1775779850.560253
+  },
+  "ACN": {
+    "sector": "Technology",
+    "ts": 1775779851.0341015
+  },
+  "CI": {
+    "sector": "Healthcare",
+    "ts": 1775779851.347838
+  },
+  "TGT": {
+    "sector": "Consumer Defensive",
+    "ts": 1775779851.7235286
+  }
+}

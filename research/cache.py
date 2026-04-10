@@ -28,10 +28,11 @@ def _save_cache(data: dict):
         json.dump(data, f, indent=2, ensure_ascii=False)
 
 
-def get_cached(symbol: str, regime: str) -> list[ResearchVerdict] | None:
+def get_cached(symbol: str, regime: str, strategy: str = "", direction: str = "") -> list[ResearchVerdict] | None:
     """Return cached verdicts if valid, else None."""
     cache = _load_cache()
-    entry = cache.get(symbol)
+    cache_key = f"{symbol}:{strategy}:{direction}" if strategy else symbol
+    entry = cache.get(cache_key)
     if entry is None:
         return None
 
@@ -54,11 +55,12 @@ def get_cached(symbol: str, regime: str) -> list[ResearchVerdict] | None:
         return None
 
 
-def set_cache(symbol: str, regime: str, verdicts: list[ResearchVerdict]):
+def set_cache(symbol: str, regime: str, verdicts: list[ResearchVerdict], strategy: str = "", direction: str = ""):
     """Store verdicts in cache."""
     cache = _load_cache()
     now = datetime.now(timezone.utc)
-    cache[symbol] = {
+    cache_key = f"{symbol}:{strategy}:{direction}" if strategy else symbol
+    cache[cache_key] = {
         "cached_at": now.isoformat(),
         "expires_at": (now + timedelta(days=TTL_DAYS)).isoformat(),
         "regime_at_cache": regime,

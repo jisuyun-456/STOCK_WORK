@@ -218,16 +218,17 @@ class ValueQualityStrategy(BaseStrategy):
     # run_cycle.py에서 주입. NEUTRAL / CRISIS / BULL / BEAR
     regime: str = "NEUTRAL"
 
-    def generate_signals(self, market_data: dict) -> list[Signal]:
-        """P/E + ROE + FCF Yield 기반 복합 점수로 매수 시그널 생성.
+    def generate_signals(self, market_data: dict, current_positions: dict | None = None) -> list[Signal]:
+        """P/E + ROE + FCF Yield 기반 복합 점수로 매수/매도 시그널 생성.
 
         Args:
             market_data: fetch_value_data()의 반환값.
                 - 'prices': DataFrame (가격, 참조용)
                 - 'fundamentals': {symbol: {"pe", "roe", "fcf_yield", "price"}}
+            current_positions: Dict of {symbol: {qty, current, ...}} for SELL signal generation.
 
         Returns:
-            List of Signal (BUY). 빈 리스트 = 유효 종목 없음.
+            List of Signal (BUY + SELL).
         """
         fundamentals: dict[str, dict] = market_data.get("fundamentals", {})
         if not fundamentals:
@@ -285,9 +286,45 @@ class ValueQualityStrategy(BaseStrategy):
                 "score": score,
             }
 
+        # ── SELL signals for holdings that no longer pass regime filters ──
+        sell_signals: list[Signal] = []
+        if current_positions:
+            for symbol in list(current_positions.keys()):
+                fund = fundamentals.get(symbol)
+                should_sell = False
+                sell_reason = ""
+
+                if fund is None:
+                    should_sell = True
+                    sell_reason = "no fundamentals data available"
+                else:
+                    pe = fund.get("pe", 0)
+                    roe = fund.get("roe", 0)
+                    fcf_yield = fund.get("fcf_yield", 0)
+                    if pe <= 0 or pe > max_pe:
+                        should_sell = True
+                        sell_reason = f"P/E={pe:.1f} > {max_pe}" if pe > 0 else "negative P/E"
+                    elif roe < min_roe:
+                        should_sell = True
+                        sell_reason = f"ROE={roe:.1%} < {min_roe:.0%}"
+                    elif fcf_yield < min_fcf_yield:
+                        should_sell = True
+                        sell_reason = f"FCFYield={fcf_yield:.1%} < {min_fcf_yield:.0%}"
+
+                if should_sell:
+                    sell_signals.append(Signal(
+                        strategy=self.name,
+                        symbol=symbol,
+                        direction=Direction.SELL,
+                        weight_pct=0.0,
+                        confidence=0.9,
+                        reason=f"EXIT: {sell_reason} (regime={regime})",
+                        order_type="market",
+                    ))
+
         if not candidates:
             print(f"[VAL] Regime={regime} 필터 통과 종목 없음")
-            return []
+            return sell_signals
 
         # --- 2단계: 점수 상위 max_positions 선택 ---
         ranked = sorted(
@@ -327,4 +364,4 @@ class ValueQualityStrategy(BaseStrategy):
                 )
             )
 
-        return signals
+        return sell_signals + signals

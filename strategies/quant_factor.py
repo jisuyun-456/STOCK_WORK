@@ -242,17 +242,18 @@ class QuantFactorStrategy(BaseStrategy):
     # OLS 회귀 윈도우 (거래일)
     OLS_WINDOW: int = 60
 
-    def generate_signals(self, market_data: dict) -> list[Signal]:
-        """멀티팩터 점수 기반 매수 신호 생성.
+    def generate_signals(self, market_data: dict, current_positions: dict | None = None) -> list[Signal]:
+        """멀티팩터 점수 기반 매수/매도 신호 생성.
 
         Args:
             market_data: {
                 "prices":  DataFrame — 일별 종가 (columns=symbols, index=dates),
                 "factors": DataFrame — FF5 일별 팩터 수익률 (선택적),
             }
+            current_positions: Dict of {symbol: {qty, current, ...}} for SELL signal generation.
 
         Returns:
-            상위 max_positions개 종목의 BUY Signal 리스트. 데이터 부족 시 빈 리스트.
+            BUY + SELL Signal 리스트.
         """
         # QNT 전용 가격 우선 사용, 없으면 공통 prices로 폴백
         qnt_prices = market_data.get("qnt_prices")
@@ -371,8 +372,30 @@ class QuantFactorStrategy(BaseStrategy):
                 order_type="market",
             ))
 
-        print(f"[QNT] 최종 신호: {len(signals)}개 종목 BUY")
-        return signals
+        # ── SELL signals for holdings outside new top-N ──
+        sell_signals: list[Signal] = []
+        if current_positions:
+            top_symbols = {sym for sym, _ in ranked}
+            for symbol in list(current_positions.keys()):
+                if symbol not in top_symbols:
+                    score = composite_scores.get(symbol)
+                    reason = f"EXIT: dropped from top-{self.max_positions}"
+                    if score is not None:
+                        reason += f" (score={score:.4f})"
+                    else:
+                        reason += " (no score computed)"
+                    sell_signals.append(Signal(
+                        strategy=self.name,
+                        symbol=symbol,
+                        direction=Direction.SELL,
+                        weight_pct=0.0,
+                        confidence=0.9,
+                        reason=reason,
+                        order_type="market",
+                    ))
+
+        print(f"[QNT] 최종 신호: {len(signals)}개 BUY, {len(sell_signals)}개 SELL")
+        return sell_signals + signals
 
     def _estimate_factor_betas(
         self,

@@ -78,18 +78,19 @@ def run_research_overlay(
     all_verdicts: dict[str, list[ResearchVerdict]] = {}
 
     for signal in research_signals:
-        # Check cache
+        # Check cache (key includes strategy+direction to avoid cross-strategy collision)
+        sig_dir = signal.direction.value if hasattr(signal.direction, 'value') else str(signal.direction)
         if not no_cache:
-            cached = get_cached(signal.symbol, regime.regime)
+            cached = get_cached(signal.symbol, regime.regime, signal.strategy, sig_dir)
             if cached is not None:
                 print(f"  {signal.symbol}: cache hit ({len(cached)} verdicts)")
                 verdicts = cached
             else:
                 verdicts = _generate_verdicts(signal, market_data, portfolio_state, regime)
-                set_cache(signal.symbol, regime.regime, verdicts)
+                set_cache(signal.symbol, regime.regime, verdicts, signal.strategy, sig_dir)
         else:
             verdicts = _generate_verdicts(signal, market_data, portfolio_state, regime)
-            set_cache(signal.symbol, regime.regime, verdicts)
+            set_cache(signal.symbol, regime.regime, verdicts, signal.strategy, sig_dir)
 
         all_verdicts[signal.symbol] = verdicts
 

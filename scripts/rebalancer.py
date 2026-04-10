@@ -1,4 +1,4 @@
-"""Rebalancer — 드리프트 감지 + 리밸런스 주문 생성.
+"""Rebalancer -드리프트 감지 + 리밸런스 주문 생성.
 
 스케줄:
   MOM  = monthly  (매월 1거래일)
@@ -161,7 +161,7 @@ def compute_rebalance_orders(
         strategy_cash: available cash
 
     Returns:
-        (sells, buys) — sells first for cash release
+        (sells, buys) -sells first for cash release
     """
     target_symbols = {s.symbol: s for s in target_signals}
     sells = []
@@ -265,16 +265,16 @@ def run_rebalance_check(
 
         if not due:
             skipped.append(code)
-            print(f"  {code}: SKIP — {reason}")
+            print(f"  {code}: SKIP -{reason}")
             continue
 
         # Only rebalance if we have positions to rebalance
         if not positions:
             skipped.append(code)
-            print(f"  {code}: SKIP — no positions to rebalance")
+            print(f"  {code}: SKIP -no positions to rebalance")
             continue
 
-        print(f"  {code}: REBALANCE — {reason}")
+        print(f"  {code}: REBALANCE -{reason}")
 
         # Get fresh target signals from strategy
         try:
@@ -288,7 +288,7 @@ def run_rebalance_check(
         sells, buys, blocks = apply_rebalance_risk_gate(sells, buys, nav)
 
         if blocks:
-            print(f"  {code}: BLOCKED — {'; '.join(blocks)}")
+            print(f"  {code}: BLOCKED -{'; '.join(blocks)}")
             skipped.append(code)
             continue
 
@@ -353,4 +353,4 @@ if __name__ == "__main__":
             nav += pos.get("qty", 0) * pos.get("current", 0)
 
         due, reason = should_rebalance(code, last_reb, positions, nav)
-        print(f"  {code}: {'DUE' if due else 'SKIP'} — {reason}")
+        print(f"  {code}: {'DUE' if due else 'SKIP'} -{reason}")

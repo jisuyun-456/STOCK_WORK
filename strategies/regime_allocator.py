@@ -62,3 +62,66 @@ def get_regime_description(regime: str) -> str:
     알 수 없는 regime → NEUTRAL 설명 반환.
     """
     return _REGIME_DESCRIPTIONS.get(regime, _REGIME_DESCRIPTIONS["NEUTRAL"])
+
+
+# ─── Emergency Exit Protocol ─────────────────────────────────────────────
+
+# Regime transition → which strategies to liquidate
+_REGIME_EXIT_RULES: dict[str, dict[str, float]] = {
+    # BEAR: LEV 전량 청산, MOM 50% 축소
+    "BEAR": {"LEV": 1.0, "MOM": 0.5},
+    # CRISIS: LEV+MOM 전량 청산, VAL+QNT 50% 축소
+    "CRISIS": {"LEV": 1.0, "MOM": 1.0, "VAL": 0.5, "QNT": 0.5},
+}
+
+
+def generate_regime_exit_signals(
+    new_regime: str,
+    previous_regime: str,
+    portfolios: dict,
+) -> list:
+    """Generate emergency SELL signals when regime transitions to BEAR/CRISIS.
+
+    Args:
+        new_regime: Current detected regime.
+        previous_regime: Previous regime from regime_state.json.
+        portfolios: portfolios.json content.
+
+    Returns:
+        List of Signal objects for emergency exits.
+    """
+    from strategies.base_strategy import Signal, Direction
+
+    # Only trigger on transitions to more defensive regimes
+    severity = {"BULL": 0, "NEUTRAL": 1, "BEAR": 2, "CRISIS": 3}
+    if severity.get(new_regime, 0) <= severity.get(previous_regime, 0):
+        return []  # Not a defensive transition
+
+    exit_rules = _REGIME_EXIT_RULES.get(new_regime, {})
+    if not exit_rules:
+        return []
+
+    signals = []
+    for strategy_code, liquidation_pct in exit_rules.items():
+        strat_data = portfolios.get("strategies", {}).get(strategy_code, {})
+        positions = strat_data.get("positions", {})
+
+        for symbol, pos in positions.items():
+            qty = pos.get("qty", 0)
+            if qty <= 0:
+                continue
+
+            signals.append(Signal(
+                strategy=strategy_code,
+                symbol=symbol,
+                direction=Direction.SELL,
+                weight_pct=0.0,
+                confidence=0.99,
+                reason=f"EMERGENCY EXIT: regime {previous_regime}→{new_regime}, liquidate {liquidation_pct:.0%}",
+                order_type="market",
+            ))
+
+    if signals:
+        print(f"[REGIME EXIT] {previous_regime}→{new_regime}: {len(signals)} emergency SELL signals")
+
+    return signals
