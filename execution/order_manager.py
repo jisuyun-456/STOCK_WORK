@@ -190,12 +190,56 @@ def execute_signals(
 
     Returns:
         List of execution results
+
+    Notes:
+        C6 fix: 각 BUY 주문 전 Alpaca buying_power 실시간 조회 → 부족 시 skip.
+        기존 버그: 전체 배치 제출 → 중간 잔고 소진 → 17/20 주문이 Alpaca
+        "insufficient buying power" 에러. 이제는 사전 체크해서 로그만 남기고
+        continue.
     """
     results = []
+
+    # C6: BUY 주문 있을 때만 Alpaca 잔고 조회 (dry_run 아닌 실거래 시)
+    live_buying_power: float | None = None
+    if not dry_run and any(s.direction == Direction.BUY for s in signals):
+        try:
+            account = get_account_info()
+            live_buying_power = float(account.get("buying_power", 0) or 0)
+            print(f"  [OM] Alpaca buying_power=${live_buying_power:,.2f}")
+        except Exception as e:
+            print(f"  [OM] WARNING: buying_power 조회 실패 ({e}) — 잔고 체크 스킵")
+
     for signal in signals:
         alloc = strategy_allocations.get(signal.strategy, {})
         capital = alloc.get("capital", 0)
         cash = alloc.get("cash", 0)
+
+        # C6: BUY 주문 실시간 잔고 확인
+        if signal.direction == Direction.BUY and live_buying_power is not None:
+            trade_value_estimate = capital * signal.weight_pct
+            trade_value_estimate = min(trade_value_estimate, cash)  # strategy cash cap
+            # 5% 여유 확보 (수수료·슬리피지·경합 주문 대비)
+            if trade_value_estimate > live_buying_power * 0.95:
+                skip_entry = _log_result(
+                    order_id=_next_seq(
+                        signal.strategy, signal.symbol,
+                        datetime.now(timezone.utc).strftime("%Y%m%d"),
+                    ),
+                    signal=signal,
+                    status="skipped",
+                    reason=(
+                        f"insufficient_buying_power: need ${trade_value_estimate:,.0f}, "
+                        f"available ${live_buying_power:,.0f}"
+                    ),
+                )
+                print(
+                    f"  [OM] SKIP {signal.symbol}: need ${trade_value_estimate:,.0f} > "
+                    f"available ${live_buying_power:,.0f}"
+                )
+                results.append(skip_entry)
+                continue
+            # 통과 시 로컬 buying_power 차감 (다음 주문 사전 계산용)
+            live_buying_power -= trade_value_estimate
 
         result = execute_signal(signal, capital, cash, dry_run=dry_run)
         results.append(result)
@@ -235,6 +279,6 @@ def _log_result(
     # Append to trade log
     TRADE_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(TRADE_LOG_PATH, "a") as f:
-        f.write(json.dumps(entry) + "\n")
+        f.write(json.dumps(entry, default=str) + "\n")
 
     return entry

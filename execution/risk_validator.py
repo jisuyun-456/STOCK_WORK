@@ -172,12 +172,18 @@ def check_sector_concentration(
 ) -> RiskCheckResult:
     """Check that sector exposure doesn't exceed max_pct."""
     target_sector = get_sector(symbol)
-    # L-1: Unknown 섹터는 게이트 skip (가짜 집중도 방지)
+    # H7 fix: Unknown 섹터는 **게이트 PASS가 아닌 BLOCK**.
+    # 기존 버그: Unknown → 자동 PASS → 섹터 집중도 미감지. MOM 포트폴리오가
+    # 70%+ 반도체였는데 섹터 게이트가 전혀 동작하지 않았음.
+    # 수정: Unknown = 미분류 = 리스크 미산정 = 보수적으로 차단.
     if target_sector == "Unknown":
         return RiskCheckResult(
-            passed=True,
+            passed=False,
             check_name="sector_concentration",
-            reason=f"Sector unknown for {symbol} — gate skipped",
+            reason=(
+                f"Sector unknown for {symbol} — BLOCKED "
+                f"(H7: 미분류 섹터는 집중도 산정 불가 → 보수적 차단)"
+            ),
             value=0.0,
             threshold=max_pct,
         )
@@ -364,13 +370,21 @@ def validate_signal(
     sector_limit = STRATEGY_SECTOR_LIMITS.get(strategy_code, 0.40)
     results.append(check_sector_concentration(symbol, trade_value, strategy_capital, current_positions, max_pct=sector_limit))
 
-    # VaR check on the whole portfolio including new position
-    # Skip VaR when building initial portfolio (< 3 existing positions)
-    # — single-stock VaR is always high; diversification hasn't kicked in yet
-    if len(current_positions) < 3:
+    # H4 fix: build-phase VaR 스킵은 단일 종목 비중이 낮을 때만 허용.
+    # 기존 버그: 포지션 < 3 이면 무조건 VaR 스킵 → 초기 35개 포지션 전체가
+    # VaR 검증 없이 진입. 이제는 단일 종목 비중 > 30% 이면 스킵하지 않음.
+    single_position_pct = (trade_value / strategy_capital) if strategy_capital > 0 else 1.0
+    skip_var_build_phase = (
+        len(current_positions) < 3
+        and single_position_pct < 0.30
+    )
+    if skip_var_build_phase:
         results.append(RiskCheckResult(
             passed=True, check_name="portfolio_var",
-            reason=f"VaR check skipped (portfolio building phase, {len(current_positions)} positions)",
+            reason=(
+                f"VaR check skipped (build phase, {len(current_positions)} positions, "
+                f"size {single_position_pct:.1%} < 30%)"
+            ),
             value=0.0, threshold=0.03,
         ))
     else:

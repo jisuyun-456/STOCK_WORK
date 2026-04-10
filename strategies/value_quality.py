@@ -77,22 +77,52 @@ def _fetch_fmp_profile(symbol: str) -> dict | None:
 
 
 def _fetch_yf_fundamentals(symbol: str) -> dict | None:
-    """yfinance .info에서 재무 데이터 조회. FMP 실패 시 fallback."""
+    """yfinance .info에서 재무 데이터 조회. FMP 실패 시 fallback.
+
+    수정 사항:
+      - C4: FCF falsy-zero 버그 — `fcf is not None`으로 명시 체크. 음수 FCF는
+        실제 음수 값을 반환 (0.0으로 변환해서 매수 필터를 통과시키지 않음).
+      - H3: P/E 소스 태그 — trailingPE 우선, forwardPE fallback, 어느 쪽을
+        사용했는지 `pe_source` 필드로 기록.
+    """
     try:
         info = yf.Ticker(symbol).info
-        pe = info.get("trailingPE") or info.get("forwardPE")
+
+        # H3: P/E 소스 명시적 태깅
+        trailing_pe = info.get("trailingPE")
+        forward_pe = info.get("forwardPE")
+        if trailing_pe is not None:
+            pe = trailing_pe
+            pe_source = "yfinance_trailing"
+        elif forward_pe is not None:
+            pe = forward_pe
+            pe_source = "yfinance_forward"
+            print(f"  [VAL] WARNING: {symbol} trailingPE 없음 → forwardPE 사용")
+        else:
+            pe = None
+            pe_source = "none"
+
         roe = info.get("returnOnEquity")
         fcf = info.get("freeCashflow")
         mcap = info.get("marketCap")
-        fcf_yield = (fcf / mcap) if (fcf and mcap and mcap > 0) else None
+
+        # C4: fcf=0 또는 음수도 실제 값을 유지 (falsy-zero 버그 수정)
+        if fcf is not None and mcap and mcap > 0:
+            fcf_yield = fcf / mcap  # 음수면 음수 그대로
+        else:
+            fcf_yield = None
+
         price = info.get("currentPrice") or info.get("regularMarketPrice") or 0.0
 
         if pe is not None and roe is not None:
             return {
                 "pe": float(pe),
                 "roe": float(roe),
-                "fcf_yield": float(fcf_yield) if fcf_yield is not None else 0.0,
+                "fcf_yield": float(fcf_yield) if fcf_yield is not None else None,
                 "price": float(price),
+                "pe_source": pe_source,
+                "roe_source": "yfinance",
+                "fcf_source": "yfinance" if fcf_yield is not None else "missing",
             }
     except Exception:
         pass
@@ -257,7 +287,7 @@ class ValueQualityStrategy(BaseStrategy):
 
             pe = fund.get("pe")
             roe = fund.get("roe")
-            fcf_yield = fund.get("fcf_yield", 0.0)
+            fcf_yield = fund.get("fcf_yield")
 
             # 필수 데이터 누락 제외
             if pe is None or roe is None:
@@ -266,6 +296,14 @@ class ValueQualityStrategy(BaseStrategy):
             # 적자 기업(P/E 음수) 제외
             if pe <= 0:
                 continue
+
+            # C4 fix: FCF 음수/결측 기업 필터링 강화
+            # - 음수 FCF는 매수 불가 (falsy-zero 버그였음)
+            # - 결측 FCF는 보수적으로 매수 불가 (과거엔 0.0으로 우회)
+            if fcf_yield is None:
+                continue
+            if fcf_yield < 0:
+                continue  # 음수 FCF 매수 거부
 
             # Regime 필터 적용
             if pe > max_pe:
@@ -300,16 +338,20 @@ class ValueQualityStrategy(BaseStrategy):
                     should_sell = False
                     sell_reason = ""
                 else:
-                    pe = fund.get("pe", 0)
-                    roe = fund.get("roe", 0)
-                    fcf_yield = fund.get("fcf_yield", 0)
+                    pe = fund.get("pe", 0) or 0
+                    roe = fund.get("roe", 0) or 0
+                    fcf_yield = fund.get("fcf_yield")
                     if pe <= 0 or pe > max_pe:
                         should_sell = True
                         sell_reason = f"P/E={pe:.1f} > {max_pe}" if pe > 0 else "negative P/E"
                     elif roe < min_roe:
                         should_sell = True
                         sell_reason = f"ROE={roe:.1%} < {min_roe:.0%}"
-                    elif fcf_yield < min_fcf_yield:
+                    elif fcf_yield is not None and fcf_yield < 0:
+                        # C4: 음수 FCF → 손절
+                        should_sell = True
+                        sell_reason = f"FCFYield={fcf_yield:.1%} (음수)"
+                    elif fcf_yield is not None and fcf_yield < min_fcf_yield:
                         should_sell = True
                         sell_reason = f"FCFYield={fcf_yield:.1%} < {min_fcf_yield:.0%}"
 

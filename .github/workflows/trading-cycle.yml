@@ -26,6 +26,8 @@ concurrency:
 jobs:
   run-trading-cycle:
     runs-on: ubuntu-latest
+    # H5 fix: 명시적 job timeout (기존: GitHub 기본 6시간 → 최대 과금 리스크)
+    timeout-minutes: 30
     permissions:
       contents: write  # state/*.json, reports/ push 권한
 
@@ -48,6 +50,8 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run trading cycle
+        # H5 fix: step-level timeout — phase 단위 무한루프 방지
+        timeout-minutes: 20
         env:
           ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
           ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
@@ -106,3 +110,22 @@ jobs:
             state/performance.json
             docs/paper_dashboard.html
           retention-days: 30
+
+      # H5 fix: 실패 시 GitHub Actions summary에 경고 기록
+      - name: Notify on failure
+        if: failure()
+        run: |
+          {
+            echo "## TRADING CYCLE FAILED"
+            echo ""
+            echo "- Run ID: ${{ github.run_id }}"
+            echo "- Time: $(date -u +'%Y-%m-%d %H:%M UTC')"
+            echo "- Commit: ${{ github.sha }}"
+            echo "- Workflow: ${{ github.workflow }}"
+            echo ""
+            echo "### 확인 경로"
+            echo "- [Run logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            echo ""
+            echo "**즉시 대응 필요**: Alpaca 연결·state 파일 손상·network 장애 등 점검"
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 1

@@ -72,17 +72,26 @@ class MomentumStrategy(BaseStrategy):
             if len(series) < 252:
                 continue
 
+            # H1 fix: 날짜 기반 lookback (기존 iloc[-252]는 NaN 드롭 시 창 드리프트)
             # 12-1 momentum: 12-month return excluding last month
-            price_12m_ago = series.iloc[-252]
-            price_1m_ago = series.iloc[-21]
+            last_date = series.index[-1]
+            try:
+                price_12m_ago = series.asof(last_date - pd.DateOffset(months=12))
+                price_1m_ago = series.asof(last_date - pd.DateOffset(months=1))
+            except Exception:
+                # 폴백: 기존 iloc 방식
+                price_12m_ago = series.iloc[-252]
+                price_1m_ago = series.iloc[-21]
             price_now = series.iloc[-1]
 
+            if pd.isna(price_12m_ago) or pd.isna(price_1m_ago):
+                continue
             if price_12m_ago <= 0 or price_1m_ago <= 0:
                 continue
 
             mom_12_1 = (price_1m_ago / price_12m_ago) - 1.0
 
-            # SMA200 filter: current price must be above 200-day SMA
+            # SMA200 filter: 최근 200거래일 평균 (iloc 유지 — 창 드리프트 미미)
             sma200 = series.iloc[-200:].mean()
             if price_now < sma200:
                 continue
@@ -104,9 +113,18 @@ class MomentumStrategy(BaseStrategy):
 
                 price_now = series.iloc[-1]
                 sma200 = series.iloc[-200:].mean()
-                price_12m_ago = series.iloc[-252]
-                price_1m_ago = series.iloc[-21]
-                mom_12_1 = (price_1m_ago / price_12m_ago) - 1.0 if price_12m_ago > 0 else 0.0
+                # H1 fix: 날짜 기반 lookback
+                last_date = series.index[-1]
+                try:
+                    price_12m_ago = series.asof(last_date - pd.DateOffset(months=12))
+                    price_1m_ago = series.asof(last_date - pd.DateOffset(months=1))
+                except Exception:
+                    price_12m_ago = series.iloc[-252]
+                    price_1m_ago = series.iloc[-21]
+                if pd.isna(price_12m_ago) or pd.isna(price_1m_ago) or price_12m_ago <= 0:
+                    mom_12_1 = 0.0
+                else:
+                    mom_12_1 = (price_1m_ago / price_12m_ago) - 1.0
 
                 # EXIT: momentum < 0 OR price < SMA200
                 should_sell = mom_12_1 < 0 or price_now < sma200

@@ -31,7 +31,10 @@ from __future__ import annotations
 import argparse
 import io
 import json
+import os
+import shutil
 import sys
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -57,15 +60,102 @@ SNAPSHOT_PATH = STATE_DIR / "snapshot.json"
 REPORTS_DIR = ROOT / "reports" / "daily"
 
 
+def _json_default(obj):
+    """numpy 스칼라 타입을 native Python으로 변환 (Python 3.14 호환)."""
+    if hasattr(obj, "item") and callable(obj.item):
+        try:
+            return obj.item()
+        except Exception:
+            pass
+    if isinstance(obj, bool):
+        return bool(obj)
+    raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
+
+
+def _ensure_inception(data: dict) -> dict:
+    """C5 fix: portfolios.json에 inception 필드가 없으면 현재 allocated로 초기화.
+
+    inception.total / inception.strategies 는 initial NAV 기준으로 사용되며,
+    이후 절대 수정되지 않는다 (immutable). performance_calculator가 이 값을
+    total_return_pct 분모로 사용한다.
+    """
+    if "inception" not in data:
+        strategies = data.get("strategies", {})
+        inception_strategies = {
+            code: float(strat.get("allocated", 0))
+            for code, strat in strategies.items()
+        }
+        total = sum(inception_strategies.values())
+        # sanity check: 초기 자본은 $50k 이상이어야 함 (트레이딩 회사 기준)
+        if total < 50000:
+            print(
+                f"[inception] WARNING: 현재 allocated 합 ${total:.0f} < $50k. "
+                f"기본 $100,000을 inception으로 사용."
+            )
+            total = 100000
+        data["inception"] = {
+            "total": round(total, 2),
+            "strategies": inception_strategies,
+            "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+        }
+    return data
+
+
 def load_portfolios() -> dict:
-    with open(PORTFOLIOS_PATH) as f:
-        return json.load(f)
+    """Load portfolios.json with atomic-write backup fallback.
+
+    If the main file is corrupted (e.g., crashed mid-write), restore from
+    .backup.json automatically. Raises only if both files are unrecoverable.
+    """
+    backup_path = PORTFOLIOS_PATH.with_suffix(".backup.json")
+    try:
+        text = PORTFOLIOS_PATH.read_text(encoding="utf-8")
+        return _ensure_inception(json.loads(text))
+    except (json.JSONDecodeError, FileNotFoundError, OSError) as e:
+        if backup_path.exists():
+            print(f"[load_portfolios] WARNING: 메인 파일 손상 ({e}) → 백업 복구")
+            try:
+                return _ensure_inception(json.loads(backup_path.read_text(encoding="utf-8")))
+            except (json.JSONDecodeError, OSError) as be:
+                raise RuntimeError(
+                    f"portfolios.json and backup both unrecoverable: main={e}, backup={be}"
+                )
+        raise
 
 
 def save_portfolios(data: dict):
+    """Atomically write portfolios.json with rotating backup.
+
+    Steps:
+      1. Copy existing file to .backup.json (pre-write snapshot)
+      2. Write new content to .tmp.json
+      3. os.replace() — atomic on both POSIX and Windows (Python 3.3+)
+
+    If the process crashes during write, the original file is untouched.
+    Load will fall back to backup if main file is ever corrupted.
+    """
     data["last_updated"] = datetime.now(timezone.utc).isoformat()
-    with open(PORTFOLIOS_PATH, "w") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+
+    PORTFOLIOS_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+    # Pre-write backup
+    if PORTFOLIOS_PATH.exists():
+        backup_path = PORTFOLIOS_PATH.with_suffix(".backup.json")
+        try:
+            shutil.copy2(PORTFOLIOS_PATH, backup_path)
+        except OSError as e:
+            print(f"[save_portfolios] WARNING: backup copy failed: {e}")
+
+    # Atomic write via temp file + os.replace
+    tmp_path = PORTFOLIOS_PATH.with_suffix(".tmp.json")
+    with open(tmp_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False, default=_json_default)
+        f.flush()
+        try:
+            os.fsync(f.fileno())
+        except (OSError, AttributeError):
+            pass  # fsync unavailable on some platforms
+    os.replace(tmp_path, PORTFOLIOS_PATH)
 
 
 # ─── Phase 1: DATA ──────────────────────────────────────────────────────
@@ -85,24 +175,33 @@ def phase_data() -> dict:
         print("  WARNING: No price data fetched")
 
     alpaca_positions = []
+    alpaca_live = False
     try:
         from execution.alpaca_client import get_positions, get_account_info
         alpaca_positions = get_positions()
         account = get_account_info()
         print(f"  Alpaca account: ${account['equity']:,.2f} equity, mode={account['mode']}")
+        alpaca_live = True
     except Exception as e:
-        print(f"  Alpaca connection skipped: {e}")
+        # C3 fix: Alpaca 연결 실패 시 BUY 전면 차단 플래그 설정.
+        # 기존 버그: get_positions() 실패 → 빈 포지션 리스트 → 리스크 게이트가
+        # "포지션 없음"으로 판단해 중복 BUY 승인.
+        print(f"  [CRITICAL] Alpaca 연결 실패 — BUY 시그널 전면 차단: {e}")
 
     snapshot = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "symbols_count": len(prices.columns) if prices is not None else 0,
         "days_count": len(prices) if prices is not None else 0,
         "alpaca_positions": alpaca_positions,
+        "alpaca_live": alpaca_live,
     }
+    # C3: 하위 phase에서 사용하도록 market_data에 플래그 전파
+    market_data["alpaca_live"] = alpaca_live
+    market_data["alpaca_unavailable"] = not alpaca_live
 
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     with open(SNAPSHOT_PATH, "w") as f:
-        json.dump(snapshot, f, indent=2)
+        json.dump(snapshot, f, indent=2, default=_json_default)
 
     # VAL: FMP + yfinance 재무 데이터
     try:
@@ -242,6 +341,66 @@ def phase_regime(market_data: dict) -> tuple:
 
 # ─── Phase 2: SIGNALS ───────────────────────────────────────────────────
 
+# Strategy-specific stop-loss thresholds (C2 enforcement)
+STRATEGY_STOP_LOSS: dict[str, float] = {
+    "MOM": -0.10,   # -10%
+    "VAL": -0.12,   # -12% (slower rotation)
+    "QNT": -0.10,   # -10%
+    "LEV": -0.08,   # -8% (leveraged ETFs are volatile)
+}
+
+
+def phase_stop_loss_check() -> list:
+    """C2 fix: 포지션별 stop-loss 강제 검사 → SELL 시그널 강제 생성.
+
+    기존 버그: 전략 파일에 `stop_loss_pct = 0.10` 이 선언만 되어 있고
+    어디서도 읽히지 않아 손절이 0% 상태였다. 이 phase는 Phase 2 직전에
+    실행되며, portfolios.json의 각 포지션을 확인해 `unrealized_plpc` 가
+    전략 임계값을 초과하면 강제 SELL 시그널을 생성한다.
+
+    Returns:
+        List of forced SELL signals (모두 weight_pct=1.0 = 전량 청산)
+    """
+    from strategies.base_strategy import Signal, Direction
+
+    print("[Phase 1.8: STOP-LOSS CHECK] 포지션별 손절 기준 검사 중...")
+
+    portfolios = load_portfolios()
+    forced_sells: list = []
+
+    for code, strat in portfolios.get("strategies", {}).items():
+        threshold = STRATEGY_STOP_LOSS.get(code, -0.10)
+        positions = strat.get("positions", {}) or {}
+        for sym, pos in positions.items():
+            plpc = pos.get("unrealized_plpc")
+            if plpc is None:
+                continue
+            if plpc <= threshold:
+                forced_sells.append(Signal(
+                    strategy=code,
+                    symbol=sym,
+                    direction=Direction.SELL,
+                    weight_pct=1.0,  # 전량 청산
+                    confidence=1.0,
+                    reason=(
+                        f"STOP-LOSS: {plpc:+.1%} <= {threshold:+.0%} "
+                        f"(strategy={code})"
+                    ),
+                    order_type="market",
+                ))
+                print(
+                    f"  [STOP-LOSS] {sym} ({code}): P&L {plpc:+.1%} "
+                    f"<= {threshold:+.0%} → 전량 청산"
+                )
+
+    if not forced_sells:
+        print("  손절 기준 초과 포지션 없음")
+    else:
+        print(f"  총 {len(forced_sells)}개 포지션 강제 청산 대상")
+
+    return forced_sells
+
+
 def phase_signals(market_data: dict, regime: str = "NEUTRAL", allocations: dict = None) -> list:
     """Run all strategy modules and collect signals."""
     print("[Phase 2: SIGNALS] Running strategy modules...")
@@ -377,8 +536,12 @@ def phase_research(signals: list, market_data: dict, research_mode: str, no_cach
 
 # ─── Phase 3: RISK ──────────────────────────────────────────────────────
 
-def phase_risk(signals: list) -> tuple[list, list, list]:
+def phase_risk(signals: list, market_data: dict | None = None) -> tuple[list, list, list]:
     """Validate each signal through risk gates.
+
+    Args:
+        signals: Generated trade signals from phase_signals
+        market_data: Phase 1 data dict (used for C3: alpaca_unavailable BUY block)
 
     Returns:
         (approved, failed_signals, failed_details)
@@ -386,13 +549,32 @@ def phase_risk(signals: list) -> tuple[list, list, list]:
     print("[Phase 3: RISK] Validating signals...")
 
     from execution.risk_validator import validate_signal
+    from strategies.base_strategy import Direction
 
     portfolios = load_portfolios()
     approved = []
     failed_signals = []
     failed_details = []
 
+    # C3: Alpaca 연결 불가 시 BUY 전면 차단. SELL(청산)은 여전히 허용.
+    alpaca_unavailable = bool((market_data or {}).get("alpaca_unavailable", False))
+    if alpaca_unavailable:
+        print(
+            "  [CRITICAL] Alpaca unavailable — BUY 전면 차단 모드. "
+            "SELL(청산) 시그널만 처리."
+        )
+
     for signal in signals:
+        # C3: Alpaca 장애 시 BUY 즉시 거부 (리스크 게이트 이전)
+        if alpaca_unavailable and signal.direction == Direction.BUY:
+            failed_signals.append(signal)
+            failed_details.append({
+                "symbol": signal.symbol,
+                "strategy": signal.strategy,
+                "failed_checks": ["alpaca_unavailable_buy_block"],
+            })
+            print(f"  {signal.symbol} ({signal.strategy}): FAIL — alpaca_unavailable_buy_block")
+            continue
         strat_data = portfolios["strategies"].get(signal.strategy, {})
         allocated = strat_data.get("allocated", 0)
         # SIM2 fix: 실제 NAV 기준으로 리스크 계산 (손실 후 과대 포지션 방지)
@@ -846,7 +1028,7 @@ def _load_monitor_peaks() -> dict:
 def _save_monitor_peaks(data: dict):
     data["last_updated"] = datetime.now(timezone.utc).isoformat()
     with open(MONITOR_PEAKS_PATH, "w") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+        json.dump(data, f, indent=2, ensure_ascii=False, default=_json_default)
 
 
 def _append_monitor_log(entry: dict):
@@ -1223,12 +1405,25 @@ def main():
             print(f"  [Phase 1.6] 수집 실패 (fallback 빈 데이터): {_fe}")
             print()
 
+    # Phase 1.8: STOP-LOSS CHECK — 강제 청산 시그널 선행 생성 (C2)
+    stop_loss_signals: list = []
+    if args.phase in ("all", "signals"):
+        stop_loss_signals = phase_stop_loss_check()
+        print()
+
     # Phase 2: SIGNALS
     if args.phase in ("all", "signals"):
         if market_data is None:
             from strategies.momentum import fetch_momentum_data
             market_data = fetch_momentum_data(days=400)
         signals = phase_signals(market_data, regime=regime, allocations=allocations)
+        # C2: stop-loss SELL 시그널을 최우선 병합 (동일 심볼 중복 시 stop-loss 우선)
+        if stop_loss_signals:
+            sl_symbols = {(s.strategy, s.symbol) for s in stop_loss_signals}
+            signals = stop_loss_signals + [
+                s for s in signals if (s.strategy, s.symbol) not in sl_symbols
+            ]
+            print(f"  [STOP-LOSS] {len(stop_loss_signals)}개 강제 청산 시그널 병합")
         print()
     else:
         signals = []
@@ -1271,7 +1466,7 @@ def main():
     failed_signals = []
     failed_details = []
     if args.phase in ("all", "risk"):
-        approved, failed_signals, failed_details = phase_risk(signals)
+        approved, failed_signals, failed_details = phase_risk(signals, market_data)
         print()
     else:
         approved = signals

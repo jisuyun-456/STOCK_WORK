@@ -18,9 +18,10 @@
       "sharpe_ratio": null,
       "win_rate": null,
       "trade_count": 0,
-      "dry_run_count": 60,
+      "dry_run_count": 61,
       "peak_nav": 25000.0,
-      "last_rebalance": null
+      "last_rebalance": null,
+      "initial_nav": 25000.0
     },
     "VAL": {
       "current_nav": 25000.0,
@@ -32,7 +33,8 @@
       "trade_count": 0,
       "dry_run_count": 21,
       "peak_nav": 25000.0,
-      "last_rebalance": null
+      "last_rebalance": null,
+      "initial_nav": 25000.0
     },
     "QNT": {
       "current_nav": 30000.0,
@@ -42,9 +44,10 @@
       "sharpe_ratio": null,
       "win_rate": null,
       "trade_count": 0,
-      "dry_run_count": 81,
+      "dry_run_count": 95,
       "peak_nav": 30000.0,
-      "last_rebalance": null
+      "last_rebalance": null,
+      "initial_nav": 30000.0
     },
     "LEV": {
       "current_nav": 20000,
@@ -56,15 +59,16 @@
       "trade_count": 0,
       "dry_run_count": 0,
       "peak_nav": 20000,
-      "last_rebalance": null
+      "last_rebalance": null,
+      "initial_nav": 20000.0
     },
     "TOTAL": {
-      "initial_nav": 420.77,
+      "initial_nav": 100000.0,
       "current_nav": 100000.0,
-      "total_return_pct": 23665.9529,
+      "total_return_pct": 0.0,
       "spy_return_pct": 0.5769,
       "qqq_return_pct": 0.6765,
-      "alpha_vs_spy": 23665.376
+      "alpha_vs_spy": -0.5769
     }
   },
   "daily": [
@@ -98,9 +102,12 @@
         "SPY": 679.9099731445312,
         "QQQ": 610.1900024414062
       },
-      "regime": "UNKNOWN",
-      "signals_count": 0,
-      "rebalances": []
+      "regime": "NEUTRAL",
+      "signals_count": 17,
+      "rebalances": [
+        "MOM",
+        "VAL"
+      ]
     }
   ]
 }

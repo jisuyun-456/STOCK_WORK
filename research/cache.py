@@ -12,6 +12,25 @@ CACHE_PATH = Path(__file__).parent.parent / "state" / "research_cache.json"
 TTL_DAYS = 7
 
 
+def _json_default(obj):
+    """Coerce numpy types to native Python so json.dump succeeds.
+
+    Python 3.14 의 json 모듈은 numpy.bool_ / int64 / float64 를 직접
+    직렬화하지 못한다. ResearchVerdict.to_dict() 내부에 numpy 스칼라가
+    섞여 들어올 수 있어 default 콜백으로 변환 처리.
+    """
+    # numpy 스칼라: .item() 으로 Python native 반환
+    if hasattr(obj, "item") and callable(obj.item):
+        try:
+            return obj.item()
+        except Exception:
+            pass
+    # bool 서브클래스 (numpy.bool_ 포함) 안전 처리
+    if isinstance(obj, bool):
+        return bool(obj)
+    raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
+
+
 def _load_cache() -> dict:
     if not CACHE_PATH.exists():
         return {}
@@ -25,7 +44,7 @@ def _load_cache() -> dict:
 def _save_cache(data: dict):
     CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(CACHE_PATH, "w") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+        json.dump(data, f, indent=2, ensure_ascii=False, default=_json_default)
 
 
 def get_cached(symbol: str, regime: str, strategy: str = "", direction: str = "") -> list[ResearchVerdict] | None:

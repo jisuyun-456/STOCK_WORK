@@ -214,10 +214,26 @@ def fetch_factor_data(
         print(f"[QNT] WARNING: FF5 팩터 다운로드 실패 ({e}) — MOM 전용 모드로 폴백")
         factors = pd.DataFrame()
 
+    # H2 fix: FF5 staleness 체크 — 최신 팩터 날짜가 45일+ 지연 시 degraded 플래그
+    ff5_stale = False
+    if not factors.empty:
+        max_factor_date = factors.index.max()
+        days_lag = (pd.Timestamp.today() - max_factor_date).days
+        if days_lag > 45:
+            print(
+                f"[QNT] WARNING: FF5 데이터 {days_lag}일 지연 "
+                f"(최신: {max_factor_date.date()}) → degraded 모드"
+            )
+            ff5_stale = True
+        else:
+            print(f"[QNT] FF5 최신성 OK: {days_lag}일 지연 (최신: {max_factor_date.date()})")
+
     return {
         "prices": prices,
         "factors": factors,
-        "degraded": factors.empty,
+        "degraded": factors.empty or ff5_stale,
+        "ff5_stale": ff5_stale,
+        "ff5_last_date": str(factors.index.max().date()) if not factors.empty else None,
     }
 
 
@@ -285,6 +301,25 @@ class QuantFactorStrategy(BaseStrategy):
         composite_scores: dict[str, float] = {}
         skipped = 0
 
+        # H6 fix: 팩터 노출도만 사용 → 노출도 × 최근 팩터 기대수익률.
+        # 기존 버그: score = Σ(weight × beta). 팩터 *수익률*이 아니라 *노출도*로
+        # 종목을 순위매김해서 단순히 "고베타" 주식이 상위로 올라왔음.
+        # 수정: score = Σ(weight × beta × recent_factor_return).
+        recent_factor_returns: dict[str, float] = {}
+        if use_ff5 and len(factors) >= 60:
+            # 최근 60거래일 평균 (daily 팩터 수익률)
+            recent = factors.tail(60).mean()
+            for col in ["SMB", "HML", "RMW", "CMA"]:
+                if col in recent.index:
+                    recent_factor_returns[col] = float(recent[col])
+            print(
+                f"[QNT] 최근 60일 팩터 수익률: "
+                f"SMB={recent_factor_returns.get('SMB', 0):+.3%}, "
+                f"HML={recent_factor_returns.get('HML', 0):+.3%}, "
+                f"RMW={recent_factor_returns.get('RMW', 0):+.3%}, "
+                f"CMA={recent_factor_returns.get('CMA', 0):+.3%}"
+            )
+
         for symbol in self.universe:
             if symbol not in prices.columns:
                 skipped += 1
@@ -317,14 +352,19 @@ class QuantFactorStrategy(BaseStrategy):
                 beta_rmw = 0.0
                 beta_cma = 0.0
 
-            # 복합 점수 계산
-            score = (
-                weights["HML"] * beta_hml
-                + weights["SMB"] * beta_smb
-                + weights["RMW"] * beta_rmw
-                + weights["CMA"] * beta_cma
-                + weights["MOM"] * mom_score
-            )
+            # H6: 복합 점수 = Σ(regime_weight × beta × recent_factor_return)
+            # FF5 없으면 MOM만 사용 (기존 동작 유지).
+            if use_ff5 and recent_factor_returns:
+                score = (
+                    weights["HML"] * beta_hml * recent_factor_returns.get("HML", 0.0)
+                    + weights["SMB"] * beta_smb * recent_factor_returns.get("SMB", 0.0)
+                    + weights["RMW"] * beta_rmw * recent_factor_returns.get("RMW", 0.0)
+                    + weights["CMA"] * beta_cma * recent_factor_returns.get("CMA", 0.0)
+                    + weights["MOM"] * mom_score
+                )
+            else:
+                # 폴백: MOM만 사용 (degraded 모드)
+                score = weights["MOM"] * mom_score
             composite_scores[symbol] = score
 
         print(

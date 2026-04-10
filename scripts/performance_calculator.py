@@ -258,18 +258,36 @@ def append_and_save(
         daily.append(new_daily_entry)
 
     # Recompute strategy aggregates
+    # C5 fix: inception.strategies[code] 값을 initial NAV로 사용 (불변)
+    # 기존 버그: allocated는 regime 변동에 따라 움직이고, account_total은
+    # Alpaca equity로 덮어쓰여 23,665% 수익률 오류 발생.
+    inception = portfolios.get("inception", {}) or {}
+    inception_strategies = inception.get("strategies", {}) or {}
+
     strategies_agg = {}
     for code, strat in portfolios.get("strategies", {}).items():
         nav_history = strat.get("nav_history", [])
-        initial_nav = strat.get("allocated", 0)
+        # 우선순위: inception.strategies[code] → strat.allocated → 0
+        initial_nav = float(
+            inception_strategies.get(code)
+            if inception_strategies.get(code) is not None
+            else strat.get("allocated", 0)
+        )
         strat_trades = [t for t in trade_log if t.get("strategy") == code]
 
         metrics = compute_strategy_metrics(code, nav_history, initial_nav, strat_trades)
         metrics["last_rebalance"] = strat.get("last_rebalance")
+        metrics["initial_nav"] = round(initial_nav, 2)  # 디버깅용 노출
         strategies_agg[code] = metrics
 
     # Total metrics
-    total_initial = portfolios.get("account_total", 100000)
+    total_initial = float(inception.get("total", 0) or 0)
+    if total_initial <= 0:
+        # Fallback: allocated 합계 또는 account_total (극히 초기 상태)
+        total_initial = sum(
+            float(strat.get("allocated", 0))
+            for strat in portfolios.get("strategies", {}).values()
+        ) or float(portfolios.get("account_total", 100000))
     total_current = sum(m["current_nav"] for m in strategies_agg.values())
     total_return_pct = ((total_current / total_initial) - 1) * 100 if total_initial > 0 else 0.0
 
@@ -301,10 +319,21 @@ def append_and_save(
 
     existing["strategies"] = strategies_agg
 
-    # Save
+    # Save (default= for numpy scalar compatibility under Python 3.14)
     STATE_DIR.mkdir(parents=True, exist_ok=True)
+
+    def _np_default(o):
+        if hasattr(o, "item") and callable(o.item):
+            try:
+                return o.item()
+            except Exception:
+                pass
+        if isinstance(o, bool):
+            return bool(o)
+        raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+
     with open(PERFORMANCE_PATH, "w") as f:
-        json.dump(existing, f, indent=2, ensure_ascii=False)
+        json.dump(existing, f, indent=2, ensure_ascii=False, default=_np_default)
 
     print(f"  [perf] performance.json updated: total NAV=${total_current:,.2f}, return={total_return_pct:+.2f}%")
     return existing
