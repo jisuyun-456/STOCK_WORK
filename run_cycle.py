@@ -305,7 +305,12 @@ def phase_risk(signals: list) -> tuple[list, list, list]:
 
     for signal in signals:
         strat_data = portfolios["strategies"].get(signal.strategy, {})
-        capital = strat_data.get("allocated", 0)
+        allocated = strat_data.get("allocated", 0)
+        # SIM2 fix: 실제 NAV 기준으로 리스크 계산 (손실 후 과대 포지션 방지)
+        current_nav = strat_data.get("cash", 0) + sum(
+            p.get("market_value", 0) for p in strat_data.get("positions", {}).values()
+        )
+        capital = min(allocated, current_nav) if current_nav > 0 else allocated
         cash = strat_data.get("cash", 0)
 
         current_positions = {}
@@ -920,7 +925,18 @@ def phase_monitor(dry_run: bool = False) -> list[dict]:
 
     port_mdd_triggered, port_mdd_reason = check_portfolio_mdd(portfolios["strategies"])
     if port_mdd_triggered:
-        print(f"  PORTFOLIO MDD ALERT: {port_mdd_reason}")
+        print(f"  PORTFOLIO MDD HALT: {port_mdd_reason} — 전 포지션 청산 개시")
+        # SIM3 fix: 포트폴리오 MDD -15% 시 전 포지션 SELL 시그널 생성
+        for code, strat in portfolios["strategies"].items():
+            for sym, pos in strat.get("positions", {}).items():
+                if sym not in [e["symbol"] for e in exits]:
+                    exits.append({
+                        "symbol": sym,
+                        "strategy": code,
+                        "reason": f"portfolio_mdd_halt: {port_mdd_reason}",
+                        "plpc": pos.get("unrealized_plpc", 0),
+                        "qty": pos.get("qty", 0),
+                    })
 
     # 8. Execute exit orders
     execution_results = []

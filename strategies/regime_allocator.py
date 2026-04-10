@@ -115,7 +115,7 @@ def generate_regime_exit_signals(
                 strategy=strategy_code,
                 symbol=symbol,
                 direction=Direction.SELL,
-                weight_pct=0.0,
+                weight_pct=liquidation_pct,  # SIM4 fix: 1.0=전량, 0.5=50% 부분 청산
                 confidence=0.99,
                 reason=f"EMERGENCY EXIT: regime {previous_regime}→{new_regime}, liquidate {liquidation_pct:.0%}",
                 order_type="market",

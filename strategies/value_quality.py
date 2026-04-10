@@ -295,8 +295,10 @@ class ValueQualityStrategy(BaseStrategy):
                 sell_reason = ""
 
                 if fund is None:
-                    should_sell = True
-                    sell_reason = "no fundamentals data available"
+                    # API 장애 시 패닉 매도 방지 — 데이터 없음 = HOLD
+                    print(f"  [VAL] {symbol}: fundamentals 조회 실패 — HOLD (패닉 매도 방지)")
+                    should_sell = False
+                    sell_reason = ""
                 else:
                     pe = fund.get("pe", 0)
                     roe = fund.get("roe", 0)

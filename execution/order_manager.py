@@ -79,7 +79,10 @@ def execute_signal(
         pos = next((p for p in positions if p["symbol"] == signal.symbol), None)
         if not pos:
             return _log_result(order_id, signal, "skipped", reason="no_position")
-        qty = float(pos["qty"])
+        full_qty = float(pos["qty"])
+        # SIM4 fix: weight_pct on SELL = liquidation ratio (0.5=50%, 1.0=100%)
+        liquidation_ratio = signal.weight_pct if 0 < signal.weight_pct <= 1.0 else 1.0
+        qty = full_qty * liquidation_ratio
 
     else:
         return _log_result(order_id, signal, "skipped", reason="hold_signal")
