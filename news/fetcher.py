@@ -164,8 +164,29 @@ def fetch_news(symbol: str, max_articles: int = 30) -> list[dict]:
             print(f"  [fetcher] 기사 파싱 오류 (skip): {exc}")
             continue
 
-    articles = _dedup_by_title(articles)
-    print(f"[fetcher] {symbol}: {len(articles)}건 수집 완료")
+    # Google News RSS 병합 (종목별 다중 소스 커버리지)
+    try:
+        from news.sources.google_news import fetch_google_news_symbol
+        gnews = fetch_google_news_symbol(symbol, max_articles=15)
+        if gnews:
+            articles.extend(gnews)
+            print(f"[fetcher] {symbol}: Google News +{len(gnews)}건 병합")
+    except Exception as exc:
+        print(f"[fetcher] {symbol}: Google News 병합 실패 (skip): {exc}")
+
+    # URL 중복 제거 + 제목 유사도 중복 제거
+    seen_urls: set[str] = set()
+    unique_articles: list[dict] = []
+    for art in articles:
+        u = art.get("url", "")
+        if u and u in seen_urls:
+            continue
+        if u:
+            seen_urls.add(u)
+        unique_articles.append(art)
+
+    articles = _dedup_by_title(unique_articles)
+    print(f"[fetcher] {symbol}: {len(articles)}건 수집 완료 (중복 제거 후)")
     return articles
 
 

@@ -36,7 +36,7 @@ except ImportError:  # pragma: no cover
     print("[sentiment] WARNING: google-genai not installed -- all scores will be 0.0")
 
 
-_GEMINI_MODEL = "gemini-2.0-flash"
+_GEMINI_MODEL = "gemini-2.5-flash"  # 2.0 Flash 무료 쿼터 중단 → 2.5 Flash로 전환
 _MAX_ARTICLES_PER_PROMPT = 20  # 프롬프트 길이 제한
 _MAX_RETRIES = 3
 _BACKOFF_BASE = 10.0  # 429 시 10초, 20초, 40초 대기
