@@ -18,8 +18,8 @@
       "sharpe_ratio": null,
       "win_rate": null,
       "trade_count": 0,
-      "dry_run_count": 70,
-      "peak_nav": 25000,
+      "dry_run_count": 60,
+      "peak_nav": 25000.0,
       "last_rebalance": null
     },
     "VAL": {
@@ -30,8 +30,8 @@
       "sharpe_ratio": null,
       "win_rate": null,
       "trade_count": 0,
-      "dry_run_count": 26,
-      "peak_nav": 25000,
+      "dry_run_count": 20,
+      "peak_nav": 25000.0,
       "last_rebalance": null
     },
     "QNT": {
@@ -42,8 +42,8 @@
       "sharpe_ratio": null,
       "win_rate": null,
       "trade_count": 0,
-      "dry_run_count": 100,
-      "peak_nav": 30000,
+      "dry_run_count": 80,
+      "peak_nav": 30000.0,
       "last_rebalance": null
     },
     "LEV": {
@@ -59,35 +59,18 @@
       "last_rebalance": null
     },
     "TOTAL": {
-      "initial_nav": 100000,
+      "initial_nav": -111.53,
       "current_nav": 100000.0,
       "total_return_pct": 0.0,
-      "spy_return_pct": 0.5769,
-      "qqq_return_pct": 0.6765,
-      "alpha_vs_spy": 0.0
+      "spy_return_pct": -0.1553,
+      "qqq_return_pct": -0.2475,
+      "alpha_vs_spy": 0.1553
     }
   },
   "daily": [
     {
       "date": "2026-04-09",
-      "total_nav": 100000.0,
-      "strategy_navs": {
-        "MOM": 25000,
-        "VAL": 25000,
-        "QNT": 30000,
-        "LEV": 20000
-      },
-      "benchmark_prices": {
-        "SPY": 676.01,
-        "QQQ": 606.09
-      },
-      "regime": "NEUTRAL",
-      "signals_count": 35,
-      "rebalances": []
-    },
-    {
-      "date": "2026-04-10",
-      "total_nav": 100000.01,
+      "total_nav": 99999.99,
       "strategy_navs": {
         "MOM": 25000.0,
         "VAL": 25000.0,
@@ -95,11 +78,11 @@
         "LEV": 20000
       },
       "benchmark_prices": {
-        "SPY": 679.9099731445312,
-        "QQQ": 610.1900024414062
+        "SPY": 674.9600219726562,
+        "QQQ": 604.5900268554688
       },
       "regime": "NEUTRAL",
-      "signals_count": 36,
+      "signals_count": 38,
       "rebalances": []
     }
   ]
