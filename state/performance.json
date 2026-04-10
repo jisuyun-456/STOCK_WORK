@@ -59,7 +59,7 @@
       "last_rebalance": null
     },
     "TOTAL": {
-      "initial_nav": -111.53,
+      "initial_nav": 100000,
       "current_nav": 100000.0,
       "total_return_pct": 0.0,
       "spy_return_pct": -0.1553,
