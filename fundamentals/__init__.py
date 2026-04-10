@@ -8,6 +8,14 @@ from __future__ import annotations
 
 import io
 import sys
+from pathlib import Path
+
+# .env 자동 로드 (run_cycle.py 외부에서 직접 호출 시 대비)
+try:
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).parent.parent / ".env")
+except ImportError:
+    pass
 
 # Windows cp949 fix (run_cycle.py 외부에서 직접 호출 시 대비)
 def _fix_enc() -> None:

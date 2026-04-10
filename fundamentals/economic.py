@@ -30,12 +30,14 @@ _EVENT_MAP = {
     "NFP": ["nonfarm payroll", "non-farm payroll", "nfp", "employment situation"],
 }
 
-# FRED Series ID → 이벤트 유형 매핑 (economic indicators release calendar)
-_FRED_SERIES = {
-    "FEDFUNDS": "FOMC",    # Federal Funds Rate (FOMC 결정일 근처 업데이트)
-    "CPIAUCSL": "CPI",     # Consumer Price Index
-    "PPIACO": "PPI",       # Producer Price Index
-    "PAYEMS": "NFP",       # Nonfarm Payrolls
+# FRED Release ID → 이벤트 유형 매핑
+# https://api.stlouisfed.org/fred/releases (전체 목록 조회 가능)
+_FRED_RELEASES = {
+    10:  "CPI",   # Consumer Price Index (CPI)
+    31:  "PPI",   # Producer Price Index (PPI)
+    50:  "NFP",   # Employment Situation (Nonfarm Payrolls)
+    183: "FOMC",  # FOMC (Federal Open Market Committee)
+    33:  "PMI",   # ISM Manufacturing PMI
 }
 
 
@@ -86,9 +88,10 @@ def _get_via_fmp() -> dict[str, int] | None:
 
 
 def _get_via_fred() -> dict[str, int]:
-    """FRED API로 다음 주요 경제 지표 발표일 조회.
+    """FRED release/dates API로 다음 주요 경제 지표 발표 예정일 조회.
 
-    FRED_API_KEY 환경변수 필요. https://fred.stlouisfed.org/docs/api/api_key.html (무료)
+    사용 엔드포인트: /fred/release/dates?release_id={id}
+    → 예정된 발표일 목록을 가져와 오늘 이후 가장 가까운 날짜 반환.
     """
     if not _FRED_KEY:
         return {}
@@ -98,28 +101,36 @@ def _get_via_fred() -> dict[str, int]:
         return {}
 
     today = date.today()
-    to_dt = (today + timedelta(days=60)).strftime("%Y-%m-%d")
+    from_dt = today.strftime("%Y-%m-%d")
+    to_dt = (today + timedelta(days=90)).strftime("%Y-%m-%d")
     result: dict[str, int] = {}
 
-    for series_id, event_key in _FRED_SERIES.items():
-        if event_key in result:
-            continue  # 이미 찾은 이벤트 스킵
+    for release_id, event_key in _FRED_RELEASES.items():
         url = (
-            f"https://api.stlouisfed.org/fred/series/observations"
-            f"?series_id={series_id}&api_key={_FRED_KEY}&file_type=json"
-            f"&observation_start={today.strftime('%Y-%m-%d')}&observation_end={to_dt}"
-            f"&limit=5&sort_order=asc"
+            f"https://api.stlouisfed.org/fred/release/dates"
+            f"?release_id={release_id}&api_key={_FRED_KEY}&file_type=json"
+            f"&realtime_start={from_dt}&realtime_end={to_dt}"
+            f"&include_release_dates_with_no_data=true"
         )
         try:
             resp = requests.get(url, timeout=10)
             resp.raise_for_status()
-            obs = resp.json().get("observations", [])
-            if obs:
-                first_date = date.fromisoformat(obs[0]["date"])
-                days = (first_date - today).days
+            dates_list = resp.json().get("release_dates", [])
+            for entry in dates_list:
+                date_str = entry.get("date", "")
+                if not date_str:
+                    continue
+                try:
+                    rel_date = date.fromisoformat(date_str)
+                except ValueError:
+                    continue
+                days = (rel_date - today).days
                 if days >= 0:
-                    result[event_key] = days
-        except Exception:
+                    if event_key not in result or days < result[event_key]:
+                        result[event_key] = days
+                    break  # 가장 가까운 날짜만 필요
+        except Exception as e:
+            print(f"  [fundamentals/economic] FRED release {release_id} 조회 실패: {e}")
             continue
 
     return result

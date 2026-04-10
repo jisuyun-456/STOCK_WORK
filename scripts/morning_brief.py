@@ -29,6 +29,13 @@ if hasattr(sys.stdout, "buffer"):
 
 ROOT = Path(__file__).parent.parent
 STATE_DIR = ROOT / "state"
+
+# .env 로드 (환경변수 자동 적용)
+try:
+    from dotenv import load_dotenv
+    load_dotenv(ROOT / ".env")
+except ImportError:
+    pass
 PORTFOLIOS_PATH = STATE_DIR / "portfolios.json"
 PERFORMANCE_PATH = STATE_DIR / "performance.json"
 REGIME_PATH = STATE_DIR / "regime_state.json"
