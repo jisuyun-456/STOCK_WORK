@@ -59,12 +59,12 @@
       "last_rebalance": null
     },
     "TOTAL": {
-      "initial_nav": 16.4,
+      "initial_nav": 100000,
       "current_nav": 100000.0,
-      "total_return_pct": 609656.0976,
+      "total_return_pct": 0.0,
       "spy_return_pct": 0.5769,
       "qqq_return_pct": 0.6765,
-      "alpha_vs_spy": 609655.5207
+      "alpha_vs_spy": 0.0
     }
   },
   "daily": [

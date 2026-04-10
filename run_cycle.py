@@ -558,7 +558,11 @@ def _sync_alpaca_positions(portfolios: dict) -> dict:
     # Update strategy cash from account-level data
     total_position_value = sum(p["market_value"] for p in alpaca_positions)
     total_cash = account["cash"]
-    portfolios["account_total"] = account["equity"]
+    new_equity = float(account["equity"])
+    if new_equity >= 1000:
+        portfolios["account_total"] = new_equity
+    else:
+        print(f"  [sync] WARNING: Alpaca equity ${new_equity:,.2f} < $1,000 — skipping account_total update")
 
     # Recalculate per-strategy cash: allocated - sum(position values in strategy)
     for code, strat in portfolios["strategies"].items():
@@ -1102,6 +1106,29 @@ def main():
         print()
     else:
         signals = []
+
+    # Phase 2.3: TICKER NEWS (종목별 뉴스 수집 — Research Overlay 전)
+    if signals and args.phase in ("all", "research"):
+        try:
+            from news.fetcher import fetch_news
+            symbols_to_fetch = list(set(s.symbol for s in signals))[:30]
+            print(f"[Phase 2.3: TICKER NEWS] {len(symbols_to_fetch)}개 종목 뉴스 수집 중...")
+            if market_data.get("news") is None:
+                market_data["news"] = {}
+            fetched = 0
+            for sym in symbols_to_fetch:
+                if sym in market_data["news"]:
+                    continue
+                try:
+                    articles = fetch_news(sym, max_articles=5)
+                    market_data["news"][sym] = articles
+                    fetched += len(articles)
+                except Exception:
+                    market_data["news"][sym] = []
+            print(f"  종목별 뉴스: {fetched}건 수집 ({len(symbols_to_fetch)}종목)")
+            print()
+        except Exception as e:
+            print(f"  [ticker_news] 수집 실패: {e}")
 
     # Phase 2.5: RESEARCH
     research_verdicts = {}

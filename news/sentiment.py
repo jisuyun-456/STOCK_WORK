@@ -3,6 +3,7 @@
 fetch_all_news() 결과를 받아 종목별로 Gemini 1회 호출하여
 score(-1.0~+1.0)와 한 줄 요약(summary)을 반환한다.
 GEMINI_API_KEY 미설정 시 score=0.0 (NEUTRAL) fallback.
+429 rate limit 시 exponential backoff로 최대 3회 재시도.
 """
 
 from __future__ import annotations
@@ -10,6 +11,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import time
 from dataclasses import dataclass, field
 
 # Gemini SDK 임포트 (없으면 graceful fallback)
@@ -24,6 +26,8 @@ except ImportError:  # pragma: no cover
 
 _GEMINI_MODEL = "gemini-2.0-flash"
 _MAX_ARTICLES_PER_PROMPT = 20  # 프롬프트 길이 제한
+_MAX_RETRIES = 3
+_BACKOFF_BASE = 10.0  # 429 시 10초, 20초, 40초 대기
 
 
 @dataclass
@@ -121,6 +125,7 @@ def analyze_sentiment(symbol: str, articles: list[dict]) -> SentimentResult:
     """종목의 뉴스 기사들을 Gemini로 감성 분석한다.
 
     기사 목록을 하나의 프롬프트로 묶어 Gemini 1회 호출한다.
+    429 rate limit 시 exponential backoff로 최대 3회 재시도.
     API 키 미설정·SDK 미설치·호출 실패 시 score=0.0 (NEUTRAL)을 반환하며
     error 필드에 사유를 기록한다.
 
@@ -166,28 +171,40 @@ def analyze_sentiment(symbol: str, articles: list[dict]) -> SentimentResult:
 
     prompt = _build_prompt(symbol, articles)
 
-    try:
-        response = client.models.generate_content(
-            model=_GEMINI_MODEL,
-            contents=prompt,
-        )
-        score, summary = _parse_gemini_response(response.text)
-        print(f"[sentiment] {symbol}: score={score:.2f}, summary={summary[:50]}")
-        return SentimentResult(
-            symbol=symbol,
-            score=score,
-            summary=summary,
-            article_count=len(articles[:_MAX_ARTICLES_PER_PROMPT]),
-        )
-    except Exception as exc:
-        print(f"[sentiment] {symbol} Gemini 호출 실패: {exc}")
-        return SentimentResult(
-            symbol=symbol,
-            score=0.0,
-            summary="",
-            article_count=len(articles),
-            error=str(exc),
-        )
+    for attempt in range(_MAX_RETRIES):
+        try:
+            response = client.models.generate_content(
+                model=_GEMINI_MODEL,
+                contents=prompt,
+            )
+            score, summary = _parse_gemini_response(response.text)
+            print(f"[sentiment] {symbol}: score={score:.2f}, summary={summary[:50]}")
+            return SentimentResult(
+                symbol=symbol,
+                score=score,
+                summary=summary,
+                article_count=len(articles[:_MAX_ARTICLES_PER_PROMPT]),
+            )
+        except Exception as exc:
+            err_str = str(exc)
+            if ("429" in err_str or "RESOURCE_EXHAUSTED" in err_str) and attempt < _MAX_RETRIES - 1:
+                wait = _BACKOFF_BASE * (2 ** attempt)
+                print(f"[sentiment] {symbol}: 429 rate limit — retry {attempt + 1}/{_MAX_RETRIES} in {wait:.0f}s")
+                time.sleep(wait)
+            else:
+                print(f"[sentiment] {symbol} Gemini 호출 실패: {exc}")
+                return SentimentResult(
+                    symbol=symbol,
+                    score=0.0,
+                    summary="",
+                    article_count=len(articles),
+                    error=str(exc),
+                )
+
+    return SentimentResult(
+        symbol=symbol, score=0.0, summary="", article_count=len(articles),
+        error="max retries exceeded",
+    )
 
 
 def analyze_all_sentiment(news_data: dict[str, list[dict]]) -> dict[str, SentimentResult]:

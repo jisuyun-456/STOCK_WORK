@@ -33,6 +33,28 @@ _HEADERS = {
 
 _REQUEST_TIMEOUT = 10   # 초
 _BODY_MAX_CHARS = 3000  # 기사당 본문 최대 문자 수 (Phase 7: 500→3000)
+_TITLE_DEDUP_THRESHOLD = 0.8  # 제목 유사도 기반 중복 제거 임계값
+
+
+def _dedup_by_title(articles: list[dict], threshold: float = _TITLE_DEDUP_THRESHOLD) -> list[dict]:
+    """제목 유사도 기반 중복 제거 (SequenceMatcher).
+
+    동일 뉴스가 여러 소스에서 약간 다른 제목으로 수집될 때 80%+ 유사도면 제거.
+    """
+    from difflib import SequenceMatcher
+    unique: list[dict] = []
+    for art in articles:
+        title = art.get("title", "")
+        if not title:
+            unique.append(art)
+            continue
+        is_dup = any(
+            SequenceMatcher(None, title.lower(), u.get("title", "").lower()).ratio() >= threshold
+            for u in unique
+        )
+        if not is_dup:
+            unique.append(art)
+    return unique
 
 
 def _scrape_body(url: str) -> str:
@@ -142,6 +164,7 @@ def fetch_news(symbol: str, max_articles: int = 30) -> list[dict]:
             print(f"  [fetcher] 기사 파싱 오류 (skip): {exc}")
             continue
 
+    articles = _dedup_by_title(articles)
     print(f"[fetcher] {symbol}: {len(articles)}건 수집 완료")
     return articles
 
@@ -259,6 +282,12 @@ def fetch_macro_news_enhanced() -> list[dict]:
         if url:
             seen.add(url)
         combined.append(article)
+
+    # 제목 유사도 기반 중복 제거
+    before_dedup = len(combined)
+    combined = _dedup_by_title(combined)
+    if before_dedup != len(combined):
+        print(f"[fetcher] 제목 유사도 dedup: {before_dedup} → {len(combined)}건")
 
     source_counts = {}
     for a in combined:

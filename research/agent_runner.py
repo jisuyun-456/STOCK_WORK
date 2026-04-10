@@ -23,8 +23,10 @@ from .models import RegimeDetection, ResearchVerdict
 
 _MODE = os.environ.get("RESEARCH_AGENTS", "rules")
 
-# Gemini rate limit: 15 req/min → 4 second interval between requests
-_GEMINI_DELAY = 4.0
+# Gemini rate limit: 15 req/min → 5 second interval between requests
+_GEMINI_DELAY = 5.0
+_GEMINI_MAX_RETRIES = 3
+_GEMINI_BACKOFF_BASE = 10.0  # 429 시 첫 대기: 10초, 이후 20초, 40초
 
 
 def get_research_mode() -> str:
@@ -212,13 +214,35 @@ def _parse_verdict_json(text: str, agent_name: str, symbol: str) -> ResearchVerd
         return None
 
 
+def _gemini_call_with_retry(client, prompt: str, agent_name: str) -> str | None:
+    """Gemini API call with exponential backoff on 429."""
+    for attempt in range(_GEMINI_MAX_RETRIES):
+        try:
+            response = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=prompt,
+            )
+            return response.text
+        except Exception as exc:
+            err_str = str(exc)
+            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
+                wait = _GEMINI_BACKOFF_BASE * (2 ** attempt)
+                print(f"    [{agent_name}] 429 rate limit — retry {attempt + 1}/{_GEMINI_MAX_RETRIES} in {wait:.0f}s")
+                time.sleep(wait)
+            else:
+                print(f"    [{agent_name}] Gemini error: {exc}")
+                return None
+    print(f"    [{agent_name}] 429 — max retries exceeded")
+    return None
+
+
 def _run_gemini_agents(
     signal: Signal,
     market_data: dict,
     portfolio_state: dict,
     regime: RegimeDetection,
 ) -> list[ResearchVerdict]:
-    """Run 5 agents sequentially via Gemini Flash (rate limit aware)."""
+    """Run 5 agents sequentially via Gemini Flash (rate limit aware with retry)."""
     client = _get_gemini_client()
     if client is None:
         print("  [agent_runner] Gemini unavailable, skipping real analysis")
@@ -227,27 +251,20 @@ def _run_gemini_agents(
     verdicts: list[ResearchVerdict] = []
 
     for agent_name in AGENT_NAMES:
-        try:
-            system_prompt = AGENT_PROMPTS[agent_name]
-            context = _build_agent_context(agent_name, signal, market_data, portfolio_state, regime)
-            full_prompt = f"{system_prompt}\n\n--- SIGNAL CONTEXT ---\n{context}"
+        system_prompt = AGENT_PROMPTS[agent_name]
+        context = _build_agent_context(agent_name, signal, market_data, portfolio_state, regime)
+        full_prompt = f"{system_prompt}\n\n--- SIGNAL CONTEXT ---\n{context}"
 
-            response = client.models.generate_content(
-                model="gemini-2.0-flash",
-                contents=full_prompt,
-            )
-
-            verdict = _parse_verdict_json(response.text, agent_name, signal.symbol)
+        text = _gemini_call_with_retry(client, full_prompt, agent_name)
+        if text:
+            verdict = _parse_verdict_json(text, agent_name, signal.symbol)
             if verdict:
                 verdicts.append(verdict)
                 print(f"    [{agent_name}] {verdict.direction} (delta={verdict.confidence_delta:+.2f})")
             else:
                 print(f"    [{agent_name}] parse failed, using fallback")
 
-            time.sleep(_GEMINI_DELAY)  # Rate limit
-
-        except Exception as exc:
-            print(f"    [{agent_name}] Gemini error: {exc}")
+        time.sleep(_GEMINI_DELAY)  # Rate limit
 
     return verdicts
 
@@ -259,7 +276,7 @@ def _run_gemini_appeal(
     regime: RegimeDetection,
     appeal_context: dict,
 ) -> list[ResearchVerdict]:
-    """Run appeal analysis via Gemini Flash."""
+    """Run appeal analysis via Gemini Flash (with retry)."""
     client = _get_gemini_client()
     if client is None:
         return []
@@ -270,28 +287,37 @@ def _run_gemini_appeal(
     verdicts: list[ResearchVerdict] = []
 
     for agent_name in AGENT_NAMES:
-        try:
-            system_prompt = AGENT_PROMPTS[agent_name] + "\n" + appeal_suffix
-            context = _build_agent_context(agent_name, signal, market_data, portfolio_state, regime)
-            context += f"\nFailed risk checks: {', '.join(failed_checks)}"
+        system_prompt = AGENT_PROMPTS[agent_name] + "\n" + appeal_suffix
+        context = _build_agent_context(agent_name, signal, market_data, portfolio_state, regime)
+        context += f"\nFailed risk checks: {', '.join(failed_checks)}"
+        full_prompt = f"{system_prompt}\n\n--- APPEAL CONTEXT ---\n{context}"
 
-            response = client.models.generate_content(
-                model="gemini-2.0-flash",
-                contents=f"{system_prompt}\n\n--- APPEAL CONTEXT ---\n{context}",
-            )
-
-            verdict = _parse_verdict_json(response.text, agent_name, signal.symbol)
+        text = _gemini_call_with_retry(client, full_prompt, agent_name)
+        if text:
+            verdict = _parse_verdict_json(text, agent_name, signal.symbol)
             if verdict:
                 verdicts.append(verdict)
-            time.sleep(_GEMINI_DELAY)
-
-        except Exception as exc:
-            print(f"    [{agent_name}] appeal error: {exc}")
+        time.sleep(_GEMINI_DELAY)
 
     return verdicts
 
 
 # ─── Claude Mode (Interactive) ─────────────────────────────────────────────
+
+
+def _get_claude_client():
+    """Get Anthropic client. Returns None if unavailable."""
+    try:
+        import anthropic
+        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+        if not api_key:
+            return None
+        return anthropic.Anthropic(api_key=api_key)
+    except ImportError:
+        return None
+
+
+_CLAUDE_MODEL = "claude-haiku-4-5-20251001"
 
 
 def _run_claude_agents(
@@ -300,19 +326,45 @@ def _run_claude_agents(
     portfolio_state: dict,
     regime: RegimeDetection,
 ) -> list[ResearchVerdict]:
-    """Run 5 agents via Claude Code agents (interactive mode).
+    """Run 5 agents in parallel via Claude API (Haiku 4.5)."""
+    client = _get_claude_client()
+    if client is None:
+        print("  [agent_runner] Claude unavailable (no API key or SDK), falling back to Gemini")
+        return _run_gemini_agents(signal, market_data, portfolio_state, regime)
 
-    In interactive mode, this writes a research_request.json that the
-    Claude Code Trading Commander can pick up and dispatch to sub-agents.
-    The sub-agents use WebSearch/WebFetch for real-time data.
+    print(f"  [agent_runner] Claude mode: {_CLAUDE_MODEL} × {len(AGENT_NAMES)} agents (parallel)")
+    verdicts: list[ResearchVerdict] = []
 
-    For now, this delegates to Gemini as a fallback. Full Claude agent
-    integration requires Claude Code SDK in the pipeline.
-    """
-    # TODO: Implement full Claude Code agent dispatch
-    # For now, use Gemini as the LLM backend even in claude mode
-    print("  [agent_runner] Claude mode: delegating to Gemini backend")
-    return _run_gemini_agents(signal, market_data, portfolio_state, regime)
+    def _call_agent(agent_name: str) -> ResearchVerdict | None:
+        system_prompt = AGENT_PROMPTS[agent_name]
+        context = _build_agent_context(agent_name, signal, market_data, portfolio_state, regime)
+        try:
+            response = client.messages.create(
+                model=_CLAUDE_MODEL,
+                max_tokens=512,
+                system=system_prompt,
+                messages=[{"role": "user", "content": f"--- SIGNAL CONTEXT ---\n{context}"}],
+            )
+            return _parse_verdict_json(response.content[0].text, agent_name, signal.symbol)
+        except Exception as exc:
+            print(f"    [{agent_name}] Claude error: {exc}")
+            return None
+
+    with ThreadPoolExecutor(max_workers=5) as pool:
+        futures = {pool.submit(_call_agent, name): name for name in AGENT_NAMES}
+        for future in as_completed(futures):
+            agent_name = futures[future]
+            try:
+                verdict = future.result(timeout=30)
+                if verdict:
+                    verdicts.append(verdict)
+                    print(f"    [{agent_name}] {verdict.direction} (delta={verdict.confidence_delta:+.2f})")
+                else:
+                    print(f"    [{agent_name}] parse failed, skipping")
+            except Exception as exc:
+                print(f"    [{agent_name}] timeout/error: {exc}")
+
+    return verdicts
 
 
 def _run_claude_appeal(
@@ -322,5 +374,41 @@ def _run_claude_appeal(
     regime: RegimeDetection,
     appeal_context: dict,
 ) -> list[ResearchVerdict]:
-    """Claude mode appeal — delegates to Gemini for now."""
-    return _run_gemini_appeal(signal, market_data, portfolio_state, regime, appeal_context)
+    """Run appeal analysis via Claude API (Haiku 4.5)."""
+    client = _get_claude_client()
+    if client is None:
+        return _run_gemini_appeal(signal, market_data, portfolio_state, regime, appeal_context)
+
+    failed_checks = appeal_context.get("failed_checks", [])
+    appeal_suffix = APPEAL_SUFFIX.format(failed_checks=", ".join(failed_checks))
+
+    verdicts: list[ResearchVerdict] = []
+
+    def _call_appeal_agent(agent_name: str) -> ResearchVerdict | None:
+        system_prompt = AGENT_PROMPTS[agent_name] + "\n" + appeal_suffix
+        context = _build_agent_context(agent_name, signal, market_data, portfolio_state, regime)
+        context += f"\nFailed risk checks: {', '.join(failed_checks)}"
+        try:
+            response = client.messages.create(
+                model=_CLAUDE_MODEL,
+                max_tokens=512,
+                system=system_prompt,
+                messages=[{"role": "user", "content": f"--- APPEAL CONTEXT ---\n{context}"}],
+            )
+            return _parse_verdict_json(response.content[0].text, agent_name, signal.symbol)
+        except Exception as exc:
+            print(f"    [{agent_name}] appeal error: {exc}")
+            return None
+
+    with ThreadPoolExecutor(max_workers=5) as pool:
+        futures = {pool.submit(_call_appeal_agent, name): name for name in AGENT_NAMES}
+        for future in as_completed(futures):
+            agent_name = futures[future]
+            try:
+                verdict = future.result(timeout=30)
+                if verdict:
+                    verdicts.append(verdict)
+            except Exception as exc:
+                print(f"    [{agent_name}] appeal timeout: {exc}")
+
+    return verdicts
