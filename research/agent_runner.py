@@ -59,8 +59,10 @@ def run_all_agents(
         return _run_gemini_agents(signal, market_data, portfolio_state, regime)
     elif mode == "claude":
         return _run_claude_agents(signal, market_data, portfolio_state, regime)
+    elif mode == "rules":
+        return _run_data_driven_agents(signal, market_data, portfolio_state, regime)
     else:
-        return []  # Caller should use existing rule-based logic
+        return []
 
 
 def run_all_agents_appeal(
@@ -78,6 +80,8 @@ def run_all_agents_appeal(
         return _run_gemini_appeal(signal, market_data, portfolio_state, regime, appeal_context)
     elif mode == "claude":
         return _run_claude_appeal(signal, market_data, portfolio_state, regime, appeal_context)
+    elif mode == "rules":
+        return _run_data_driven_agents(signal, market_data, portfolio_state, regime)
     else:
         return []
 
@@ -410,5 +414,132 @@ def _run_claude_appeal(
                     verdicts.append(verdict)
             except Exception as exc:
                 print(f"    [{agent_name}] appeal timeout: {exc}")
+
+    return verdicts
+
+
+# ─── Data-Driven Rules Mode ($0, TMS-style) ───────────────────────────────────
+
+
+def _run_data_driven_agents(
+    signal: Signal,
+    market_data: dict,
+    portfolio_state: dict,
+    regime: RegimeDetection,
+) -> list[ResearchVerdict]:
+    """Rule-based verdicts using pre-fetched Phase 1 data. Zero LLM calls, zero cost.
+
+    Mirrors TMS agent pattern: read structured data → apply thresholds → emit verdict.
+    Each of the 5 agent roles applies its domain rules to already-available market_data.
+    """
+    now = datetime.now(timezone.utc).isoformat()
+    sym = signal.symbol
+    direction = signal.direction.value if hasattr(signal.direction, "value") else str(signal.direction)
+    indicators = market_data.get("indicators", {}).get(sym, {})
+    fundamentals = market_data.get("fundamentals", {}).get(sym, {})
+    symbol_news = market_data.get("news", {}).get(sym, [])
+    strat_state = portfolio_state.get("strategies", {}).get(signal.strategy, {})
+    positions = strat_state.get("positions", {})
+    max_pos = {"MOM": 10, "VAL": 5, "QNT": 20, "LEV": 3}.get(signal.strategy, 10)
+
+    def _verdict(agent: str, d: str, delta: float, conv: str, reason: str, metrics: dict) -> ResearchVerdict:
+        return ResearchVerdict(
+            agent=agent, symbol=sym, direction=d,
+            confidence_delta=round(delta, 2), conviction=conv,
+            reasoning=reason, key_metrics=metrics, timestamp=now,
+        )
+
+    verdicts: list[ResearchVerdict] = []
+
+    # ── 1. technical_strategist ─────────────────────────────────────────────
+    rsi = indicators.get("rsi")
+    macd_cross = indicators.get("macd_cross", "")
+    trend = indicators.get("trend", "")
+    bb_pct_b = indicators.get("bb_pct_b")
+    metrics_tech = {"rsi": rsi, "macd_cross": macd_cross, "trend": trend, "bb_pct_b": bb_pct_b}
+
+    if rsi is not None and rsi > 75 and direction == "BUY":
+        verdicts.append(_verdict("technical_strategist", "DISAGREE", -0.15, "STRONG",
+            f"RSI={rsi:.0f} — 과매수 구간. 단기 조정 가능성.", metrics_tech))
+    elif rsi is not None and rsi < 30 and direction == "BUY":
+        verdicts.append(_verdict("technical_strategist", "AGREE", +0.10, "MODERATE",
+            f"RSI={rsi:.0f} — 과매도 반등 구간.", metrics_tech))
+    elif trend == "BEARISH" and direction == "BUY":
+        verdicts.append(_verdict("technical_strategist", "DISAGREE", -0.10, "MODERATE",
+            f"추세 하락(BEARISH). MACD={macd_cross}.", metrics_tech))
+    elif macd_cross == "bullish" and direction == "BUY":
+        verdicts.append(_verdict("technical_strategist", "AGREE", +0.05, "WEAK",
+            f"MACD 골든크로스 확인. RSI={rsi}.", metrics_tech))
+    else:
+        verdicts.append(_verdict("technical_strategist", "AGREE", 0.0, "WEAK",
+            f"기술적 중립. RSI={rsi}, trend={trend}.", metrics_tech))
+
+    # ── 2. risk_controller ──────────────────────────────────────────────────
+    metrics_risk = {"bb_pct_b": bb_pct_b, "regime": regime.regime, "vix": regime.vix_level}
+
+    if bb_pct_b is not None and bb_pct_b > 1.0 and direction == "BUY":
+        verdicts.append(_verdict("risk_controller", "VETO", 0.0, "STRONG",
+            f"BB %B={bb_pct_b:.2f} > 1.0 — 볼린저밴드 상단 돌파. 극단적 과매수 VETO.", metrics_risk))
+    elif regime.regime == "CRISIS":
+        verdicts.append(_verdict("risk_controller", "DISAGREE", -0.20, "STRONG",
+            f"CRISIS 레짐. VIX={regime.vix_level:.1f} — 전략적 리스크 축소.", metrics_risk))
+    elif regime.regime == "BEAR" and direction == "BUY":
+        verdicts.append(_verdict("risk_controller", "DISAGREE", -0.10, "MODERATE",
+            f"BEAR 레짐 진입 중. 신규 매수 리스크 상승.", metrics_risk))
+    else:
+        verdicts.append(_verdict("risk_controller", "AGREE", 0.0, "WEAK",
+            f"리스크 정상 범위. Regime={regime.regime}, VIX={regime.vix_level:.1f}.", metrics_risk))
+
+    # ── 3. equity_research ──────────────────────────────────────────────────
+    pe = fundamentals.get("pe")
+    fcf_yield = fundamentals.get("fcf_yield")
+    roe = fundamentals.get("roe")
+    neg_news = sum(1 for n in symbol_news if any(
+        kw in n.get("title", "").lower()
+        for kw in ["downgrade", "miss", "cut", "loss", "warning", "recall", "lawsuit", "layoff"]
+    ))
+    metrics_eq = {"pe": pe, "fcf_yield": fcf_yield, "roe": roe, "neg_news_count": neg_news}
+
+    if neg_news >= 2:
+        verdicts.append(_verdict("equity_research", "DISAGREE", -0.10, "MODERATE",
+            f"부정 뉴스 {neg_news}건 감지. 펀더멘탈 리스크.", metrics_eq))
+    elif pe is not None and pe > 40 and direction == "BUY":
+        verdicts.append(_verdict("equity_research", "DISAGREE", -0.08, "WEAK",
+            f"PE={pe:.1f} — 고평가 구간(>40). 밸류에이션 부담.", metrics_eq))
+    elif fcf_yield is not None and fcf_yield > 0.05 and direction == "BUY":
+        verdicts.append(_verdict("equity_research", "AGREE", +0.08, "MODERATE",
+            f"FCF_Yield={fcf_yield:.1%} — 양호한 현금흐름 수익률.", metrics_eq))
+    else:
+        verdicts.append(_verdict("equity_research", "AGREE", 0.0, "WEAK",
+            f"펀더멘탈 중립. PE={pe}, FCF_Yield={fcf_yield}.", metrics_eq))
+
+    # ── 4. macro_economist ──────────────────────────────────────────────────
+    macro_news = market_data.get("news", {}).get("_MACRO", [])
+    macro_neg = sum(1 for n in macro_news[:10] if any(
+        kw in n.get("title", "").lower()
+        for kw in ["recession", "inflation", "rate hike", "tariff", "crisis", "crash", "default"]
+    ))
+    metrics_macro = {"regime": regime.regime, "macro_neg_news": macro_neg, "sp500_vs_sma200": regime.sp500_vs_sma200}
+
+    if regime.regime in ("BEAR", "CRISIS"):
+        verdicts.append(_verdict("macro_economist", "DISAGREE", -0.15, "STRONG",
+            f"매크로 역풍. Regime={regime.regime}, SPY/SMA200={regime.sp500_vs_sma200:.3f}.", metrics_macro))
+    elif macro_neg >= 3:
+        verdicts.append(_verdict("macro_economist", "DISAGREE", -0.08, "MODERATE",
+            f"부정 매크로 뉴스 {macro_neg}건. 불확실성 상승.", metrics_macro))
+    else:
+        verdicts.append(_verdict("macro_economist", "AGREE", 0.0, "WEAK",
+            f"매크로 중립. Regime={regime.regime}.", metrics_macro))
+
+    # ── 5. portfolio_architect ──────────────────────────────────────────────
+    pos_count = len(positions)
+    metrics_port = {"position_count": pos_count, "max_positions": max_pos, "strategy": signal.strategy}
+
+    if pos_count >= max_pos and direction == "BUY":
+        verdicts.append(_verdict("portfolio_architect", "DISAGREE", -0.10, "MODERATE",
+            f"{signal.strategy} 포지션 {pos_count}/{max_pos} — 최대 도달. 신규 매수 비권고.", metrics_port))
+    else:
+        verdicts.append(_verdict("portfolio_architect", "AGREE", 0.0, "WEAK",
+            f"{signal.strategy} 포지션 {pos_count}/{max_pos} — 여유 있음.", metrics_port))
 
     return verdicts

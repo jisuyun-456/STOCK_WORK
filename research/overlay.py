@@ -65,12 +65,15 @@ def run_research_overlay(
     print(f"  Regime: {regime.regime} ({regime.reasoning})")
 
     # 2. Filter signals if selective mode
+    #    L-4: high-conf (>0.7) still goes through research for VETO checks
     if research_mode == "selective":
         research_signals = [s for s in signals if 0.5 <= s.confidence <= 0.7]
-        passthrough = [s for s in signals if s.confidence < 0.5 or s.confidence > 0.7]
-        print(f"  Selective mode: {len(research_signals)} signals to research, {len(passthrough)} passthrough")
+        high_conf_signals = [s for s in signals if s.confidence > 0.7]
+        passthrough = [s for s in signals if s.confidence < 0.5]
+        print(f"  Selective: {len(research_signals)} research, {len(high_conf_signals)} high-conf review, {len(passthrough)} passthrough")
     else:
         research_signals = signals
+        high_conf_signals = []
         passthrough = []
 
     # 3. Run research on each signal
@@ -118,6 +121,33 @@ def run_research_overlay(
         if disagree_agents:
             _log_dissent(signal, verdicts, "APPROVED", adj_confidence, appeal=False)
 
+        adjusted.append(adj_signal)
+
+    # 3b. High-confidence review — VETO-only gate (L-4 fix)
+    for signal in high_conf_signals:
+        sig_dir = signal.direction.value if hasattr(signal.direction, 'value') else str(signal.direction)
+        if not no_cache:
+            cached = get_cached(signal.symbol, regime.regime, signal.strategy, sig_dir)
+            if cached is not None:
+                verdicts = cached
+            else:
+                verdicts = _generate_verdicts(signal, market_data, portfolio_state, regime)
+                set_cache(signal.symbol, regime.regime, verdicts, signal.strategy, sig_dir)
+        else:
+            verdicts = _generate_verdicts(signal, market_data, portfolio_state, regime)
+            set_cache(signal.symbol, regime.regime, verdicts, signal.strategy, sig_dir)
+
+        all_verdicts[signal.symbol] = verdicts
+        _, meta = calculate_consensus(verdicts, regime.regime, signal.confidence)
+
+        if meta.get("reason") == "VETO":
+            print(f"  {signal.symbol}: high-conf VETO by {meta['veto_by']} — REJECTED")
+            _log_dissent(signal, verdicts, "VETO_REJECTED", signal.confidence, appeal=False)
+            continue
+
+        # Keep original confidence — only VETO can block high-conf signals
+        adj_signal = deepcopy(signal)
+        print(f"  {signal.symbol}: high-conf {signal.confidence:.2f} — passed review")
         adjusted.append(adj_signal)
 
     print(f"  Research complete: {len(adjusted)} signals passed (from {len(signals)} raw)")
@@ -330,7 +360,12 @@ def _generate_appeal_verdicts_rules(
     # In appeal mode, agents are asked:
     # "The risk gate failed, but is the fundamental case strong enough to override?"
     # Default simulation: only override if confidence was very high
-    is_strong_case = signal.confidence >= 0.7
+    # L-3: LEV 3x ETFs — VaR override is structurally unjustifiable
+    is_lev_var_appeal = (
+        getattr(signal, 'strategy', '') == "LEV"
+        and "portfolio_var" in failed_checks
+    )
+    is_strong_case = signal.confidence >= 0.7 and not is_lev_var_appeal
 
     for agent_name in ["equity_research", "technical_strategist", "macro_economist",
                        "portfolio_architect", "risk_controller"]:
