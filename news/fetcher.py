@@ -9,9 +9,22 @@ from __future__ import annotations
 
 import datetime
 import time
+from urllib.parse import urlparse
 
 import requests
 import yfinance as yf
+
+# N-LOW-1: 인증 차단(401/403) 도메인 런타임 블랙리스트.
+# 한 번 401/403 이 발생한 도메인은 이번 프로세스 생존 기간 동안 재요청하지 않는다.
+# Barrons 등 페이월 사이트가 매 사이클 30+ 회 스크래핑을 시도해 로그를 오염시키고
+# 약 10~15초의 누적 타임아웃을 유발하던 문제를 제거한다.
+_AUTH_BLOCKED_DOMAINS: set[str] = set()
+# 영구 블랙리스트(알려진 페이월) — 처음부터 시도조차 하지 않음.
+_PERMANENT_PAYWALL_DOMAINS: frozenset[str] = frozenset({
+    "www.barrons.com",
+    "www.wsj.com",
+    "www.ft.com",
+})
 
 try:
     from bs4 import BeautifulSoup
@@ -63,6 +76,9 @@ def _scrape_body(url: str) -> str:
     <article> > <p> 순으로 탐색하며 최대 _BODY_MAX_CHARS 자까지 반환한다.
     페이월·타임아웃·파싱 오류 시 빈 문자열을 반환한다 (graceful degradation).
 
+    인증 차단(401/403) 도메인은 _AUTH_BLOCKED_DOMAINS 에 기록되어
+    같은 프로세스 내 재요청이 차단된다 (N-LOW-1).
+
     Args:
         url: 기사 URL.
 
@@ -72,9 +88,25 @@ def _scrape_body(url: str) -> str:
     if not _BS4_AVAILABLE:
         return ""
 
+    # 영구 또는 런타임 블랙리스트 조회 — 네트워크 호출 스킵
+    try:
+        domain = urlparse(url).netloc.lower()
+    except Exception:
+        domain = ""
+    if domain and (domain in _PERMANENT_PAYWALL_DOMAINS or domain in _AUTH_BLOCKED_DOMAINS):
+        return ""
+
     try:
         resp = requests.get(url, headers=_HEADERS, timeout=_REQUEST_TIMEOUT)
         resp.raise_for_status()
+    except requests.HTTPError as exc:
+        status = getattr(exc.response, "status_code", None)
+        if status in (401, 403) and domain:
+            _AUTH_BLOCKED_DOMAINS.add(domain)
+            print(f"  [fetcher] {domain}: {status} — 이후 요청 차단 (runtime blacklist)")
+        else:
+            print(f"  [fetcher] body 스크래핑 실패 ({url[:60]}...): {exc}")
+        return ""
     except Exception as exc:
         # 개별 기사 실패 — 전체에 영향 없음
         print(f"  [fetcher] body 스크래핑 실패 ({url[:60]}...): {exc}")

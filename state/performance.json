@@ -18,7 +18,7 @@
       "sharpe_ratio": null,
       "win_rate": null,
       "trade_count": 0,
-      "dry_run_count": 70,
+      "dry_run_count": 74,
       "peak_nav": 25000.0,
       "last_rebalance": null,
       "initial_nav": 25000.0
@@ -44,7 +44,7 @@
       "sharpe_ratio": null,
       "win_rate": null,
       "trade_count": 0,
-      "dry_run_count": 235,
+      "dry_run_count": 291,
       "peak_nav": 30000.0,
       "last_rebalance": null,
       "initial_nav": 30000.0
@@ -66,9 +66,9 @@
       "initial_nav": 100000.0,
       "current_nav": 100000.0,
       "total_return_pct": 0.0,
-      "spy_return_pct": 0.6849,
-      "qqq_return_pct": 0.924,
-      "alpha_vs_spy": -0.6849
+      "spy_return_pct": 0.8151,
+      "qqq_return_pct": 1.0955,
+      "alpha_vs_spy": -0.8151
     }
   },
   "daily": [
@@ -99,8 +99,8 @@
         "LEV": 20000
       },
       "benchmark_prices": {
-        "SPY": 680.6400146484375,
-        "QQQ": 611.6900024414062
+        "SPY": 681.52001953125,
+        "QQQ": 612.72998046875
       },
       "regime": "NEUTRAL",
       "signals_count": 15,

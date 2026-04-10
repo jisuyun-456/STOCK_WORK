@@ -14,3 +14,5 @@ node_modules/
 # N-HIGH/MEDIUM Phase A — local operational state, not versioned
 state/backup/
 state/network_down.flag
+# Phase C 로컬 시뮬레이션 로그 — 재현 가능한 dry-run 아카이브
+logs/

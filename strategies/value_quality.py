@@ -217,6 +217,30 @@ def fetch_value_data(universe: list[str] | None = None) -> dict:
         f"{total_fail}개 실패"
     )
 
+    # N-LOW-3: P/E source quality tracking — forward-PE fallback 비율이 높으면 degraded 경고.
+    # Institutional-grade 기준: forward-PE 는 애널리스트 추정치라 바이어스가 있어 10% 미만이
+    # 바람직하다. 20% 초과 시 VAL 데이터 품질이 낮아진 것으로 간주해 경고를 출력한다.
+    pe_source_counts: dict[str, int] = {}
+    for fund in fundamentals.values():
+        src = fund.get("pe_source", "unknown")
+        pe_source_counts[src] = pe_source_counts.get(src, 0) + 1
+    forward_count = pe_source_counts.get("yfinance_forward", 0)
+    forward_ratio = forward_count / total_ok if total_ok else 0.0
+    if forward_ratio >= 0.2:
+        print(
+            f"[VAL] WARNING: forward-PE fallback 비율 {forward_ratio:.1%} "
+            f"({forward_count}/{total_ok}) — 임계 20% 초과, 데이터 품질 저하"
+        )
+        val_pe_degraded = True
+    else:
+        val_pe_degraded = False
+        if forward_count > 0:
+            print(
+                f"[VAL] P/E source mix: trailing "
+                f"{pe_source_counts.get('yfinance_trailing', 0)} + "
+                f"forward {forward_count} ({forward_ratio:.1%}) OK"
+            )
+
     # --- 가격 데이터 (최근 30일, 당일 가격 확인용) ---
     end = datetime.now()
     start = end - timedelta(days=35)
@@ -237,7 +261,13 @@ def fetch_value_data(universe: list[str] | None = None) -> dict:
     except Exception:
         prices = pd.DataFrame()
 
-    return {"prices": prices, "fundamentals": fundamentals}
+    return {
+        "prices": prices,
+        "fundamentals": fundamentals,
+        "val_pe_degraded": val_pe_degraded,
+        "val_forward_pe_ratio": round(forward_ratio, 4),
+        "val_pe_source_counts": pe_source_counts,
+    }
 
 
 # ---------------------------------------------------------------------------

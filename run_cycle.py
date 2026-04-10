@@ -297,6 +297,46 @@ def _backup_state_files() -> None:
         print(f"  [backup] failed: {e}")
 
 
+def _check_allocation_integrity(portfolios: dict) -> bool:
+    """Verify allocations sum is within 1% of inception.total (drift detection).
+
+    Why: portfolios.json 은 auto-sync 로 account_total 만 갱신되고 각 전략의
+    allocated 값은 고정이어야 한다. 만약 누군가 allocated 를 직접 수정하거나
+    sync 로직이 잘못되면 전체 배분이 원본에서 드리프트할 수 있다.
+    이 체크는 Immutable Ledger 원칙의 마지막 방어선이다.
+
+    Returns True if integrity OK, False if drift detected (log + alert written).
+    """
+    inception = portfolios.get("inception", {})
+    inception_total = float(inception.get("total", 0) or 0)
+    if inception_total <= 0:
+        return True  # inception not initialised yet — skip check
+
+    strategies = portfolios.get("strategies", {})
+    alloc_sum = sum(float(s.get("allocated", 0) or 0) for s in strategies.values())
+    drift = abs(alloc_sum - inception_total) / inception_total
+    if drift > 0.01:
+        msg = (
+            f"allocation drift {drift:.2%} "
+            f"(sum=${alloc_sum:,.2f} vs inception=${inception_total:,.2f})"
+        )
+        print(f"  [CRITICAL] {msg}")
+        portfolios.setdefault("alerts", []).append({
+            "type": "allocation_drift",
+            "drift_pct": round(drift, 4),
+            "alloc_sum": round(alloc_sum, 2),
+            "inception_total": round(inception_total, 2),
+            "ts": datetime.now(timezone.utc).isoformat(),
+        })
+        _audit_log("integrity", "drift", {
+            "drift_pct": drift,
+            "alloc_sum": alloc_sum,
+            "inception_total": inception_total,
+        })
+        return False
+    return True
+
+
 def _check_negative_cash(portfolios: dict) -> list[dict]:
     """Detect strategies with negative cash balance (margin call risk).
 
@@ -627,7 +667,23 @@ def phase_signals(market_data: dict, regime: str = "NEUTRAL", allocations: dict 
         strat_data = portfolios["strategies"].get(strat.name, {})
         current_positions = strat_data.get("positions", {}) or None
 
+        # N-LOW-2: negative-cash guard — 전략이 현재 음수 현금 상태면 BUY 시그널을 드랍한다.
+        # 기존 버그: 음수 cash 상태에서도 BUY 시그널 생성 → 리스크 게이트 cash_buffer 에서
+        # 수십 건 FAIL → 로그 오염 + CPU 낭비. SELL 시그널은 정상 흐르게 유지해 점진적 회복 허용.
+        strat_cash = float(strat_data.get("cash", 0) or 0)
+        cash_guard = strat_cash < -10
+
         signals = strat.generate_signals(market_data, current_positions)
+        if cash_guard and signals:
+            from strategies.base_strategy import Direction as _Dir
+            pre_count = len(signals)
+            signals = [s for s in signals if s.direction != _Dir.BUY]
+            dropped = pre_count - len(signals)
+            if dropped:
+                print(
+                    f"  [{strat.name}] 음수 cash ${strat_cash:.2f} 감지 — "
+                    f"BUY 시그널 {dropped}건 드롭 (SELL/EXIT 만 유지)"
+                )
         print(f"  {strat.name}: {len(signals)} signals")
         for s in signals:
             print(f"    {s.symbol} {s.direction.value} {s.weight_pct:.0%} conf={s.confidence:.2f} -{s.reason}")
@@ -1530,6 +1586,13 @@ def main():
         pass
 
     _audit_log("main", "start", {"phase": args.phase, "dry_run": args.dry_run})
+
+    # N-LOW-4: allocation integrity check — Immutable Ledger last line of defense
+    try:
+        _pre_portfolios = load_portfolios()
+        _check_allocation_integrity(_pre_portfolios)
+    except Exception as e:
+        print(f"  [integrity] pre-flight check skipped: {e}")
 
     # Phase Monitor -independent lightweight path
     if args.phase == "monitor":
