@@ -728,5 +728,31 @@
         "timestamp": "2026-04-09T05:24:16.476090+00:00"
       }
     ]
-  }
-}
+  },
+  "AMAT:MOM:buy": {
+    "cached_at": "2026-04-10T06:19:17.111341+00:00",
+    "expires_at": "2026-04-17T06:19:17.111341+00:00",
+    "regime_at_cache": "BULL",
+    "verdicts": [
+      {
+        "agent": "equity_research",
+        "symbol": "AMAT",
+        "direction": "AGREE",
+        "confidence_delta": 0.05,
+        "conviction": "MODERATE",
+        "reasoning": "Momentum signal conf=0.69 aligns with valuation view",
+        "key_metrics": {
+          "signal_confidence": 0.6893
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-10T06:19:17.110898+00:00"
+      },
+      {
+        "agent": "technical_strategist",
+        "symbol": "AMAT",
+        "direction": "AGREE",
+        "confidence_delta": 0.08,
+        "conviction": "MODERATE",
+        "reasoning": "Technical trend confirms momentum",
+        "key_metrics": {
+          "momentum_aligned": 
