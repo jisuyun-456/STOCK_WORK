@@ -20,7 +20,10 @@ References:
 
 from __future__ import annotations
 
+import json
 import os
+from pathlib import Path
+
 import requests
 import yfinance as yf
 import pandas as pd
@@ -29,19 +32,29 @@ from datetime import datetime, timedelta
 from strategies.base_strategy import BaseStrategy, Signal, Direction
 
 
-# S&P 500 유니버스 (상위 100개 대형주 — FMP 무료 티어 250건/일 제약 내 수용)
-SP500_TOP100 = [
+# N-HIGH-3: universe 외부화 — state/universe.json 단일 소스
+_UNIVERSE_JSON = Path(__file__).resolve().parent.parent / "state" / "universe.json"
+
+_VAL_FALLBACK = [
     "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "BRK-B", "LLY", "TSM", "AVGO",
-    "JPM", "V", "UNH", "XOM", "MA", "COST", "JNJ", "HD", "PG", "ABBV",
-    "MRK", "CRM", "ORCL", "BAC", "CVX", "NFLX", "AMD", "KO", "PEP", "TMO",
-    "LIN", "ACN", "MCD", "ABT", "CSCO", "WMT", "PM", "DIS", "DHR", "INTC",
-    "NEE", "TXN", "VZ", "QCOM", "UNP", "RTX", "LOW", "INTU", "HON", "IBM",
-    "GE", "CAT", "BA", "AMGN", "SPGI", "AMAT", "DE", "GS", "BLK", "SYK",
-    "LMT", "ADP", "MDT", "ADI", "REGN", "ISRG", "BKNG", "GILD", "VRTX", "LRCX",
-    "MMC", "PANW", "SBUX", "TJX", "CI", "CB", "PLD", "CME", "MO", "SO",
-    "CL", "EOG", "ZTS", "SLB", "BSX", "SCHW", "DUK", "ICE", "APD", "WM",
-    "FDX", "MCK", "NOC", "PNC", "AEP", "SHW", "CCI", "USB", "EMR", "GD",
+    "JPM", "V", "UNH", "XOM", "MA", "COST",
 ]
+
+
+def _load_universe(key: str, fallback: list[str]) -> list[str]:
+    try:
+        data = json.loads(_UNIVERSE_JSON.read_text(encoding="utf-8"))
+        tickers = data.get(key)
+        if isinstance(tickers, list) and tickers:
+            return list(tickers)
+        print(f"[value_quality] WARNING: universe.json 에 {key} 없음 → fallback 사용")
+    except (OSError, json.JSONDecodeError) as e:
+        print(f"[value_quality] WARNING: universe.json 로드 실패 ({e}) → fallback 사용")
+    return list(fallback)
+
+
+# S&P 500 상위 100개 대형주 — state/universe.json 에서 로드 (MMC 제거됨)
+SP500_TOP100 = _load_universe("SP500_TOP100", _VAL_FALLBACK)
 
 FMP_API_KEY = os.environ.get("FMP_API_KEY", "")
 

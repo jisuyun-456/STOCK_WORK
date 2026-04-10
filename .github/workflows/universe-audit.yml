@@ -1,0 +1,83 @@
+name: 🌐 Universe Audit (Weekly)
+
+on:
+  schedule:
+    # Monday 09:00 UTC (매주 월요일 오전 — 주말 뉴스 반영 후 delisted/상장폐지 점검)
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (universe.json 미수정)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: universe-audit
+  cancel-in-progress: false
+
+jobs:
+  universe-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install yfinance
+        run: pip install --upgrade pip yfinance
+
+      - name: Run universe audit
+        timeout-minutes: 15
+        run: |
+          DRY_RUN_FLAG=""
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            DRY_RUN_FLAG="--dry-run"
+            echo "Mode: DRY RUN"
+          else
+            echo "Mode: LIVE (universe.json 자동 갱신)"
+          fi
+          python scripts/universe_audit.py $DRY_RUN_FLAG
+
+      - name: Commit universe.json updates
+        if: github.event.inputs.dry_run != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add state/universe.json state/universe_audit_state.json state/universe_audit_last.json
+          git diff --cached --quiet || \
+            git commit -m "chore(universe): weekly audit $(date +'%Y-%m-%d')"
+          git push
+
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: universe-audit-${{ github.run_id }}
+          path: |
+            state/universe_audit_last.json
+            state/universe_audit_state.json
+          retention-days: 90
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          {
+            echo "## UNIVERSE AUDIT FAILED"
+            echo ""
+            echo "- Run ID: ${{ github.run_id }}"
+            echo "- Time: $(date -u +'%Y-%m-%d %H:%M UTC')"
+            echo ""
+            echo "**확인 필요**: yfinance 장애·네트워크 문제·scripts/universe_audit.py 버그"
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 1

@@ -6,3 +6,11 @@
 {"ts": "2026-04-10T13:27:53.930844+00:00", "who": "bot", "phase": "report", "action": "start", "payload": {}}
 {"ts": "2026-04-10T13:28:52.757159+00:00", "who": "bot", "phase": "report", "action": "end", "payload": {}}
 {"ts": "2026-04-10T13:28:52.778174+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "all", "resolved": 15}}
+{"ts": "2026-04-10T13:34:04.246230+00:00", "who": "bot", "phase": "main", "action": "start", "payload": {"phase": "all", "dry_run": true}}
+{"ts": "2026-04-10T13:43:56.242672+00:00", "who": "bot", "phase": "rebalance", "action": "start", "payload": {}}
+{"ts": "2026-04-10T13:43:58.273047+00:00", "who": "bot", "phase": "rebalance", "action": "end", "payload": {"signals": 3, "rebalanced_strategies": ["MOM", "VAL"]}}
+{"ts": "2026-04-10T13:43:58.274078+00:00", "who": "bot", "phase": "execute", "action": "start", "payload": {"signals": 15, "dry_run": true}}
+{"ts": "2026-04-10T13:44:01.984867+00:00", "who": "bot", "phase": "execute", "action": "end", "payload": {"results": 15}}
+{"ts": "2026-04-10T13:44:01.985394+00:00", "who": "bot", "phase": "report", "action": "start", "payload": {}}
+{"ts": "2026-04-10T13:45:01.073368+00:00", "who": "bot", "phase": "report", "action": "end", "payload": {}}
+{"ts": "2026-04-10T13:45:01.086838+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "all", "resolved": 15}}

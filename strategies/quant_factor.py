@@ -17,7 +17,10 @@ References:
 from __future__ import annotations
 
 import io
+import json
 import zipfile
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import requests
@@ -31,26 +34,35 @@ _FF5_DAILY_URL = (
     "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/"
     "F-F_Research_Data_5_Factors_2x3_daily_CSV.zip"
 )
+# FF5 대체 소스 (주석만 — 구현 필요 시 참고):
+#   - AQR daily factors: https://www.aqr.com/Insights/Datasets (Quality Minus Junk)
+#   - pandas_datareader.famafrench.FamaFrenchReader("F-F_Research_Data_5_Factors_2x3_Weekly")
+#     (Weekly frequency — daily lag 가 30일 이상 지속되면 weekly 로 전환 고려)
 
 
-# Russell 1000 대표 종목 (상위 80개 — 계산 효율 최적화)
-RUSSELL_1000_SUBSET = [
-    # 대형 기술주
+# N-HIGH-3: universe 외부화 — state/universe.json 단일 소스
+_UNIVERSE_JSON = Path(__file__).resolve().parent.parent / "state" / "universe.json"
+
+_QNT_FALLBACK = [
     "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "AVGO", "ORCL", "CRM", "AMD",
-    "INTC", "CSCO", "TXN", "QCOM", "AMAT", "ADI", "LRCX", "MU", "KLAC", "MRVL",
-    # 금융
-    "JPM", "BAC", "WFC", "GS", "MS", "BLK", "SCHW", "C", "USB", "PNC",
-    # 헬스케어
-    "UNH", "JNJ", "LLY", "ABBV", "MRK", "TMO", "PFE", "ABT", "AMGN", "GILD",
-    # 소비재
-    "WMT", "COST", "HD", "MCD", "NKE", "SBUX", "TJX", "LOW", "TGT", "DG",
-    # 산업재
-    "CAT", "HON", "UNP", "RTX", "GE", "DE", "BA", "LMT", "FDX", "MMM",
-    # 에너지
-    "XOM", "CVX", "COP", "SLB", "EOG", "PSX", "MPC", "VLO", "OXY", "HAL",
-    # 유틸리티/통신
-    "NEE", "DUK", "SO", "AEP", "D", "VZ", "T", "TMUS", "CCI", "AMT",
+    "JPM", "BAC", "WFC", "UNH", "JNJ", "LLY",
 ]
+
+
+def _load_universe(key: str, fallback: list[str]) -> list[str]:
+    try:
+        data = json.loads(_UNIVERSE_JSON.read_text(encoding="utf-8"))
+        tickers = data.get(key)
+        if isinstance(tickers, list) and tickers:
+            return list(tickers)
+        print(f"[quant_factor] WARNING: universe.json 에 {key} 없음 → fallback 사용")
+    except (OSError, json.JSONDecodeError) as e:
+        print(f"[quant_factor] WARNING: universe.json 로드 실패 ({e}) → fallback 사용")
+    return list(fallback)
+
+
+# Russell 1000 대표 종목 — state/universe.json 에서 로드 (기본 80 종목)
+RUSSELL_1000_SUBSET = _load_universe("RUSSELL_1000_SUBSET", _QNT_FALLBACK)
 
 # 레짐별 팩터 가중치 (합계 = 1.0)
 # 컬럼 순서: HML, SMB, RMW, CMA, MOM
@@ -214,17 +226,26 @@ def fetch_factor_data(
         print(f"[QNT] WARNING: FF5 팩터 다운로드 실패 ({e}) — MOM 전용 모드로 폴백")
         factors = pd.DataFrame()
 
-    # H2 fix: FF5 staleness 체크 — 최신 팩터 날짜가 45일+ 지연 시 degraded 플래그
+    # N-MEDIUM-2: FF5 staleness 체크 — 기관 기준 강화
+    #   >10일: 경고 로그 (추적 대상)
+    #   >30일: degraded 플래그 ON + QNT 시그널 50% 자동 축소 (downstream)
+    #   기존 45일 → 30일로 하향
     ff5_stale = False
+    days_lag = 0
     if not factors.empty:
         max_factor_date = factors.index.max()
         days_lag = (pd.Timestamp.today() - max_factor_date).days
-        if days_lag > 45:
+        if days_lag > 30:
             print(
-                f"[QNT] WARNING: FF5 데이터 {days_lag}일 지연 "
-                f"(최신: {max_factor_date.date()}) → degraded 모드"
+                f"[QNT] CRITICAL: FF5 데이터 {days_lag}일 지연 "
+                f"(최신: {max_factor_date.date()}) → degraded 모드 + QNT 시그널 50% 축소"
             )
             ff5_stale = True
+        elif days_lag > 10:
+            print(
+                f"[QNT] WARNING: FF5 데이터 {days_lag}일 지연 "
+                f"(최신: {max_factor_date.date()}) — 추적 중, 30일 초과 시 degraded"
+            )
         else:
             print(f"[QNT] FF5 최신성 OK: {days_lag}일 지연 (최신: {max_factor_date.date()})")
 
@@ -233,6 +254,7 @@ def fetch_factor_data(
         "factors": factors,
         "degraded": factors.empty or ff5_stale,
         "ff5_stale": ff5_stale,
+        "ff5_days_lag": days_lag,
         "ff5_last_date": str(factors.index.max().date()) if not factors.empty else None,
     }
 
@@ -289,9 +311,17 @@ class QuantFactorStrategy(BaseStrategy):
         print(f"[QNT] 레짐={regime}, 팩터 가중치={weights}")
 
         degraded = market_data.get("degraded", factors.empty)
+        # N-MEDIUM-2: FF5 30일+ 지연 시 QNT 시그널 가중치 50% 자동 축소
+        ff5_stale = bool(market_data.get("ff5_stale", False))
+        stale_scale = 0.5 if ff5_stale else 1.0
         use_ff5 = not factors.empty
         if not use_ff5:
             print("[QNT] WARNING: FF5 팩터 없음 — MOM 전용 degraded 모드")
+        if ff5_stale:
+            print(
+                f"[QNT] FF5 stale detected (ff5_days_lag={market_data.get('ff5_days_lag', '?')}) "
+                f"— 시그널 weight_pct 50% 축소 적용"
+            )
 
         # prices와 factors를 날짜 기준으로 정렬
         prices = prices.sort_index()
@@ -391,8 +421,8 @@ class QuantFactorStrategy(BaseStrategy):
         score_max = scores_arr.max()
         score_range = score_max - score_min
 
-        # 등가중
-        target_weight = 1.0 / len(ranked)
+        # 등가중 (FF5 stale 시 50% 축소)
+        target_weight = (1.0 / len(ranked)) * stale_scale
 
         signals: list[Signal] = []
         for symbol, score in ranked:

@@ -15,6 +15,9 @@ References:
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import yfinance as yf
 import pandas as pd
 import numpy as np
@@ -23,20 +26,30 @@ from datetime import datetime, timedelta
 from strategies.base_strategy import BaseStrategy, Signal, Direction
 
 
-# NASDAQ 100 representative subset (most liquid)
-NASDAQ_100_SUBSET = [
+# N-HIGH-3: universe 외부화 — state/universe.json 단일 소스
+_UNIVERSE_JSON = Path(__file__).resolve().parent.parent / "state" / "universe.json"
+
+# 최소 폴백 (universe.json 이 읽히지 않을 때만 사용 — 시스템이 멈추지 않도록)
+_MOM_FALLBACK = [
     "AAPL", "MSFT", "NVDA", "AMZN", "META", "GOOGL", "GOOG", "AVGO",
     "TSLA", "COST", "NFLX", "AMD", "ADBE", "PEP", "CSCO", "TMUS",
-    "INTC", "CMCSA", "TXN", "QCOM", "AMGN", "ISRG", "HON", "INTU",
-    "AMAT", "BKNG", "LRCX", "VRTX", "ADI", "MDLZ", "REGN", "KLAC",
-    "SNPS", "PANW", "CDNS", "MELI", "ASML", "ABNB", "PYPL", "MAR",
-    "CRWD", "FTNT", "ORLY", "CTAS", "MRVL", "CEG", "DASH", "ROP",
-    "MNST", "ADSK", "NXPI", "KDP", "AEP", "PCAR", "PAYX", "CHTR",
-    "KHC", "FANG", "ODFL", "FAST", "CPRT", "MCHP", "EXC", "DXCM",
-    "ROST", "EA", "CTSH", "VRSK", "IDXX", "GEHC", "LULU", "ON",
-    "XEL", "BIIB", "CDW", "ILMN", "TTWO", "ZS", "WBD",
-    "PLTR", "RKLB", "HIMS", "APLD", "IONQ",  # user's watchlist additions
 ]
+
+
+def _load_universe(key: str, fallback: list[str]) -> list[str]:
+    try:
+        data = json.loads(_UNIVERSE_JSON.read_text(encoding="utf-8"))
+        tickers = data.get(key)
+        if isinstance(tickers, list) and tickers:
+            return list(tickers)
+        print(f"[momentum] WARNING: universe.json 에 {key} 없음 → fallback 사용")
+    except (OSError, json.JSONDecodeError) as e:
+        print(f"[momentum] WARNING: universe.json 로드 실패 ({e}) → fallback 사용")
+    return list(fallback)
+
+
+# NASDAQ 100 representative subset — state/universe.json 에서 로드 (기본 84 종목)
+NASDAQ_100_SUBSET = _load_universe("NASDAQ_100_SUBSET", _MOM_FALLBACK)
 
 
 class MomentumStrategy(BaseStrategy):

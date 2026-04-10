@@ -385,10 +385,15 @@ def phase_data() -> dict:
         qnt_data = fetch_factor_data()
         market_data["factors"] = qnt_data.get("factors")
         market_data["qnt_prices"] = qnt_data.get("prices")  # QNT 전용 가격 추가
+        # N-MEDIUM-2: FF5 staleness 메타데이터 전파 (QNT strategy 가 signal 50% 축소에 사용)
+        market_data["ff5_stale"] = qnt_data.get("ff5_stale", False)
+        market_data["ff5_days_lag"] = qnt_data.get("ff5_days_lag", 0)
         print(f"  QNT factor data: {'loaded' if market_data['factors'] is not None else 'failed'}")
     except Exception as e:
         print(f"  QNT factor fetch failed: {e}")
         market_data["factors"] = None
+        market_data["ff5_stale"] = False
+        market_data["ff5_days_lag"] = 0
 
     # LEV: 레버리지 ETF 가격
     try:
