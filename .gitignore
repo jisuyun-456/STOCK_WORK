@@ -10,3 +10,7 @@ node_modules/
 .worktrees/
 # Trade log is append-only, tracked in git
 # state/trade_log.jsonl
+
+# N-HIGH/MEDIUM Phase A — local operational state, not versioned
+state/backup/
+state/network_down.flag

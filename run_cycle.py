@@ -33,8 +33,10 @@ import io
 import json
 import os
 import shutil
+import socket
 import sys
 import tempfile
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -58,6 +60,11 @@ PORTFOLIOS_PATH = STATE_DIR / "portfolios.json"
 PERFORMANCE_PATH = STATE_DIR / "performance.json"
 SNAPSHOT_PATH = STATE_DIR / "snapshot.json"
 REPORTS_DIR = ROOT / "reports" / "daily"
+# N-HIGH/MEDIUM Phase A: operational state files
+AUDIT_LOG_PATH = STATE_DIR / "audit_log.jsonl"
+DEGRADED_COUNT_PATH = STATE_DIR / "degraded_count.json"
+NETWORK_DOWN_FLAG = STATE_DIR / "network_down.flag"
+STATE_BACKUP_DIR = STATE_DIR / "backup"
 
 
 def _json_default(obj):
@@ -156,6 +163,165 @@ def save_portfolios(data: dict):
         except (OSError, AttributeError):
             pass  # fsync unavailable on some platforms
     os.replace(tmp_path, PORTFOLIOS_PATH)
+
+
+# ─── N-HIGH/MEDIUM Phase A helpers ──────────────────────────────────────
+
+def _audit_log(phase: str, action: str, payload: dict | None = None) -> None:
+    """Append-only immutable audit log.
+
+    Records who/when/what/why/result for every phase entry and exit.
+    File MUST be append-only — never truncate or delete (Immutable Ledger principle).
+    """
+    try:
+        STATE_DIR.mkdir(parents=True, exist_ok=True)
+        entry = {
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "who": "bot",
+            "phase": phase,
+            "action": action,  # "start" | "end" | "error"
+            "payload": payload or {},
+        }
+        with open(AUDIT_LOG_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry, ensure_ascii=False, default=_json_default) + "\n")
+    except Exception as e:
+        # audit log failure must never crash the cycle
+        print(f"  [audit] write failed: {e}")
+
+
+def _network_healthcheck() -> bool:
+    """Verify DNS resolution for critical hosts before starting the cycle.
+
+    Retries with exponential backoff (10s → 30s → 90s). On final failure,
+    writes state/network_down.flag and returns False. Caller decides whether
+    to exit(2).
+    """
+    hosts = [
+        "query2.finance.yahoo.com",
+        "paper-api.alpaca.markets",
+        "8.8.8.8",  # sanity check (Google DNS)
+    ]
+    delays = [10, 30, 90]
+
+    for attempt, delay in enumerate([0] + delays):
+        if delay:
+            print(f"  [NETWORK] retry {attempt}/3 in {delay}s...")
+            time.sleep(delay)
+        failed = []
+        for h in hosts:
+            try:
+                socket.gethostbyname(h)
+            except socket.gaierror as e:
+                failed.append(f"{h} ({e})")
+        if not failed:
+            # clear stale down flag on recovery
+            if NETWORK_DOWN_FLAG.exists():
+                try:
+                    NETWORK_DOWN_FLAG.unlink()
+                except OSError:
+                    pass
+            print(f"  [NETWORK] healthcheck OK ({len(hosts)} hosts)")
+            return True
+        print(f"  [NETWORK] DNS 실패: {', '.join(failed)}")
+
+    # final failure
+    try:
+        STATE_DIR.mkdir(parents=True, exist_ok=True)
+        NETWORK_DOWN_FLAG.write_text(
+            json.dumps({
+                "ts": datetime.now(timezone.utc).isoformat(),
+                "failed_hosts": failed,
+            }),
+            encoding="utf-8",
+        )
+    except OSError:
+        pass
+    print("  [NETWORK] CRITICAL: 3회 재시도 모두 실패 — 사이클 중단")
+    return False
+
+
+def _track_degraded(is_degraded: bool) -> int:
+    """Increment or reset degraded_count.json. Returns current consecutive count.
+
+    Consecutive count ≥ 2 indicates persistent data quality failure and should
+    trigger a warning on the next cycle start.
+    """
+    try:
+        STATE_DIR.mkdir(parents=True, exist_ok=True)
+        current = {"consecutive": 0, "last_ts": None}
+        if DEGRADED_COUNT_PATH.exists():
+            try:
+                current = json.loads(DEGRADED_COUNT_PATH.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                pass
+        if is_degraded:
+            current["consecutive"] = int(current.get("consecutive", 0)) + 1
+        else:
+            current["consecutive"] = 0
+        current["last_ts"] = datetime.now(timezone.utc).isoformat()
+        DEGRADED_COUNT_PATH.write_text(
+            json.dumps(current, ensure_ascii=False), encoding="utf-8"
+        )
+        return int(current["consecutive"])
+    except Exception as e:
+        print(f"  [degraded] tracker failed: {e}")
+        return 0
+
+
+def _backup_state_files() -> None:
+    """Daily snapshot of state/*.json into state/backup/YYYY-MM-DD/.
+
+    Called at the end of main() so disaster recovery can roll back a day.
+    Non-fatal — backup failures log a warning but never crash the cycle.
+    """
+    try:
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        dest = STATE_BACKUP_DIR / today
+        dest.mkdir(parents=True, exist_ok=True)
+        count = 0
+        for src in STATE_DIR.glob("*.json"):
+            try:
+                shutil.copy2(src, dest / src.name)
+                count += 1
+            except OSError as e:
+                print(f"  [backup] copy {src.name} failed: {e}")
+        # also backup audit log (append-only safety copy)
+        if AUDIT_LOG_PATH.exists():
+            try:
+                shutil.copy2(AUDIT_LOG_PATH, dest / AUDIT_LOG_PATH.name)
+                count += 1
+            except OSError:
+                pass
+        print(f"  [backup] {count} files → state/backup/{today}/")
+    except Exception as e:
+        print(f"  [backup] failed: {e}")
+
+
+def _check_negative_cash(portfolios: dict) -> list[dict]:
+    """Detect strategies with negative cash balance (margin call risk).
+
+    Threshold: -$10 allows for minor rounding. Anything below triggers
+    a CRITICAL log and appends an alert to portfolios["alerts"].
+    Returns the list of new alerts (empty if all strategies are clean).
+    """
+    new_alerts: list[dict] = []
+    strategies = portfolios.get("strategies", {})
+    for code, strat in strategies.items():
+        cash = float(strat.get("cash", 0) or 0)
+        if cash < -10:
+            print(
+                f"  [CRITICAL] {code} 음수 cash: ${cash:.2f} — margin call 위험"
+            )
+            alert = {
+                "type": "negative_cash",
+                "strategy": code,
+                "amount": round(cash, 2),
+                "ts": datetime.now(timezone.utc).isoformat(),
+            }
+            new_alerts.append(alert)
+    if new_alerts:
+        portfolios.setdefault("alerts", []).extend(new_alerts)
+    return new_alerts
 
 
 # ─── Phase 1: DATA ──────────────────────────────────────────────────────
@@ -266,6 +432,29 @@ def phase_data() -> dict:
     except Exception as e:
         print(f"  Indicators computation failed: {e}")
         market_data["indicators"] = {}
+
+    # N-HIGH-1: data quality degraded flag
+    # If fewer than 50% of expected symbols were fetched, mark as degraded.
+    try:
+        from strategies import momentum as _mom
+        expected = len(_mom.NASDAQ_100_SUBSET)
+    except Exception:
+        expected = 0
+    actual = len(prices.columns) if prices is not None else 0
+    if expected > 0 and actual < expected * 0.5:
+        market_data["data_quality"] = "degraded"
+        print(
+            f"  [CRITICAL] 데이터 품질 저하: {actual}/{expected} 종목만 수집 "
+            f"(임계 {expected // 2}) — 사이클 중단 권장"
+        )
+        consec = _track_degraded(True)
+        if consec >= 2:
+            print(
+                f"  [CRITICAL] degraded {consec}회 연속 발생 — 즉시 조사 필요"
+            )
+    else:
+        market_data["data_quality"] = "ok"
+        _track_degraded(False)
 
     return market_data
 
@@ -874,6 +1063,9 @@ def _sync_alpaca_positions(portfolios: dict) -> dict:
     if unmatched:
         print(f"  [sync] Unmatched symbols: {', '.join(unmatched)}")
 
+    # N-MEDIUM-3: negative cash detection (margin call guard)
+    _check_negative_cash(portfolios)
+
     return portfolios
 
 
@@ -1315,14 +1507,37 @@ def main():
     if research_mode is None:
         research_mode = "selective" if args.dry_run else "full"
 
+    # N-HIGH-2: network healthcheck before any work
+    if not _network_healthcheck():
+        _audit_log("main", "error", {"reason": "network_down"})
+        sys.exit(2)
+
+    # Warn if previous cycles flagged degraded data quality
+    try:
+        if DEGRADED_COUNT_PATH.exists():
+            _dc = json.loads(DEGRADED_COUNT_PATH.read_text(encoding="utf-8"))
+            if int(_dc.get("consecutive", 0)) >= 2:
+                print(
+                    f"  [WARNING] 이전 사이클 degraded {_dc['consecutive']}회 연속 — "
+                    f"데이터 소스 확인 권장"
+                )
+    except Exception:
+        pass
+
+    _audit_log("main", "start", {"phase": args.phase, "dry_run": args.dry_run})
+
     # Phase Monitor -independent lightweight path
     if args.phase == "monitor":
         print(f"=== Intraday Monitor - {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} ===")
         print(f"Mode: {'DRY RUN' if args.dry_run else 'LIVE'}")
         print()
+        _audit_log("monitor", "start", {"dry_run": args.dry_run})
         monitor_results = phase_monitor(dry_run=args.dry_run)
+        _audit_log("monitor", "end", {"results_count": len(monitor_results) if monitor_results else 0})
         print()
         print("=== Monitor Cycle Complete ===")
+        _backup_state_files()
+        _audit_log("main", "end", {"phase": "monitor"})
         return
 
     print(f"=== Paper Trading Cycle -{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} ===")
@@ -1520,23 +1735,41 @@ def main():
     if args.phase in ("all", "rebalance"):
         if market_data is None:
             market_data = phase_data()  # Full data fetch (LEV/VAL/QNT need their own data)
+        _audit_log("rebalance", "start", {})
         rebalance_signals, rebalanced_strategies = phase_rebalance(market_data, dry_run=args.dry_run)
-        resolved = resolved + rebalance_signals
+        # N-MEDIUM-1: rebalance 시그널도 risk gate 재통과 필수
+        if rebalance_signals:
+            rb_approved, rb_failed, _rb_details = phase_risk(rebalance_signals, market_data)
+            print(
+                f"  [REBALANCE] {len(rb_approved)}/{len(rebalance_signals)} "
+                f"risk gate 통과 ({len(rb_failed)} 차단)"
+            )
+            resolved = resolved + rb_approved
+        _audit_log("rebalance", "end", {
+            "signals": len(rebalance_signals),
+            "rebalanced_strategies": rebalanced_strategies,
+        })
         print()
 
     # Phase 5: EXECUTE
     if args.phase in ("all", "execute"):
+        _audit_log("execute", "start", {"signals": len(resolved), "dry_run": args.dry_run})
         results = phase_execute(resolved, dry_run=args.dry_run)
+        _audit_log("execute", "end", {"results": len(results)})
         print()
     else:
         results = []
 
     # Phase 6: REPORT
     if args.phase in ("all", "report"):
+        _audit_log("report", "start", {})
         phase_report(resolved, results, regime=regime_info, rebalanced_strategies=rebalanced_strategies)
+        _audit_log("report", "end", {})
         print()
 
     print("=== Cycle Complete ===")
+    _backup_state_files()
+    _audit_log("main", "end", {"phase": args.phase, "resolved": len(resolved)})
 
 
 if __name__ == "__main__":
