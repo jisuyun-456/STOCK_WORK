@@ -194,8 +194,51 @@ class LeveragedETFStrategy(BaseStrategy):
                         order_type="market",
                     ))
 
+        # M-4: 레버리지 미진입 시 threshold 완화 재시도 + BIL 폴백
+        if not signals and self.regime not in ("BEAR", "CRISIS"):
+            # 1차: threshold 1.00으로 완화 재시도
+            for base_index, etf_info in ETF_MAP.items():
+                if base_index not in prices.columns:
+                    continue
+                series = prices[base_index].dropna()
+                sma50 = _calc_sma(series, 50)
+                sma200 = _calc_sma(series, 200)
+                if pd.isna(sma50) or pd.isna(sma200) or sma200 == 0:
+                    continue
+                ratio = sma50 / sma200
+                if ratio > 1.00:
+                    long_etf = etf_info["long"]
+                    confidence = min(1.0, 0.5 + (ratio - 1.0) * 5.0)
+                    signals.append(Signal(
+                        strategy=self.name,
+                        symbol=long_etf,
+                        direction=Direction.BUY,
+                        weight_pct=0.0,
+                        confidence=round(confidence * 0.9, 4),  # 완화 진입 → 약간 낮은 confidence
+                        reason=(
+                            f"{base_index} SMA50/SMA200={ratio:.4f} > 1.00 "
+                            f"(relaxed threshold) → long {long_etf}"
+                        ),
+                        order_type="market",
+                    ))
+            if signals:
+                print(f"[LEV] threshold 완화(1.00)로 {len(signals)}개 진입")
+
+            # 2차: 여전히 없으면 BIL(단기국채 ETF) 대체 투자
+            if not signals:
+                print("[LEV] WARNING: 레버리지 미진입 — BIL(단기국채) 대체 투자")
+                signals.append(Signal(
+                    strategy=self.name,
+                    symbol="BIL",
+                    direction=Direction.BUY,
+                    weight_pct=1.0,  # 전체 LEV 자금
+                    confidence=0.7,
+                    reason="LEV 전 지수 SMA 미충족 → BIL(단기국채 ETF) 대체 투자",
+                    order_type="market",
+                ))
+
         # 등가중 배분: 활성 포지션 수에 따라 1/N 할당
-        if signals:
+        if signals and not any(s.symbol == "BIL" for s in signals):
             weight = 1.0 / len(signals)
             for s in signals:
                 s.weight_pct = round(weight, 6)

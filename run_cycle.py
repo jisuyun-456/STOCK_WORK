@@ -271,8 +271,83 @@ def phase_signals(market_data: dict, regime: str = "NEUTRAL", allocations: dict 
 
 # ─── Phase 2.5: RESEARCH (NEW) ──────────────────────────────────────────
 
+def _load_paperclip_results() -> dict | None:
+    """Paperclip research_results.json 로드 (존재하고 24시간 이내면 사용)."""
+    results_path = Path(__file__).parent / "state" / "research_results.json"
+    if not results_path.exists():
+        return None
+    try:
+        with open(results_path, "r") as f:
+            data = json.loads(f.read())
+        # 24시간 이내 결과만 사용
+        from datetime import datetime, timezone
+        generated = datetime.fromisoformat(data["generated_at"].replace("Z", "+00:00"))
+        age_hours = (datetime.now(timezone.utc) - generated).total_seconds() / 3600
+        if age_hours > 24:
+            print(f"[Research] Paperclip 결과 만료 ({age_hours:.1f}h) — LLM 폴백")
+            return None
+        return data
+    except Exception as e:
+        print(f"[Research] Paperclip 결과 로드 실패: {e}")
+        return None
+
+
+def _apply_paperclip_verdicts(signals: list, paperclip: dict) -> tuple[list, dict, dict]:
+    """Paperclip research_results.json의 verdict를 시그널에 적용."""
+    from research.models import ResearchVerdict
+    from research.consensus import calculate_consensus
+
+    verdicts_by_symbol = {}
+    regime_data = paperclip.get("regime", {})
+    regime_str = regime_data.get("regime", "NEUTRAL")
+
+    print(f"[Research] Paperclip 결과 사용 (생성: {paperclip['generated_at']})")
+    print(f"[Research] Paperclip 레짐: {regime_str}, 감성: {regime_data.get('macro_sentiment', 'N/A')}")
+
+    adjusted = []
+    for signal in signals:
+        sym_verdicts_raw = paperclip.get("verdicts", {}).get(signal.symbol, [])
+        if not sym_verdicts_raw:
+            # Paperclip에 해당 종목 verdict 없으면 원본 유지
+            adjusted.append(signal)
+            continue
+
+        sym_verdicts = [ResearchVerdict.from_dict(v) for v in sym_verdicts_raw]
+        verdicts_by_symbol[signal.symbol] = sym_verdicts
+
+        # VETO 체크
+        veto = any(v.direction == "VETO" for v in sym_verdicts)
+        if veto:
+            print(f"  {signal.symbol}: VETO by Paperclip → DROPPED")
+            continue
+
+        # consensus 계산
+        adjusted_conf, meta = calculate_consensus(sym_verdicts, regime_str, signal.confidence)
+
+        if adjusted_conf < 0.4:
+            delta = adjusted_conf - signal.confidence
+            print(f"  {signal.symbol}: confidence {signal.confidence:.2f} → {adjusted_conf:.2f} < 0.4 → DROPPED")
+            continue
+
+        delta = adjusted_conf - signal.confidence
+        signal.confidence = round(min(1.0, max(0.0, adjusted_conf)), 4)
+        signal.reason += f" | Paperclip Δ={delta:+.2f}"
+        adjusted.append(signal)
+
+    print(f"[Research] Paperclip 적용: {len(signals)} → {len(adjusted)} signals")
+    return adjusted, regime_data, verdicts_by_symbol
+
+
 def phase_research(signals: list, market_data: dict, research_mode: str, no_cache: bool):
-    """Run Research Overlay -5-agent parallel analysis + confidence adjustment."""
+    """Run Research Overlay -5-agent parallel analysis + confidence adjustment.
+
+    Paperclip research_results.json이 존재하고 유효하면 LLM 호출 없이 사용.
+    """
+    # Paperclip 결과 우선 확인
+    paperclip = _load_paperclip_results()
+    if paperclip and research_mode != "skip":
+        return _apply_paperclip_verdicts(signals, paperclip)
+
     from research.overlay import run_research_overlay
 
     portfolios = load_portfolios()

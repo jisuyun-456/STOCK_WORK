@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -136,6 +137,39 @@ def execute_signal(
                 "status": str(order.status),
             }
 
+        # M-3: 부분 체결 확인 — 3초 대기 후 fill 상태 검증
+        fill_status = "pending"
+        try:
+            time.sleep(3)
+            filled_order = get_order_by_client_id(order_id)
+            if filled_order:
+                filled_qty = float(filled_order.get("filled_qty", 0))
+                if signal.direction == Direction.BUY:
+                    # notional 주문 — filled_qty > 0이면 체결됨
+                    if filled_qty > 0:
+                        fill_status = "filled"
+                    else:
+                        fill_status = "unfilled"
+                else:
+                    # SELL — qty 기반 비교
+                    requested_qty = qty
+                    if filled_qty >= requested_qty:
+                        fill_status = "filled"
+                    elif filled_qty > 0:
+                        fill_status = "partial_fill"
+                        print(
+                            f"[ORDER] WARNING: {signal.symbol} 부분 체결 "
+                            f"({filled_qty}/{requested_qty} shares)"
+                        )
+                    else:
+                        fill_status = "unfilled"
+                result["filled_qty"] = filled_qty
+                result["filled_avg_price"] = filled_order.get("filled_avg_price")
+        except Exception as fill_err:
+            print(f"[ORDER] WARNING: fill 상태 확인 실패 ({fill_err})")
+            fill_status = "unknown"
+
+        result["fill_status"] = fill_status
         return _log_result(order_id, signal, "submitted", alpaca_result=result)
 
     except Exception as e:

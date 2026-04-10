@@ -133,6 +133,14 @@ class MomentumStrategy(BaseStrategy):
             reverse=True,
         )[:self.max_positions]
 
+        # M-2: 전 종목 음수 모멘텀 시 매수 거부
+        if ranked and all(data["score"] < 0 for _, data in ranked):
+            print(
+                f"[MOM] WARNING: 전 종목 음수 모멘텀 — 매수 거부 "
+                f"(best={ranked[0][1]['score']:.1%})"
+            )
+            return signals  # SELL signals only
+
         # Equal weight within strategy
         target_weight = 1.0 / len(ranked) if ranked else 0.0
 
@@ -141,7 +149,11 @@ class MomentumStrategy(BaseStrategy):
 
         for symbol, data in ranked:
             # Scale confidence: 0.5 (lowest ranked) to 1.0 (highest ranked)
-            relative = data["score"] / max_mom if max_mom > 0 else 0.5
+            # M-2: max_mom <= 0 보호 (음수 역전 방지)
+            if max_mom > 0:
+                relative = data["score"] / max_mom
+            else:
+                relative = 0.0
             confidence = 0.5 + 0.5 * relative
 
             signals.append(Signal(

@@ -214,7 +214,11 @@ def fetch_factor_data(
         print(f"[QNT] WARNING: FF5 팩터 다운로드 실패 ({e}) — MOM 전용 모드로 폴백")
         factors = pd.DataFrame()
 
-    return {"prices": prices, "factors": factors}
+    return {
+        "prices": prices,
+        "factors": factors,
+        "degraded": factors.empty,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -268,9 +272,10 @@ class QuantFactorStrategy(BaseStrategy):
         weights = REGIME_WEIGHTS[regime]
         print(f"[QNT] 레짐={regime}, 팩터 가중치={weights}")
 
+        degraded = market_data.get("degraded", factors.empty)
         use_ff5 = not factors.empty
         if not use_ff5:
-            print("[QNT] FF5 팩터 없음 — MOM 전용 스코어링")
+            print("[QNT] WARNING: FF5 팩터 없음 — MOM 전용 degraded 모드")
 
         # prices와 factors를 날짜 기준으로 정렬
         prices = prices.sort_index()
@@ -359,6 +364,11 @@ class QuantFactorStrategy(BaseStrategy):
 
             confidence = 0.5 + normalized * 0.5  # 0.5 ~ 1.0
 
+            # FF5 degraded 모드: confidence 20% 감쇠
+            if degraded:
+                confidence *= 0.8
+
+            reason_prefix = "[DEGRADED] " if degraded else ""
             signals.append(Signal(
                 strategy=self.name,
                 symbol=symbol,
@@ -366,8 +376,9 @@ class QuantFactorStrategy(BaseStrategy):
                 weight_pct=target_weight,
                 confidence=round(confidence, 4),
                 reason=(
-                    f"regime={regime}, composite={score:.4f}, "
+                    f"{reason_prefix}regime={regime}, composite={score:.4f}, "
                     f"mom={_calc_momentum(prices, symbol):.2%}"
+                    + (" (FF5 unavailable — MOM-only scoring)" if degraded else "")
                 ),
                 order_type="market",
             ))
