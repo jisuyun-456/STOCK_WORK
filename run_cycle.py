@@ -435,17 +435,11 @@ def phase_data() -> dict:
         market_data["ff5_stale"] = False
         market_data["ff5_days_lag"] = 0
 
-    # LEV: 레버리지 ETF 가격
-    try:
-        from strategies.leveraged_etf import fetch_leveraged_data
-        lev_data = fetch_leveraged_data()
-        market_data["leveraged"] = lev_data
-        lev_prices = lev_data.get('prices')
-        etf_count = len(lev_prices.columns) if lev_prices is not None and hasattr(lev_prices, 'columns') else 0
-        print(f"  LEV data: {etf_count} ETFs")
-    except Exception as e:
-        print(f"  LEV data fetch failed: {e}")
-        market_data["leveraged"] = {"prices": None}
+    # LEV (Core-Satellite Barbell 재설계 2026-04-11):
+    # 재설계된 LEV 전략은 regime 과 current_positions 만으로 동작하며
+    # 외부 가격 데이터를 요구하지 않는다 (SMA 계산 제거).
+    # 호환용 빈 dict 주입.
+    market_data["leveraged"] = {"prices": None}
 
     # 뉴스 수집 (yfinance + 6개 RSS 소스 병합)
     try:
@@ -576,15 +570,33 @@ def phase_regime(market_data: dict) -> tuple:
 # ─── Phase 2: SIGNALS ───────────────────────────────────────────────────
 
 # Strategy-specific stop-loss thresholds (C2 enforcement)
+# LEV 는 Regime 에 따라 동적으로 결정되므로 여기서 제외하고 _get_strategy_stop_loss() 에서 분기.
 STRATEGY_STOP_LOSS: dict[str, float] = {
     "MOM": -0.10,   # -10%
     "VAL": -0.12,   # -12% (slower rotation)
     "QNT": -0.10,   # -10%
-    "LEV": -0.08,   # -8% (leveraged ETFs are volatile)
+    # "LEV" 는 strategies.leveraged_etf.LeveragedETFStrategy.get_stop_loss_for_regime() 로 동적 결정
 }
 
 
-def phase_stop_loss_check() -> list:
+def _get_strategy_stop_loss(code: str, regime: str) -> float:
+    """전략별 stop-loss 임계값. LEV 는 regime 동적, 나머지는 STRATEGY_STOP_LOSS 고정.
+
+    LEV 의 regime 별 stop-loss:
+      BULL: -30%, NEUTRAL: -20%, BEAR/CRISIS: None (regime 전환으로 강제 청산)
+
+    None 이면 사실상 손절 무효화 (-0.99 반환 → 포지션이 99% 손실 전엔 트리거 안 됨).
+    BEAR/CRISIS 는 regime 전환 자체가 leveraged_etf.generate_signals() 에서
+    target_mix 변화로 SELL 신호를 만들어 자연스럽게 청산하므로 별도 stop-loss 불필요.
+    """
+    if code == "LEV":
+        from strategies.leveraged_etf import LeveragedETFStrategy
+        threshold = LeveragedETFStrategy.get_stop_loss_for_regime(regime)
+        return threshold if threshold is not None else -0.99
+    return STRATEGY_STOP_LOSS.get(code, -0.10)
+
+
+def phase_stop_loss_check(regime: str = "NEUTRAL") -> list:
     """C2 fix: 포지션별 stop-loss 강제 검사 → SELL 시그널 강제 생성.
 
     기존 버그: 전략 파일에 `stop_loss_pct = 0.10` 이 선언만 되어 있고
@@ -597,13 +609,13 @@ def phase_stop_loss_check() -> list:
     """
     from strategies.base_strategy import Signal, Direction
 
-    print("[Phase 1.8: STOP-LOSS CHECK] 포지션별 손절 기준 검사 중...")
+    print(f"[Phase 1.8: STOP-LOSS CHECK] 포지션별 손절 기준 검사 중 (regime={regime})...")
 
     portfolios = load_portfolios()
     forced_sells: list = []
 
     for code, strat in portfolios.get("strategies", {}).items():
-        threshold = STRATEGY_STOP_LOSS.get(code, -0.10)
+        threshold = _get_strategy_stop_loss(code, regime)
         positions = strat.get("positions", {}) or {}
         for sym, pos in positions.items():
             plpc = pos.get("unrealized_plpc")
@@ -666,6 +678,16 @@ def phase_signals(market_data: dict, regime: str = "NEUTRAL", allocations: dict 
         # Current positions for SELL signal generation
         strat_data = portfolios["strategies"].get(strat.name, {})
         current_positions = strat_data.get("positions", {}) or None
+
+        # LEV (Core-Satellite Barbell 재설계 2026-04-11): delta 기반 리밸런스를 위해
+        # 전략에 실제 allocated capital 을 주입한다. allocator 가 계산한 target 금액을
+        # 사용해 leveraged_etf.generate_signals() 가 SELL/BUY delta 를 정확히 산출.
+        if hasattr(strat, "allocated_capital"):
+            strat.allocated_capital = float(
+                (allocations or {}).get(strat.name, 0)
+                or strat_data.get("allocated", 0)
+                or 0
+            )
 
         # N-LOW-2: negative-cash guard — 전략이 현재 음수 현금 상태면 BUY 시그널을 드랍한다.
         # 기존 버그: 음수 cash 상태에서도 BUY 시그널 생성 → 리스크 게이트 cash_buffer 에서
@@ -1731,7 +1753,7 @@ def main():
     # Phase 1.8: STOP-LOSS CHECK — 강제 청산 시그널 선행 생성 (C2)
     stop_loss_signals: list = []
     if args.phase in ("all", "signals"):
-        stop_loss_signals = phase_stop_loss_check()
+        stop_loss_signals = phase_stop_loss_check(regime=regime)
         print()
 
     # Phase 2: SIGNALS

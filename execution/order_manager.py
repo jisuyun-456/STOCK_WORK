@@ -249,6 +249,43 @@ def execute_signals(
             trade_value = capital * signal.weight_pct
             alloc["cash"] = max(0, cash - trade_value)
 
+        # LEV 재설계 2026-04-11: SELL 체결 후 strategy_cash 실시간 동기화.
+        # 기존 버그: SELL 후 alloc['cash'] 가 갱신되지 않아 동일 사이클 내
+        # 리밸런스 BUY 가 insufficient_cash 로 스킵되는 현상. 특히 LEV
+        # regime 전환(TQQQ→SQQQ) 시 TQQQ SELL 이 성공해도 SQQQ BUY 가
+        # strategy_cash=$0 으로 막힘. 아래 블록은 추정 체결액을 cash 에 가산해
+        # 다음 주문이 정상 처리되도록 한다. 실제 fill 가격과 오차는 다음 사이클
+        # _sync_alpaca_positions 로 보정됨.
+        if signal.direction == Direction.SELL and result.get("status") not in (
+            "skipped", "error",
+        ):
+            # 추정 청산 금액: dry_run 이면 result.qty(=추정 notional), 실거래이면
+            # execute_signal 의 로그에 qty 가 없으므로 capital × weight_pct 로 근사.
+            est_proceeds = 0.0
+            if dry_run:
+                # dry_run: _log_result 가 qty 를 저장하지 않으므로 reason 에 적힌 금액 추정 불가
+                # → capital × weight_pct × (현재 포지션 기준 가중치)
+                # 간단 근사: capital × weight_pct (SELL weight_pct 는 청산 비율이므로
+                # 실제 proceeds 는 현재 포지션 가치 × 비율이지만 여기선 capital 기준 상한)
+                # 주의: 정확도가 필요하면 execute_signal 이 proceeds 를 반환하도록 개선해야 함.
+                est_proceeds = min(capital, capital * signal.weight_pct)
+            else:
+                alpaca_info = result.get("alpaca", {}) or {}
+                filled_qty = float(alpaca_info.get("filled_qty", 0) or 0)
+                filled_px = float(alpaca_info.get("filled_avg_price", 0) or 0)
+                if filled_qty > 0 and filled_px > 0:
+                    est_proceeds = filled_qty * filled_px
+                else:
+                    # Fallback: capital × weight_pct 로 근사
+                    est_proceeds = capital * signal.weight_pct
+            if est_proceeds > 0:
+                alloc["cash"] = cash + est_proceeds
+                print(
+                    f"  [OM] SELL {signal.symbol} ({signal.strategy}) "
+                    f"→ strategy_cash ${cash:,.2f} → ${alloc['cash']:,.2f} "
+                    f"(+${est_proceeds:,.2f})"
+                )
+
     return results
 
 

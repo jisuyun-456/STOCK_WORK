@@ -93,6 +93,10 @@ SECTOR_MAP: dict[str, str] = {
     "TQQQ": "ETF-Leveraged", "UPRO": "ETF-Leveraged",
     "SQQQ": "ETF-Leveraged", "SPXU": "ETF-Leveraged",
     "SOXL": "ETF-Leveraged", "SOXS": "ETF-Leveraged",
+    # Broad Market ETFs (used as LEV Core or hedging)
+    "SPY": "ETF-Broad", "QQQ": "ETF-Broad", "IWM": "ETF-Broad",
+    "VOO": "ETF-Broad", "DIA": "ETF-Broad",
+    "BIL": "ETF-ShortTerm", "SHV": "ETF-ShortTerm",
 }
 
 # Dynamic sector cache (yfinance fallback for symbols not in SECTOR_MAP)
@@ -369,6 +373,26 @@ def validate_signal(
 
     sector_limit = STRATEGY_SECTOR_LIMITS.get(strategy_code, 0.40)
     results.append(check_sector_concentration(symbol, trade_value, strategy_capital, current_positions, max_pct=sector_limit))
+
+    # LEV 재설계 2026-04-11: LEV 전략은 설계상 TQQQ/SQQQ(일일 ~6% 변동성)를 보유하므로
+    # 기본 3% VaR 게이트를 원천적으로 통과할 수 없다. LEV 는 이미 position_limit 50%
+    # + sector_limit 100% + regime 기반 stop-loss (-30%/-20%) 로 리스크 통제하므로
+    # 여기서는 VaR/correlation 게이트를 스킵한다. MOM/VAL/QNT 는 기존 로직 그대로.
+    if strategy_code == "LEV":
+        results.append(RiskCheckResult(
+            passed=True, check_name="portfolio_var",
+            reason="LEV 전략은 설계상 고변동성 레버리지 ETF 보유 → VaR 게이트 면제 (stop-loss regime 동적 -30%/-20% 로 통제)",
+            value=0.0, threshold=0.03,
+        ))
+        results.append(RiskCheckResult(
+            passed=True, check_name="correlation",
+            reason="LEV 전략은 SPY+TQQQ/SQQQ 내재적 고상관(설계) → correlation 게이트 면제",
+            value=0.0, threshold=0.85,
+        ))
+        # LEV 는 cash_buffer 만 적용 (잔여 현금 보호)
+        results.append(check_cash_buffer(trade_value, strategy_cash, strategy_capital))
+        all_passed = all(r.passed for r in results)
+        return all_passed, results
 
     # H4 fix: build-phase VaR 스킵은 단일 종목 비중이 낮을 때만 허용.
     # 기존 버그: 포지션 < 3 이면 무조건 VaR 스킵 → 초기 35개 포지션 전체가

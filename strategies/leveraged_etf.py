@@ -1,246 +1,302 @@
-"""Leveraged ETF Strategy — SMA 크로스오버 기반 추세 추종.
+"""Leveraged ETF Strategy — Core-Satellite Barbell (SPY + TQQQ/SQQQ).
 
-Logic:
-  1. Universe: QQQ (NASDAQ 100), SPY (S&P 500), SOXX (반도체) 3개 기초지수
-  2. 각 기초지수의 SMA50 / SMA200 계산
-  3. 골든크로스 (SMA50 > SMA200) → Long ETF (TQQQ/UPRO/SOXL) 매수
-  4. 데드크로스 (SMA50 < SMA200) → 현금 보유 (포지션 없음)
+설계 근거: STOCK/2026-04-11-LEV-Strategy-Brainstorm-Design.md
+
+구조:
+  - Core:      SPY 50% (Buy&Hold, CRISIS 제외 항상 유지)
+  - Satellite: TQQQ 50% (BULL/NEUTRAL) / SQQQ 50% (BEAR) / 현금 (CRISIS)
 
 Regime 적응:
-  - BULL:    ratio > 1.00 이면 매수
-  - NEUTRAL: ratio > 1.02 이면 매수 (엄격 기준 적용)
-  - BEAR/CRISIS: 모두 현금 (빈 리스트 반환)
+  | Regime  | SPY | TQQQ | SQQQ | Cash | Stop-loss | Take-profit |
+  |---------|-----|------|------|------|-----------|-------------|
+  | BULL    | 50% | 50%  | —    | 0%   | -30%      | +60%        |
+  | NEUTRAL | 50% | 50%  | —    | 0%   | -20%      | +35%        |
+  | BEAR    | 50% | —    | 50%  | 0%   | 즉시 전환 | —           |
+  | CRISIS  | —   | —    | —    | 100% | 전량 청산 | —           |
 
-인버스 ETF (SQQQ, SPXU, SOXS)는 현재 미사용. 현금 보유가 기본 방어 수단.
+리밸런싱:
+  - 현재 가중치가 목표에서 ±10% 이탈하면 자동 리밸런스 신호 생성
+  - delta 기반 부분 체결 (delta > 1% allocated) → 과매매 방지
+  - 예: SPY 61% / TQQQ 39% → SPY 11%(=$5.5k) SELL + TQQQ 11%(=$5.5k) BUY
+
+Regime 전환:
+  - generate_signals() 호출 시 self.regime 과 current_positions 를 비교
+  - 포지션에 TQQQ가 있는데 regime=BEAR → TQQQ 전량 SELL + SQQQ 신규 BUY
+  - 포지션에 SQQQ가 있는데 regime=BULL/NEUTRAL → SQQQ 전량 SELL + TQQQ 신규 BUY
+  - 별도 이벤트 트리거 불필요 — self.regime 주입만으로 자연스럽게 전환
+
+capital 주입:
+  - run_cycle.phase_signals() 가 strat.allocated_capital 을 주입
+  - generate_signals() 는 allocated_capital 을 기준으로 delta 계산
+  - 미주입 시 current_positions 총 market_value 를 폴백 capital 로 사용
 """
 
 from __future__ import annotations
 
-import pandas as pd
-from datetime import datetime, timedelta
-
-import yfinance as yf
-
 from strategies.base_strategy import BaseStrategy, Signal, Direction
 
 
-# ETF 매핑: 기초지수 → Long ETF / Inverse ETF
-ETF_MAP = {
-    "QQQ":  {"long": "TQQQ", "inverse": "SQQQ"},  # NASDAQ 100 (3x)
-    "SPY":  {"long": "UPRO", "inverse": "SPXU"},  # S&P 500 (3x)
-    "SOXX": {"long": "SOXL", "inverse": "SOXS"},  # 반도체 (3x)
+# ─── 설정 상수 ──────────────────────────────────────────────────────────
+_CORE_SYMBOL = "SPY"
+_LONG_SATELLITE = "TQQQ"   # NASDAQ 3x Long
+_INVERSE_SATELLITE = "SQQQ"  # NASDAQ 3x Inverse
+
+# Regime → Target weight mix (sum = 1.0 또는 0.0)
+_REGIME_MIX: dict[str, dict[str, float]] = {
+    "BULL":    {"SPY": 0.50, "TQQQ": 0.50},
+    "NEUTRAL": {"SPY": 0.50, "TQQQ": 0.50},
+    "BEAR":    {"SPY": 0.50, "SQQQ": 0.50},
+    "CRISIS":  {},  # 전량 현금화
 }
 
-# 데이터 fetch 대상 (기초지수 + Long ETF)
-_ALL_TICKERS = ["QQQ", "SPY", "SOXX", "TQQQ", "UPRO", "SOXL"]
+# Regime → (stop_loss_pct, take_profit_pct)
+# None = 해당 regime 에서는 percentage 기반 손절/익절 무효
+_REGIME_EXITS: dict[str, tuple[float | None, float | None]] = {
+    "BULL":    (-0.30, +0.60),
+    "NEUTRAL": (-0.20, +0.35),
+    "BEAR":    (None, None),
+    "CRISIS":  (None, None),
+}
 
+# ±10% 이탈 시 리밸런스 트리거 (weight 기준)
+REBALANCE_BAND = 0.10
 
-def _calc_sma(prices: pd.Series, window: int) -> float:
-    """이동평균 계산. 데이터 부족 시 NaN 반환."""
-    if len(prices) < window:
-        return float("nan")
-    return prices.iloc[-window:].mean()
-
-
-def fetch_leveraged_data(lookback_days: int = 300) -> dict:
-    """기초지수 + Long ETF 가격 데이터 fetch.
-
-    yfinance로 QQQ, SPY, SOXX, TQQQ, UPRO, SOXL 다운로드.
-    lookback_days=300 (SMA200 계산에 약 280거래일 필요).
-
-    Returns:
-        {"prices": DataFrame}  — columns: QQQ, SPY, SOXX, TQQQ, UPRO, SOXL
-    """
-    end = datetime.now()
-    start = end - timedelta(days=lookback_days)
-
-    data = yf.download(
-        tickers=" ".join(_ALL_TICKERS),
-        start=start.strftime("%Y-%m-%d"),
-        end=end.strftime("%Y-%m-%d"),
-        progress=False,
-    )
-
-    if data.empty:
-        return {"prices": pd.DataFrame()}
-
-    # yfinance: 복수 티커 → MultiIndex, 단일 → 단순 columns
-    if isinstance(data.columns, pd.MultiIndex):
-        prices = data["Close"]
-    else:
-        prices = data[["Close"]].rename(columns={"Close": _ALL_TICKERS[0]})
-
-    return {"prices": prices}
+# delta 가 allocated 의 1% 미만이면 신호 무시 (noise 제거, 슬리피지 최소화)
+MIN_TRADE_FRACTION = 0.01
 
 
 class LeveragedETFStrategy(BaseStrategy):
-    """SMA 크로스오버 기반 레버리지 ETF 추세 추종 전략.
+    """Core-Satellite Barbell: SPY + TQQQ/SQQQ.
 
-    기초지수(QQQ/SPY/SOXX) SMA50 > SMA200 이면 대응 3x Long ETF 매수.
-    Regime이 BEAR/CRISIS이면 전량 현금.
+    BaseStrategy 규약:
+      - name = "LEV"
+      - generate_signals(market_data, current_positions) → list[Signal]
+      - self.regime 은 run_cycle.phase_signals() 에서 주입됨
+      - self.allocated_capital 은 run_cycle.phase_signals() 에서 주입됨 (신규)
     """
 
     name = "LEV"
-    capital_pct = 0.20
-    universe = list(ETF_MAP.keys())  # ["QQQ", "SPY", "SOXX"]
-    max_positions = 3
+    capital_pct = 0.50  # 전체 계정의 50% (regime_allocator 와 일치)
+    universe = [_CORE_SYMBOL, _LONG_SATELLITE, _INVERSE_SATELLITE]
+    max_positions = 2
     rebalance_freq = "daily"
-    stop_loss_pct = 0.08   # 레버리지라 타이트
-    take_profit_pct = 0.15
+
+    # BaseStrategy 기본값 유지 (run_cycle._get_strategy_stop_loss 가
+    # regime 별로 get_stop_loss_for_regime() 을 호출)
+    stop_loss_pct = 0.20
+    take_profit_pct = 0.35
 
     regime: str = "NEUTRAL"
+    allocated_capital: float = 0.0  # phase_signals 가 주입 (0 이면 폴백)
 
-    def generate_signals(self, market_data: dict, current_positions: dict | None = None) -> list[Signal]:
-        """SMA 크로스오버 기반 레버리지 ETF 매수/매도 시그널 생성.
+    # ─── Regime 기반 exit 헬퍼 (run_cycle 이 직접 호출) ──────────────
+    @staticmethod
+    def get_stop_loss_for_regime(regime: str) -> float | None:
+        """Regime 별 stop-loss 임계값. None = 퍼센티지 기반 손절 미적용."""
+        return _REGIME_EXITS.get(regime, _REGIME_EXITS["NEUTRAL"])[0]
 
-        Args:
-            market_data: 'prices' 키 또는 'leveraged.prices' 키에
-                         DataFrame (columns=tickers, index=dates) 포함.
-            current_positions: Dict of {symbol: {qty, current, ...}} for SELL signal generation.
+    @staticmethod
+    def get_take_profit_for_regime(regime: str) -> float | None:
+        """Regime 별 take-profit 임계값. None = 퍼센티지 기반 익절 미적용."""
+        return _REGIME_EXITS.get(regime, _REGIME_EXITS["NEUTRAL"])[1]
 
-        Returns:
-            BUY + SELL Signal 리스트. BEAR/CRISIS regime이면 기존 포지션 전량 SELL.
+    @staticmethod
+    def get_target_mix(regime: str) -> dict[str, float]:
+        """Regime 별 목표 자산 배분 (weight_pct, 합 = 1.0 또는 0.0)."""
+        return dict(_REGIME_MIX.get(regime, _REGIME_MIX["NEUTRAL"]))
+
+    # ─── 내부 유틸 ─────────────────────────────────────────────────────
+    @staticmethod
+    def _positions_market_value(current_positions: dict | None) -> dict[str, float]:
+        """심볼 → market_value. 음수/0 은 제외."""
+        if not current_positions:
+            return {}
+        out: dict[str, float] = {}
+        for sym, pos in current_positions.items():
+            v = float(pos.get("market_value", 0) or 0)
+            if v > 0:
+                out[sym] = v
+        return out
+
+    @staticmethod
+    def _current_weights(mv: dict[str, float]) -> dict[str, float]:
+        """market_value dict → weight dict. 합이 0 이면 빈 dict."""
+        total = sum(mv.values())
+        if total <= 0:
+            return {}
+        return {s: v / total for s, v in mv.items()}
+
+    @staticmethod
+    def _needs_rebalance(
+        current_weights: dict[str, float],
+        target_mix: dict[str, float],
+    ) -> bool:
+        """최대 편차가 REBALANCE_BAND 초과 시 True."""
+        symbols = set(current_weights) | set(target_mix)
+        for s in symbols:
+            diff = abs(current_weights.get(s, 0.0) - target_mix.get(s, 0.0))
+            if diff > REBALANCE_BAND:
+                return True
+        return False
+
+    def _effective_capital(self, mv: dict[str, float]) -> float:
+        """리밸런스/delta 계산에 사용할 capital.
+
+        우선순위:
+          1. self.allocated_capital (phase_signals 주입값, > 0)
+          2. current positions 총 market_value 합 (폴백)
         """
-        # 데이터 추출 — leveraged 전용 키 우선, 없으면 공통 prices 폴백
-        _lev_prices = market_data.get("leveraged", {}).get("prices")
-        _prices = market_data.get("prices")
-        prices = _lev_prices if _lev_prices is not None and not getattr(_lev_prices, 'empty', True) else _prices
-        if prices is None or prices.empty:
-            print("  LEV: prices 데이터 없음 → 빈 리스트 반환")
-            return []
+        if self.allocated_capital and self.allocated_capital > 0:
+            return float(self.allocated_capital)
+        return float(sum(mv.values()))
 
-        # BEAR/CRISIS 방어 — 기존 포지션 전량 청산 + 신규 매수 차단
-        if self.regime in ("BEAR", "CRISIS"):
-            print(f"  LEV: regime={self.regime}, all positions to CASH")
-            sell_signals: list[Signal] = []
-            if current_positions:
-                for symbol in list(current_positions.keys()):
-                    sell_signals.append(Signal(
-                        strategy=self.name,
-                        symbol=symbol,
-                        direction=Direction.SELL,
-                        weight_pct=0.0,
-                        confidence=0.95,
-                        reason=f"EXIT: regime={self.regime}, liquidate all LEV positions",
-                        order_type="market",
-                    ))
-            return sell_signals
+    # ─── 메인 로직 ─────────────────────────────────────────────────────
+    def generate_signals(
+        self,
+        market_data: dict,
+        current_positions: dict | None = None,
+    ) -> list[Signal]:
+        """Regime 과 current_positions 을 비교해 SELL/BUY 시그널 생성.
 
-        signals: list[Signal] = []
+        핵심 흐름:
+          1. target_mix = _REGIME_MIX[regime]
+          2. held_but_not_target → 전량 SELL (regime 전환/CRISIS)
+          3. target_but_not_held → 신규 BUY (weight_pct = target_weight)
+          4. overlap symbols + 밴드 초과 → delta 기반 부분 SELL/BUY
+          5. delta 가 너무 작으면 (< MIN_TRADE_FRACTION × capital) 스킵
 
-        for base_index, etf_info in ETF_MAP.items():
-            if base_index not in prices.columns:
-                print(f"  LEV: {base_index} 컬럼 없음 → 스킵")
-                continue
+        SELL signals are emitted before BUY signals (cash 흐름 보장).
+        """
+        target_mix = self.get_target_mix(self.regime)
+        mv = self._positions_market_value(current_positions)
+        current_weights = self._current_weights(mv)
+        held_symbols = set(mv.keys())
+        target_symbols = set(target_mix.keys())
+        capital = self._effective_capital(mv)
 
-            series = prices[base_index].dropna()
-            sma50 = _calc_sma(series, 50)
-            sma200 = _calc_sma(series, 200)
+        print(
+            f"  LEV: regime={self.regime}, capital=${capital:,.2f}, "
+            f"target={dict(sorted(target_mix.items()))}, "
+            f"current={dict(sorted({k: round(v, 4) for k, v in current_weights.items()}.items()))}"
+        )
 
-            # 데이터 부족 또는 SMA200 == 0 방어
-            if pd.isna(sma50) or pd.isna(sma200) or sma200 == 0:
-                print(
-                    f"  LEV: {base_index} SMA 계산 불가 "
-                    f"(len={len(series)}, sma50={sma50}, sma200={sma200}) → 스킵"
+        sell_signals: list[Signal] = []
+        buy_signals: list[Signal] = []
+
+        # ── 1) target 에 없는 보유 심볼 → 전량 SELL ──────────────────
+        for sym in sorted(held_symbols - target_symbols):
+            reason = (
+                f"LEV regime={self.regime}: {sym} not in target "
+                f"{sorted(target_mix.keys()) or 'CASH'} → liquidate 100%"
+            )
+            sell_signals.append(
+                Signal(
+                    strategy=self.name,
+                    symbol=sym,
+                    direction=Direction.SELL,
+                    weight_pct=1.0,  # 전량 청산 (liquidation_ratio)
+                    confidence=0.99,
+                    reason=reason,
+                    order_type="market",
                 )
-                continue
-
-            ratio = sma50 / sma200
-
-            # Regime별 매수 임계값
-            threshold = 1.02 if self.regime == "NEUTRAL" else 1.00
-
-            print(
-                f"  LEV: {base_index} SMA50={sma50:.2f}, SMA200={sma200:.2f}, "
-                f"ratio={ratio:.4f}, threshold={threshold}, regime={self.regime} "
-                f"→ {'BUY' if ratio > threshold else 'HOLD'}"
             )
 
-            if ratio > threshold:
-                long_etf = etf_info["long"]
-                # confidence: ratio가 1.0에서 멀수록 높음, 최대 1.0
-                confidence = min(1.0, 0.5 + (ratio - 1.0) * 5.0)
-                signals.append(Signal(
-                    strategy=self.name,
-                    symbol=long_etf,
-                    direction=Direction.BUY,
-                    weight_pct=0.0,  # 이후 등가중으로 재계산
-                    confidence=round(confidence, 4),
-                    reason=(
-                        f"{base_index} SMA50/SMA200={ratio:.4f} > {threshold} "
-                        f"→ long {long_etf}"
-                    ),
-                    order_type="market",
-                ))
+        # CRISIS 또는 target_mix 가 비어있으면 여기서 종료
+        if not target_mix:
+            if sell_signals:
+                print(f"  LEV: {self.regime} → {len(sell_signals)}개 포지션 전량 청산")
+            else:
+                print(f"  LEV: {self.regime} → no positions to liquidate (already cash)")
+            return sell_signals
 
-        # ── SELL signals for held ETFs where base index has dead cross ──
-        sell_signals: list[Signal] = []
-        if current_positions:
-            # Build reverse map: long ETF → base index
-            etf_to_base = {info["long"]: base for base, info in ETF_MAP.items()}
-            buy_etfs = {s.symbol for s in signals}
-
-            for symbol in list(current_positions.keys()):
-                base_index = etf_to_base.get(symbol)
-                if base_index and symbol not in buy_etfs:
-                    # Not in current BUY set = dead cross or insufficient data
-                    sell_signals.append(Signal(
+        # capital 가 0 이면 그냥 신규 진입 — 첫 사이클 + allocated 주입 안 된 경우
+        # (테스트 환경 등). phase_signals 에서 주입되면 이 경로는 피함.
+        if capital <= 0:
+            print("  LEV: capital=$0 → target weight 기반 신규 진입 신호만 생성")
+            for sym in sorted(target_symbols):
+                buy_signals.append(
+                    Signal(
                         strategy=self.name,
-                        symbol=symbol,
-                        direction=Direction.SELL,
-                        weight_pct=0.0,
-                        confidence=0.9,
-                        reason=f"EXIT: {base_index} SMA50 < SMA200 (dead cross)",
-                        order_type="market",
-                    ))
-
-        # M-4: 레버리지 미진입 시 threshold 완화 재시도 + BIL 폴백
-        if not signals and self.regime not in ("BEAR", "CRISIS"):
-            # 1차: threshold 1.00으로 완화 재시도
-            for base_index, etf_info in ETF_MAP.items():
-                if base_index not in prices.columns:
-                    continue
-                series = prices[base_index].dropna()
-                sma50 = _calc_sma(series, 50)
-                sma200 = _calc_sma(series, 200)
-                if pd.isna(sma50) or pd.isna(sma200) or sma200 == 0:
-                    continue
-                ratio = sma50 / sma200
-                if ratio > 1.00:
-                    long_etf = etf_info["long"]
-                    confidence = min(1.0, 0.5 + (ratio - 1.0) * 5.0)
-                    signals.append(Signal(
-                        strategy=self.name,
-                        symbol=long_etf,
+                        symbol=sym,
                         direction=Direction.BUY,
-                        weight_pct=0.0,
-                        confidence=round(confidence * 0.9, 4),  # 완화 진입 → 약간 낮은 confidence
+                        weight_pct=round(target_mix[sym], 6),
+                        confidence=0.95,
+                        reason=f"LEV regime={self.regime}: new entry target={target_mix[sym]:.0%}",
+                        order_type="market",
+                    )
+                )
+            return sell_signals + buy_signals
+
+        # ── 2) 신규 진입 + 리밸런스 필요 판정 ──
+        new_entries = target_symbols - held_symbols
+        overlap = target_symbols & held_symbols
+        needs_rebalance = self._needs_rebalance(current_weights, target_mix) if overlap else False
+        needs_action = bool(new_entries) or needs_rebalance
+
+        if not needs_action:
+            print(f"  LEV: no action (within ±{REBALANCE_BAND:.0%} band)")
+            return sell_signals + buy_signals
+
+        # ── 3) delta 계산 + SELL/BUY 시그널 생성 ──
+        # target_value = capital × target_weight
+        # delta = target_value - current_value
+        # delta > 0 → BUY (delta / capital 비율)
+        # delta < 0 → SELL (|delta| / current_value 청산 비율)
+        min_delta = capital * MIN_TRADE_FRACTION
+
+        for sym in sorted(target_symbols | held_symbols):
+            # target 에 없는 held 는 이미 sell_signals 에 들어감
+            if sym not in target_symbols:
+                continue
+
+            target_weight = target_mix[sym]
+            target_value = capital * target_weight
+            current_value = mv.get(sym, 0.0)
+            delta = target_value - current_value
+
+            # 아주 작은 delta 는 무시 (slippage/noise 방지)
+            if abs(delta) < min_delta:
+                continue
+
+            if delta > 0:
+                # BUY 부족분 — weight_pct = delta / capital
+                weight = delta / capital
+                reason_tag = "new entry" if sym in new_entries else "rebalance BUY"
+                buy_signals.append(
+                    Signal(
+                        strategy=self.name,
+                        symbol=sym,
+                        direction=Direction.BUY,
+                        weight_pct=round(weight, 6),
+                        confidence=0.95,
                         reason=(
-                            f"{base_index} SMA50/SMA200={ratio:.4f} > 1.00 "
-                            f"(relaxed threshold) → long {long_etf}"
+                            f"LEV regime={self.regime}: {reason_tag} "
+                            f"current=${current_value:,.0f} → target=${target_value:,.0f} "
+                            f"(Δ=${delta:+,.0f}, weight={weight:.4f})"
                         ),
                         order_type="market",
-                    ))
-            if signals:
-                print(f"[LEV] threshold 완화(1.00)로 {len(signals)}개 진입")
+                    )
+                )
+            else:
+                # SELL 초과분 — liquidation_ratio = |delta| / current_value
+                if current_value <= 0:
+                    continue
+                liquidation = min(1.0, abs(delta) / current_value)
+                sell_signals.append(
+                    Signal(
+                        strategy=self.name,
+                        symbol=sym,
+                        direction=Direction.SELL,
+                        weight_pct=round(liquidation, 6),
+                        confidence=0.95,
+                        reason=(
+                            f"LEV regime={self.regime}: rebalance SELL "
+                            f"current=${current_value:,.0f} → target=${target_value:,.0f} "
+                            f"(Δ=${delta:+,.0f}, liquidate={liquidation:.2%})"
+                        ),
+                        order_type="market",
+                    )
+                )
 
-            # 2차: 여전히 없으면 BIL(단기국채 ETF) 대체 투자
-            if not signals:
-                print("[LEV] WARNING: 레버리지 미진입 — BIL(단기국채) 대체 투자")
-                signals.append(Signal(
-                    strategy=self.name,
-                    symbol="BIL",
-                    direction=Direction.BUY,
-                    weight_pct=1.0,  # 전체 LEV 자금
-                    confidence=0.7,
-                    reason="LEV 전 지수 SMA 미충족 → BIL(단기국채 ETF) 대체 투자",
-                    order_type="market",
-                ))
-
-        # 등가중 배분: 활성 포지션 수에 따라 1/N 할당
-        if signals and not any(s.symbol == "BIL" for s in signals):
-            weight = 1.0 / len(signals)
-            for s in signals:
-                s.weight_pct = round(weight, 6)
-
-        return sell_signals + signals
+        # SELL 먼저 → BUY 나중 (cash 흐름 보장)
+        return sell_signals + buy_signals
