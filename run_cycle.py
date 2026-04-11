@@ -670,6 +670,9 @@ def phase_signals(market_data: dict, regime: str = "NEUTRAL", allocations: dict 
         # N-LOW-2: negative-cash guard — 전략이 현재 음수 현금 상태면 BUY 시그널을 드랍한다.
         # 기존 버그: 음수 cash 상태에서도 BUY 시그널 생성 → 리스크 게이트 cash_buffer 에서
         # 수십 건 FAIL → 로그 오염 + CPU 낭비. SELL 시그널은 정상 흐르게 유지해 점진적 회복 허용.
+        # RL-1 (2026-04-11): 근본 원인 해결됨 — _sync_alpaca_positions 공식이 market_value
+        # 대신 cost_basis 로 수정되어 평가익이 나와도 cash 가 더 이상 음수로 떨어지지 않음.
+        # 이 블록은 defense-in-depth 용으로 잔존. 1주 안정 운영 관찰 후 제거 여부 재판단.
         strat_cash = float(strat_data.get("cash", 0) or 0)
         cash_guard = strat_cash < -10
 
@@ -1073,6 +1076,11 @@ def _sync_alpaca_positions(portfolios: dict) -> dict:
         return portfolios
 
     # Build symbol→strategy map from trade_log
+    # TODO(RL-1 latent): last-write-wins here loses multi-strategy ownership when
+    # the same symbol is bought by more than one strategy (e.g. LRCX/AMAT/AMD
+    # in MOM+QNT). Not corrupting state as of 2026-04-11 because the overlapping
+    # trade_log entries are mostly dry_run and current positions happen not to
+    # overlap, but revisit if we see unmatched positions in the sync log.
     symbol_strategy_map = {}
     trade_log_path = STATE_DIR / "trade_log.jsonl"
     if trade_log_path.exists():
@@ -1114,10 +1122,18 @@ def _sync_alpaca_positions(portfolios: dict) -> dict:
     else:
         print(f"  [sync] WARNING: Alpaca equity ${new_equity:,.2f} < $100 — skipping account_total update")
 
-    # Recalculate per-strategy cash: allocated - sum(position values in strategy)
+    # Recalculate per-strategy cash: allocated - sum(cost basis in strategy)
+    # RL-1 fix (2026-04-11): previously used market_value, which made cash go
+    # negative by exactly the unrealized P&L whenever positions appreciated.
+    # cash is the uninvested budget, so it must be computed from cost basis
+    # (avg_entry * qty). Unrealized P&L already flows into NAV downstream
+    # via `nav += qty * current` (see phase_report NAV block).
     for code, strat in portfolios["strategies"].items():
-        strat_pos_value = sum(p["market_value"] for p in strat["positions"].values())
-        strat["cash"] = round(strat["allocated"] - strat_pos_value, 2)
+        strat_cost_basis = sum(
+            p.get("avg_entry", 0) * p.get("qty", 0)
+            for p in strat["positions"].values()
+        )
+        strat["cash"] = round(strat["allocated"] - strat_cost_basis, 2)
 
     pos_count = sum(len(s["positions"]) for s in portfolios["strategies"].values())
     print(f"  [sync] Alpaca: {len(alpaca_positions)} positions synced ({pos_count} mapped, {len(unmatched)} unmatched)")

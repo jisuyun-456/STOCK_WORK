@@ -1,0 +1,98 @@
+{
+  "generated_at": "2026-04-11T07:22:55.148685+00:00",
+  "task": "RL-1 diagnostic",
+  "trade_log": {
+    "total_entries": 477,
+    "status_distribution": {
+      "dry_run": 394,
+      "submitted": 35,
+      "error": 38,
+      "skipped": 10
+    }
+  },
+  "symbol_strategy_overlap_in_trade_log": {
+    "LRCX": {
+      "MOM": 8,
+      "QNT": 3
+    },
+    "AMAT": {
+      "MOM": 8,
+      "QNT": 3
+    },
+    "AMD": {
+      "MOM": 8,
+      "QNT": 3
+    },
+    "KLAC": {
+      "MOM": 8,
+      "QNT": 3
+    },
+    "INTC": {
+      "MOM": 8,
+      "QNT": 3
+    },
+    "AVGO": {
+      "MOM": 8,
+      "QNT": 3
+    },
+    "GOOGL": {
+      "QNT": 3,
+      "MOM": 8
+    }
+  },
+  "strategy_summary": {
+    "MOM": {
+      "allocated": 25000,
+      "cash_current": -953.0,
+      "cost_basis": 25000.0,
+      "market_value": 25953.0,
+      "unrealized_pl": 953.0,
+      "cash_if_cost_basis_formula": 0.0,
+      "n_positions": 10
+    },
+    "VAL": {
+      "allocated": 25000,
+      "cash_current": 606.85,
+      "cost_basis": 25000.0,
+      "market_value": 24393.15,
+      "unrealized_pl": -606.85,
+      "cash_if_cost_basis_formula": -0.0,
+      "n_positions": 5
+    },
+    "QNT": {
+      "allocated": 30000,
+      "cash_current": -36.39,
+      "cost_basis": 30000.0,
+      "market_value": 30036.39,
+      "unrealized_pl": 36.39,
+      "cash_if_cost_basis_formula": 0.0,
+      "n_positions": 20
+    },
+    "LEV": {
+      "allocated": 20000,
+      "cash_current": 20000,
+      "cost_basis": 0,
+      "market_value": 0,
+      "unrealized_pl": 0,
+      "cash_if_cost_basis_formula": 20000,
+      "n_positions": 0
+    }
+  },
+  "inception": {
+    "total": 100000.0,
+    "strategies": {
+      "MOM": 25000.0,
+      "VAL": 25000.0,
+      "QNT": 30000.0,
+      "LEV": 20000.0
+    },
+    "date": "2026-04-10"
+  },
+  "account_total": 100383.1,
+  "findings": {
+    "root_cause": "Case D (new): _sync_alpaca_positions formula uses market_value instead of cost_basis",
+    "evidence": "For every strategy with positions, cost_basis == allocated exactly; current cash == -unrealized_pl.",
+    "latent_bug": "symbol_strategy_map last-write-wins loses multi-strategy ownership (6 symbols affected in trade_log, but no state corruption right now)",
+    "recommended_fix": "run_cycle.py:1119 change sum(market_value) -> sum(avg_entry*qty)"
+  }
+}
