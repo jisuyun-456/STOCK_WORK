@@ -1,11 +1,11 @@
 {
   "account_total": 99753.34,
-  "last_updated": "2026-04-11T14:58:33.791423+00:00",
+  "last_updated": "2026-04-11T16:10:37.911053+00:00",
   "strategies": {
     "MOM": {
       "name": "Momentum",
-      "allocated": 25000,
-      "cash": 0.0,
+      "allocated": 15000,
+      "cash": -10000.0,
       "positions": {
         "AMAT": {
           "qty": 6.45694509,
@@ -99,15 +99,15 @@
         },
         {
           "date": "2026-04-11",
-          "nav": 25704.15
+          "nav": 15704.15
         }
       ],
       "last_rebalance": null
     },
     "VAL": {
       "name": "Value Quality",
-      "allocated": 25000,
-      "cash": -0.0,
+      "allocated": 15000,
+      "cash": -10000.0,
       "positions": {
         "ACN": {
           "qty": 26.248500473,
@@ -161,15 +161,15 @@
         },
         {
           "date": "2026-04-11",
-          "nav": 24110.86
+          "nav": 14110.86
         }
       ],
       "last_rebalance": null
     },
     "QNT": {
       "name": "Quant Factor",
-      "allocated": 30000,
-      "cash": 0.0,
+      "allocated": 20000,
+      "cash": -10000.0,
       "positions": {
         "ADI": {
           "qty": 4.333882291,
@@ -343,15 +343,15 @@
         },
         {
           "date": "2026-04-11",
-          "nav": 29938.32
+          "nav": 19938.32
         }
       ],
       "last_rebalance": null
     },
     "LEV": {
       "name": "Leveraged ETF",
-      "allocated": 20000,
-      "cash": 20000,
+      "allocated": 50000,
+      "cash": 50000,
       "positions": {},
       "nav_history": [
         {
@@ -364,7 +364,7 @@
         },
         {
           "date": "2026-04-11",
-          "nav": 20000
+          "nav": 50000
         }
       ],
       "last_rebalance": null
@@ -452,6 +452,42 @@
       "strategy": "QNT",
       "amount": -36.39,
       "ts": "2026-04-10T14:34:39.914871+00:00"
+    },
+    {
+      "type": "negative_cash",
+      "strategy": "MOM",
+      "amount": -10000.0,
+      "ts": "2026-04-11T16:04:13.482581+00:00"
+    },
+    {
+      "type": "negative_cash",
+      "strategy": "VAL",
+      "amount": -10000.0,
+      "ts": "2026-04-11T16:04:13.482626+00:00"
+    },
+    {
+      "type": "negative_cash",
+      "strategy": "QNT",
+      "amount": -10000.0,
+      "ts": "2026-04-11T16:04:13.482650+00:00"
+    },
+    {
+      "type": "negative_cash",
+      "strategy": "MOM",
+      "amount": -10000.0,
+      "ts": "2026-04-11T16:10:37.910944+00:00"
+    },
+    {
+      "type": "negative_cash",
+      "strategy": "VAL",
+      "amount": -10000.0,
+      "ts": "2026-04-11T16:10:37.910973+00:00"
+    },
+    {
+      "type": "negative_cash",
+      "strategy": "QNT",
+      "amount": -10000.0,
+      "ts": "2026-04-11T16:10:37.910982+00:00"
     }
   ]
 }

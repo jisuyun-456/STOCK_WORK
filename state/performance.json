@@ -11,23 +11,23 @@
   },
   "strategies": {
     "MOM": {
-      "current_nav": 25704.15,
-      "total_return_pct": 2.8166,
-      "daily_return_pct": 2.8166,
-      "mdd_pct": 0.0,
+      "current_nav": 15704.15,
+      "total_return_pct": -37.1834,
+      "daily_return_pct": -37.1834,
+      "mdd_pct": -37.1834,
       "sharpe_ratio": null,
       "win_rate": null,
       "trade_count": 0,
-      "dry_run_count": 77,
-      "peak_nav": 25704.15,
+      "dry_run_count": 83,
+      "peak_nav": 25000.0,
       "last_rebalance": null,
       "initial_nav": 25000.0
     },
     "VAL": {
-      "current_nav": 24110.86,
-      "total_return_pct": -3.5566,
-      "daily_return_pct": -3.5566,
-      "mdd_pct": -3.5566,
+      "current_nav": 14110.86,
+      "total_return_pct": -43.5566,
+      "daily_return_pct": -43.5566,
+      "mdd_pct": -43.5566,
       "sharpe_ratio": null,
       "win_rate": null,
       "trade_count": 0,
@@ -37,28 +37,28 @@
       "initial_nav": 25000.0
     },
     "QNT": {
-      "current_nav": 29938.32,
-      "total_return_pct": -0.2056,
-      "daily_return_pct": -0.2056,
-      "mdd_pct": -0.2056,
+      "current_nav": 19938.32,
+      "total_return_pct": -33.5389,
+      "daily_return_pct": -33.5389,
+      "mdd_pct": -33.5389,
       "sharpe_ratio": null,
       "win_rate": null,
       "trade_count": 0,
-      "dry_run_count": 336,
+      "dry_run_count": 380,
       "peak_nav": 30000.0,
       "last_rebalance": null,
       "initial_nav": 30000.0
     },
     "LEV": {
-      "current_nav": 20000,
-      "total_return_pct": 0.0,
-      "daily_return_pct": 0.0,
+      "current_nav": 50000,
+      "total_return_pct": 150.0,
+      "daily_return_pct": 150.0,
       "mdd_pct": 0.0,
       "sharpe_ratio": null,
       "win_rate": null,
       "trade_count": 0,
-      "dry_run_count": 4,
-      "peak_nav": 20000,
+      "dry_run_count": 10,
+      "peak_nav": 50000,
       "last_rebalance": null,
       "initial_nav": 20000.0
     },
@@ -113,17 +113,17 @@
       "date": "2026-04-11",
       "total_nav": 99753.34,
       "strategy_navs": {
-        "MOM": 25704.15,
-        "VAL": 24110.86,
-        "QNT": 29938.32,
-        "LEV": 20000
+        "MOM": 15704.15,
+        "VAL": 14110.86,
+        "QNT": 19938.32,
+        "LEV": 50000
       },
       "benchmark_prices": {
         "SPY": 679.4600219726562,
         "QQQ": 611.0700073242188
       },
-      "regime": "NEUTRAL",
-      "signals_count": 18,
+      "regime": "BULL",
+      "signals_count": 17,
       "rebalances": [
         "MOM",
         "VAL"
