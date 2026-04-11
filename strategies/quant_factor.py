@@ -29,15 +29,23 @@ from datetime import datetime, timedelta
 
 from strategies.base_strategy import BaseStrategy, Signal, Direction
 
+# RL-3: pandas_datareader를 선택적으로 로드 (weekly fallback용)
+try:
+    from pandas_datareader import data as pdr
+    _PDR_AVAILABLE = True
+except ImportError:
+    _PDR_AVAILABLE = False
+
 # Kenneth French FF5 일별 팩터 CSV (직접 ZIP 다운로드)
 _FF5_DAILY_URL = (
     "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/"
     "F-F_Research_Data_5_Factors_2x3_daily_CSV.zip"
 )
-# FF5 대체 소스 (주석만 — 구현 필요 시 참고):
-#   - AQR daily factors: https://www.aqr.com/Insights/Datasets (Quality Minus Junk)
-#   - pandas_datareader.famafrench.FamaFrenchReader("F-F_Research_Data_5_Factors_2x3_Weekly")
-#     (Weekly frequency — daily lag 가 30일 이상 지속되면 weekly 로 전환 고려)
+# FF5 weekly fallback URL (daily lag > 30일 시 자동 전환)
+_FF5_WEEKLY_URL = (
+    "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/"
+    "F-F_Research_Data_5_Factors_2x3_weekly_CSV.zip"
+)
 
 
 # N-HIGH-3: universe 외부화 — state/universe.json 단일 소스
@@ -184,6 +192,7 @@ def fetch_factor_data(
 
     # --- Kenneth French FF5 팩터 (직접 ZIP 다운로드) ---
     factors = pd.DataFrame()
+    freq_used = "daily"
     try:
         print("[QNT] Kenneth French FF5 일별 팩터 다운로드 중...")
         resp = requests.get(_FF5_DAILY_URL, timeout=30)
@@ -222,9 +231,56 @@ def fetch_factor_data(
             & (factors.index <= pd.Timestamp(end))
         ]
         print(f"[QNT] FF5 팩터 다운로드 완료: {len(factors)}일치 데이터")
+
+        # RL-3 weekly fallback: daily lag > 30 시 주간 데이터로 자동 전환
+        if not factors.empty:
+            max_factor_date = factors.index.max()
+            days_lag = (pd.Timestamp.today() - max_factor_date).days
+            if days_lag > 30:
+                if not _PDR_AVAILABLE:
+                    print(f"[QNT] RL-3: daily lag {days_lag}일 > 30 하지만 pandas_datareader 미설치 - weekly fallback 스킵")
+                    freq_used = "daily"
+                else:
+                    print(f"[QNT] RL-3: daily lag {days_lag}일 > 30 - pandas_datareader weekly 시도")
+                    try:
+                        factors_wk = pdr.DataReader(
+                            "F-F_Research_Data_5_Factors_2x3",
+                            "famafrench",
+                            start=start,
+                            end=end,
+                        )[0]  # 튜플 첫 번째 요소 (factors DataFrame)
+                        # Weekly는 % 단위이므로 소수 변환
+                        for col in ["Mkt-RF", "SMB", "HML", "RMW", "CMA", "RF"]:
+                            if col in factors_wk.columns:
+                                factors_wk[col] = factors_wk[col] / 100.0
+                        factors = factors_wk  # daily 대신 weekly 사용
+                        freq_used = "weekly"
+                        print(f"[QNT] RL-3: weekly fallback 성공 ({len(factors)}주차 데이터)")
+                    except Exception as e_wk:
+                        print(f"[QNT] weekly fallback 실패 ({type(e_wk).__name__}) - daily 데이터 유지")
+                        freq_used = "daily"
     except Exception as e:
-        print(f"[QNT] WARNING: FF5 팩터 다운로드 실패 ({e}) — MOM 전용 모드로 폴백")
-        factors = pd.DataFrame()
+        # RL-3: daily fallback 시도 후 실패 → pandas_datareader weekly 전환
+        print(f"[QNT] WARNING: FF5 daily 다운로드 실패 ({type(e).__name__})")
+        print(f"[QNT] RL-3: pandas_datareader weekly fallback 시도...")
+        try:
+            from pandas_datareader import data as pdr
+            factors = pdr.DataReader(
+                "F-F_Research_Data_5_Factors_2x3",
+                "famafrench",
+                start=start,
+                end=end,
+            )[0]  # 튜플 첫 번째 요소만 (factors DataFrame)
+            # Weekly frequency이므로 % 단위 데이터를 소수로 변환
+            for col in ["Mkt-RF", "SMB", "HML", "RMW", "CMA", "RF"]:
+                if col in factors.columns:
+                    factors[col] = factors[col] / 100.0
+            freq_used = "weekly"
+            print(f"[QNT] RL-3: pandas_datareader weekly 성공 ({len(factors)}주차 데이터)")
+        except Exception as e_pdr:
+            print(f"[QNT] pandas_datareader weekly도 실패 ({type(e_pdr).__name__}) - MOM 전용 degraded 모드")
+            factors = pd.DataFrame()
+            freq_used = "daily"
 
     # N-MEDIUM-2: FF5 staleness 체크 — 기관 기준 강화
     #   >10일: 경고 로그 (추적 대상)
@@ -256,6 +312,7 @@ def fetch_factor_data(
         "ff5_stale": ff5_stale,
         "ff5_days_lag": days_lag,
         "ff5_last_date": str(factors.index.max().date()) if not factors.empty else None,
+        "ff5_freq": freq_used,  # "daily" 또는 "weekly" (RL-3)
     }
 
 
