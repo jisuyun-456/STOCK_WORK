@@ -47,3 +47,39 @@
 {"ts": "2026-04-10T14:34:39.436679+00:00", "who": "bot", "phase": "report", "action": "start", "payload": {}}
 {"ts": "2026-04-10T14:35:40.790095+00:00", "who": "bot", "phase": "report", "action": "end", "payload": {}}
 {"ts": "2026-04-10T14:35:40.814236+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "all", "resolved": 15}}
+{"ts": "2026-04-11T07:23:57.672184+00:00", "who": "bot", "phase": "main", "action": "start", "payload": {"phase": "report", "dry_run": true}}
+{"ts": "2026-04-11T07:23:57.682767+00:00", "who": "bot", "phase": "report", "action": "start", "payload": {}}
+{"ts": "2026-04-11T07:24:46.072345+00:00", "who": "bot", "phase": "report", "action": "end", "payload": {}}
+{"ts": "2026-04-11T07:24:46.094206+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "report", "resolved": 0}}
+{"ts": "2026-04-11T07:24:58.977508+00:00", "who": "bot", "phase": "main", "action": "start", "payload": {"phase": "report", "dry_run": true}}
+{"ts": "2026-04-11T07:24:58.988881+00:00", "who": "bot", "phase": "report", "action": "start", "payload": {}}
+{"ts": "2026-04-11T07:25:40.325254+00:00", "who": "bot", "phase": "report", "action": "end", "payload": {}}
+{"ts": "2026-04-11T07:25:40.338338+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "report", "resolved": 0}}
+{"ts": "2026-04-11T07:25:46.577485+00:00", "who": "bot", "phase": "main", "action": "start", "payload": {"phase": "report", "dry_run": true}}
+{"ts": "2026-04-11T07:25:46.584704+00:00", "who": "bot", "phase": "report", "action": "start", "payload": {}}
+{"ts": "2026-04-11T07:26:30.574011+00:00", "who": "bot", "phase": "report", "action": "end", "payload": {}}
+{"ts": "2026-04-11T07:26:30.587336+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "report", "resolved": 0}}
+{"ts": "2026-04-11T14:32:44.041545+00:00", "who": "bot", "phase": "main", "action": "start", "payload": {"phase": "all", "dry_run": true}}
+{"ts": "2026-04-11T14:43:43.545483+00:00", "who": "bot", "phase": "rebalance", "action": "start", "payload": {}}
+{"ts": "2026-04-11T14:43:45.760183+00:00", "who": "bot", "phase": "rebalance", "action": "end", "payload": {"signals": 3, "rebalanced_strategies": ["MOM", "VAL"]}}
+{"ts": "2026-04-11T14:43:45.761407+00:00", "who": "bot", "phase": "execute", "action": "start", "payload": {"signals": 16, "dry_run": true}}
+{"ts": "2026-04-11T14:43:50.979531+00:00", "who": "bot", "phase": "execute", "action": "end", "payload": {"results": 16}}
+{"ts": "2026-04-11T14:43:50.981322+00:00", "who": "bot", "phase": "report", "action": "start", "payload": {}}
+{"ts": "2026-04-11T14:44:28.354943+00:00", "who": "bot", "phase": "report", "action": "end", "payload": {}}
+{"ts": "2026-04-11T14:44:28.381654+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "all", "resolved": 16}}
+{"ts": "2026-04-11T14:47:52.325806+00:00", "who": "bot", "phase": "main", "action": "start", "payload": {"phase": "all", "dry_run": true}}
+{"ts": "2026-04-11T14:58:25.732648+00:00", "who": "bot", "phase": "rebalance", "action": "start", "payload": {}}
+{"ts": "2026-04-11T14:58:28.052887+00:00", "who": "bot", "phase": "rebalance", "action": "end", "payload": {"signals": 3, "rebalanced_strategies": ["MOM", "VAL"]}}
+{"ts": "2026-04-11T14:58:28.054969+00:00", "who": "bot", "phase": "execute", "action": "start", "payload": {"signals": 18, "dry_run": true}}
+{"ts": "2026-04-11T14:58:33.170542+00:00", "who": "bot", "phase": "execute", "action": "end", "payload": {"results": 18}}
+{"ts": "2026-04-11T14:58:33.171416+00:00", "who": "bot", "phase": "report", "action": "start", "payload": {}}
+{"ts": "2026-04-11T14:59:10.313941+00:00", "who": "bot", "phase": "report", "action": "end", "payload": {}}
+{"ts": "2026-04-11T14:59:10.347191+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "all", "resolved": 18}}
+{"ts": "2026-04-11T14:59:55.376029+00:00", "who": "bot", "phase": "main", "action": "start", "payload": {"phase": "all", "dry_run": true}}
+{"ts": "2026-04-11T15:10:41.002436+00:00", "who": "bot", "phase": "rebalance", "action": "start", "payload": {}}
+{"ts": "2026-04-11T15:10:43.151599+00:00", "who": "bot", "phase": "rebalance", "action": "end", "payload": {"signals": 3, "rebalanced_strategies": ["MOM", "VAL"]}}
+{"ts": "2026-04-11T15:10:43.153402+00:00", "who": "bot", "phase": "execute", "action": "start", "payload": {"signals": 18, "dry_run": true}}
+{"ts": "2026-04-11T15:10:47.852354+00:00", "who": "bot", "phase": "execute", "action": "end", "payload": {"results": 18}}
+{"ts": "2026-04-11T15:10:47.854151+00:00", "who": "bot", "phase": "report", "action": "start", "payload": {}}
+{"ts": "2026-04-11T15:11:27.030806+00:00", "who": "bot", "phase": "report", "action": "end", "payload": {}}
+{"ts": "2026-04-11T15:11:27.059071+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "all", "resolved": 18}}
