@@ -1,0 +1,31 @@
+{
+  "ts": "2026-04-13T10:30:22.756306+00:00",
+  "dry_run": false,
+  "summary": {
+    "NASDAQ_100_SUBSET": {
+      "total": 84,
+      "live": 84,
+      "stale": 0,
+      "delisted": 0,
+      "delisted_tickers": [],
+      "to_remove_tickers": []
+    },
+    "SP500_TOP100": {
+      "total": 99,
+      "live": 99,
+      "stale": 0,
+      "delisted": 0,
+      "delisted_tickers": [],
+      "to_remove_tickers": []
+    },
+    "RUSSELL_1000_SUBSET": {
+      "total": 80,
+      "live": 80,
+      "stale": 0,
+      "delisted": 0,
+      "delisted_tickers": [],
+      "to_remove_tickers": []
+    }
+  },
+  "removed": 0
+}
