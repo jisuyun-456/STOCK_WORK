@@ -76,7 +76,8 @@ def test_qnt_min_composite_score_filters():
     # 직접 필터 로직 검증
     scores = {"A": 0.76, "B": 0.33, "C": 0.22, "D": 0.10}
     filtered = {k: v for k, v in scores.items() if v >= strat.min_composite_score}
-    assert set(filtered.keys()) == {"A", "B"}, f"unexpected: {filtered}"
+    # 0.45 임계값: A(0.76)만 통과, B(0.33)/C(0.22)/D(0.10) 제외
+    assert set(filtered.keys()) == {"A"}, f"unexpected: {filtered}"
     _loader.reload_strategy_params()
 
 

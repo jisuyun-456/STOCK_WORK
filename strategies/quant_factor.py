@@ -29,22 +29,10 @@ from datetime import datetime, timedelta
 
 from strategies.base_strategy import BaseStrategy, Signal, Direction
 
-# RL-3: pandas_datareader를 선택적으로 로드 (weekly fallback용)
-try:
-    from pandas_datareader import data as pdr
-    _PDR_AVAILABLE = True
-except ImportError:
-    _PDR_AVAILABLE = False
-
 # Kenneth French FF5 일별 팩터 CSV (직접 ZIP 다운로드)
 _FF5_DAILY_URL = (
     "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/"
     "F-F_Research_Data_5_Factors_2x3_daily_CSV.zip"
-)
-# FF5 weekly fallback URL (daily lag > 30일 시 자동 전환)
-_FF5_WEEKLY_URL = (
-    "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/"
-    "F-F_Research_Data_5_Factors_2x3_weekly_CSV.zip"
 )
 
 
@@ -231,76 +219,30 @@ def fetch_factor_data(
             & (factors.index <= pd.Timestamp(end))
         ]
         print(f"[QNT] FF5 팩터 다운로드 완료: {len(factors)}일치 데이터")
-
-        # RL-3 weekly fallback: daily lag > 30 시 주간 데이터로 자동 전환
-        if not factors.empty:
-            max_factor_date = factors.index.max()
-            days_lag = (pd.Timestamp.today() - max_factor_date).days
-            if days_lag > 30:
-                if not _PDR_AVAILABLE:
-                    print(f"[QNT] RL-3: daily lag {days_lag}일 > 30 하지만 pandas_datareader 미설치 - weekly fallback 스킵")
-                    freq_used = "daily"
-                else:
-                    print(f"[QNT] RL-3: daily lag {days_lag}일 > 30 - pandas_datareader weekly 시도")
-                    try:
-                        factors_wk = pdr.DataReader(
-                            "F-F_Research_Data_5_Factors_2x3",
-                            "famafrench",
-                            start=start,
-                            end=end,
-                        )[0]  # 튜플 첫 번째 요소 (factors DataFrame)
-                        # Weekly는 % 단위이므로 소수 변환
-                        for col in ["Mkt-RF", "SMB", "HML", "RMW", "CMA", "RF"]:
-                            if col in factors_wk.columns:
-                                factors_wk[col] = factors_wk[col] / 100.0
-                        factors = factors_wk  # daily 대신 weekly 사용
-                        freq_used = "weekly"
-                        print(f"[QNT] RL-3: weekly fallback 성공 ({len(factors)}주차 데이터)")
-                    except Exception as e_wk:
-                        print(f"[QNT] weekly fallback 실패 ({type(e_wk).__name__}) - daily 데이터 유지")
-                        freq_used = "daily"
     except Exception as e:
-        # RL-3: daily fallback 시도 후 실패 → pandas_datareader weekly 전환
-        print(f"[QNT] WARNING: FF5 daily 다운로드 실패 ({type(e).__name__})")
-        print(f"[QNT] RL-3: pandas_datareader weekly fallback 시도...")
-        try:
-            from pandas_datareader import data as pdr
-            factors = pdr.DataReader(
-                "F-F_Research_Data_5_Factors_2x3",
-                "famafrench",
-                start=start,
-                end=end,
-            )[0]  # 튜플 첫 번째 요소만 (factors DataFrame)
-            # Weekly frequency이므로 % 단위 데이터를 소수로 변환
-            for col in ["Mkt-RF", "SMB", "HML", "RMW", "CMA", "RF"]:
-                if col in factors.columns:
-                    factors[col] = factors[col] / 100.0
-            freq_used = "weekly"
-            print(f"[QNT] RL-3: pandas_datareader weekly 성공 ({len(factors)}주차 데이터)")
-        except Exception as e_pdr:
-            print(f"[QNT] pandas_datareader weekly도 실패 ({type(e_pdr).__name__}) - MOM 전용 degraded 모드")
-            factors = pd.DataFrame()
-            freq_used = "daily"
+        print(f"[QNT] WARNING: FF5 daily 다운로드 실패 ({type(e).__name__}) - MOM 전용 degraded 모드")
+        factors = pd.DataFrame()
+        freq_used = "daily"
 
-    # N-MEDIUM-2: FF5 staleness 체크 — 기관 기준 강화
-    #   >10일: 경고 로그 (추적 대상)
-    #   >30일: degraded 플래그 ON + QNT 시그널 50% 자동 축소 (downstream)
-    #   기존 45일 → 30일로 하향
+    # N-MEDIUM-2: FF5 staleness 체크
+    #   >45일: 경고 로그 (추적 대상)
+    #   >90일: degraded 플래그 ON + QNT 시그널 50% 자동 축소 (downstream)
+    #   Kenneth French 업데이트 주기는 약 60일 lag — 30일 임계값은 false-positive 발생
     ff5_stale = False
     days_lag = 0
     if not factors.empty:
         max_factor_date = factors.index.max()
         days_lag = (pd.Timestamp.today() - max_factor_date).days
-        if days_lag > 30:
+        if days_lag > 90:
             print(
                 f"[QNT] CRITICAL: FF5 데이터 {days_lag}일 지연 "
                 f"(최신: {max_factor_date.date()}) → degraded 모드 + QNT 시그널 50% 축소"
             )
             ff5_stale = True
-        elif days_lag > 10:
+        elif days_lag > 45:
             print(
                 f"[QNT] WARNING: FF5 데이터 {days_lag}일 지연 "
-                f"(최신: {max_factor_date.date()}) — 추적 중, 30일 초과 시 degraded"
+                f"(최신: {max_factor_date.date()}) — 추적 중, 90일 초과 시 degraded"
             )
         else:
             print(f"[QNT] FF5 최신성 OK: {days_lag}일 지연 (최신: {max_factor_date.date()})")
@@ -340,6 +282,13 @@ class QuantFactorStrategy(BaseStrategy):
 
     # OLS 회귀 윈도우 (거래일)
     OLS_WINDOW: int = 60
+
+    def __init__(self) -> None:
+        from config.loader import load_strategy_params
+        _cfg = load_strategy_params().get("quant_factor", {})
+        self.max_positions: int = int(_cfg.get("max_positions", self.__class__.max_positions))
+        self.OLS_WINDOW: int = int(_cfg.get("ols_window", self.__class__.OLS_WINDOW))
+        self.min_composite_score: float = float(_cfg.get("min_composite_score", 0.3))
 
     def generate_signals(self, market_data: dict, current_positions: dict | None = None) -> list[Signal]:
         """멀티팩터 점수 기반 매수/매도 신호 생성.
@@ -468,6 +417,11 @@ class QuantFactorStrategy(BaseStrategy):
             key=lambda x: x[1],
             reverse=True,
         )[:self.max_positions]
+
+        # min_composite_score 미만 종목 제거 (Variant 파라미터 반영)
+        min_score = getattr(self, "min_composite_score", 0.0)
+        if min_score > 0:
+            ranked = [(sym, s) for sym, s in ranked if s >= min_score]
 
         if not ranked:
             return []
