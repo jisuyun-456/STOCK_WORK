@@ -5035,5 +5035,78 @@
         "timestamp": "2026-04-11T16:02:48.518211+00:00"
       }
     ]
+  },
+  "MRK:VAL:buy": {
+    "cached_at": "2026-04-14T12:13:04.161152+00:00",
+    "expires_at": "2026-04-21T12:13:04.161152+00:00",
+    "regime_at_cache": "BULL",
+    "verdicts": [
+      {
+        "agent": "equity_research",
+        "symbol": "MRK",
+        "direction": "AGREE",
+        "confidence_delta": 0.05,
+        "conviction": "MODERATE",
+        "reasoning": "Momentum signal conf=0.62 aligns with valuation view",
+        "key_metrics": {
+          "signal_confidence": 0.6159
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-14T12:13:04.158623+00:00"
+      },
+      {
+        "agent": "technical_strategist",
+        "symbol": "MRK",
+        "direction": "AGREE",
+        "confidence_delta": -0.03,
+        "conviction": "MODERATE",
+        "reasoning": "Technical trend confirms momentum",
+        "key_metrics": {
+          "momentum_aligned": true
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-14T12:13:04.158623+00:00"
+      },
+      {
+        "agent": "macro_economist",
+        "symbol": "MRK",
+        "direction": "AGREE",
+        "confidence_delta": 0.06,
+        "conviction": "STRONG",
+        "reasoning": "Regime BULL: favorable for buy",
+        "key_metrics": {
+          "regime": "BULL",
+          "vix": 18.07
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-14T12:13:04.158623+00:00"
+      },
+      {
+        "agent": "portfolio_architect",
+        "symbol": "MRK",
+        "direction": "AGREE",
+        "confidence_delta": 0.02,
+        "conviction": "MODERATE",
+        "reasoning": "Portfolio allocation acceptable for MRK at 20% weight",
+        "key_metrics": {
+          "target_weight": 0.2
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-14T12:13:04.158623+00:00"
+      },
+      {
+        "agent": "risk_controller",
+        "symbol": "MRK",
+        "direction": "AGREE",
+        "confidence_delta": 0.0,
+        "conviction": "MODERATE",
+        "reasoning": "Risk assessment: acceptable (regime=BULL)",
+        "key_metrics": {
+          "regime_risk": false
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-14T12:13:04.158623+00:00"
+      }
+    ]
   }
 }
