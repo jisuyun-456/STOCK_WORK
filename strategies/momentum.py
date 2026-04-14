@@ -61,6 +61,16 @@ class MomentumStrategy(BaseStrategy):
     stop_loss_pct = 0.10
     take_profit_pct = 0.30
 
+    def __init__(self) -> None:
+        from config.loader import load_strategy_params
+        _cfg = load_strategy_params().get("momentum", {})
+        self.max_positions: int = int(_cfg.get("max_positions", self.__class__.max_positions))
+        self.stop_loss_pct: float = float(_cfg.get("stop_loss_pct", self.__class__.stop_loss_pct))
+        self.position_pct: float = float(_cfg.get("position_pct", 0.10))
+        # lookback_long (거래일) → 개월 변환 (21거래일 ≈ 1개월)
+        lookback_td: int = int(_cfg.get("lookback_long", 252))
+        self.lookback_months: int = max(1, lookback_td // 21)
+
     def generate_signals(self, market_data: dict, current_positions: dict | None = None) -> list[Signal]:
         """Generate momentum BUY + SELL signals from market data.
 
@@ -86,10 +96,11 @@ class MomentumStrategy(BaseStrategy):
                 continue
 
             # H1 fix: 날짜 기반 lookback (기존 iloc[-252]는 NaN 드롭 시 창 드리프트)
-            # 12-1 momentum: 12-month return excluding last month
+            # 12-1 momentum: lookback_months-month return excluding last month
             last_date = series.index[-1]
+            lookback_m = getattr(self, "lookback_months", 12)
             try:
-                price_12m_ago = series.asof(last_date - pd.DateOffset(months=12))
+                price_12m_ago = series.asof(last_date - pd.DateOffset(months=lookback_m))
                 price_1m_ago = series.asof(last_date - pd.DateOffset(months=1))
             except Exception:
                 # 폴백: 기존 iloc 방식
@@ -172,8 +183,8 @@ class MomentumStrategy(BaseStrategy):
             )
             return signals  # SELL signals only
 
-        # Equal weight within strategy
-        target_weight = 1.0 / len(ranked) if ranked else 0.0
+        # position_pct: config에서 읽은 목표 비중. 설정 없으면 등가중.
+        target_weight = getattr(self, "position_pct", 1.0 / len(ranked)) if ranked else 0.0
 
         # Confidence: scale by relative rank (top=1.0, bottom=0.5)
         max_mom = ranked[0][1]["score"] if ranked else 1.0
