@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-13T15:09:13.564463+00:00",
+  "last_updated": "2026-04-14T16:39:54.145932+00:00",
   "peaks": {
     "ADI": {
       "peak_plpc": 0.01794,
@@ -35,11 +35,6 @@
       "peak_plpc": 0.01907,
       "strategy": "QNT",
       "last_plpc": 0.00947
-    },
-    "MRK": {
-      "peak_plpc": 0.0016,
-      "strategy": "QNT",
-      "last_plpc": -0.01719
     },
     "NKE": {
       "peak_plpc": 0.02642,
