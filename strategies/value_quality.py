@@ -291,6 +291,14 @@ class ValueQualityStrategy(BaseStrategy):
     # run_cycle.py에서 주입. NEUTRAL / CRISIS / BULL / BEAR
     regime: str = "NEUTRAL"
 
+    def __init__(self) -> None:
+        from config.loader import load_strategy_params
+        _cfg = load_strategy_params().get("value_quality", {})
+        self.max_positions: int = int(_cfg.get("max_positions", self.__class__.max_positions))
+        self.pe_threshold_neutral: float = float(_cfg.get("pe_threshold_neutral", 20))
+        self.roe_threshold_neutral: float = float(_cfg.get("roe_threshold_neutral", 0.12))
+        self.fcf_yield_threshold: float = float(_cfg.get("fcf_yield_threshold", 0.05))
+
     def generate_signals(self, market_data: dict, current_positions: dict | None = None) -> list[Signal]:
         """P/E + ROE + FCF Yield 기반 복합 점수로 매수/매도 시그널 생성.
 
