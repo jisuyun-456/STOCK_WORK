@@ -1349,7 +1349,7 @@ def _save_monitor_peaks(data: dict):
 def _append_monitor_log(entry: dict):
     MONITOR_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(MONITOR_LOG_PATH, "a") as f:
-        f.write(json.dumps(entry) + "\n")
+        f.write(json.dumps(entry, default=_json_default) + "\n")
 
 
 def _build_symbol_strategy_map(portfolios: dict) -> dict[str, str]:
@@ -1761,6 +1761,17 @@ def main():
         if market_data is None:
             from strategies.momentum import fetch_momentum_data
             market_data = fetch_momentum_data(days=400)
+            # signals-only 모드에서도 QNT FF5 팩터 보충 (phase_data 스킵 시 누락 방지)
+            if market_data.get("factors") is None:
+                try:
+                    from strategies.quant_factor import fetch_factor_data
+                    _qnt = fetch_factor_data()
+                    market_data["factors"] = _qnt.get("factors")
+                    market_data["qnt_prices"] = _qnt.get("prices")
+                    market_data["ff5_stale"] = _qnt.get("ff5_stale", False)
+                    market_data["ff5_days_lag"] = _qnt.get("ff5_days_lag", 0)
+                except Exception as _e:
+                    print(f"  [signals] QNT FF5 보충 실패: {_e}")
         signals = phase_signals(market_data, regime=regime, allocations=allocations)
         # C2: stop-loss SELL 시그널을 최우선 병합 (동일 심볼 중복 시 stop-loss 우선)
         if stop_loss_signals:
