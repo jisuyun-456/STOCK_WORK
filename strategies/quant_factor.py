@@ -432,8 +432,9 @@ class QuantFactorStrategy(BaseStrategy):
         score_max = scores_arr.max()
         score_range = score_max - score_min
 
-        # 등가중 (FF5 stale 시 50% 축소)
-        target_weight = (1.0 / len(ranked)) * stale_scale
+        # 등가중 (max_positions 기준 고정 비중 — len(ranked)로 나누면 필터 후 소수 종목 시
+        # risk gate 15% 초과 → 전체 차단. max_positions=20 기준 5% 고정으로 항상 통과)
+        target_weight = (1.0 / self.max_positions) * stale_scale
 
         signals: list[Signal] = []
         for symbol, score in ranked:

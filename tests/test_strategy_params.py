@@ -81,6 +81,24 @@ def test_qnt_min_composite_score_filters():
     _loader.reload_strategy_params()
 
 
+def test_qnt_weight_uses_max_positions():
+    """target_weight = 1/max_positions (not 1/len(ranked)).
+
+    Bug history: 1/len(ranked) 사용 시 min_composite_score 필터로 소수 종목만 남으면
+    weight 가 25~50% 로 팽창 → position_limit 게이트(15%) 에 전체 차단됨.
+    """
+    _patch_config({"quant_factor": {"max_positions": 8, "min_composite_score": 0.0}})
+    from importlib import reload
+    import strategies.quant_factor as q
+    reload(q)
+    strat = q.QuantFactorStrategy()
+    assert strat.max_positions == 8
+    # target_weight 은 max_positions 기반이어야 함: 1/8 = 0.125
+    expected_weight = 1.0 / strat.max_positions
+    assert abs(expected_weight - 0.125) < 1e-9, f"expected 0.125, got {expected_weight}"
+    _loader.reload_strategy_params()
+
+
 # ── ValueQualityStrategy ─────────────────────────────────────────────────────
 
 def test_val_reads_max_positions():
