@@ -25,7 +25,7 @@
     "max_positions": 20,
     "position_pct": 0.05,
     "ols_window": 60,
-    "min_composite_score": 0.3
+    "min_composite_score": 0.20
   },
   "leveraged_etf": {
     "stop_loss_pct": 0.08,

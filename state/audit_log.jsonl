@@ -107,3 +107,30 @@
 {"ts": "2026-04-11T16:21:08.906040+00:00", "who": "bot", "phase": "report", "action": "start", "payload": {}}
 {"ts": "2026-04-11T16:21:55.481852+00:00", "who": "bot", "phase": "report", "action": "end", "payload": {}}
 {"ts": "2026-04-11T16:21:55.528695+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "all", "resolved": 17}}
+{"ts": "2026-04-14T11:34:06.944379+00:00", "who": "bot", "phase": "main", "action": "start", "payload": {"phase": "signals", "dry_run": true}}
+{"ts": "2026-04-14T11:34:16.624443+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "signals", "resolved": 20}}
+{"ts": "2026-04-14T11:34:55.145197+00:00", "who": "bot", "phase": "main", "action": "start", "payload": {"phase": "signals", "dry_run": true}}
+{"ts": "2026-04-14T11:34:59.894201+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "signals", "resolved": 20}}
+{"ts": "2026-04-14T11:35:13.265057+00:00", "who": "bot", "phase": "main", "action": "start", "payload": {"phase": "signals", "dry_run": true}}
+{"ts": "2026-04-14T11:35:18.489078+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "signals", "resolved": 20}}
+{"ts": "2026-04-14T11:38:16.576665+00:00", "who": "bot", "phase": "main", "action": "start", "payload": {"phase": "all", "dry_run": true}}
+{"ts": "2026-04-14T11:46:49.620347+00:00", "who": "bot", "phase": "rebalance", "action": "start", "payload": {}}
+{"ts": "2026-04-14T11:46:55.565303+00:00", "who": "bot", "phase": "rebalance", "action": "end", "payload": {"signals": 4, "rebalanced_strategies": ["MOM", "VAL"]}}
+{"ts": "2026-04-14T11:46:55.567445+00:00", "who": "bot", "phase": "execute", "action": "start", "payload": {"signals": 17, "dry_run": true}}
+{"ts": "2026-04-14T11:47:00.540375+00:00", "who": "bot", "phase": "execute", "action": "end", "payload": {"results": 17}}
+{"ts": "2026-04-14T11:47:00.541378+00:00", "who": "bot", "phase": "report", "action": "start", "payload": {}}
+{"ts": "2026-04-14T11:47:45.258769+00:00", "who": "bot", "phase": "report", "action": "end", "payload": {}}
+{"ts": "2026-04-14T11:47:45.287364+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "all", "resolved": 17}}
+{"ts": "2026-04-14T11:49:12.924623+00:00", "who": "bot", "phase": "main", "action": "start", "payload": {"phase": "signals", "dry_run": true}}
+{"ts": "2026-04-14T11:49:22.361204+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "signals", "resolved": 32}}
+{"ts": "2026-04-14T11:49:49.267642+00:00", "who": "bot", "phase": "main", "action": "start", "payload": {"phase": "signals", "dry_run": true}}
+{"ts": "2026-04-14T11:49:58.009314+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "signals", "resolved": 32}}
+{"ts": "2026-04-14T11:50:13.385558+00:00", "who": "bot", "phase": "main", "action": "start", "payload": {"phase": "signals", "dry_run": true}}
+{"ts": "2026-04-14T11:50:21.333867+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "signals", "resolved": 32}}
+{"ts": "2026-04-14T12:00:42.831829+00:00", "who": "bot", "phase": "main", "action": "start", "payload": {"phase": "signals", "dry_run": true}}
+{"ts": "2026-04-14T12:00:51.760368+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "signals", "resolved": 14}}
+{"ts": "2026-04-14T12:01:25.910260+00:00", "who": "bot", "phase": "main", "action": "start", "payload": {"phase": "signals", "dry_run": true}}
+{"ts": "2026-04-14T12:01:34.552064+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "signals", "resolved": 16}}
+{"ts": "2026-04-14T12:01:52.135294+00:00", "who": "bot", "phase": "main", "action": "start", "payload": {"phase": "signals", "dry_run": true}}
+{"ts": "2026-04-14T12:02:01.317333+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "signals", "resolved": 13}}
+{"ts": "2026-04-14T12:04:52.501496+00:00", "who": "bot", "phase": "main", "action": "start", "payload": {"phase": "all", "dry_run": true}}

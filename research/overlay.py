@@ -429,4 +429,4 @@ def _log_dissent(
 
     DISSENT_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(DISSENT_LOG_PATH, "a", encoding="utf-8") as f:
-        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        f.write(json.dumps(entry, ensure_ascii=False, default=str) + "\n")

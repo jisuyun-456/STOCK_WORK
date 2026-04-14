@@ -1,6 +1,6 @@
 {
   "account_total": 99753.34,
-  "last_updated": "2026-04-11T16:10:37.911053+00:00",
+  "last_updated": "2026-04-11T16:21:09.333999+00:00",
   "strategies": {
     "MOM": {
       "name": "Momentum",
@@ -488,6 +488,24 @@
       "strategy": "QNT",
       "amount": -10000.0,
       "ts": "2026-04-11T16:10:37.910982+00:00"
+    },
+    {
+      "type": "negative_cash",
+      "strategy": "MOM",
+      "amount": -10000.0,
+      "ts": "2026-04-11T16:21:09.333830+00:00"
+    },
+    {
+      "type": "negative_cash",
+      "strategy": "VAL",
+      "amount": -10000.0,
+      "ts": "2026-04-11T16:21:09.333871+00:00"
+    },
+    {
+      "type": "negative_cash",
+      "strategy": "QNT",
+      "amount": -10000.0,
+      "ts": "2026-04-11T16:21:09.333892+00:00"
     }
   ]
 }

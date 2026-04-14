@@ -16,3 +16,6 @@ state/backup/
 state/network_down.flag
 # Phase C 로컬 시뮬레이션 로그 — 재현 가능한 dry-run 아카이브
 logs/
+
+# graphify cache (auto-generated)
+graphify-out/cache/
