@@ -1568,6 +1568,23 @@ def phase_monitor(dry_run: bool = False) -> list[dict]:
     # Sync portfolios if any exits executed (not dry-run)
     if exits and not dry_run:
         portfolios = _sync_alpaca_positions(portfolios)
+
+        # MDD peak reset: 전략 MDD 또는 포트폴리오 MDD로 전액 청산된 전략의
+        # nav_history를 현재 allocated 기준으로 리셋한다.
+        # 이렇게 하지 않으면 할당 자본이 축소된 후에도 과거 peak이 유지되어
+        # 새로운 포지션을 매수할 때마다 즉시 MDD 기준에 걸려 청산되는 루프가 발생한다.
+        mdd_exited = {e["strategy"] for e in exits if "strategy_mdd" in e.get("reason", "")}
+        if port_mdd_triggered:
+            mdd_exited.update(portfolios["strategies"].keys())
+        if mdd_exited:
+            today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            for code in mdd_exited:
+                strat = portfolios["strategies"].get(code, {})
+                allocated = float(strat.get("allocated", 0))
+                if allocated > 0:
+                    strat["nav_history"] = [{"date": today_str, "nav": allocated}]
+                    print(f"  [MDD reset] {code}: nav_history → [{today_str}: ${allocated:,.0f}]")
+
         save_portfolios(portfolios)
 
     # 10. Append monitor log
