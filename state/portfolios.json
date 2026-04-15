@@ -1,50 +1,62 @@
 {
   "account_total": 100421.11,
-  "last_updated": "2026-04-14T16:39:54.242070+00:00",
+  "last_updated": "2026-04-15T02:51:19.202096+00:00",
   "strategies": {
     "MOM": {
       "name": "Momentum",
-      "allocated": 15000,
-      "cash": 15000,
+      "allocated": 5021.06,
+      "cash": 5021.06,
       "positions": {},
       "nav_history": [
         {
           "date": "2026-04-14",
           "nav": 15000.0
+        },
+        {
+          "date": "2026-04-15",
+          "nav": 5021.06
         }
       ],
       "last_rebalance": "2026-04-13"
     },
     "VAL": {
       "name": "Value Quality",
-      "allocated": 15000,
-      "cash": 15000,
+      "allocated": 15063.17,
+      "cash": 15063.17,
       "positions": {},
       "nav_history": [
         {
           "date": "2026-04-14",
           "nav": 15000.0
+        },
+        {
+          "date": "2026-04-15",
+          "nav": 15063.17
         }
       ],
       "last_rebalance": "2026-04-13"
     },
     "QNT": {
       "name": "Quant Factor",
-      "allocated": 20000,
-      "cash": 20000,
+      "allocated": 10042.11,
+      "cash": 10042.11,
       "positions": {},
       "nav_history": [
         {
           "date": "2026-04-14",
           "nav": 20000.0
+        },
+        {
+          "date": "2026-04-15",
+          "nav": 10042.11
         }
       ],
       "last_rebalance": null
     },
     "LEV": {
       "name": "Leveraged ETF",
-      "allocated": 50000,
-      "cash": 50000,
+      "allocated": 50210.56,
+      "cash": 50210.56,
       "positions": {},
       "nav_history": [
         {
@@ -66,20 +78,25 @@
         {
           "date": "2026-04-14",
           "nav": 49991.54
+        },
+        {
+          "date": "2026-04-15",
+          "nav": 50210.56
         }
       ],
       "last_rebalance": null
     }
   },
   "inception": {
-    "total": 100000.0,
+    "total": 80336.9,
     "strategies": {
-      "MOM": 25000.0,
-      "VAL": 25000.0,
-      "QNT": 30000.0,
-      "LEV": 20000.0
+      "MOM": 5021.06,
+      "VAL": 15063.17,
+      "QNT": 10042.11,
+      "LEV": 50210.56
     },
-    "date": "2026-04-10"
+    "date": "2026-04-10",
+    "reset_date": "2026-04-15"
   },
   "alerts": [
     {

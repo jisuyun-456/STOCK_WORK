@@ -337,6 +337,27 @@ def _check_allocation_integrity(portfolios: dict) -> bool:
     return True
 
 
+def _check_inception_drift(portfolios: dict) -> None:
+    """각 전략 allocated가 inception.strategies와 ±10% 이상 괴리시 경고.
+
+    자동 reset 금지 — intentional 재분배와 버그 drift 구분 불가.
+    수정은 `python scripts/reset_initial_nav.py`로 수동 진행.
+    """
+    inception_strats = (portfolios.get("inception", {}) or {}).get("strategies", {}) or {}
+    for code, strat in (portfolios.get("strategies", {}) or {}).items():
+        allocated = float(strat.get("allocated", 0) or 0)
+        anchor = float(inception_strats.get(code, 0) or 0)
+        if anchor <= 0 or allocated <= 0:
+            continue
+        drift = abs(allocated - anchor) / anchor
+        if drift > 0.10:
+            print(
+                f"  [inception-drift] {code}: allocated=${allocated:,.0f} vs "
+                f"inception=${anchor:,.0f} ({drift:.1%}) → "
+                f"재분배 의도면 `python scripts/reset_initial_nav.py` 실행"
+            )
+
+
 def _check_negative_cash(portfolios: dict) -> list[dict]:
     """Detect strategies with negative cash balance (margin call risk).
 
@@ -1174,6 +1195,9 @@ def _sync_alpaca_positions(portfolios: dict) -> dict:
 
     # N-MEDIUM-3: negative cash detection (margin call guard)
     _check_negative_cash(portfolios)
+
+    # inception drift 감지: allocated vs inception.strategies 괴리 경고
+    _check_inception_drift(portfolios)
 
     return portfolios
 
