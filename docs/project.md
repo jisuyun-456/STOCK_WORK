@@ -88,39 +88,24 @@
 
 ### 현재 설정
 
-```
-RESEARCH_AGENTS=rules          # GitHub Secret ✅ (2026-04-15)
-research_mode=selective         # dry-run/cron 기본값
-ALPACA_MODE=paper              # GitHub Secret ✅
-```
-
-### Paperclip 6에이전트 (Claude 구독 토큰, $0)
-
-| 에이전트 | 역할 | 상태 |
-|---------|------|------|
-| 01-Chief-Trader | 오케스트레이터, research_results.json 생성 | Instructions 작성 완료 |
-| 02-Fundamental-Analyst | PE/ROE/FCF + 뉴스 감성 | Instructions 작성 완료 |
-| 03-Market-Scanner | 매크로 뉴스 + 레짐 판단 | Instructions 작성 완료 |
-| 04-Portfolio-Monitor | P&L + 리밸런싱 추천 | Instructions 작성 완료 |
-| 05-Quant-Strategist | FF5 팩터 해석 | Instructions 작성 완료 |
-| 06-Risk-Sentinel | 5-Gate 리스크 + VETO | Instructions 작성 완료 |
-
-**Paperclip 활성화 체크리스트:**
-- [x] 6에이전트 Instructions Obsidian 작성 완료
-- [ ] Paperclip 대시보드에 Instructions 수동 복사
-- [ ] 테스트 Routine 실행 → `state/research_results.json` 생성 확인
-- [ ] GitHub Actions dry-run E2E 검증 (`research_mode=rules` → `paperclip` 전환)
+| 항목 | 값 |
+|------|-----|
+| 기본 모드 | rules (무료, 규칙 기반) |
+| AI 모드 | claude (opt-in: `RESEARCH_AGENTS=claude`) |
+| Claude 모델 | claude-haiku-4-5-20251001 |
+| 비용 | rules=$0/월 / claude=~$1~2/월 |
+| fallback | Claude API key 없으면 rules 자동 전환 |
+| `ALPACA_MODE` | paper (GitHub Secret ✅) |
 
 ### AutoResearch 아키텍처
 
 ```
-[21:00 KST] Paperclip Routine (수동 or 자동)
-  02/03/04/05 (병렬) → 06-Risk → 01-Chief
-  → state/research_results.json 생성 → git push
-
 [22:30 KST] GitHub Actions cron
-  → research_results.json 존재 + 24h 이내 → Paperclip 결과 사용
-  → 없으면 rules fallback
+  → RESEARCH_AGENTS=rules (기본, 무료)
+     → RSI/MACD/뉴스/펀더멘탈 규칙 기반 분석
+  → RESEARCH_AGENTS=claude (opt-in)
+     → 5 에이전트 Claude Haiku API 병렬 호출
+  → confidence 조정 + VETO 판정
   → 시그널 생성 → Risk gate → 체결
 ```
 
@@ -133,7 +118,6 @@ ALPACA_MODE=paper              # GitHub Secret ✅
 | 우선순위 | 태스크 | 목적 |
 |---------|--------|------|
 | 🔴 P1 | Alpaca 수익률 데이터 2주 축적 | KPI 측정 기반 확보 |
-| 🔴 P1 | Paperclip 대시보드 Instructions 적용 | AutoResearch 활성화 |
 | 🟡 P2 | performance.json initial_nav 버그 수정 | 정확한 수익률 추적 |
 | 🟡 P2 | Iteration 6 — CRISIS allocator 조정 | CRISIS 85.7% → 95%+ |
 | 🟢 P3 | FF5 데이터 지연 모니터링 (90일 임계 전 대응) | QNT 품질 유지 |

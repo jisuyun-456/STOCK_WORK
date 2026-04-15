@@ -1,7 +1,7 @@
 """System prompts for Research Division agents.
 
 Derived from .claude/agents/*.md definitions. Used by agent_runner.py
-for both Gemini (cron) and Claude (interactive) modes.
+for rules (default) and claude (opt-in) modes.
 """
 
 AGENT_PROMPTS = {

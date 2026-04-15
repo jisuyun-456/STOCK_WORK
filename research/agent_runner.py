@@ -1,11 +1,10 @@
 """Hybrid LLM agent runner for Research Overlay.
 
-Supports 3 modes:
-- rules: Original rule-based heuristics (default, zero cost)
-- gemini: Gemini 2.0 Flash analysis (free tier, for cron)
-- claude: Claude Code agent analysis (interactive, subscription tokens)
+Supports 2 modes:
+- rules: Rule-based heuristics (default, zero cost)
+- claude: Claude Haiku API (opt-in: RESEARCH_AGENTS=claude, ~$1~2/month)
 
-Environment variable RESEARCH_MODE controls the mode.
+Environment variable RESEARCH_AGENTS controls the mode.
 """
 
 from __future__ import annotations
@@ -13,7 +12,6 @@ from __future__ import annotations
 import json
 import os
 import re
-import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 
@@ -22,11 +20,6 @@ from .agent_prompts import AGENT_PROMPTS, APPEAL_SUFFIX, AGENT_NAMES
 from .models import RegimeDetection, ResearchVerdict
 
 _MODE = os.environ.get("RESEARCH_AGENTS", "rules")
-
-# Gemini rate limit: 15 req/min → 5 second interval between requests
-_GEMINI_DELAY = 5.0
-_GEMINI_MAX_RETRIES = 3
-_GEMINI_BACKOFF_BASE = 10.0  # 429 시 첫 대기: 10초, 이후 20초, 40초
 
 
 def get_research_mode() -> str:
@@ -55,14 +48,10 @@ def run_all_agents(
     """
     mode = mode or _MODE
 
-    if mode == "gemini":
-        return _run_gemini_agents(signal, market_data, portfolio_state, regime)
-    elif mode == "claude":
+    if mode == "claude":
         return _run_claude_agents(signal, market_data, portfolio_state, regime)
-    elif mode == "rules":
+    else:  # rules (default, zero cost)
         return _run_data_driven_agents(signal, market_data, portfolio_state, regime)
-    else:
-        return []
 
 
 def run_all_agents_appeal(
@@ -76,29 +65,12 @@ def run_all_agents_appeal(
     """Run appeal analysis with all 5 agents."""
     mode = mode or _MODE
 
-    if mode == "gemini":
-        return _run_gemini_appeal(signal, market_data, portfolio_state, regime, appeal_context)
-    elif mode == "claude":
+    if mode == "claude":
         return _run_claude_appeal(signal, market_data, portfolio_state, regime, appeal_context)
-    elif mode == "rules":
+    else:  # rules (default, zero cost)
         return _run_data_driven_agents(signal, market_data, portfolio_state, regime)
-    else:
-        return []
 
 
-# ─── Gemini Mode (Free Tier) ───────────────────────────────────────────────
-
-
-def _get_gemini_client():
-    """Get Gemini client. Returns None if unavailable."""
-    try:
-        from google import genai
-        api_key = os.environ.get("GEMINI_API_KEY", "")
-        if not api_key:
-            return None
-        return genai.Client(api_key=api_key)
-    except ImportError:
-        return None
 
 
 def _build_agent_context(
@@ -218,92 +190,6 @@ def _parse_verdict_json(text: str, agent_name: str, symbol: str) -> ResearchVerd
         return None
 
 
-def _gemini_call_with_retry(client, prompt: str, agent_name: str) -> str | None:
-    """Gemini API call with exponential backoff on 429."""
-    for attempt in range(_GEMINI_MAX_RETRIES):
-        try:
-            response = client.models.generate_content(
-                model="gemini-2.0-flash",
-                contents=prompt,
-            )
-            return response.text
-        except Exception as exc:
-            err_str = str(exc)
-            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
-                wait = _GEMINI_BACKOFF_BASE * (2 ** attempt)
-                print(f"    [{agent_name}] 429 rate limit — retry {attempt + 1}/{_GEMINI_MAX_RETRIES} in {wait:.0f}s")
-                time.sleep(wait)
-            else:
-                print(f"    [{agent_name}] Gemini error: {exc}")
-                return None
-    print(f"    [{agent_name}] 429 — max retries exceeded")
-    return None
-
-
-def _run_gemini_agents(
-    signal: Signal,
-    market_data: dict,
-    portfolio_state: dict,
-    regime: RegimeDetection,
-) -> list[ResearchVerdict]:
-    """Run 5 agents sequentially via Gemini Flash (rate limit aware with retry)."""
-    client = _get_gemini_client()
-    if client is None:
-        print("  [agent_runner] Gemini unavailable, skipping real analysis")
-        return []
-
-    verdicts: list[ResearchVerdict] = []
-
-    for agent_name in AGENT_NAMES:
-        system_prompt = AGENT_PROMPTS[agent_name]
-        context = _build_agent_context(agent_name, signal, market_data, portfolio_state, regime)
-        full_prompt = f"{system_prompt}\n\n--- SIGNAL CONTEXT ---\n{context}"
-
-        text = _gemini_call_with_retry(client, full_prompt, agent_name)
-        if text:
-            verdict = _parse_verdict_json(text, agent_name, signal.symbol)
-            if verdict:
-                verdicts.append(verdict)
-                print(f"    [{agent_name}] {verdict.direction} (delta={verdict.confidence_delta:+.2f})")
-            else:
-                print(f"    [{agent_name}] parse failed, using fallback")
-
-        time.sleep(_GEMINI_DELAY)  # Rate limit
-
-    return verdicts
-
-
-def _run_gemini_appeal(
-    signal: Signal,
-    market_data: dict,
-    portfolio_state: dict,
-    regime: RegimeDetection,
-    appeal_context: dict,
-) -> list[ResearchVerdict]:
-    """Run appeal analysis via Gemini Flash (with retry)."""
-    client = _get_gemini_client()
-    if client is None:
-        return []
-
-    failed_checks = appeal_context.get("failed_checks", [])
-    appeal_suffix = APPEAL_SUFFIX.format(failed_checks=", ".join(failed_checks))
-
-    verdicts: list[ResearchVerdict] = []
-
-    for agent_name in AGENT_NAMES:
-        system_prompt = AGENT_PROMPTS[agent_name] + "\n" + appeal_suffix
-        context = _build_agent_context(agent_name, signal, market_data, portfolio_state, regime)
-        context += f"\nFailed risk checks: {', '.join(failed_checks)}"
-        full_prompt = f"{system_prompt}\n\n--- APPEAL CONTEXT ---\n{context}"
-
-        text = _gemini_call_with_retry(client, full_prompt, agent_name)
-        if text:
-            verdict = _parse_verdict_json(text, agent_name, signal.symbol)
-            if verdict:
-                verdicts.append(verdict)
-        time.sleep(_GEMINI_DELAY)
-
-    return verdicts
 
 
 # ─── Claude Mode (Interactive) ─────────────────────────────────────────────
@@ -333,8 +219,8 @@ def _run_claude_agents(
     """Run 5 agents in parallel via Claude API (Haiku 4.5)."""
     client = _get_claude_client()
     if client is None:
-        print("  [agent_runner] Claude unavailable (no API key or SDK), falling back to Gemini")
-        return _run_gemini_agents(signal, market_data, portfolio_state, regime)
+        print("  [agent_runner] Claude unavailable (no API key or SDK), falling back to rules")
+        return _run_data_driven_agents(signal, market_data, portfolio_state, regime)
 
     print(f"  [agent_runner] Claude mode: {_CLAUDE_MODEL} × {len(AGENT_NAMES)} agents (parallel)")
     verdicts: list[ResearchVerdict] = []
@@ -381,7 +267,8 @@ def _run_claude_appeal(
     """Run appeal analysis via Claude API (Haiku 4.5)."""
     client = _get_claude_client()
     if client is None:
-        return _run_gemini_appeal(signal, market_data, portfolio_state, regime, appeal_context)
+        print("  [agent_runner] Claude unavailable, falling back to rules for appeal")
+        return _run_data_driven_agents(signal, market_data, portfolio_state, regime)
 
     failed_checks = appeal_context.get("failed_checks", [])
     appeal_suffix = APPEAL_SUFFIX.format(failed_checks=", ".join(failed_checks))

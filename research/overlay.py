@@ -233,11 +233,11 @@ def _generate_verdicts(
 ) -> list[ResearchVerdict]:
     """Generate research verdicts — hybrid routing.
 
-    Routes to LLM agents (Gemini/Claude) if RESEARCH_MODE is set,
-    otherwise uses rule-based heuristics.
+    Routes to Claude API agents if RESEARCH_AGENTS=claude,
+    otherwise uses rule-based heuristics (default, zero cost).
     """
     mode = get_research_mode()
-    if mode in ("gemini", "claude"):
+    if mode in ("claude",):
         real_verdicts = run_all_agents(signal, market_data, portfolio_state, regime, mode)
         if real_verdicts:
             return real_verdicts
@@ -333,7 +333,7 @@ def _generate_appeal_verdicts(
 ) -> list[ResearchVerdict]:
     """Generate appeal verdicts — hybrid routing."""
     mode = get_research_mode()
-    if mode in ("gemini", "claude"):
+    if mode in ("claude",):
         real_verdicts = run_all_agents_appeal(
             signal, market_data, portfolio_state, regime, appeal_context, mode
         )
