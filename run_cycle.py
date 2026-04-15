@@ -480,6 +480,18 @@ def phase_data() -> dict:
     # 호환용 빈 dict 주입.
     market_data["leveraged"] = {"prices": None}
 
+    # GRW: 소형 성장주 데이터 (Russell 2000 유니버스)
+    try:
+        from strategies.growth_smallcap import fetch_growth_data
+        grw_raw = fetch_growth_data()
+        market_data["grw_prices"] = grw_raw.get("prices", pd.DataFrame())
+        market_data["grw_fundamentals"] = grw_raw.get("fundamentals", {})
+        print(f"  [GRW] 데이터 로드: {len(grw_raw.get('fundamentals', {}))}개 펀더멘탈")
+    except Exception as e:
+        print(f"  [GRW] 데이터 fetch 실패: {e}")
+        market_data["grw_prices"] = pd.DataFrame()
+        market_data["grw_fundamentals"] = {}
+
     # 뉴스 수집 — 트리거(FOMC/Earnings/8-K) 충족 시에만 실행
     market_data["news"] = {}
     market_data["news_trigger"] = {"active": False, "reason": "no_trigger"}
@@ -622,7 +634,7 @@ def phase_regime(market_data: dict, force_regime: str | None = None) -> tuple:
         print(f"  CASH reserve: ${cash_amount:,.0f} (not deployed)")
         # Update each strategy's allocated amount in portfolios.json
         # Tag realloc_flag when allocation changes >5% (regime shift, not market movement)
-        for code in ["MOM", "VAL", "QNT", "LEV", "LEV_ST"]:
+        for code in ["MOM", "VAL", "QNT", "LEV", "LEV_ST", "GRW"]:
             if code in allocations and code in portfolios["strategies"]:
                 strat = portfolios["strategies"][code]
                 old_alloc = float(strat.get("allocated", 0))
@@ -731,6 +743,7 @@ def phase_signals(market_data: dict, regime: str = "NEUTRAL", allocations: dict 
     from strategies.quant_factor import QuantFactorStrategy
     from strategies.leveraged_etf import LeveragedETFStrategy
     from strategies.lev_short_term import LevShortTermStrategy
+    from strategies.growth_smallcap import GrowthSmallCapStrategy
 
     strategies = [
         MomentumStrategy(),
@@ -738,6 +751,7 @@ def phase_signals(market_data: dict, regime: str = "NEUTRAL", allocations: dict 
         QuantFactorStrategy(),
         LeveragedETFStrategy(),
         LevShortTermStrategy(),
+        GrowthSmallCapStrategy(),
     ]
 
     portfolios = load_portfolios()

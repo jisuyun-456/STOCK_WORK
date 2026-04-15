@@ -14,7 +14,7 @@ from strategies.regime_allocator import allocate, REGIME_ALLOCATIONS
 
 def test_allocate_default_no_flicker_matches_weights():
     alloc = allocate("BULL", 100_000.0)
-    assert abs(alloc["MOM"] - 20_000.0) < 0.5
+    assert abs(alloc["MOM"] - 15_000.0) < 0.5  # BULL MOM=0.15 (GRW 추가로 재배분)
     assert abs(alloc["LEV"] - 25_000.0) < 0.5
     assert abs(alloc["CASH"] - 0.0) < 0.5
 
@@ -22,10 +22,10 @@ def test_allocate_default_no_flicker_matches_weights():
 def test_allocate_flicker_halves_risk_and_boosts_cash():
     alloc = allocate("BULL", 100_000.0, flicker_suppression=True)
     # All non-CASH strategies halved
-    assert abs(alloc["MOM"] - 10_000.0) < 0.5
+    assert abs(alloc["MOM"] - 7_500.0) < 0.5   # BULL MOM=0.15, halved=7500
     assert abs(alloc["LEV"] - 12_500.0) < 0.5
     assert abs(alloc["LEV_ST"] - 12_500.0) < 0.5
-    # Original CASH=0, so diverted = 100k * 1.0 * 0.5 = 50k
+    # BULL CASH=0, non-CASH total=100%, diverted = 100k * 1.0 * 0.5 = 50k
     assert abs(alloc["CASH"] - 50_000.0) < 0.5
 
 
@@ -38,9 +38,10 @@ def test_allocate_flicker_preserves_total_capital():
 
 
 def test_allocate_flicker_crisis_keeps_existing_cash():
-    # CRISIS: CASH=0.20, others=0.80 → diverted = 100k * 0.80 * 0.5 = 40k
+    # CRISIS: CASH=0.275, others=0.725 → diverted = 100k * 0.725 * 0.5 = 36,250
+    # total CASH = 27,500 + 36,250 = 63,750
     alloc = allocate("CRISIS", 100_000.0, flicker_suppression=True)
-    assert abs(alloc["CASH"] - (20_000.0 + 40_000.0)) < 0.5
+    assert abs(alloc["CASH"] - (27_500.0 + 36_250.0)) < 0.5
 
 
 # ── 3-bar hysteresis ──────────────────────────────────────────────────────────

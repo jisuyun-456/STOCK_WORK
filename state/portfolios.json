@@ -98,6 +98,19 @@
         }
       ],
       "last_rebalance": null
+    },
+    "GRW": {
+      "name": "Growth Small Cap",
+      "allocated": 0,
+      "cash": 0,
+      "positions": {},
+      "nav_history": [
+        {
+          "date": "2026-04-15",
+          "nav": 0
+        }
+      ],
+      "last_rebalance": null
     }
   },
   "inception": {
@@ -107,7 +120,8 @@
       "VAL": 25000,
       "QNT": 30000,
       "LEV": 20000,
-      "LEV_ST": 25105.28
+      "LEV_ST": 25105.28,
+      "GRW": 0
     },
     "date": "2026-04-10"
   },

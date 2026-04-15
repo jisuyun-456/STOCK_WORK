@@ -6,14 +6,14 @@ from __future__ import annotations
 # LEV: 장기 레짐 기반 (SPY+TQQQ/SQQQ/BND+GLD), LEV_ST: 1~3일 VIX/SPY 모멘텀 기반.
 # allocator 는 모든 regime 에서 LEV/LEV_ST 슬롯을 유지해 generate_signals() 가 호출되도록 보장.
 REGIME_ALLOCATIONS: dict[str, dict[str, float]] = {
-    "BULL":    {"MOM": 0.2000, "VAL": 0.1333, "QNT": 0.1667, "LEV": 0.25, "LEV_ST": 0.25, "CASH": 0.00},
-    "NEUTRAL": {"MOM": 0.15625, "VAL": 0.15625, "QNT": 0.1875, "LEV": 0.25, "LEV_ST": 0.25, "CASH": 0.00},
-    "BEAR":    {"MOM": 0.075, "VAL": 0.175, "QNT": 0.15, "LEV": 0.25, "LEV_ST": 0.25, "CASH": 0.10},
+    "BULL":     {"MOM": 0.15,    "VAL": 0.10,   "QNT": 0.125, "LEV": 0.25, "LEV_ST": 0.25, "GRW": 0.125, "CASH": 0.00},
+    "NEUTRAL":  {"MOM": 0.1250,  "VAL": 0.1250,  "QNT": 0.150, "LEV": 0.25, "LEV_ST": 0.25, "GRW": 0.10,  "CASH": 0.00},
+    "BEAR":     {"MOM": 0.05,    "VAL": 0.15,   "QNT": 0.10,  "LEV": 0.25, "LEV_ST": 0.25, "GRW": 0.00,  "CASH": 0.20},
     # CRISIS: LEV는 내부에서 BND/GLD 방어 포지션, LEV_ST는 CASH 강제
-    "CRISIS":  {"MOM": 0.05, "VAL": 0.15, "QNT": 0.10, "LEV": 0.25, "LEV_ST": 0.25, "CASH": 0.20},
+    "CRISIS":   {"MOM": 0.05,    "VAL": 0.10,   "QNT": 0.075, "LEV": 0.25, "LEV_ST": 0.25, "GRW": 0.00,  "CASH": 0.275},
     # EUPHORIA: 과매수 신호 (RSI≥75, VIX<15, SPY>SMA50>SMA200) → 리스크 축소
     # LEV+LEV_ST 50% 고정, MOM 50% 감소 + CASH 12.5% 확보로 잠재 반락 대비
-    "EUPHORIA": {"MOM": 0.10, "VAL": 0.125, "QNT": 0.15, "LEV": 0.25, "LEV_ST": 0.25, "CASH": 0.125},
+    "EUPHORIA": {"MOM": 0.10,    "VAL": 0.10,   "QNT": 0.10,  "LEV": 0.25, "LEV_ST": 0.25, "GRW": 0.075, "CASH": 0.125},
 }
 
 _REGIME_DESCRIPTIONS: dict[str, str] = {
@@ -97,10 +97,10 @@ def get_regime_description(regime: str) -> str:
 # NOTE: LEV 는 자체 generate_signals() 내에서 regime 전환 시 TQQQ↔SQQQ↔현금 을
 # 직접 처리하므로 exit_rules 에서 제외한다. (Core-Satellite Barbell 재설계 2026-04-11)
 _REGIME_EXIT_RULES: dict[str, dict[str, float]] = {
-    # BEAR: MOM 50% 축소 (LEV 는 자체 관리)
-    "BEAR": {"MOM": 0.5},
-    # CRISIS: MOM 전량 청산, VAL+QNT 50% 축소 (LEV 는 자체 관리)
-    "CRISIS": {"MOM": 1.0, "VAL": 0.5, "QNT": 0.5},
+    # BEAR: MOM 50% 축소, GRW 전량 청산 (소형주는 하락장에서 선행 타격)
+    "BEAR": {"MOM": 0.5, "GRW": 1.0},
+    # CRISIS: MOM 전량 청산, VAL+QNT 50% 축소, GRW 전량 청산 (LEV 는 자체 관리)
+    "CRISIS": {"MOM": 1.0, "VAL": 0.5, "QNT": 0.5, "GRW": 1.0},
 }
 
 

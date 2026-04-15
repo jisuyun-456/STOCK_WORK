@@ -39,5 +39,29 @@
     "CAT", "HON", "UNP", "RTX", "GE", "DE", "BA", "LMT", "FDX", "MMM",
     "XOM", "CVX", "COP", "SLB", "EOG", "PSX", "MPC", "VLO", "OXY", "HAL",
     "NEE", "DUK", "SO", "AEP", "D", "VZ", "T", "TMUS", "CCI", "AMT"
+  ],
+  "RUSSELL_2000_SUBSET": [
+    "IRTC", "INSP", "TMDX", "ACMR", "FORM", "CRDO", "AMBA",
+    "APPF", "JAMF", "HIMS", "WEAV", "DOCN", "GTLB", "ALKT",
+    "RXDX", "MGNX", "ACAD", "PRAX", "KYMR", "ARWR", "PTGX",
+    "MRUS", "ARDX", "EXEL", "RCUS", "TARS", "NKTR",
+    "YETI", "KURA", "GSHD", "PTLO", "DINE", "FAT", "BJRI",
+    "STEP", "PLMR", "RYAN", "XPOF",
+    "POWL", "KTOS", "ESAB", "CSWI", "BMI", "MTRN", "ARLO",
+    "ARRY", "SPWR", "NOVA", "STEM", "FTCI",
+    "BRZE", "ASAN", "FROG", "NCNO",
+    "MCRI", "IPAR", "CATO", "MGNI", "PAYO",
+    "CELH", "MNDY", "BILL",
+    "PCVX", "TRUP", "PTON",
+    "CNXC", "BIGC", "APPS",
+    "AMRC", "JOBY", "ACHR",
+    "SMMT", "RNST", "HAFC",
+    "CRAI", "ICFI", "KFRC",
+    "DDS", "FIVE", "LESL",
+    "HALO", "VRNS", "PRCT",
+    "OPCH", "AMSC", "AEIS",
+    "CERT", "HRMY",
+    "ENVA", "OMF",
+    "DIOD", "MTSI", "LYTS"
   ]
 }
