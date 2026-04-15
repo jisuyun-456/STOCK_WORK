@@ -1139,6 +1139,11 @@ def _sync_alpaca_positions(portfolios: dict) -> dict:
     new_equity = float(account["equity"])
     if new_equity >= 100:
         portfolios["account_total"] = new_equity
+        # Track account_total_history for accurate CB MDD (avoids strategy-realloc artifacts)
+        today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        hist = portfolios.setdefault("account_total_history", [])
+        if not hist or hist[-1]["date"] != today_str:
+            hist.append({"date": today_str, "nav": round(new_equity, 2)})
     else:
         print(f"  [sync] WARNING: Alpaca equity ${new_equity:,.2f} < $100 — skipping account_total update")
 

@@ -55,9 +55,18 @@ class CircuitBreakerState:
 def _get_nav_history(portfolios: dict) -> list[float]:
     """Extract aggregated NAV history from portfolios dict.
 
-    Sums nav_history entries across all strategies by date.
-    Falls back to [account_total] single point if no nav_history.
+    Prefers account_total_history (Alpaca account balance) to avoid
+    false MDD from strategy reallocation artifacts (e.g. CRISIS reducing
+    allocated capital makes strategy-NAV-sum drop without real losses).
+
+    Falls back to strategy-NAV sum if account_total_history is absent.
     """
+    # Prefer Alpaca-account-level history (accurate, no realloc artifacts)
+    acct_hist = portfolios.get("account_total_history", [])
+    if acct_hist:
+        return [float(e["nav"]) for e in sorted(acct_hist, key=lambda x: x["date"])]
+
+    # Legacy fallback: sum strategy nav_history entries by date
     strategies = portfolios.get("strategies", {})
     date_navs: dict[str, float] = {}
 
