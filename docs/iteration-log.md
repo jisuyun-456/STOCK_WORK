@@ -85,3 +85,41 @@
 - `--force-regime`이 regime_allocator 배분에는 미적용 (신호 생성만 override) → allocator도 연동 검토
 - CRISIS 2건 gate fail 원인 종목 상세 분석 (어떤 섹터/종목인지)
 - QNT position_pct 조정 검토 (CRISIS 레짐에서 VaR gate 개선 여지)
+
+## Iteration 5 (2026-04-15)
+
+### 구현 내용
+1. `--force-regime` allocator 완전 연동 — `phase_regime(force_regime=...)` 파라미터 추가, allocate() 호출 전 regime override
+2. hysteresis 로직 정리 — force_regime 시 hysteresis 스킵 (시뮬레이션 모드)
+3. CRISIS gate fail 종목 상세 분석 완료
+
+### --force-regime allocator 연동 검증
+
+| 레짐 강제 | 배분 (before) | 배분 (after) |
+|----------|-------------|-------------|
+| CRISIS   | BULL: MOM 20K / VAL 13K / QNT 17K / LEV 50K | CRISIS: MOM 5K / VAL 15K / QNT 10K / LEV 50K |
+
+→ allocator가 CRISIS 배분 테이블 정상 적용 확인
+
+### CRISIS gate fail 종목 분석
+
+| 종목 | 전략 | 실패 Gate | 원인 |
+|------|------|----------|------|
+| VZ (Verizon) | VAL | position_limit + sector_concentration + portfolio_var | CRISIS VAL 필터 통과(ROE+FCF 양호)했으나 포트폴리오 레벨 리스크 차단 |
+| CI (Cigna) | VAL | position_limit + sector_concentration + portfolio_var | 동일 — 헬스케어 고변동성 환경에서 VaR 초과 |
+
+→ 정상 동작: CRISIS에서 VAL 2종목 모두 gate 차단 = 시스템이 의도대로 리스크오프
+
+### Iteration 1~5 완료 요약
+
+| Iter | 핵심 내용 | Gate 통과율 |
+|------|---------|------------|
+| 1 | CRITICAL/HIGH/MEDIUM 수정, LEV 재설계 | — |
+| 2 | strategy_params.json 연결, Variant 비교 | NEUTRAL 65.2% |
+| 3 | Variant D 확정, RESEARCH_AGENTS Secret | BULL 100% |
+| 4 | --force-regime(신호), dead config 제거, 4-레짐 시뮬 | BEAR 100%, CRISIS 85.7% |
+| 5 | --force-regime(allocator 완전연동), CRISIS 종목 분석 | ✅ 연동 완료 |
+
+### 다음 단계: Alpaca Live Paper Trading 활성화
+- GitHub Actions cron `--dry-run` 플래그 제거 → 실제 Alpaca paper 주문 활성화
+- 수익률 데이터 축적 후 project.md AutoResearch 파라미터 목표치 설정

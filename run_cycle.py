@@ -500,8 +500,13 @@ def phase_data() -> dict:
 
 # ─── Phase 1.5: REGIME ──────────────────────────────────────────────────
 
-def phase_regime(market_data: dict) -> tuple:
-    """Phase 1.5: Regime Detection + Dynamic Allocation."""
+def phase_regime(market_data: dict, force_regime: str | None = None) -> tuple:
+    """Phase 1.5: Regime Detection + Dynamic Allocation.
+
+    Args:
+        force_regime: If set, override live detection for simulation/testing.
+                      Choices: BULL, BEAR, NEUTRAL, CRISIS.
+    """
     print("[Phase 1.5: REGIME] Detecting market regime...")
 
     # 뉴스 감성 분석
@@ -543,6 +548,11 @@ def phase_regime(market_data: dict) -> tuple:
             regime="NEUTRAL", sp500_vs_sma200=1.0, vix_level=20.0,
             reasoning=f"Fallback: {e}", timestamp=datetime.now(timezone.utc).isoformat()
         )
+
+    # --force-regime: override detection result before allocation
+    if force_regime:
+        print(f"  [force-regime] {regime_info.regime} → {force_regime} (allocator override)")
+        regime_info.regime = force_regime
 
     # 동적 배분
     from strategies.regime_allocator import allocate
@@ -1685,38 +1695,34 @@ def main():
         if market_data is None:
             from strategies.momentum import fetch_momentum_data
             market_data = fetch_momentum_data(days=400)
-        regime_info, allocations = phase_regime(market_data)
+        regime_info, allocations = phase_regime(market_data, force_regime=args.force_regime)
         detected_regime = regime_info.regime if regime_info else "NEUTRAL"
 
         # Hysteresis: require 2 consecutive cycles in same regime before switching
+        # (skipped when --force-regime is set — simulation mode)
         _regime_state_path = STATE_DIR / "regime_state.json"
-        try:
-            if _regime_state_path.exists():
-                with open(_regime_state_path) as f:
-                    _rs = json.load(f)
-                prev = _rs.get("regime", "NEUTRAL")
-                consec = _rs.get("consecutive_cycles", 0)
-                if detected_regime != prev and consec < 2:
-                    print(f"  [Hysteresis] {prev}→{detected_regime} detected but only {consec} cycle(s). Holding {prev}.")
-                    regime = prev
-                else:
-                    regime = detected_regime
-            else:
-                regime = detected_regime
-        except Exception:
-            regime = detected_regime
-
-        # --force-regime: override for simulation/testing
         if args.force_regime:
             regime = args.force_regime
-            print(f"  [force-regime] Regime overridden → {regime}")
+        else:
+            try:
+                if _regime_state_path.exists():
+                    with open(_regime_state_path) as f:
+                        _rs = json.load(f)
+                    prev = _rs.get("regime", "NEUTRAL")
+                    consec = _rs.get("consecutive_cycles", 0)
+                    if detected_regime != prev and consec < 2:
+                        print(f"  [Hysteresis] {prev}→{detected_regime} detected but only {consec} cycle(s). Holding {prev}.")
+                        regime = prev
+                    else:
+                        regime = detected_regime
+                else:
+                    regime = detected_regime
+            except Exception:
+                regime = detected_regime
 
         print()
     else:
-        regime = "NEUTRAL"
-        if args.force_regime:
-            regime = args.force_regime
-            print(f"  [force-regime] Regime overridden → {regime}")
+        regime = args.force_regime if args.force_regime else "NEUTRAL"
 
     # Phase 1.7: REGIME EXIT — emergency liquidation on regime downgrade
     if args.phase in ("all",) and regime_info:
