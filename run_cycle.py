@@ -785,7 +785,7 @@ def phase_risk(signals: list, market_data: dict | None = None) -> tuple[list, li
     """
     print("[Phase 3: RISK] Validating signals...")
 
-    from execution.risk_validator import validate_signal
+    from execution.risk_validator import validate_signal, check_cross_strategy_concentration
     from execution.circuit_breaker import check_circuit_breaker, filter_signals_by_stage, Stage as CBStage
     from strategies.base_strategy import Direction
 
@@ -859,6 +859,19 @@ def phase_risk(signals: list, market_data: dict | None = None) -> tuple[list, li
             current_positions=current_positions,
             strategy_code=signal.strategy,
         )
+
+        # Cross-strategy sector concentration gate (BUY 전용)
+        if passed and signal.direction == Direction.BUY:
+            cross_passed, cross_result = check_cross_strategy_concentration(
+                symbol=signal.symbol,
+                trade_value=trade_value,
+                all_strategy_positions=portfolios["strategies"],
+                total_portfolio=portfolios.get("account_total", 0),
+                max_pct=0.30,
+            )
+            if not cross_passed:
+                passed = False
+                results.append(cross_result)
 
         status = "PASS" if passed else "FAIL"
         failed_checks = [r.check_name for r in results if not r.passed]
