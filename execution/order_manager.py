@@ -170,7 +170,7 @@ def execute_signal(
             fill_status = "unknown"
 
         result["fill_status"] = fill_status
-        return _log_result(order_id, signal, "submitted", alpaca_result=result)
+        return _log_result(order_id, signal, fill_status, alpaca_result=result)
 
     except Exception as e:
         return _log_result(order_id, signal, "error", reason=str(e))
@@ -298,8 +298,10 @@ def _log_result(
     alpaca_result: dict | None = None,
 ) -> dict:
     """Log trade result to trade_log.jsonl and return it."""
+    now = datetime.now(timezone.utc)
     entry = {
-        "ts": datetime.now(timezone.utc).isoformat(),
+        "ts": now.isoformat(),
+        "date": now.strftime("%Y-%m-%d"),
         "order_id": order_id,
         "strategy": signal.strategy,
         "symbol": signal.symbol,
@@ -309,9 +311,16 @@ def _log_result(
         "reason": signal.reason,
         "status": status,
         "error_reason": reason,
+        "qty": qty or None,
+        "filled_avg_price": None,
     }
     if alpaca_result:
         entry["alpaca"] = alpaca_result
+        # top-level shortcuts for performance_calculator
+        if alpaca_result.get("filled_qty"):
+            entry["qty"] = float(alpaca_result["filled_qty"])
+        if alpaca_result.get("filled_avg_price"):
+            entry["filled_avg_price"] = float(alpaca_result["filled_avg_price"])
 
     # Append to trade log
     TRADE_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
