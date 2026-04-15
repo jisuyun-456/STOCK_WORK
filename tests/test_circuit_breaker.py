@@ -10,10 +10,21 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import pytest
 
 from execution.circuit_breaker import (
+    LOCK_PATH,
     check_circuit_breaker, filter_signals_by_stage,
     load_lock, write_lock, clear_lock,
     Stage, CircuitBreakerState,
 )
+
+
+@pytest.fixture(autouse=True)
+def clean_lock_file():
+    """Remove actual lock file before and after each test to prevent state leak."""
+    if LOCK_PATH.exists():
+        LOCK_PATH.unlink()
+    yield
+    if LOCK_PATH.exists():
+        LOCK_PATH.unlink()
 from strategies.base_strategy import Signal, Direction
 
 

@@ -861,12 +861,35 @@ def phase_risk(signals: list, market_data: dict | None = None) -> tuple[list, li
     print("[Phase 3: RISK] Validating signals...")
 
     from execution.risk_validator import validate_signal
+    from execution.circuit_breaker import check_circuit_breaker, filter_signals_by_stage, Stage as CBStage
     from strategies.base_strategy import Direction
 
     portfolios = load_portfolios()
     approved = []
     failed_signals = []
     failed_details = []
+
+    # Circuit breaker gate (4-stage graduated protection)
+    cb_state = check_circuit_breaker(portfolios)
+    if cb_state.stage >= CBStage.WARNING:
+        print(f"  [CIRCUIT BREAKER] Stage {cb_state.stage.name}: {cb_state.reason}")
+    if cb_state.stage == CBStage.EMERGENCY:
+        print("  [CIRCUIT BREAKER] EMERGENCY lock active — all signals blocked")
+        return [], list(signals), [
+            {"symbol": s.symbol, "strategy": s.strategy, "failed_checks": ["circuit_breaker_emergency"]}
+            for s in signals
+        ]
+    if cb_state.stage > CBStage.NORMAL:
+        signals, cb_filtered = filter_signals_by_stage(signals, cb_state.stage)
+        if cb_filtered:
+            print(f"  [CIRCUIT BREAKER] Filtered {len(cb_filtered)} signals (stage={cb_state.stage.name})")
+            for s in cb_filtered:
+                failed_signals.append(s)
+                failed_details.append({
+                    "symbol": s.symbol,
+                    "strategy": s.strategy,
+                    "failed_checks": [f"circuit_breaker_{cb_state.stage.name.lower()}"],
+                })
 
     # C3: Alpaca 연결 불가 시 BUY 전면 차단. SELL(청산)은 여전히 허용.
     alpaca_unavailable = bool((market_data or {}).get("alpaca_unavailable", False))
@@ -1430,7 +1453,8 @@ def phase_monitor(dry_run: bool = False) -> list[dict]:
     from execution.alpaca_client import (
         is_market_open, get_open_orders, get_positions, get_account_info,
     )
-    from execution.monitor_rules import evaluate_position, check_strategy_mdd, check_portfolio_mdd
+    from execution.monitor_rules import evaluate_position, check_strategy_mdd
+    from execution.circuit_breaker import check_circuit_breaker, Stage as CBStage
     from strategies.base_strategy import Signal, Direction
 
     print("[Phase 7: MONITOR] Intraday position monitoring...")
@@ -1549,17 +1573,18 @@ def phase_monitor(dry_run: bool = False) -> list[dict]:
                         "qty": pos["qty"],
                     })
 
-    port_mdd_triggered, port_mdd_reason = check_portfolio_mdd(portfolios["strategies"])
-    if port_mdd_triggered:
-        print(f"  PORTFOLIO MDD HALT: {port_mdd_reason} — 전 포지션 청산 개시")
-        # SIM3 fix: 포트폴리오 MDD -15% 시 전 포지션 SELL 시그널 생성
+    # Portfolio-level circuit breaker (replaces hardcoded MDD -15% check)
+    cb_state = check_circuit_breaker(portfolios)
+    port_mdd_reason = cb_state.reason
+    if cb_state.stage == CBStage.EMERGENCY:
+        print(f"  [CIRCUIT BREAKER] EMERGENCY: {cb_state.reason} — 전 포지션 청산 개시")
         for code, strat in portfolios["strategies"].items():
             for sym, pos in strat.get("positions", {}).items():
                 if sym not in [e["symbol"] for e in exits]:
                     exits.append({
                         "symbol": sym,
                         "strategy": code,
-                        "reason": f"portfolio_mdd_halt: {port_mdd_reason}",
+                        "reason": f"circuit_breaker_emergency: {cb_state.reason}",
                         "plpc": pos.get("unrealized_plpc", 0),
                         "qty": pos.get("qty", 0),
                     })
@@ -1614,7 +1639,7 @@ def phase_monitor(dry_run: bool = False) -> list[dict]:
         # 이렇게 하지 않으면 할당 자본이 축소된 후에도 과거 peak이 유지되어
         # 새로운 포지션을 매수할 때마다 즉시 MDD 기준에 걸려 청산되는 루프가 발생한다.
         mdd_exited = {e["strategy"] for e in exits if "strategy_mdd" in e.get("reason", "")}
-        if port_mdd_triggered:
+        if cb_state.stage == CBStage.EMERGENCY:
             mdd_exited.update(portfolios["strategies"].keys())
         if mdd_exited:
             today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -1639,7 +1664,8 @@ def phase_monitor(dry_run: bool = False) -> list[dict]:
             for i, e in enumerate(exits)
         ],
         "mdd_status": mdd_status,
-        "portfolio_mdd": port_mdd_reason if port_mdd_triggered else "ok",
+        "portfolio_mdd": port_mdd_reason if cb_state.stage == CBStage.EMERGENCY else "ok",
+        "circuit_breaker_stage": cb_state.stage.name,
     })
 
     print(f"  Monitor complete: {checked} checked, {len(exits)} exits")

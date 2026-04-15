@@ -20,7 +20,7 @@ DEFAULT_CONFIG = STOP_CONFIG["LEV"]
 
 # MDD thresholds
 STRATEGY_MDD_THRESHOLD = -0.20  # -20% per strategy
-PORTFOLIO_MDD_THRESHOLD = -0.15  # -15% total portfolio
+# Portfolio-level MDD is now handled by execution/circuit_breaker.py
 
 
 def get_config(strategy: str) -> dict:
@@ -87,28 +87,6 @@ def check_strategy_mdd(nav_history: list[dict], threshold: float = STRATEGY_MDD_
 
     if mdd <= threshold:
         return True, f"strategy_mdd: {mdd:.1%} <= {threshold:.0%} (peak=${peak:,.0f}, now=${current:,.0f})"
-    return False, ""
-
-
-def check_portfolio_mdd(strategies: dict, threshold: float = PORTFOLIO_MDD_THRESHOLD) -> tuple[bool, str]:
-    """Check if total portfolio NAV has hit MDD threshold."""
-    total_peak = 0
-    total_current = 0
-
-    for code, strat in strategies.items():
-        nav_history = strat.get("nav_history", [])
-        if not nav_history:
-            continue
-        navs = [h["nav"] for h in nav_history]
-        total_peak += max(navs)
-        total_current += navs[-1]
-
-    if total_peak <= 0:
-        return False, ""
-
-    mdd = (total_current - total_peak) / total_peak
-    if mdd <= threshold:
-        return True, f"portfolio_mdd: {mdd:.1%} <= {threshold:.0%} (peak=${total_peak:,.0f}, now=${total_current:,.0f})"
     return False, ""
 
 
