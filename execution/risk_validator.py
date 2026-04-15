@@ -212,6 +212,61 @@ def check_sector_concentration(
     )
 
 
+def check_cross_strategy_concentration(
+    symbol: str,
+    trade_value: float,
+    all_strategy_positions: dict,
+    total_portfolio: float,
+    max_pct: float = 0.30,
+) -> tuple[bool, RiskCheckResult]:
+    """전략 간 교차 섹터 집중도 체크.
+
+    단일 섹터가 전체 포트폴리오(total_portfolio)의 max_pct를 초과하면 BLOCK.
+    Unknown 섹터는 per-strategy 게이트에서 이미 처리하므로 여기선 PASS.
+
+    Args:
+        symbol: 신규 매수 심볼
+        trade_value: 매수 금액 ($)
+        all_strategy_positions: portfolios["strategies"] 전체 dict
+        total_portfolio: 전체 포트폴리오 가치 ($)
+        max_pct: 섹터 최대 비중 (기본 30%)
+    """
+    target_sector = get_sector(symbol)
+    if target_sector == "Unknown":
+        return True, RiskCheckResult(
+            passed=True,
+            check_name="cross_strategy_concentration",
+            reason=f"Unknown sector for {symbol} — deferred to per-strategy gate",
+            value=0.0,
+            threshold=max_pct,
+        )
+
+    # 전체 전략의 해당 섹터 보유액 합산
+    sector_value = trade_value
+    for strat_data in all_strategy_positions.values():
+        positions = strat_data.get("positions") or {}
+        for sym, pos in positions.items():
+            val = pos.get("market_value") or (
+                (pos.get("qty") or 0) * (pos.get("current") or 0)
+            )
+            if val and get_sector(sym) == target_sector:
+                sector_value += float(val)
+
+    weight = sector_value / total_portfolio if total_portfolio > 0 else 1.0
+    passed = weight <= max_pct
+
+    return passed, RiskCheckResult(
+        passed=passed,
+        check_name="cross_strategy_concentration",
+        reason=(
+            f"Portfolio-wide '{target_sector}' exposure {weight:.1%} "
+            f"{'<=' if passed else '>'} {max_pct:.0%} limit"
+        ),
+        value=weight,
+        threshold=max_pct,
+    )
+
+
 def check_portfolio_var(
     symbols: list[str],
     weights: list[float],
@@ -328,11 +383,11 @@ STRATEGY_POSITION_LIMITS: dict[str, float] = {
     "LEV_ST": 1.00,  # Single ETF (TQQQ or SQQQ) 100% by design
 }
 
-# Strategy-specific sector concentration limits (default 40%, LEV allows 100%)
+# Strategy-specific sector concentration limits (LEV allows 100%)
 STRATEGY_SECTOR_LIMITS: dict[str, float] = {
-    "MOM": 0.40,
-    "VAL": 0.40,
-    "QNT": 0.40,
+    "MOM": 0.30,    # 40% → 30% (10종목 기준 최대 3종목 동일 섹터)
+    "VAL": 0.30,    # 40% → 30%
+    "QNT": 0.25,    # 40% → 25% (20종목 기준 최대 5종목 동일 섹터)
     "LEV": 1.00,    # All ETF-Leveraged sector by design
     "LEV_ST": 1.00, # Single ETF by design
 }
