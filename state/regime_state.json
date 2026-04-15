@@ -1,5 +1,7 @@
 {
-  "regime": "NEUTRAL",
-  "since": "2026-04-14",
-  "consecutive_cycles": 1
+  "regime": "CRISIS",
+  "since": "2026-04-15",
+  "consecutive_cycles": 2,
+  "regime_history": ["CRISIS", "CRISIS"],
+  "flicker_suppression": false
 }

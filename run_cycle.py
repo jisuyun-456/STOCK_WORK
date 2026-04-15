@@ -1754,9 +1754,13 @@ def main():
         regime_info, allocations = phase_regime(market_data, force_regime=args.force_regime)
         detected_regime = regime_info.regime if regime_info else "NEUTRAL"
 
-        # Hysteresis: require 2 consecutive cycles in same regime before switching
+        # Hysteresis: require 3 consecutive cycles in same regime before switching.
+        # Flicker detection: 20-cycle rolling history of *detected* regimes;
+        # >=4 transitions → halve all strategy allocations (flicker suppression).
         # (skipped when --force-regime is set — simulation mode)
         _regime_state_path = STATE_DIR / "regime_state.json"
+        flicker_suppression = False
+        regime_history: list[str] = []
         if args.force_regime:
             regime = args.force_regime
         else:
@@ -1766,8 +1770,9 @@ def main():
                         _rs = json.load(f)
                     prev = _rs.get("regime", "NEUTRAL")
                     consec = _rs.get("consecutive_cycles", 0)
-                    if detected_regime != prev and consec < 2:
-                        print(f"  [Hysteresis] {prev}→{detected_regime} detected but only {consec} cycle(s). Holding {prev}.")
+                    regime_history = list(_rs.get("regime_history", []))
+                    if detected_regime != prev and consec < 3:
+                        print(f"  [Hysteresis] {prev}→{detected_regime} detected but only {consec} cycle(s) (<3). Holding {prev}.")
                         regime = prev
                     else:
                         regime = detected_regime
@@ -1775,6 +1780,28 @@ def main():
                     regime = detected_regime
             except Exception:
                 regime = detected_regime
+
+            # Append *detected* (raw signal, not hysteresis-held) to history
+            regime_history.append(detected_regime)
+            if len(regime_history) > 20:
+                regime_history = regime_history[-20:]
+
+            # Flicker: count transitions in rolling 20-cycle window
+            transitions = sum(
+                1 for i in range(1, len(regime_history))
+                if regime_history[i] != regime_history[i - 1]
+            )
+            if transitions >= 4:
+                flicker_suppression = True
+                print(f"  [Flicker] {transitions} transitions in last {len(regime_history)} cycles → suppression ON")
+
+        # Recompute allocations if flicker suppression is active
+        if flicker_suppression and allocations is not None:
+            from strategies.regime_allocator import allocate as _allocate
+            total_cap = portfolios.get("account_total", sum(v for v in allocations.values() if isinstance(v, (int, float))))
+            allocations = _allocate(regime, total_cap, flicker_suppression=True)
+            # Pop CASH (same as phase_regime does) — idle cash stays in account
+            allocations.pop("CASH", None)
 
         print()
     else:
@@ -1800,11 +1827,13 @@ def main():
                 phase_execute(exit_signals, dry_run=args.dry_run)
                 print()
 
-        # Save current regime state
+        # Save current regime state (includes history + flicker flag)
         _regime_state = {
             "regime": regime,
             "since": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
             "consecutive_cycles": 1,
+            "regime_history": regime_history,
+            "flicker_suppression": flicker_suppression,
         }
         try:
             if _regime_state_path.exists():
