@@ -11,6 +11,9 @@ REGIME_ALLOCATIONS: dict[str, dict[str, float]] = {
     "BEAR":    {"MOM": 0.075, "VAL": 0.175, "QNT": 0.15, "LEV": 0.25, "LEV_ST": 0.25, "CASH": 0.10},
     # CRISIS: LEV는 내부에서 BND/GLD 방어 포지션, LEV_ST는 CASH 강제
     "CRISIS":  {"MOM": 0.05, "VAL": 0.15, "QNT": 0.10, "LEV": 0.25, "LEV_ST": 0.25, "CASH": 0.20},
+    # EUPHORIA: 과매수 신호 (RSI≥75, VIX<15, SPY>SMA50>SMA200) → 리스크 축소
+    # LEV+LEV_ST 50% 고정, MOM 50% 감소 + CASH 12.5% 확보로 잠재 반락 대비
+    "EUPHORIA": {"MOM": 0.10, "VAL": 0.125, "QNT": 0.15, "LEV": 0.25, "LEV_ST": 0.25, "CASH": 0.125},
 }
 
 _REGIME_DESCRIPTIONS: dict[str, str] = {
@@ -30,6 +33,11 @@ _REGIME_DESCRIPTIONS: dict[str, str] = {
         "위기장: LEV 25%(BND 60%+GLD 40% 방어) + LEV_ST 25%(CASH 강제) + "
         "VAL 15% + QNT 10% + MOM 5% + CASH 20%. "
         "실효: BND 15% + GLD 10% + 현금 45% + 개별주 30%. 자본 보존 최우선."
+    ),
+    "EUPHORIA": (
+        "과열장(EUPHORIA): LEV 25%(SPY+TQQQ) + LEV_ST 25%(VIX/SPY 모멘텀) + QNT 15% + VAL 12.5% + "
+        "현금 12.5% + MOM 10%. RSI≥75·VIX<15·SPY>SMA50>SMA200 과매수 신호 → "
+        "모멘텀 추격 감소·현금 확보. 잠재 반락 대비 BULL 대비 MOM 50% 감소."
     ),
 }
 
@@ -114,7 +122,7 @@ def generate_regime_exit_signals(
     from strategies.base_strategy import Signal, Direction
 
     # Only trigger on transitions to more defensive regimes
-    severity = {"BULL": 0, "NEUTRAL": 1, "BEAR": 2, "CRISIS": 3}
+    severity = {"EUPHORIA": 0, "BULL": 0, "NEUTRAL": 1, "BEAR": 2, "CRISIS": 3}
     if severity.get(new_regime, 0) <= severity.get(previous_regime, 0):
         return []  # Not a defensive transition
 
