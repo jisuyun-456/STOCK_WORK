@@ -297,7 +297,7 @@ class ValueQualityStrategy(BaseStrategy):
         self.max_positions: int = int(_cfg.get("max_positions", self.__class__.max_positions))
         self.pe_threshold_neutral: float = float(_cfg.get("pe_threshold_neutral", 20))
         self.roe_threshold_neutral: float = float(_cfg.get("roe_threshold_neutral", 0.12))
-        self.fcf_yield_threshold: float = float(_cfg.get("fcf_yield_threshold", 0.05))
+        # fcf_yield_threshold removed: REGIME_FILTERS["min_fcf_yield"] 사용 (레짐별 동적 임계값)
 
     def generate_signals(self, market_data: dict, current_positions: dict | None = None) -> list[Signal]:
         """P/E + ROE + FCF Yield 기반 복합 점수로 매수/매도 시그널 생성.

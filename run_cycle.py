@@ -1616,6 +1616,8 @@ def main():
     parser.add_argument("--research-mode", default=None, choices=["full", "selective", "skip"],
                         help="Research overlay depth (default: full, dry-run default: selective)")
     parser.add_argument("--no-cache", action="store_true", help="Bypass research cache")
+    parser.add_argument("--force-regime", default=None, choices=["BULL", "BEAR", "NEUTRAL", "CRISIS"],
+                        help="Override live regime detection (simulation/testing only)")
     args = parser.parse_args()
 
     # Default research mode: selective for dry-run, full otherwise
@@ -1704,9 +1706,17 @@ def main():
         except Exception:
             regime = detected_regime
 
+        # --force-regime: override for simulation/testing
+        if args.force_regime:
+            regime = args.force_regime
+            print(f"  [force-regime] Regime overridden → {regime}")
+
         print()
     else:
         regime = "NEUTRAL"
+        if args.force_regime:
+            regime = args.force_regime
+            print(f"  [force-regime] Regime overridden → {regime}")
 
     # Phase 1.7: REGIME EXIT — emergency liquidation on regime downgrade
     if args.phase in ("all",) and regime_info:

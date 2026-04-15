@@ -18,8 +18,7 @@
     "max_positions": 5,
     "position_pct": 0.20,
     "pe_threshold_neutral": 20,
-    "roe_threshold_neutral": 0.12,
-    "fcf_yield_threshold": 0.05
+    "roe_threshold_neutral": 0.12
   },
   "quant_factor": {
     "max_positions": 20,
