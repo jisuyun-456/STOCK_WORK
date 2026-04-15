@@ -27,6 +27,7 @@ _CACHE_VERSION = 2  # bump when breaking schema changes
 # ── Regime score mapping (0~1 continuous) ────────────────────────────────────
 
 _REGIME_SCORES: dict[str, float] = {
+    "EUPHORIA": 1.0,  # 과매수 — BULL과 동일 연속 점수 (HMM은 RSI 미포함)
     "BULL": 1.0,
     "NEUTRAL": 0.6,
     "BEAR": 0.25,
