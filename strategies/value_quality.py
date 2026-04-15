@@ -297,6 +297,11 @@ class ValueQualityStrategy(BaseStrategy):
         self.max_positions: int = int(_cfg.get("max_positions", self.__class__.max_positions))
         self.pe_threshold_neutral: float = float(_cfg.get("pe_threshold_neutral", 20))
         self.roe_threshold_neutral: float = float(_cfg.get("roe_threshold_neutral", 0.12))
+        # position_pct: 종목당 고정 비중 상한 (strategy_params.json에서 읽음)
+        # 기본값 = 1/max_positions (등가중), config 값이 더 엄격하면 그것을 사용
+        self.position_pct: float = float(
+            _cfg.get("position_pct", 1.0 / self.max_positions)
+        )
         # fcf_yield_threshold removed: REGIME_FILTERS["min_fcf_yield"] 사용 (레짐별 동적 임계값)
 
     def generate_signals(self, market_data: dict, current_positions: dict | None = None) -> list[Signal]:
@@ -436,8 +441,9 @@ class ValueQualityStrategy(BaseStrategy):
         score_max = max(scores)
         score_range = score_max - score_min if score_max > score_min else 1.0
 
-        # 등가중
-        target_weight = 1.0 / len(ranked)
+        # 고정 비중: max_positions 기준으로 등분하되 position_pct cap 적용
+        # len(ranked) < max_positions 인 경우(CRISIS 필터 엄격 시)에도 비중이 폭발하지 않음
+        target_weight = min(1.0 / self.max_positions, self.position_pct)
 
         signals: list[Signal] = []
         for symbol, data in ranked:
