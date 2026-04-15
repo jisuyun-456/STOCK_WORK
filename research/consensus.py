@@ -6,6 +6,14 @@ from datetime import datetime, timezone
 
 from .models import RegimeDetection, ResearchVerdict
 
+# HMM import is deferred inside functions to avoid import-time failure
+# when hmmlearn is not installed.
+try:
+    from .regime_hmm import get_or_train_hmm, score_from_regime_prob
+    _HMM_AVAILABLE = True
+except ImportError:
+    _HMM_AVAILABLE = False
+
 # ─── Base Weights ────────────────────────────────────────────────────────
 
 BASE_WEIGHTS: dict[str, float] = {
@@ -132,6 +140,22 @@ def detect_regime_enhanced(
 
     ratio = current_price / sma200 if sma200 > 0 else 1.0
 
+    # ── HMM 점수 (선택적) ────────────────────────────────────────────────────
+    hmm_score: float | None = None
+    hmm_msg = ""
+    if _HMM_AVAILABLE:
+        try:
+            hmm_model = get_or_train_hmm()
+            if hmm_model is not None:
+                hmm_regime, hmm_meta = hmm_model.predict_current(hist["Close"], vix_hist["Close"])
+                hmm_score = score_from_regime_prob(hmm_meta["state_probs"], hmm_model.state_to_regime)
+                hmm_msg = (
+                    f"hmm_regime={hmm_regime}(p={hmm_meta['regime_prob']:.2f},"
+                    f"n_states={hmm_meta['n_states']}) → hmm_score={hmm_score:.3f} | "
+                )
+        except Exception:
+            pass  # HMM failure → fall back to rule-based weights
+
     # ── VIX 점수 (0~1) ──────────────────────────────────────────────────────
     if vix_level < 20:
         vix_score = 1.0
@@ -160,18 +184,34 @@ def detect_regime_enhanced(
     _pm = max(-1.0, min(1.0, polymarket_score)) if polymarket_score is not None else 0.0
     poly_score = (_pm + 1.0) / 2.0
 
-    # ── 가중 합산 (Polymarket 유무에 따라 동적) ──────────────────────────────
-    if polymarket_score is not None:
-        # Polymarket 10% 배분: VIX 35% + SPY 25% + News 30% + Poly 10%
+    # ── 가중 합산 (HMM + Polymarket 유무에 따라 동적) ───────────────────────
+    if hmm_score is not None and polymarket_score is not None:
+        # HMM O, Poly O: VIX×0.18 + SPY×0.12 + News×0.30 + Poly×0.10 + HMM×0.30
+        composite = (
+            vix_score * 0.18 + spy_score * 0.12 + news_score * 0.30
+            + poly_score * 0.10 + hmm_score * 0.30
+        )
+        poly_msg = f"polymarket={_pm:+.2f} → poly_score={poly_score:.2f}×0.10 | "
+        weights_label = "HMM×0.30+VIX×0.18+SPY×0.12+news×0.30+poly×0.10"
+    elif hmm_score is not None:
+        # HMM O, Poly X: VIX×0.20 + SPY×0.15 + News×0.30 + HMM×0.35
+        composite = vix_score * 0.20 + spy_score * 0.15 + news_score * 0.30 + hmm_score * 0.35
+        poly_msg = ""
+        weights_label = "HMM×0.35+VIX×0.20+SPY×0.15+news×0.30"
+    elif polymarket_score is not None:
+        # HMM X, Poly O: 기존 가중치
         composite = vix_score * 0.35 + spy_score * 0.25 + news_score * 0.30 + poly_score * 0.10
         poly_msg = f"polymarket={_pm:+.2f} → poly_score={poly_score:.2f}×0.10 | "
+        weights_label = "VIX×0.35+SPY×0.25+news×0.30+poly×0.10"
     else:
-        # 기존 가중치 유지: VIX 40% + SPY 30% + News 30%
+        # HMM X, Poly X: 기존 가중치
         composite = vix_score * 0.4 + spy_score * 0.3 + news_score * 0.3
         poly_msg = ""
+        weights_label = "VIX×0.40+SPY×0.30+news×0.30"
 
     print(
         f"[detect_regime_enhanced] "
+        f"{hmm_msg}"
         f"VIX={vix_level:.1f} → vix_score={vix_score:.2f} | "
         f"SPY/SMA200={ratio:.4f} → spy_score={spy_score:.2f} | "
         f"news_sentiment={news_sentiment_score:.2f} → news_score={news_score:.2f} | "
@@ -189,12 +229,12 @@ def detect_regime_enhanced(
         regime = "CRISIS"
 
     poly_reason = f", polymarket={_pm:+.2f}(score={poly_score:.2f}×0.10)" if polymarket_score is not None else ""
-    weights = "VIX×0.35+SPY×0.25+news×0.30+poly×0.10" if polymarket_score is not None else "VIX×0.40+SPY×0.30+news×0.30"
+    hmm_reason = f", {hmm_msg.rstrip(' | ')}" if hmm_msg else ""
     reasoning = (
-        f"Enhanced ({weights}): VIX={vix_level:.1f}(score={vix_score:.2f}), "
+        f"Enhanced ({weights_label}): VIX={vix_level:.1f}(score={vix_score:.2f}), "
         f"SPY/SMA200={ratio:.4f}(score={spy_score:.2f}), "
         f"news_sentiment={news_sentiment_score:.2f}(score={news_score:.2f})"
-        f"{poly_reason} → composite={composite:.4f} → {regime}"
+        f"{poly_reason}{hmm_reason} → composite={composite:.4f} → {regime}"
     )
 
     return RegimeDetection(

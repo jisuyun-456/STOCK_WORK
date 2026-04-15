@@ -98,6 +98,93 @@ def detect_regime(
     return "BEAR"
 
 
+# ── HMM regime (vectorized, walk-forward, no look-ahead) ─────────────────
+
+USE_HMM_BACKTEST: bool = True  # set False to force rule-based regime in backtest
+
+
+def detect_regime_hmm_vectorized(
+    spy: pd.Series,
+    vix: pd.Series,
+    refit_every: int = 63,
+    min_train_days: int = 504,
+) -> pd.Series:
+    """Return a regime Series for every date in spy/vix using walk-forward HMM.
+
+    No look-ahead: at each refit point ``i`` only ``spy[:i]`` is used for fit.
+    Dates before ``min_train_days`` fall back to rule-based ``detect_regime``.
+
+    Args:
+        spy: SPY close price series (pd.Series with DatetimeIndex).
+        vix: VIX close price series aligned with spy.
+        refit_every: How many days between HMM refits (default 63 ≈ quarterly).
+        min_train_days: Minimum rows needed before first HMM fit.
+
+    Returns:
+        pd.Series[str] — regime label for each date in spy's index.
+    """
+    try:
+        import sys
+        import os
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+        from research.regime_hmm import RegimeHMM
+    except ImportError:
+        # hmmlearn not installed — return pure rule-based Series
+        return pd.Series(
+            [detect_regime(d, spy, vix) for d in spy.index],
+            index=spy.index,
+        )
+
+    n = len(spy)
+    result = pd.Series(index=spy.index, dtype=str)
+
+    # Fill rule-based values for the warm-up period
+    for i in range(min(min_train_days, n)):
+        result.iloc[i] = detect_regime(spy.index[i], spy, vix)
+
+    current_model: Optional[RegimeHMM] = None
+
+    i = min_train_days
+    while i < n:
+        # Refit every ``refit_every`` steps
+        if current_model is None or (i - min_train_days) % refit_every == 0:
+            try:
+                m = RegimeHMM(min_states=2, max_states=4, n_iter=100, random_state=42)
+                m.fit(spy.iloc[:i], vix.iloc[:i])
+                current_model = m
+            except Exception:
+                current_model = None
+
+        # Predict a block of up to refit_every days in one call
+        block_end = min(i + refit_every, n)
+
+        if current_model is not None:
+            try:
+                seq = current_model.predict_sequence(spy.iloc[:block_end], vix.iloc[:block_end])
+                # Fill only the new block from index i onward
+                for j in range(i, block_end):
+                    date = spy.index[j]
+                    if date in seq.index:
+                        result.iloc[j] = seq.loc[date]
+                    else:
+                        result.iloc[j] = detect_regime(date, spy, vix)
+            except Exception:
+                for j in range(i, block_end):
+                    result.iloc[j] = detect_regime(spy.index[j], spy, vix)
+        else:
+            for j in range(i, block_end):
+                result.iloc[j] = detect_regime(spy.index[j], spy, vix)
+
+        i = block_end
+
+    # Fill any remaining NaN with rule-based fallback
+    mask = result.isna() | (result == "")
+    for j in result[mask].index:
+        result[j] = detect_regime(j, spy, vix)
+
+    return result
+
+
 # ── Metrics ───────────────────────────────────────────────────────────────
 
 def calc_mdd(equity: pd.Series) -> float:
