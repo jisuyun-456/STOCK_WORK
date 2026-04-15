@@ -79,6 +79,24 @@ def _json_default(obj):
     raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
 
+def _collect_held_symbols() -> list[str]:
+    """전 전략의 현재 보유 티커 합집합 (portfolios.json 기준).
+
+    뉴스 트리거(Earnings/8-K) 에서 '지금 관심 가져야 할 종목' 판단에 사용.
+    파일 없거나 파싱 실패 시 빈 리스트 반환 (FOMC 트리거는 영향 없음).
+    """
+    try:
+        import json as _json
+        with open(PORTFOLIOS_PATH) as f:
+            p = _json.load(f)
+        syms: set[str] = set()
+        for strat in p.get("strategies", {}).values():
+            syms.update((strat.get("positions") or {}).keys())
+        return sorted(syms)
+    except Exception:
+        return []
+
+
 def _ensure_inception(data: dict) -> dict:
     """C5 fix: portfolios.json에 inception 필드가 없으면 현재 allocated로 초기화.
 
@@ -462,15 +480,24 @@ def phase_data() -> dict:
     # 호환용 빈 dict 주입.
     market_data["leveraged"] = {"prices": None}
 
-    # 뉴스 수집 (yfinance + 6개 RSS 소스 병합)
+    # 뉴스 수집 — 트리거(FOMC/Earnings/8-K) 충족 시에만 실행
+    market_data["news"] = {}
+    market_data["news_trigger"] = {"active": False, "reason": "no_trigger"}
     try:
-        from news.fetcher import fetch_macro_news_enhanced
-        macro_articles = fetch_macro_news_enhanced()
-        market_data["news"] = {"_MACRO": macro_articles}
-        sources = set(a.get("source", "?") for a in macro_articles)
-        print(f"  Macro news: {len(macro_articles)} articles from {sources}")
+        from news.triggers import should_analyze_news
+        held = _collect_held_symbols()
+        active, reason = should_analyze_news(held)
+        market_data["news_trigger"] = {"active": active, "reason": reason, "symbols": held}
+        if active:
+            from news.fetcher import fetch_macro_news_enhanced
+            macro_articles = fetch_macro_news_enhanced()
+            market_data["news"]["_MACRO"] = macro_articles
+            sources = set(a.get("source", "?") for a in macro_articles)
+            print(f"  [news-trigger] {reason} → {len(macro_articles)}건 수집 (소스: {sources})")
+        else:
+            print(f"  [news-trigger] {reason} → 뉴스 수집 스킵")
     except Exception as e:
-        print(f"  News fetch failed: {e}")
+        print(f"  News trigger/fetch failed: {e}")
         market_data["news"] = {}
 
     # 기술지표 계산 (Phase 8: RSI, MACD, Bollinger, Volume)
@@ -530,19 +557,26 @@ def phase_regime(market_data: dict, force_regime: str | None = None) -> tuple:
     """
     print("[Phase 1.5: REGIME] Detecting market regime...")
 
-    # 뉴스 감성 분석
+    # 뉴스 감성 분석 — 트리거 활성화 시에만 Gemini 호출
     news_sentiment_score = 0.0
-    try:
-        from news.sentiment import analyze_sentiment
-        macro_news = market_data.get("news", {}).get("_MACRO", [])
-        if macro_news:
-            result = analyze_sentiment("_MACRO", macro_news)
-            news_sentiment_score = result.score
-            print(f"  News sentiment: {news_sentiment_score:+.2f} ({result.summary})")
-        else:
-            print("  News sentiment: 0.00 (no macro news)")
-    except Exception as e:
-        print(f"  News sentiment failed: {e} (using 0.0)")
+    trigger_info = market_data.get("news_trigger", {})
+    if not trigger_info.get("active"):
+        print(f"  News sentiment: 0.00 (no trigger: {trigger_info.get('reason', 'unknown')})")
+    else:
+        try:
+            from news.sentiment import analyze_sentiment
+            macro_news = market_data.get("news", {}).get("_MACRO", [])
+            if macro_news:
+                result = analyze_sentiment("_MACRO", macro_news)
+                news_sentiment_score = result.score
+                print(
+                    f"  News sentiment: {news_sentiment_score:+.2f} "
+                    f"[trigger={trigger_info['reason']}] ({result.summary})"
+                )
+            else:
+                print(f"  News sentiment: 0.00 (trigger={trigger_info['reason']}, no articles)")
+        except Exception as e:
+            print(f"  News sentiment failed: {e} (using 0.0)")
 
     # Polymarket 예측시장 데이터 (Phase 9)
     polymarket_score = None  # None = no data, 0.0 = neutral
