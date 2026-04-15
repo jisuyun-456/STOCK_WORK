@@ -1,6 +1,6 @@
 {
   "account_total": 100421.11,
-  "last_updated": "2026-04-15T03:07:58.691454+00:00",
+  "last_updated": "2026-04-15T07:04:04.664854+00:00",
   "strategies": {
     "MOM": {
       "name": "Momentum",
@@ -14,8 +14,7 @@
         },
         {
           "date": "2026-04-15",
-          "nav": 5021.06,
-          "event": "realloc"
+          "nav": 5021.06
         }
       ],
       "last_rebalance": "2026-04-13"
@@ -49,8 +48,7 @@
         },
         {
           "date": "2026-04-15",
-          "nav": 10042.11,
-          "event": "realloc"
+          "nav": 10042.11
         }
       ],
       "last_rebalance": null
@@ -83,8 +81,7 @@
         },
         {
           "date": "2026-04-15",
-          "nav": 25105.28,
-          "event": "realloc"
+          "nav": 25105.28
         }
       ],
       "last_rebalance": null
@@ -104,16 +101,15 @@
     }
   },
   "inception": {
-    "total": 80336.9,
+    "total": 100000,
     "strategies": {
-      "MOM": 5021.06,
-      "VAL": 15063.17,
-      "QNT": 10042.11,
-      "LEV": 25105.28,
+      "MOM": 25000,
+      "VAL": 25000,
+      "QNT": 30000,
+      "LEV": 20000,
       "LEV_ST": 25105.28
     },
-    "date": "2026-04-10",
-    "reset_date": "2026-04-15"
+    "date": "2026-04-10"
   },
   "alerts": [
     {

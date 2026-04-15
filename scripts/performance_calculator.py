@@ -297,7 +297,14 @@ def append_and_save(
             float(strat.get("allocated", 0))
             for strat in portfolios.get("strategies", {}).values()
         ) or float(portfolios.get("account_total", 100000))
-    total_current = sum(m["current_nav"] for m in strategies_agg.values())
+    # account_total_history 최신값(실제 Alpaca equity) 우선 사용 — allocated 합계 사용 시 재배분 아티팩트 발생
+    account_history = portfolios.get("account_total_history", [])
+    if account_history:
+        total_current = float(account_history[-1].get("nav", 0) or 0)
+    else:
+        total_current = float(portfolios.get("account_total", 0) or 0) or sum(
+            m["current_nav"] for m in strategies_agg.values()
+        )
     total_return_pct = ((total_current / total_initial) - 1) * 100 if total_initial > 0 else 0.0
 
     # Benchmark returns since inception

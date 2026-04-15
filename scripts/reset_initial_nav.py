@@ -25,6 +25,8 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true", help="미리보기만, 저장하지 않음")
     ap.add_argument("--strategies", nargs="*", default=None,
                     help="특정 전략만 리셋 (예: LEV MOM). 생략 시 전체")
+    ap.add_argument("--force", action="store_true",
+                    help="inception.total 30%% 이상 감소 시에도 강제 실행")
     args = ap.parse_args()
 
     data = json.loads(PORTFOLIOS_PATH.read_text(encoding="utf-8"))
@@ -56,6 +58,14 @@ def main() -> int:
     )
     old_total = float(inception.get("total", 0) or 0)
     print(f"[reset] inception.total: ${old_total:,.2f} → ${new_total:,.2f}")
+
+    # 안전 가드: inception.total이 30% 이상 감소하면 abort (레짐 재배분 후 오사용 방지)
+    if old_total > 0 and (old_total - new_total) / old_total > 0.30:
+        print(f"[ABORT] inception.total 감소폭 {(old_total - new_total) / old_total:.1%} > 30%")
+        print(f"  레짐 재배분 후 reset은 allocated 감소를 손실로 오기록합니다.")
+        print(f"  의도된 경우 --force 옵션으로 강제 실행하세요.")
+        if not args.force:
+            return 1
 
     if args.dry_run:
         print("[reset] --dry-run: 저장하지 않음")
