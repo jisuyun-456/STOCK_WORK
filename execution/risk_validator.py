@@ -97,6 +97,10 @@ SECTOR_MAP: dict[str, str] = {
     "SPY": "ETF-Broad", "QQQ": "ETF-Broad", "IWM": "ETF-Broad",
     "VOO": "ETF-Broad", "DIA": "ETF-Broad",
     "BIL": "ETF-ShortTerm", "SHV": "ETF-ShortTerm",
+    # Defensive ETFs (used by LEV in CRISIS regime)
+    "BND": "ETF-Defensive", "GLD": "ETF-Defensive",
+    "TLT": "ETF-Defensive", "IEF": "ETF-Defensive",
+    "IAU": "ETF-Defensive", "SLV": "ETF-Defensive",
 }
 
 # Dynamic sector cache (yfinance fallback for symbols not in SECTOR_MAP)
@@ -320,7 +324,7 @@ STRATEGY_POSITION_LIMITS: dict[str, float] = {
     "MOM": 0.20,
     "VAL": 0.25,
     "QNT": 0.15,
-    "LEV": 0.50,     # Only 3 ETFs, each can hold up to 50%
+    "LEV": 1.00,     # max 2 ETFs: SPY+TQQQ(50/50), BND+GLD(60/40) — 60% is max weight
     "LEV_ST": 1.00,  # Single ETF (TQQQ or SQQQ) 100% by design
 }
 
