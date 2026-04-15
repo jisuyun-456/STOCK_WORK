@@ -30,6 +30,7 @@ REGIME_MULTIPLIERS: dict[str, dict[str, float]] = {
     "CRISIS": {"risk_controller": 2.0, "macro_economist": 1.5},
     "BEAR": {"risk_controller": 1.5, "macro_economist": 1.3},
     "BULL": {"equity_research": 1.3, "technical_strategist": 1.2},
+    "EUPHORIA": {"equity_research": 1.1, "risk_controller": 1.4},  # 과열 — 리스크 관리 가중
     "NEUTRAL": {},
 }
 
@@ -43,6 +44,54 @@ def get_regime_weights(regime: str) -> dict[str, float]:
     }
     total = sum(raw.values())
     return {agent: w / total for agent, w in raw.items()}
+
+
+# ─── RSI + Regime Classification Helpers ────────────────────────────────────
+
+def _calc_rsi(close_series, period: int = 14) -> float:
+    """Wilder RSI (pandas Series). 데이터 부족 시 50.0 반환."""
+    if len(close_series) < period + 1:
+        return 50.0
+    delta = close_series.diff()
+    gain = delta.clip(lower=0).rolling(period).mean()
+    loss = (-delta.clip(upper=0)).rolling(period).mean()
+    last_loss = loss.iloc[-1]
+    if last_loss == 0:
+        return 100.0
+    rs = gain.iloc[-1] / last_loss
+    return round(float(100.0 - 100.0 / (1 + rs)), 2)
+
+
+def _classify_regime_from_data(hist, vix_level: float) -> str:
+    """hist(Close 포함 DataFrame)와 VIX 레벨로 레짐 분류.
+
+    우선순위:
+      1. CRISIS  — SPY < SMA200 and VIX > 30
+      2. BEAR    — SPY < SMA200
+      3. EUPHORIA — SPY > SMA50 > SMA200 and VIX < 15 and RSI ≥ 75
+      4. BULL    — SPY ≥ SMA200 and VIX < 20
+      5. NEUTRAL — 나머지
+    """
+    close = hist["Close"]
+    current_price = close.iloc[-1]
+    sma200 = close.rolling(200).mean().iloc[-1]
+    sma50 = close.rolling(50).mean().iloc[-1]
+    ratio = current_price / sma200 if sma200 > 0 else 1.0
+
+    if ratio < 1.0 and vix_level > 30:
+        return "CRISIS"
+    if ratio < 1.0:
+        return "BEAR"
+
+    # 과매수 조건 — EUPHORIA
+    if vix_level < 15 and current_price > sma50 > sma200:
+        rsi = _calc_rsi(close)
+        if rsi >= 75:
+            return "EUPHORIA"
+
+    if ratio >= 1.0 and vix_level < 20:
+        return "BULL"
+    return "NEUTRAL"
 
 
 def detect_regime(prices_df) -> RegimeDetection:
@@ -73,19 +122,11 @@ def detect_regime(prices_df) -> RegimeDetection:
         return _neutral_fallback(f"Data fetch error: {e}")
 
     ratio = current_price / sma200 if sma200 > 0 else 1.0
-
-    if ratio < 1.0 and vix_level > 30:
-        regime = "CRISIS"
-        reasoning = f"SPY ({current_price:.2f}) below SMA200 ({sma200:.2f}), VIX={vix_level:.1f} > 30"
-    elif ratio < 1.0 and vix_level <= 30:
-        regime = "BEAR"
-        reasoning = f"SPY ({current_price:.2f}) below SMA200 ({sma200:.2f}), VIX={vix_level:.1f}"
-    elif ratio >= 1.0 and vix_level < 20:
-        regime = "BULL"
-        reasoning = f"SPY ({current_price:.2f}) above SMA200 ({sma200:.2f}), VIX={vix_level:.1f} < 20"
-    else:
-        regime = "NEUTRAL"
-        reasoning = f"SPY ({current_price:.2f}) vs SMA200 ({sma200:.2f}), VIX={vix_level:.1f}"
+    regime = _classify_regime_from_data(hist, vix_level)
+    reasoning = (
+        f"SPY={current_price:.2f}, SMA200={sma200:.2f}(ratio={ratio:.4f}), "
+        f"VIX={vix_level:.1f} → {regime}"
+    )
 
     return RegimeDetection(
         regime=regime,
@@ -219,7 +260,11 @@ def detect_regime_enhanced(
         f"composite={composite:.4f}"
     )
 
-    if composite > 0.7:
+    # EUPHORIA 오버라이드: composite 상위 + VIX < 15 + RSI ≥ 75
+    _rsi = _calc_rsi(hist["Close"]) if not hist.empty else 50.0
+    if composite > 0.85 and vix_level < 15 and _rsi >= 75:
+        regime = "EUPHORIA"
+    elif composite > 0.7:
         regime = "BULL"
     elif composite > 0.4:
         regime = "NEUTRAL"
