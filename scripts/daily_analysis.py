@@ -152,6 +152,106 @@ def _build_symbol_strategy_map() -> dict[str, str]:
     return mapping
 
 
+# ---- New Metric Helpers ----
+
+def _calc_daily_pnl(portfolios: dict) -> tuple[float, float]:
+    """오늘 NAV - 어제 NAV로 일간 손익 계산."""
+    total_today = 0.0
+    total_yesterday = 0.0
+    for code in ["MOM", "VAL", "QNT", "LEV", "LEV_ST"]:
+        strat = portfolios.get("strategies", {}).get(code, {})
+        nav_history = strat.get("nav_history", [])
+        if len(nav_history) >= 2:
+            total_today += nav_history[-1]["nav"]
+            total_yesterday += nav_history[-2]["nav"]
+        elif len(nav_history) == 1:
+            total_today += nav_history[-1]["nav"]
+            total_yesterday += nav_history[-1]["nav"]
+    daily_pnl = total_today - total_yesterday
+    daily_pnl_pct = (daily_pnl / total_yesterday * 100) if total_yesterday > 0 else 0.0
+    return daily_pnl, daily_pnl_pct
+
+
+def _calc_cumulative_returns(portfolios: dict) -> list[tuple[str, float, float, float]]:
+    """전략별 누적 수익률. Returns: [(code, inception_nav, current_nav, pct), ...]"""
+    results = []
+    inception = portfolios.get("inception", {}).get("strategies", {})
+    for code in ["MOM", "VAL", "QNT", "LEV", "LEV_ST"]:
+        strat = portfolios.get("strategies", {}).get(code, {})
+        nav_history = strat.get("nav_history", [])
+        inception_nav = inception.get(code, strat.get("allocated", 0))
+        current_nav = nav_history[-1]["nav"] if nav_history else strat.get("allocated", inception_nav)
+        pct = ((current_nav - inception_nav) / inception_nav * 100) if inception_nav > 0 else 0.0
+        results.append((code, inception_nav, current_nav, pct))
+    return results
+
+
+def _calc_mdd(portfolios: dict) -> list[tuple[str, float, str, str]]:
+    """전략별 Max Drawdown. Returns: [(code, mdd_pct, peak_date, trough_date), ...]"""
+    results = []
+    for code in ["MOM", "VAL", "QNT", "LEV", "LEV_ST"]:
+        strat = portfolios.get("strategies", {}).get(code, {})
+        nav_history = strat.get("nav_history", [])
+        if len(nav_history) < 2:
+            results.append((code, 0.0, "-", "-"))
+            continue
+        navs = [h["nav"] for h in nav_history]
+        dates = [h["date"] for h in nav_history]
+        peak = navs[0]
+        peak_date = dates[0]
+        max_dd = 0.0
+        trough_date = dates[0]
+        for nav, date in zip(navs, dates):
+            if nav > peak:
+                peak = nav
+                peak_date = date
+            dd = (nav - peak) / peak * 100 if peak > 0 else 0.0
+            if dd < max_dd:
+                max_dd = dd
+                trough_date = date
+        results.append((code, max_dd, peak_date, trough_date))
+    return results
+
+
+def _calc_position_aging(
+    positions: list[dict], sym_map: dict[str, str]
+) -> list[tuple[str, str, int, float]]:
+    """포지션별 보유 기간. trade_log에서 최초 매수일 찾아 계산.
+    Returns: [(symbol, strategy, days_held, unrealized_plpc), ...]
+    """
+    from datetime import date as _date
+    today = _date.today()
+    buy_dates: dict[str, str] = {}
+    if TRADE_LOG_PATH.exists():
+        with open(TRADE_LOG_PATH) as f:
+            for line in f:
+                try:
+                    entry = json.loads(line.strip())
+                except Exception:
+                    continue
+                if entry.get("side") == "buy" and entry.get("status") in ("submitted", "filled"):
+                    sym = entry.get("symbol", "")
+                    ts = entry.get("ts", "")[:10]  # YYYY-MM-DD
+                    if sym and sym not in buy_dates:
+                        buy_dates[sym] = ts
+    result = []
+    for p in sorted(positions, key=lambda x: x.get("symbol", "")):
+        sym = p.get("symbol", "")
+        strat = sym_map.get(sym, "?")
+        buy_date_str = buy_dates.get(sym)
+        if buy_date_str:
+            try:
+                buy_dt = _date.fromisoformat(buy_date_str)
+                days = (today - buy_dt).days
+            except ValueError:
+                days = 0
+        else:
+            days = 0
+        plpc = p.get("unrealized_plpc", 0.0)
+        result.append((sym, strat, days, plpc))
+    return result
+
+
 # ---- Report Generation ----
 
 def generate_daily_analysis(date_str: str | None = None) -> str:
@@ -169,6 +269,12 @@ def generate_daily_analysis(date_str: str | None = None) -> str:
     positions = _get_positions()
     account = _get_account()
     sym_map = _build_symbol_strategy_map()
+
+    # New metric calculations
+    daily_pnl, daily_pnl_pct = _calc_daily_pnl(portfolios)
+    cumulative = _calc_cumulative_returns(portfolios)
+    mdd_data = _calc_mdd(portfolios)
+    aging_data = _calc_position_aging(positions, sym_map) if positions else []
 
     # Market data (may fail in CI without yfinance)
     try:
@@ -191,6 +297,11 @@ def generate_daily_analysis(date_str: str | None = None) -> str:
     lines.append(f"## Market Regime: {regime}")
     if reasoning:
         lines.append(f"> {reasoning}")
+    lines.append("")
+
+    # Today's P&L
+    pnl_sign = "+" if daily_pnl >= 0 else ""
+    lines.append(f"## Today's P&L: {pnl_sign}${daily_pnl:,.2f} ({pnl_sign}{daily_pnl_pct:.2f}%)")
     lines.append("")
 
     # Market summary
@@ -262,6 +373,24 @@ def generate_daily_analysis(date_str: str | None = None) -> str:
     lines.append(f"| **Total** | **${total_nav:,.0f}** | | | ${account.get('cash', 0):,.0f} |")
     lines.append("")
 
+    # Cumulative Return by Strategy
+    lines.append("## Cumulative Return by Strategy")
+    lines.append("| Strategy | Inception NAV | Current NAV | Return |")
+    lines.append("|----------|--------------|------------|--------|")
+    for code, inception_nav, current_nav, pct in cumulative:
+        ret_sign = "+" if pct >= 0 else ""
+        lines.append(f"| {code} | ${inception_nav:,.0f} | ${current_nav:,.0f} | {ret_sign}{pct:.2f}% |")
+    lines.append("")
+
+    # Max Drawdown by Strategy
+    lines.append("## Max Drawdown by Strategy")
+    lines.append("| Strategy | MDD | Peak Date | Trough Date |")
+    lines.append("|----------|-----|-----------|-------------|")
+    for code, mdd, peak_d, trough_d in mdd_data:
+        flag = " ⚠️" if mdd < -10 else ""
+        lines.append(f"| {code} | {mdd:.1f}%{flag} | {peak_d} | {trough_d} |")
+    lines.append("")
+
     # Position details - Top 5 / Worst 5
     if positions:
         sorted_pos = sorted(positions, key=lambda x: x["unrealized_plpc"], reverse=True)
@@ -323,6 +452,20 @@ def generate_daily_analysis(date_str: str | None = None) -> str:
     else:
         lines.append("- No alerts")
     lines.append("")
+
+    # Open Position Aging
+    if aging_data:
+        lines.append("## Open Position Aging")
+        lines.append("| Symbol | Strategy | Days Held | Unrealized P&L% | Note |")
+        lines.append("|--------|----------|-----------|----------------|------|")
+        for sym, strat, days, plpc in aging_data:
+            note = ""
+            if days >= 60:
+                note = "⚠️ Review (60d+)"
+            elif plpc < -0.10:
+                note = "⚠️ Near stop-loss"
+            lines.append(f"| {sym} | {strat} | {days}d | {plpc:+.1%} | {note} |")
+        lines.append("")
 
     # Tomorrow outlook
     lines.append("## Tomorrow Outlook")
