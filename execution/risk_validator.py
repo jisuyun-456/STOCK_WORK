@@ -320,7 +320,8 @@ STRATEGY_POSITION_LIMITS: dict[str, float] = {
     "MOM": 0.20,
     "VAL": 0.25,
     "QNT": 0.15,
-    "LEV": 0.50,  # Only 3 ETFs, each can hold up to 50%
+    "LEV": 0.50,     # Only 3 ETFs, each can hold up to 50%
+    "LEV_ST": 1.00,  # Single ETF (TQQQ or SQQQ) 100% by design
 }
 
 # Strategy-specific sector concentration limits (default 40%, LEV allows 100%)
@@ -328,7 +329,8 @@ STRATEGY_SECTOR_LIMITS: dict[str, float] = {
     "MOM": 0.40,
     "VAL": 0.40,
     "QNT": 0.40,
-    "LEV": 1.00,  # All ETF-Leveraged sector by design
+    "LEV": 1.00,    # All ETF-Leveraged sector by design
+    "LEV_ST": 1.00, # Single ETF by design
 }
 
 
@@ -378,15 +380,15 @@ def validate_signal(
     # 기본 3% VaR 게이트를 원천적으로 통과할 수 없다. LEV 는 이미 position_limit 50%
     # + sector_limit 100% + regime 기반 stop-loss (-30%/-20%) 로 리스크 통제하므로
     # 여기서는 VaR/correlation 게이트를 스킵한다. MOM/VAL/QNT 는 기존 로직 그대로.
-    if strategy_code == "LEV":
+    if strategy_code in ("LEV", "LEV_ST"):
         results.append(RiskCheckResult(
             passed=True, check_name="portfolio_var",
-            reason="LEV 전략은 설계상 고변동성 레버리지 ETF 보유 → VaR 게이트 면제 (stop-loss regime 동적 -30%/-20% 로 통제)",
+            reason=f"{strategy_code} 전략은 설계상 고변동성 레버리지 ETF 보유 → VaR 게이트 면제 (stop-loss regime 동적 통제)",
             value=0.0, threshold=0.03,
         ))
         results.append(RiskCheckResult(
             passed=True, check_name="correlation",
-            reason="LEV 전략은 SPY+TQQQ/SQQQ 내재적 고상관(설계) → correlation 게이트 면제",
+            reason=f"{strategy_code} 전략은 단일 레버리지 ETF 내재적 고상관(설계) → correlation 게이트 면제",
             value=0.0, threshold=0.85,
         ))
         # LEV 는 cash_buffer 만 적용 (잔여 현금 보호)

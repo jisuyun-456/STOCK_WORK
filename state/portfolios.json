@@ -55,8 +55,8 @@
     },
     "LEV": {
       "name": "Leveraged ETF",
-      "allocated": 50210.56,
-      "cash": 50210.56,
+      "allocated": 25105.28,
+      "cash": 25105.28,
       "positions": {},
       "nav_history": [
         {
@@ -81,7 +81,20 @@
         },
         {
           "date": "2026-04-15",
-          "nav": 50210.56
+          "nav": 25105.28
+        }
+      ],
+      "last_rebalance": null
+    },
+    "LEV_ST": {
+      "name": "Leveraged Short-Term",
+      "allocated": 25105.28,
+      "cash": 25105.28,
+      "positions": {},
+      "nav_history": [
+        {
+          "date": "2026-04-15",
+          "nav": 25105.28
         }
       ],
       "last_rebalance": null
@@ -93,7 +106,8 @@
       "MOM": 5021.06,
       "VAL": 15063.17,
       "QNT": 10042.11,
-      "LEV": 50210.56
+      "LEV": 25105.28,
+      "LEV_ST": 25105.28
     },
     "date": "2026-04-10",
     "reset_date": "2026-04-15"

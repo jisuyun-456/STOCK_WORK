@@ -2,46 +2,34 @@
 
 from __future__ import annotations
 
-# LEV 50% 고정 + 나머지 50%는 기존 비율(BULL/NEUTRAL/BEAR/CRISIS)을 비례 재정규화.
-# LEV 전략은 내부에서 regime 에 따라 SPY+TQQQ↔SPY+SQQQ↔현금 을 자체 관리하므로,
-# allocator 는 모든 regime 에서 LEV 슬롯 50% 를 유지해 generate_signals() 가 호출되도록 보장한다.
-# (CRISIS 에서도 LEV=0.5 인 이유: LeveragedETFStrategy 가 target_mix={} → 전량 SELL 신호를
-#  생성해 포지션을 자연스럽게 청산하려면 allocator 가 LEV 를 SKIP 시키지 말아야 함)
+# LEV+LEV_ST 합계 50% 고정 (각 25%) + 나머지 50%는 기존 비율을 비례 재정규화.
+# LEV: 장기 레짐 기반 (SPY+TQQQ/SQQQ/BND+GLD), LEV_ST: 1~3일 VIX/SPY 모멘텀 기반.
+# allocator 는 모든 regime 에서 LEV/LEV_ST 슬롯을 유지해 generate_signals() 가 호출되도록 보장.
 REGIME_ALLOCATIONS: dict[str, dict[str, float]] = {
-    # 기존 BULL    MOM 30, VAL 20, QNT 25, LEV 25, CASH 0  → 비-LEV 합 75
-    #   × 50/75 → MOM 20.00, VAL 13.33, QNT 16.67, CASH 0.00
-    "BULL":    {"MOM": 0.2000, "VAL": 0.1333, "QNT": 0.1667, "LEV": 0.50, "CASH": 0.00},
-
-    # 기존 NEUTRAL MOM 25, VAL 25, QNT 30, LEV 20, CASH 0  → 비-LEV 합 80
-    #   × 50/80 → MOM 15.625, VAL 15.625, QNT 18.75, CASH 0.00
-    "NEUTRAL": {"MOM": 0.15625, "VAL": 0.15625, "QNT": 0.1875, "LEV": 0.50, "CASH": 0.00},
-
-    # 기존 BEAR    MOM 15, VAL 35, QNT 30, LEV 0, CASH 20  → 비-LEV 합 100
-    #   × 50/100 → MOM 7.5, VAL 17.5, QNT 15.0, CASH 10.0
-    "BEAR":    {"MOM": 0.075, "VAL": 0.175, "QNT": 0.15, "LEV": 0.50, "CASH": 0.10},
-
-    # 기존 CRISIS  MOM 10, VAL 30, QNT 20, LEV 0, CASH 40  → 비-LEV 합 100
-    #   × 50/100 → MOM 5.0, VAL 15.0, QNT 10.0, CASH 20.0
-    #   (LEV 50% 는 내부 target_mix={} 로 즉시 청산 → 실효 현금 50+20=70%)
-    "CRISIS":  {"MOM": 0.05, "VAL": 0.15, "QNT": 0.10, "LEV": 0.50, "CASH": 0.20},
+    "BULL":    {"MOM": 0.2000, "VAL": 0.1333, "QNT": 0.1667, "LEV": 0.25, "LEV_ST": 0.25, "CASH": 0.00},
+    "NEUTRAL": {"MOM": 0.15625, "VAL": 0.15625, "QNT": 0.1875, "LEV": 0.25, "LEV_ST": 0.25, "CASH": 0.00},
+    "BEAR":    {"MOM": 0.075, "VAL": 0.175, "QNT": 0.15, "LEV": 0.25, "LEV_ST": 0.25, "CASH": 0.10},
+    # CRISIS: LEV는 내부에서 BND/GLD 방어 포지션, LEV_ST는 CASH 강제
+    "CRISIS":  {"MOM": 0.05, "VAL": 0.15, "QNT": 0.10, "LEV": 0.25, "LEV_ST": 0.25, "CASH": 0.20},
 }
 
 _REGIME_DESCRIPTIONS: dict[str, str] = {
     "BULL": (
-        "강세장: 레버리지(LEV) 50% Core-Satellite + 모멘텀(MOM) 20% + 퀀트(QNT) 16.67% + 가치(VAL) 13.33%. "
+        "강세장: LEV 25%(SPY+TQQQ) + LEV_ST 25%(VIX/SPY 모멘텀) + MOM 20% + QNT 16.67% + VAL 13.33%. "
         "위험자산 비중 최대, 현금 0%."
     ),
     "NEUTRAL": (
-        "중립장: 레버리지(LEV) 50% Core-Satellite + 퀀트(QNT) 18.75% + 모멘텀(MOM)/가치(VAL) 각 15.625%. "
+        "중립장: LEV 25%(SPY+TQQQ) + LEV_ST 25%(VIX/SPY 모멘텀) + QNT 18.75% + MOM/VAL 각 15.625%. "
         "균형 배분, 방향성 중립 포지션."
     ),
     "BEAR": (
-        "약세장: 레버리지(LEV) 50% (내부 SPY 50% + SQQQ 50%) + 가치(VAL) 17.5% + 퀀트(QNT) 15% + 현금 10% + 모멘텀(MOM) 7.5%. "
-        "LEV 는 SQQQ 전환으로 하락 베팅, 나머지는 방어적 배분."
+        "약세장: LEV 25%(SPY+SQQQ) + LEV_ST 25%(VIX/SPY 모멘텀) + VAL 17.5% + QNT 15% + 현금 10% + MOM 7.5%. "
+        "LEV는 SQQQ 전환으로 하락 베팅."
     ),
     "CRISIS": (
-        "위기장: LEV 50%(내부 전량 현금화) + 현금(CASH) 20% + 가치(VAL) 15% + 퀀트(QNT) 10% + 모멘텀(MOM) 5%. "
-        "LEV 는 즉시 청산 트리거, 실효 현금 70%, 자본 보존 최우선."
+        "위기장: LEV 25%(BND 60%+GLD 40% 방어) + LEV_ST 25%(CASH 강제) + "
+        "VAL 15% + QNT 10% + MOM 5% + CASH 20%. "
+        "실효: BND 15% + GLD 10% + 현금 45% + 개별주 30%. 자본 보존 최우선."
     ),
 }
 

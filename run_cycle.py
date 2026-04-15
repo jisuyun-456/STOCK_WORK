@@ -587,7 +587,7 @@ def phase_regime(market_data: dict, force_regime: str | None = None) -> tuple:
     if cash_amount > 0:
         print(f"  CASH reserve: ${cash_amount:,.0f} (not deployed)")
         # Update each strategy's allocated amount in portfolios.json
-        for code in ["MOM", "VAL", "QNT", "LEV"]:
+        for code in ["MOM", "VAL", "QNT", "LEV", "LEV_ST"]:
             if code in allocations and code in portfolios["strategies"]:
                 portfolios["strategies"][code]["allocated"] = allocations[code]
         save_portfolios(portfolios)
@@ -623,6 +623,10 @@ def _get_strategy_stop_loss(code: str, regime: str) -> float:
     if code == "LEV":
         from strategies.leveraged_etf import LeveragedETFStrategy
         threshold = LeveragedETFStrategy.get_stop_loss_for_regime(regime)
+        return threshold if threshold is not None else -0.99
+    if code == "LEV_ST":
+        from strategies.lev_short_term import LevShortTermStrategy
+        threshold = LevShortTermStrategy.get_stop_loss_for_regime(regime)
         return threshold if threshold is not None else -0.99
     return STRATEGY_STOP_LOSS.get(code, -0.10)
 
@@ -686,12 +690,14 @@ def phase_signals(market_data: dict, regime: str = "NEUTRAL", allocations: dict 
     from strategies.value_quality import ValueQualityStrategy
     from strategies.quant_factor import QuantFactorStrategy
     from strategies.leveraged_etf import LeveragedETFStrategy
+    from strategies.lev_short_term import LevShortTermStrategy
 
     strategies = [
         MomentumStrategy(),
         ValueQualityStrategy(),
         QuantFactorStrategy(),
         LeveragedETFStrategy(),
+        LevShortTermStrategy(),
     ]
 
     portfolios = load_portfolios()

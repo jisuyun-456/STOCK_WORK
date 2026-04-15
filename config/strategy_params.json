@@ -32,6 +32,14 @@
     "sma_slow": 200,
     "position_pct": 1.0
   },
+  "lev_short_term": {
+    "vix_down_threshold": -0.05,
+    "vix_up_threshold": 0.10,
+    "spy_up_threshold": 0.005,
+    "spy_down_threshold": -0.005,
+    "vix_lookback_days": 5,
+    "spy_lookback_days": 3
+  },
   "research_overlay": {
     "min_confidence_threshold": 0.40,
     "veto_hard_block": true,
