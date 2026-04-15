@@ -92,13 +92,20 @@ def compute_strategy_metrics(
     # Total return
     total_return_pct = ((current_nav / initial_nav) - 1) * 100 if initial_nav > 0 else 0.0
 
-    # Daily return (vs previous day)
-    daily_return_pct = 0.0
-    if len(navs) >= 2 and navs[-2] > 0:
-        daily_return_pct = ((navs[-1] / navs[-2]) - 1) * 100
+    # Find last realloc event — daily return and MDD reset from this point
+    last_realloc_idx = 0
+    for i, h in enumerate(nav_history):
+        if h.get("event") == "realloc":
+            last_realloc_idx = i
+    current_window = navs[last_realloc_idx:]  # post-realloc navs only
 
-    # MDD
-    mdd_pct = _compute_mdd(navs)
+    # Daily return — within current window only (avoid realloc jump showing as loss)
+    daily_return_pct = 0.0
+    if len(current_window) >= 2 and current_window[-2] > 0:
+        daily_return_pct = ((current_window[-1] / current_window[-2]) - 1) * 100
+
+    # MDD — compute from last realloc event to avoid regime-shift artifacts
+    mdd_pct = _compute_mdd(current_window)
 
     # Sharpe (need >= 20 observations)
     sharpe_ratio = _compute_sharpe(navs)
@@ -109,7 +116,9 @@ def compute_strategy_metrics(
     dry_run_count = len([t for t in trade_entries if t.get("status") == "dry_run"])
     win_rate = _compute_win_rate(filled_trades)
 
-    peak_nav = max(navs) if navs else initial_nav
+    # peak_nav reflects current allocation period only (resets on regime realloc)
+    current_window = navs[last_realloc_idx:]
+    peak_nav = max(current_window) if current_window else initial_nav
 
     return {
         "current_nav": round(current_nav, 2),

@@ -587,9 +587,15 @@ def phase_regime(market_data: dict, force_regime: str | None = None) -> tuple:
     if cash_amount > 0:
         print(f"  CASH reserve: ${cash_amount:,.0f} (not deployed)")
         # Update each strategy's allocated amount in portfolios.json
+        # Tag realloc_flag when allocation changes >5% (regime shift, not market movement)
         for code in ["MOM", "VAL", "QNT", "LEV", "LEV_ST"]:
             if code in allocations and code in portfolios["strategies"]:
-                portfolios["strategies"][code]["allocated"] = allocations[code]
+                strat = portfolios["strategies"][code]
+                old_alloc = float(strat.get("allocated", 0))
+                new_alloc = float(allocations[code])
+                strat["allocated"] = new_alloc
+                if old_alloc > 0 and abs(new_alloc - old_alloc) / old_alloc > 0.05:
+                    strat["realloc_flag"] = True
         save_portfolios(portfolios)
 
     print(f"  Regime: {regime_info.regime} | VIX: {regime_info.vix_level}")
@@ -1193,7 +1199,11 @@ def phase_report(signals: list, execution_results: list, regime=None, rebalanced
         nav_history = strat.setdefault("nav_history", [])
         # Full dedup: remove all entries with today's date, then append once
         nav_history[:] = [h for h in nav_history if h.get("date") != today]
-        nav_history.append({"date": today, "nav": round(nav, 2)})
+        entry: dict = {"date": today, "nav": round(nav, 2)}
+        # Mark realloc event (regime shift changed allocation >5%) so MDD peak resets
+        if strat.pop("realloc_flag", False):
+            entry["event"] = "realloc"
+        nav_history.append(entry)
 
     save_portfolios(portfolios)
 
