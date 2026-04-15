@@ -1,18 +1,18 @@
-"""Leveraged ETF Strategy — Core-Satellite Barbell (SPY + TQQQ/SQQQ).
+"""Leveraged ETF Strategy — Core-Satellite Barbell (SPY + TQQQ/SQQQ/BND+GLD).
 
 설계 근거: STOCK/2026-04-11-LEV-Strategy-Brainstorm-Design.md
 
 구조:
   - Core:      SPY 50% (Buy&Hold, CRISIS 제외 항상 유지)
-  - Satellite: TQQQ 50% (BULL/NEUTRAL) / SQQQ 50% (BEAR) / 현금 (CRISIS)
+  - Satellite: TQQQ 50% (BULL/NEUTRAL) / SQQQ 50% (BEAR) / BND+GLD (CRISIS)
 
 Regime 적응:
-  | Regime  | SPY | TQQQ | SQQQ | Cash | Stop-loss | Take-profit |
-  |---------|-----|------|------|------|-----------|-------------|
-  | BULL    | 50% | 50%  | —    | 0%   | -30%      | +60%        |
-  | NEUTRAL | 50% | 50%  | —    | 0%   | -20%      | +35%        |
-  | BEAR    | 50% | —    | 50%  | 0%   | 즉시 전환 | —           |
-  | CRISIS  | —   | —    | —    | 100% | 전량 청산 | —           |
+  | Regime  | SPY | TQQQ | SQQQ | BND  | GLD  | Stop-loss | Take-profit |
+  |---------|-----|------|------|------|------|-----------|-------------|
+  | BULL    | 50% | 50%  | —    | —    | —    | -30%      | +60%        |
+  | NEUTRAL | 50% | 50%  | —    | —    | —    | -20%      | +35%        |
+  | BEAR    | 50% | —    | 50%  | —    | —    | 즉시 전환 | —           |
+  | CRISIS  | —   | —    | —    | 60%  | 40%  | -10%      | —           |
 
 리밸런싱:
   - 현재 가중치가 목표에서 ±10% 이탈하면 자동 리밸런스 신호 생성
@@ -38,15 +38,17 @@ from strategies.base_strategy import BaseStrategy, Signal, Direction
 
 # ─── 설정 상수 ──────────────────────────────────────────────────────────
 _CORE_SYMBOL = "SPY"
-_LONG_SATELLITE = "TQQQ"   # NASDAQ 3x Long
-_INVERSE_SATELLITE = "SQQQ"  # NASDAQ 3x Inverse
+_LONG_SATELLITE = "TQQQ"      # NASDAQ 3x Long
+_INVERSE_SATELLITE = "SQQQ"   # NASDAQ 3x Inverse
+_DEFENSIVE_BOND = "BND"        # Vanguard Total Bond (CRISIS 방어)
+_DEFENSIVE_GOLD = "GLD"        # SPDR Gold (CRISIS 방어)
 
 # Regime → Target weight mix (sum = 1.0 또는 0.0)
 _REGIME_MIX: dict[str, dict[str, float]] = {
     "BULL":    {"SPY": 0.50, "TQQQ": 0.50},
     "NEUTRAL": {"SPY": 0.50, "TQQQ": 0.50},
     "BEAR":    {"SPY": 0.50, "SQQQ": 0.50},
-    "CRISIS":  {},  # 전량 현금화
+    "CRISIS":  {"BND": 0.60, "GLD": 0.40},  # 전량 현금화 → 방어 포지션 보유
 }
 
 # Regime → (stop_loss_pct, take_profit_pct)
@@ -55,7 +57,7 @@ _REGIME_EXITS: dict[str, tuple[float | None, float | None]] = {
     "BULL":    (-0.30, +0.60),
     "NEUTRAL": (-0.20, +0.35),
     "BEAR":    (None, None),
-    "CRISIS":  (None, None),
+    "CRISIS":  (-0.10, None),  # 방어자산도 -10% 손절
 }
 
 # ±10% 이탈 시 리밸런스 트리거 (weight 기준)
@@ -76,9 +78,9 @@ class LeveragedETFStrategy(BaseStrategy):
     """
 
     name = "LEV"
-    capital_pct = 0.50  # 전체 계정의 50% (regime_allocator 와 일치)
-    universe = [_CORE_SYMBOL, _LONG_SATELLITE, _INVERSE_SATELLITE]
-    max_positions = 2
+    capital_pct = 0.25  # A/B 테스트: LEV_ST 와 25%씩 분할 (regime_allocator 와 일치)
+    universe = [_CORE_SYMBOL, _LONG_SATELLITE, _INVERSE_SATELLITE, _DEFENSIVE_BOND, _DEFENSIVE_GOLD]
+    max_positions = 2  # SPY+TQQQ, SPY+SQQQ, BND+GLD 모두 2종목
     rebalance_freq = "daily"
 
     # BaseStrategy 기본값 유지 (run_cycle._get_strategy_stop_loss 가
