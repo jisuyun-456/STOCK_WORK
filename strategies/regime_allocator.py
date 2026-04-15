@@ -34,15 +34,17 @@ _REGIME_DESCRIPTIONS: dict[str, str] = {
 }
 
 
-def allocate(regime: str, total_capital: float) -> dict[str, float]:
+def allocate(regime: str, total_capital: float, flicker_suppression: bool = False) -> dict[str, float]:
     """Regime에 따라 전략별 자본 배분.
 
     Args:
         regime: "BULL" | "NEUTRAL" | "BEAR" | "CRISIS"
         total_capital: 전체 자본 (예: 100000)
+        flicker_suppression: True면 모든 비-CASH 전략 비율을 50% 축소하고
+            차액을 CASH로 이관 (레짐 flicker 방어)
 
     Returns:
-        {"MOM": 30000, "VAL": 20000, "QNT": 25000, "LEV": 25000, "CASH": 0}
+        {"MOM": ..., "VAL": ..., "QNT": ..., "LEV": ..., "LEV_ST": ..., "CASH": ...}
 
     알 수 없는 regime → NEUTRAL fallback
     """
@@ -50,13 +52,25 @@ def allocate(regime: str, total_capital: float) -> dict[str, float]:
         print(f"[regime_allocator] Unknown regime '{regime}' → NEUTRAL fallback")
         regime = "NEUTRAL"
 
-    weights = REGIME_ALLOCATIONS[regime]
+    weights = dict(REGIME_ALLOCATIONS[regime])  # copy — 모듈 상태 변이 방지
+
+    if flicker_suppression:
+        original_cash = weights.get("CASH", 0.0)
+        diverted = 0.0
+        for k in list(weights.keys()):
+            if k == "CASH":
+                continue
+            diverted += weights[k] * 0.5
+            weights[k] = weights[k] * 0.5
+        weights["CASH"] = original_cash + diverted
+        print(f"[regime_allocator] FLICKER SUPPRESSION ON — risk halved, CASH={weights['CASH']:.4f}")
+
     allocation = {strategy: round(weight * total_capital, 2) for strategy, weight in weights.items()}
 
-    print(f"[regime_allocator] Regime={regime} | Capital={total_capital:,.0f}")
+    print(f"[regime_allocator] Regime={regime} | Capital={total_capital:,.0f} | flicker={flicker_suppression}")
     for strategy, amount in allocation.items():
         pct = weights[strategy] * 100
-        print(f"  {strategy}: {amount:>10,.2f}  ({pct:.0f}%)")
+        print(f"  {strategy}: {amount:>10,.2f}  ({pct:.2f}%)")
 
     return allocation
 
