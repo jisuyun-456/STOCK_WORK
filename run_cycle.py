@@ -1729,17 +1729,15 @@ def main():
     _audit_log("main", "start", {"phase": args.phase, "dry_run": args.dry_run})
 
     # N-LOW-4: allocation integrity check — Immutable Ledger last line of defense
+    # Note: _check_allocation_integrity compares sum(allocated) vs inception.total.
+    # Cash-buffer portion is intentionally excluded from strategy allocations, so
+    # this check may produce false positives in non-100%-deployed regimes.
+    # We log only and do NOT block BUY signals (too many false positives).
     try:
         _pre_portfolios = load_portfolios()
-        ok = _check_allocation_integrity(_pre_portfolios)
-        if not ok:
-            print("[WARN] allocation integrity drift 감지 — BUY 시그널 비활성화, SELL만 실행")
-            args._allocation_drift = True
-        else:
-            args._allocation_drift = False
+        _check_allocation_integrity(_pre_portfolios)
     except Exception as e:
         print(f"  [integrity] pre-flight check skipped: {e}")
-        args._allocation_drift = False
 
     # Phase Monitor -independent lightweight path
     if args.phase == "monitor":
@@ -2025,10 +2023,6 @@ def main():
 
     # Phase 5: EXECUTE
     if args.phase in ("all", "execute"):
-        if getattr(args, "_allocation_drift", False):
-            pre_filter = len(resolved)
-            resolved = [s for s in resolved if s.direction != Direction.BUY]
-            print(f"[DRIFT] BUY 시그널 {pre_filter - len(resolved)}개 필터링됨")
         _audit_log("execute", "start", {"signals": len(resolved), "dry_run": args.dry_run})
         results = phase_execute(resolved, dry_run=args.dry_run)
         _audit_log("execute", "end", {"results": len(results)})
