@@ -1731,9 +1731,15 @@ def main():
     # N-LOW-4: allocation integrity check — Immutable Ledger last line of defense
     try:
         _pre_portfolios = load_portfolios()
-        _check_allocation_integrity(_pre_portfolios)
+        ok = _check_allocation_integrity(_pre_portfolios)
+        if not ok:
+            print("[WARN] allocation integrity drift 감지 — BUY 시그널 비활성화, SELL만 실행")
+            args._allocation_drift = True
+        else:
+            args._allocation_drift = False
     except Exception as e:
         print(f"  [integrity] pre-flight check skipped: {e}")
+        args._allocation_drift = False
 
     # Phase Monitor -independent lightweight path
     if args.phase == "monitor":
@@ -2019,6 +2025,10 @@ def main():
 
     # Phase 5: EXECUTE
     if args.phase in ("all", "execute"):
+        if getattr(args, "_allocation_drift", False):
+            pre_filter = len(resolved)
+            resolved = [s for s in resolved if s.direction != Direction.BUY]
+            print(f"[DRIFT] BUY 시그널 {pre_filter - len(resolved)}개 필터링됨")
         _audit_log("execute", "start", {"signals": len(resolved), "dry_run": args.dry_run})
         results = phase_execute(resolved, dry_run=args.dry_run)
         _audit_log("execute", "end", {"results": len(results)})
