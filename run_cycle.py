@@ -123,6 +123,18 @@ def _ensure_inception(data: dict) -> dict:
             "strategies": inception_strategies,
             "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         }
+
+    # C5 fix: inception.strategies 합계 vs total 불일치 감지
+    inception = data.get("inception", {})
+    if inception:
+        strat_sum = sum(inception.get("strategies", {}).values())
+        inc_total = inception.get("total", 0)
+        if inc_total > 0 and abs(strat_sum - inc_total) / inc_total > 0.05:
+            print(
+                f"[WARN] inception.strategies 합계(${strat_sum:.0f}) ≠ total(${inc_total:.0f}) "
+                f"— portfolios.json 확인 필요"
+            )
+
     return data
 
 
