@@ -1,0 +1,2 @@
+- [Regression Bug Log](bugs_regression_log.md) — T6(order status 하드코딩), T12(trade_log fsync), last-write-wins(Alpaca sync) 재발 방지
+- [Order Tracking Decisions](decisions_order_tracking.md) — delta 사이징, 비례 분할 sync, fsync 보장 설계 결정

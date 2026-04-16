@@ -1,0 +1,2 @@
+- [Regression Bug Log](bugs_regression_log.md) — T7(inception $25k), initial_nav 아티팩트(-80% 수익률), MDD peak_nav 미리셋(-66% 아티팩트) 재발 방지
+- [NAV Attribution Decisions](decisions_nav_attribution.md) — realloc 후 inception 갱신, realloc window MDD 계산, account_total_history 백필 결정

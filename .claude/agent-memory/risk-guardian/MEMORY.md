@@ -1,0 +1,2 @@
+- [Regression Bug Log](bugs_regression_log.md) — T5(VaR symbol 순서), CB false-EMERGENCY(재배분 NAV 감소 오인) 재발 방지
+- [Gate Thresholds](decisions_gate_thresholds.md) — VaR/섹터/CB 임계치 선택 근거, account_total_history 사용 결정

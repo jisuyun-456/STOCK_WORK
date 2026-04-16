@@ -1,0 +1,2 @@
+- [Regression Bug Log](bugs_regression_log.md) — T1(QNT threshold), T2(GRW regime fallback), T11(hysteresis lock), GRW crash(pd import) 재발 방지 체크리스트
+- [Strategy Thresholds](decisions_strategy_thresholds.md) — QNT min_composite=0.01, MOM lookback=252, GRW score 가중치 근거

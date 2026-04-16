@@ -1,0 +1,2 @@
+- [Regression Bug Log](bugs_regression_log.md) — 재배분 오케스트레이션 버그(CB false-EMERGENCY, MDD 아티팩트), GRW allocated=$0 오케스트레이션 실패
+- [Orchestration Decisions](decisions_orchestration.md) — 재배분 트리거, Research Overlay 라우팅, GRW 자본 배분 활성화 조건

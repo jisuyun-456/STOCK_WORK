@@ -14,6 +14,7 @@ memory: project
 > 참조: CLAUDE.md 전략 테이블
 
 ## When Invoked (즉시 실행 체크리스트)
+0. **메모리 로드**: `.claude/agent-memory/performance-accountant/MEMORY.md`를 읽어 과거 회귀 버그/설계 결정 파악. 현재 작업이 기존 엔트리와 겹치면 해당 세부 파일 on-demand 로드. 새 회귀 발견 시 종료 전 append 제안.
 1. state/portfolios.json 읽어 전략별 NAV 확인
 2. state/trade_log.jsonl 읽어 최근 거래 내역 확인
 3. 요청에 따라 성과 분석 또는 리포트 생성

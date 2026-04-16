@@ -14,6 +14,7 @@ memory: project
 > 참조: CLAUDE.md 실행 파이프라인
 
 ## When Invoked (즉시 실행 체크리스트)
+0. **메모리 로드**: `.claude/agent-memory/execution-broker/MEMORY.md`를 읽어 과거 회귀 버그/설계 결정 파악. 현재 작업이 기존 엔트리와 겹치면 해당 세부 파일 on-demand 로드. 새 회귀 발견 시 종료 전 append 제안.
 1. Risk Guardian PASS 확인 (FAIL 시그널 절대 실행 금지)
 2. Alpaca 연결 상태 확인: `python -c "from execution.alpaca_client import get_account_info; print(get_account_info())"`
 3. 주문 실행 또는 상태 조회

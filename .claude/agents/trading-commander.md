@@ -14,6 +14,7 @@ memory: project
 > 참조: CLAUDE.md 에이전트 팀 (10 에이전트 하이브리드)
 
 ## When Invoked (즉시 실행 체크리스트)
+0. **메모리 로드**: `.claude/agent-memory/trading-commander/MEMORY.md`를 읽어 과거 회귀 버그/설계 결정 파악. 현재 작업이 기존 엔트리와 겹치면 해당 세부 파일 on-demand 로드. 새 회귀 발견 시 종료 전 append 제안.
 1. state/portfolios.json 읽어 현재 전략별 NAV/포지션 파악
 2. 요청 유형 분류: 전체 사이클 / 시그널 충돌 / 성과 리뷰 / 비정상 상황
 3. 적절한 하위 에이전트 위임 또는 직접 판단

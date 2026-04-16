@@ -14,6 +14,7 @@ memory: project
 > 참조: CLAUDE.md 리스크 게이트 테이블
 
 ## When Invoked (즉시 실행 체크리스트)
+0. **메모리 로드**: `.claude/agent-memory/risk-guardian/MEMORY.md`를 읽어 과거 회귀 버그/설계 결정 파악. 현재 작업이 기존 엔트리와 겹치면 해당 세부 파일 on-demand 로드. 새 회귀 발견 시 종료 전 append 제안.
 1. state/portfolios.json 읽어 현재 포지션/현금 파악
 2. 검증 대상 시그널 확인
 3. execution/risk_validator.py 호출하여 5가지 체크 실행
