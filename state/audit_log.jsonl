@@ -143,3 +143,30 @@
 {"ts": "2026-04-14T12:13:27.824965+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "all", "resolved": 17}}
 {"ts": "2026-04-14T12:34:02.339990+00:00", "who": "bot", "phase": "main", "action": "start", "payload": {"phase": "signals", "dry_run": true}}
 {"ts": "2026-04-14T12:34:10.831691+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "signals", "resolved": 16}}
+{"ts": "2026-04-16T02:05:17.693107+00:00", "who": "bot", "phase": "main", "action": "start", "payload": {"phase": "all", "dry_run": true}}
+{"ts": "2026-04-16T02:05:17.696335+00:00", "who": "bot", "phase": "integrity", "action": "drift", "payload": {"drift_pct": 0.19663100000000006, "alloc_sum": 80336.9, "inception_total": 100000.0}}
+{"ts": "2026-04-16T02:15:17.128383+00:00", "who": "bot", "phase": "rebalance", "action": "start", "payload": {}}
+{"ts": "2026-04-16T02:15:17.133397+00:00", "who": "bot", "phase": "rebalance", "action": "end", "payload": {"signals": 0, "rebalanced_strategies": []}}
+{"ts": "2026-04-16T02:15:17.134077+00:00", "who": "bot", "phase": "execute", "action": "start", "payload": {"signals": 0, "dry_run": true}}
+{"ts": "2026-04-16T02:15:17.136181+00:00", "who": "bot", "phase": "execute", "action": "end", "payload": {"results": 0}}
+{"ts": "2026-04-16T02:15:17.136772+00:00", "who": "bot", "phase": "report", "action": "start", "payload": {}}
+{"ts": "2026-04-16T02:15:37.839621+00:00", "who": "bot", "phase": "main", "action": "start", "payload": {"phase": "all", "dry_run": true}}
+{"ts": "2026-04-16T02:15:37.841321+00:00", "who": "bot", "phase": "integrity", "action": "drift", "payload": {"drift_pct": 0.19663100000000006, "alloc_sum": 80336.9, "inception_total": 100000.0}}
+{"ts": "2026-04-16T02:16:08.399265+00:00", "who": "bot", "phase": "report", "action": "end", "payload": {}}
+{"ts": "2026-04-16T02:16:08.436348+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "all", "resolved": 0}}
+{"ts": "2026-04-16T02:22:46.967138+00:00", "who": "bot", "phase": "main", "action": "start", "payload": {"phase": "all", "dry_run": true}}
+{"ts": "2026-04-16T02:22:46.969521+00:00", "who": "bot", "phase": "integrity", "action": "drift", "payload": {"drift_pct": 0.19663100000000006, "alloc_sum": 80336.9, "inception_total": 100000.0}}
+{"ts": "2026-04-16T02:26:31.123345+00:00", "who": "bot", "phase": "rebalance", "action": "start", "payload": {}}
+{"ts": "2026-04-16T02:26:31.134706+00:00", "who": "bot", "phase": "rebalance", "action": "end", "payload": {"signals": 0, "rebalanced_strategies": []}}
+{"ts": "2026-04-16T02:26:31.135937+00:00", "who": "bot", "phase": "execute", "action": "start", "payload": {"signals": 0, "dry_run": true}}
+{"ts": "2026-04-16T02:26:31.140006+00:00", "who": "bot", "phase": "execute", "action": "end", "payload": {"results": 0}}
+{"ts": "2026-04-16T02:26:31.141330+00:00", "who": "bot", "phase": "report", "action": "start", "payload": {}}
+{"ts": "2026-04-16T02:27:36.868908+00:00", "who": "bot", "phase": "report", "action": "end", "payload": {}}
+{"ts": "2026-04-16T02:27:36.922265+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "all", "resolved": 0}}
+{"ts": "2026-04-16T02:33:38.609662+00:00", "who": "bot", "phase": "rebalance", "action": "start", "payload": {}}
+{"ts": "2026-04-16T02:33:38.615882+00:00", "who": "bot", "phase": "rebalance", "action": "end", "payload": {"signals": 0, "rebalanced_strategies": []}}
+{"ts": "2026-04-16T02:33:38.617131+00:00", "who": "bot", "phase": "execute", "action": "start", "payload": {"signals": 37, "dry_run": true}}
+{"ts": "2026-04-16T02:33:39.322311+00:00", "who": "bot", "phase": "execute", "action": "end", "payload": {"results": 37}}
+{"ts": "2026-04-16T02:33:39.323731+00:00", "who": "bot", "phase": "report", "action": "start", "payload": {}}
+{"ts": "2026-04-16T02:34:33.422633+00:00", "who": "bot", "phase": "report", "action": "end", "payload": {}}
+{"ts": "2026-04-16T02:34:33.461001+00:00", "who": "bot", "phase": "main", "action": "end", "payload": {"phase": "all", "resolved": 37}}

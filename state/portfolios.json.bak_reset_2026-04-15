@@ -1,6 +1,6 @@
 {
-  "account_total": 100420.97,
-  "last_updated": "2026-04-16T02:33:41.043156+00:00",
+  "account_total": 100421.11,
+  "last_updated": "2026-04-15T02:08:42.182424+00:00",
   "strategies": {
     "MOM": {
       "name": "Momentum",
@@ -14,10 +14,6 @@
         },
         {
           "date": "2026-04-15",
-          "nav": 5021.06
-        },
-        {
-          "date": "2026-04-16",
           "nav": 5021.06
         }
       ],
@@ -36,10 +32,6 @@
         {
           "date": "2026-04-15",
           "nav": 15063.17
-        },
-        {
-          "date": "2026-04-16",
-          "nav": 15063.17
         }
       ],
       "last_rebalance": "2026-04-13"
@@ -57,18 +49,14 @@
         {
           "date": "2026-04-15",
           "nav": 10042.11
-        },
-        {
-          "date": "2026-04-16",
-          "nav": 10042.11
         }
       ],
       "last_rebalance": null
     },
     "LEV": {
       "name": "Leveraged ETF",
-      "allocated": 25105.28,
-      "cash": 25105.28,
+      "allocated": 50210.56,
+      "cash": 50210.56,
       "positions": {},
       "nav_history": [
         {
@@ -93,59 +81,19 @@
         },
         {
           "date": "2026-04-15",
-          "nav": 25105.28
-        },
-        {
-          "date": "2026-04-16",
-          "nav": 25105.28
-        }
-      ],
-      "last_rebalance": null
-    },
-    "LEV_ST": {
-      "name": "Leveraged Short-Term",
-      "allocated": 25105.28,
-      "cash": 25105.28,
-      "positions": {},
-      "nav_history": [
-        {
-          "date": "2026-04-15",
-          "nav": 25105.28
-        },
-        {
-          "date": "2026-04-16",
-          "nav": 25105.28
-        }
-      ],
-      "last_rebalance": null
-    },
-    "GRW": {
-      "name": "Growth Small Cap",
-      "allocated": 0,
-      "cash": 0,
-      "positions": {},
-      "nav_history": [
-        {
-          "date": "2026-04-15",
-          "nav": 0
-        },
-        {
-          "date": "2026-04-16",
-          "nav": 0
+          "nav": 50210.56
         }
       ],
       "last_rebalance": null
     }
   },
   "inception": {
-    "total": 100000,
+    "total": 100000.0,
     "strategies": {
-      "MOM": 25000,
-      "VAL": 25000,
-      "QNT": 30000,
-      "LEV": 20000,
-      "LEV_ST": 0,
-      "GRW": 0
+      "MOM": 25000.0,
+      "VAL": 25000.0,
+      "QNT": 30000.0,
+      "LEV": 20000.0
     },
     "date": "2026-04-10"
   },
@@ -287,36 +235,6 @@
       "strategy": "VAL",
       "amount": -10000.0,
       "ts": "2026-04-13T15:06:56.564437+00:00"
-    }
-  ],
-  "account_total_history": [
-    {
-      "date": "2026-04-09",
-      "nav": 99999.99
-    },
-    {
-      "date": "2026-04-10",
-      "nav": 100000.0
-    },
-    {
-      "date": "2026-04-11",
-      "nav": 99753.34
-    },
-    {
-      "date": "2026-04-13",
-      "nav": 100064.03
-    },
-    {
-      "date": "2026-04-14",
-      "nav": 99976.73
-    },
-    {
-      "date": "2026-04-15",
-      "nav": 100421.11
-    },
-    {
-      "date": "2026-04-16",
-      "nav": 100420.97
     }
   ]
 }

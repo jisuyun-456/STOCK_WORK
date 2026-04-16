@@ -1,86 +1,74 @@
 {
-  "account_total": 99950.61,
-  "last_updated": "2026-04-13T15:09:13.716755+00:00",
+  "account_total": 100420.97,
+  "last_updated": "2026-04-16T02:26:32.775750+00:00",
   "strategies": {
     "MOM": {
       "name": "Momentum",
-      "allocated": 15000,
-      "cash": 15000,
+      "allocated": 5021.06,
+      "cash": 5021.06,
       "positions": {},
       "nav_history": [
         {
-          "date": "2026-04-09",
-          "nav": 25000.0
+          "date": "2026-04-14",
+          "nav": 15000.0
         },
         {
-          "date": "2026-04-10",
-          "nav": 25000.0
+          "date": "2026-04-15",
+          "nav": 5021.06
         },
         {
-          "date": "2026-04-11",
-          "nav": 15704.15
-        },
-        {
-          "date": "2026-04-13",
-          "nav": 15868.16
+          "date": "2026-04-16",
+          "nav": 5021.06
         }
       ],
       "last_rebalance": "2026-04-13"
     },
     "VAL": {
       "name": "Value Quality",
-      "allocated": 15000,
-      "cash": 15000,
+      "allocated": 15063.17,
+      "cash": 15063.17,
       "positions": {},
       "nav_history": [
         {
-          "date": "2026-04-09",
-          "nav": 25000.0
+          "date": "2026-04-14",
+          "nav": 15000.0
         },
         {
-          "date": "2026-04-10",
-          "nav": 25000.0
+          "date": "2026-04-15",
+          "nav": 15063.17
         },
         {
-          "date": "2026-04-11",
-          "nav": 14110.86
-        },
-        {
-          "date": "2026-04-13",
-          "nav": 14299.42
+          "date": "2026-04-16",
+          "nav": 15063.17
         }
       ],
       "last_rebalance": "2026-04-13"
     },
     "QNT": {
       "name": "Quant Factor",
-      "allocated": 20000,
-      "cash": 20000,
+      "allocated": 10042.11,
+      "cash": 10042.11,
       "positions": {},
       "nav_history": [
         {
-          "date": "2026-04-09",
-          "nav": 30000.0
+          "date": "2026-04-14",
+          "nav": 20000.0
         },
         {
-          "date": "2026-04-10",
-          "nav": 30000.0
+          "date": "2026-04-15",
+          "nav": 10042.11
         },
         {
-          "date": "2026-04-11",
-          "nav": 19938.32
-        },
-        {
-          "date": "2026-04-13",
-          "nav": 19902.94
+          "date": "2026-04-16",
+          "nav": 10042.11
         }
       ],
       "last_rebalance": null
     },
     "LEV": {
       "name": "Leveraged ETF",
-      "allocated": 50000,
-      "cash": 50000,
+      "allocated": 25105.28,
+      "cash": 25105.28,
       "positions": {},
       "nav_history": [
         {
@@ -98,18 +86,66 @@
         {
           "date": "2026-04-13",
           "nav": 49993.51
+        },
+        {
+          "date": "2026-04-14",
+          "nav": 49991.54
+        },
+        {
+          "date": "2026-04-15",
+          "nav": 25105.28
+        },
+        {
+          "date": "2026-04-16",
+          "nav": 25105.28
+        }
+      ],
+      "last_rebalance": null
+    },
+    "LEV_ST": {
+      "name": "Leveraged Short-Term",
+      "allocated": 25105.28,
+      "cash": 25105.28,
+      "positions": {},
+      "nav_history": [
+        {
+          "date": "2026-04-15",
+          "nav": 25105.28
+        },
+        {
+          "date": "2026-04-16",
+          "nav": 25105.28
+        }
+      ],
+      "last_rebalance": null
+    },
+    "GRW": {
+      "name": "Growth Small Cap",
+      "allocated": 0,
+      "cash": 0,
+      "positions": {},
+      "nav_history": [
+        {
+          "date": "2026-04-15",
+          "nav": 0
+        },
+        {
+          "date": "2026-04-16",
+          "nav": 0
         }
       ],
       "last_rebalance": null
     }
   },
   "inception": {
-    "total": 100000.0,
+    "total": 100000,
     "strategies": {
-      "MOM": 25000.0,
-      "VAL": 25000.0,
-      "QNT": 30000.0,
-      "LEV": 20000.0
+      "MOM": 25000,
+      "VAL": 25000,
+      "QNT": 30000,
+      "LEV": 20000,
+      "LEV_ST": 0,
+      "GRW": 0
     },
     "date": "2026-04-10"
   },
@@ -251,6 +287,36 @@
       "strategy": "VAL",
       "amount": -10000.0,
       "ts": "2026-04-13T15:06:56.564437+00:00"
+    }
+  ],
+  "account_total_history": [
+    {
+      "date": "2026-04-09",
+      "nav": 99999.99
+    },
+    {
+      "date": "2026-04-10",
+      "nav": 100000.0
+    },
+    {
+      "date": "2026-04-11",
+      "nav": 99753.34
+    },
+    {
+      "date": "2026-04-13",
+      "nav": 100064.03
+    },
+    {
+      "date": "2026-04-14",
+      "nav": 99976.73
+    },
+    {
+      "date": "2026-04-15",
+      "nav": 100421.11
+    },
+    {
+      "date": "2026-04-16",
+      "nav": 100420.97
     }
   ]
 }

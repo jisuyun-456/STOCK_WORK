@@ -1,11 +1,11 @@
 {
   "WBD": {
     "sector": "Communication Services",
-    "ts": 1776167210.3046184
+    "ts": 1776305716.7162795
   },
   "ADP": {
     "sector": "Technology",
-    "ts": 1776167213.0600069
+    "ts": 1776306818.1194656
   },
   "ACN": {
     "sector": "Technology",
@@ -13,7 +13,7 @@
   },
   "CI": {
     "sector": "Healthcare",
-    "ts": 1776167213.4890974
+    "ts": 1776305717.1193113
   },
   "TGT": {
     "sector": "Consumer Defensive",
@@ -30,5 +30,9 @@
   "SPY": {
     "sector": "Unknown",
     "ts": 1775918622.694738
+  },
+  "ZTS": {
+    "sector": "Healthcare",
+    "ts": 1776306818.5986357
   }
 }
