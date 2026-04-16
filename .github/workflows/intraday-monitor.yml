@@ -4,7 +4,7 @@ on:
   schedule:
     # US market hours 09:00~16:30 ET = 14:00~21:30 UTC, every 30 min
     # First run 14:00 UTC (30min buffer after daily 13:30 UTC)
-    - cron: '0,30 14-21 * * 1-5'
+    - cron: '0,30 14-20 * * 1-5'
   workflow_dispatch:
     inputs:
       dry_run:
