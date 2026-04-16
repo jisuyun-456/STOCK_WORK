@@ -1162,13 +1162,11 @@ def _sync_alpaca_positions(portfolios: dict) -> dict:
         print(f"  [sync] Alpaca sync skipped: {e}")
         return portfolios
 
-    # Build symbol→strategy map from trade_log
-    # TODO(RL-1 latent): last-write-wins here loses multi-strategy ownership when
-    # the same symbol is bought by more than one strategy (e.g. LRCX/AMAT/AMD
-    # in MOM+QNT). Not corrupting state as of 2026-04-11 because the overlapping
-    # trade_log entries are mostly dry_run and current positions happen not to
-    # overlap, but revisit if we see unmatched positions in the sync log.
-    symbol_strategy_map = {}
+    # Build symbol → holding strategies from trade_log.
+    # Tracks last action per (symbol, strategy): last BUY = holds, last SELL = exited.
+    # Supports multiple strategies owning the same symbol (proportional split).
+    # last_action[sym][strat] = (ts, side, notional)
+    last_action: dict[str, dict[str, tuple]] = {}
     trade_log_path = STATE_DIR / "trade_log.jsonl"
     if trade_log_path.exists():
         with open(trade_log_path) as f:
@@ -1180,20 +1178,50 @@ def _sync_alpaca_positions(portfolios: dict) -> dict:
                     continue
                 sym = entry.get("symbol")
                 strat = entry.get("strategy")
-                if sym and strat and entry.get("side") == "buy":
-                    symbol_strategy_map[sym] = strat
+                side = entry.get("side")
+                status = entry.get("status")
+                if not (sym and strat and side) or status in ("skipped", "error"):
+                    continue
+                ts = entry.get("ts", "")
+                notional = float(entry.get("qty") or 0)
+                if sym not in last_action:
+                    last_action[sym] = {}
+                prev = last_action[sym].get(strat)
+                if prev is None or ts > prev[0]:
+                    last_action[sym][strat] = (ts, side, notional)
+
+    # symbol_holders[sym] = {strat: notional} — strategies with last action = buy
+    symbol_holders: dict[str, dict[str, float]] = {}
+    for sym, strat_map in last_action.items():
+        holders = {
+            strat: info[2]
+            for strat, info in strat_map.items()
+            if info[1] == "buy"
+        }
+        if holders:
+            symbol_holders[sym] = holders
 
     # Clear all existing positions
     for code, strat in portfolios["strategies"].items():
         strat["positions"] = {}
 
-    # Place Alpaca positions into correct strategy
+    # Place Alpaca positions into strategy/strategies (proportional split if multi-owner)
     unmatched = []
     for pos in alpaca_positions:
         sym = pos["symbol"]
-        strategy_code = symbol_strategy_map.get(sym)
-        if strategy_code and strategy_code in portfolios["strategies"]:
-            portfolios["strategies"][strategy_code]["positions"][sym] = {
+        holders = symbol_holders.get(sym)
+        if not holders:
+            unmatched.append(sym)
+            continue
+        valid_holders = {s: n for s, n in holders.items() if s in portfolios["strategies"]}
+        if not valid_holders:
+            unmatched.append(sym)
+            continue
+
+        if len(valid_holders) == 1:
+            # Single owner — assign entirely (original behavior)
+            strat_code = next(iter(valid_holders))
+            portfolios["strategies"][strat_code]["positions"][sym] = {
                 "qty": pos["qty"],
                 "avg_entry": pos["avg_entry_price"],
                 "current": pos["current_price"],
@@ -1202,7 +1230,26 @@ def _sync_alpaca_positions(portfolios: dict) -> dict:
                 "unrealized_plpc": pos["unrealized_plpc"],
             }
         else:
-            unmatched.append(sym)
+            # Multiple owners — split proportionally by notional (fallback: equal split)
+            total_notional = sum(valid_holders.values())
+            if total_notional > 0:
+                weights = {s: n / total_notional for s, n in valid_holders.items()}
+            else:
+                n = len(valid_holders)
+                weights = {s: 1.0 / n for s in valid_holders}
+            print(f"  [sync] {sym}: split {list(valid_holders.keys())} weights={{{', '.join(f'{s}: {w:.2f}' for s, w in weights.items())}}}")
+            for strat_code, weight in weights.items():
+                qty_split = round(float(pos["qty"]) * weight, 6)
+                mv_split = round(float(pos["market_value"]) * weight, 2)
+                cost_split = round(float(pos["avg_entry_price"]) * qty_split, 2)
+                portfolios["strategies"][strat_code]["positions"][sym] = {
+                    "qty": qty_split,
+                    "avg_entry": pos["avg_entry_price"],
+                    "current": pos["current_price"],
+                    "market_value": mv_split,
+                    "unrealized_pl": round(mv_split - cost_split, 2),
+                    "unrealized_plpc": pos["unrealized_plpc"],
+                }
 
     # Update strategy cash from account-level data
     total_position_value = sum(p["market_value"] for p in alpaca_positions)
