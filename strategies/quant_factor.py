@@ -288,7 +288,7 @@ class QuantFactorStrategy(BaseStrategy):
         _cfg = load_strategy_params().get("quant_factor", {})
         self.max_positions: int = int(_cfg.get("max_positions", self.__class__.max_positions))
         self.OLS_WINDOW: int = int(_cfg.get("ols_window", self.__class__.OLS_WINDOW))
-        self.min_composite_score: float = float(_cfg.get("min_composite_score", 0.3))
+        self.min_composite_score: float = float(_cfg.get("min_composite_score", 0.01))
 
     def generate_signals(self, market_data: dict, current_positions: dict | None = None) -> list[Signal]:
         """멀티팩터 점수 기반 매수/매도 신호 생성.
