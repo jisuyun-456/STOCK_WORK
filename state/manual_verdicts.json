@@ -1,0 +1,340 @@
+{
+  "NVDA:MOM:buy": {
+    "saved_at": "2026-04-16T06:12:04.447621+00:00",
+    "expires_at": "2026-04-17T06:12:04.447621+00:00",
+    "symbol": "NVDA",
+    "strategy": "MOM",
+    "direction": "buy",
+    "verdicts": [
+      {
+        "agent": "equity_research",
+        "symbol": "NVDA",
+        "direction": "AGREE",
+        "confidence_delta": 0.08,
+        "conviction": "STRONG",
+        "reasoning": "DCF $420 vs spot $385. F-Score=8/9.",
+        "key_metrics": {
+          "f_score": 8
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-16T06:12:04.447368+00:00"
+      },
+      {
+        "agent": "risk_controller",
+        "symbol": "NVDA",
+        "direction": "AGREE",
+        "confidence_delta": 0.0,
+        "conviction": "MODERATE",
+        "reasoning": "BB %B=0.72 정상 범위.",
+        "key_metrics": {
+          "bb_pct_b": 0.72
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-16T06:12:04.447368+00:00"
+      }
+    ],
+    "source": "manual_claude_code_agents"
+  },
+  "INTC:MOM:buy": {
+    "saved_at": "2026-04-16T07:18:24.541939+00:00",
+    "expires_at": "2026-04-17T07:18:24.541939+00:00",
+    "symbol": "INTC",
+    "strategy": "MOM",
+    "direction": "buy",
+    "verdicts": [
+      {
+        "agent": "equity_research",
+        "symbol": "INTC",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.22,
+        "conviction": "STRONG",
+        "reasoning": "Z-Score 1.25(파산위험구간)로 AGREE 금지. DCF/SoTP 내재가치 $20~$37 대비 현재가 $64.6 45~70% 고평가. IFS 연간 영업손실 $10.3B, Q1 2026 EPS 가이던스 $0.00, F-Score 3/9.",
+        "key_metrics": {
+          "dcf_fair_value_range": "19.9~33.2",
+          "z_score": 1.25,
+          "f_score": 3,
+          "m_score": -2.92,
+          "analyst_target": 45.9,
+          "ifs_operating_loss_B": -10.3,
+          "forward_pe": 126.7
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-16T07:18:24.540571+00:00"
+      },
+      {
+        "agent": "technical_strategist",
+        "symbol": "INTC",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.18,
+        "conviction": "MODERATE",
+        "reasoning": "현재가 $64.94는 52주 고점 $65.18에 1.9% 이내. RSI 77.34/BB%B 0.91 극단 과매수. MACD 히스토그램 3일 연속 감소로 모멘텀 다이버전스 초기 징후.",
+        "key_metrics": {
+          "rsi_14": 77.34,
+          "bb_pct_b": 0.91,
+          "macd_histogram_trend": "3일_연속_감소",
+          "resistance_52w_high": 65.18,
+          "adx": 40.82,
+          "stoch_rsi": 0.9
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-16T07:18:24.540571+00:00"
+      },
+      {
+        "agent": "macro_economist",
+        "symbol": "INTC",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.12,
+        "conviction": "MODERATE",
+        "reasoning": "반도체 사이클 회복은 AI/메모리/TSMC 주도로 INTC 소외. 파운드리 적자 지속, 중국 관세 $500M 헤드윈드. CHIPS Act는 하단 지지이지 모멘텀 촉매 아님.",
+        "key_metrics": {
+          "semiconductor_cycle": "회복국면_AI메모리주도_INTC소외",
+          "tariff_headwind_china_M": 500,
+          "chips_act": "하단지지",
+          "fed_rate": "3.50~3.75%_동결",
+          "intel_18a_yield": "65~75%"
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-16T07:18:24.540571+00:00"
+      },
+      {
+        "agent": "portfolio_architect",
+        "symbol": "INTC",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.08,
+        "conviction": "MODERATE",
+        "reasoning": "MOM 10개 중 7개(70%)가 반도체. INTC 포함시 N_eff 4.2로 분산 효과 소멸. 비반도체(WBD/RKLB/GOOGL) 교체 권고.",
+        "key_metrics": {
+          "semiconductor_weight_in_MOM": "70%",
+          "n_eff_with_INTC": 4.2,
+          "sector_limit_breach_MOM": true,
+          "INTC_rank_in_MOM": "6/10"
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-16T07:18:24.540571+00:00"
+      },
+      {
+        "agent": "risk_controller",
+        "symbol": "INTC",
+        "direction": "VETO",
+        "confidence_delta": -0.25,
+        "conviction": "STRONG",
+        "reasoning": "VaR(95%,1d) 5.25% > 5% 임계값으로 VETO 발동. GARCH VaR 7.60%. 52주 고점 진입(-1.4%), 모멘텀 이미 선반영. EBIT -$700M 적자 구조.",
+        "key_metrics": {
+          "var_95_1d_historical": 0.0525,
+          "var_95_1d_garch": 0.076,
+          "cvar_95_1d": 0.0725,
+          "veto_trigger": "VaR 5.25% > 5%",
+          "z_score_risk": 2.862,
+          "stress_2022": -0.49
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-16T07:18:24.540571+00:00"
+      }
+    ],
+    "source": "manual_claude_code_agents"
+  },
+  "APLD:MOM:buy": {
+    "saved_at": "2026-04-16T07:22:04.091847+00:00",
+    "expires_at": "2026-04-17T07:22:04.091847+00:00",
+    "symbol": "APLD",
+    "strategy": "MOM",
+    "direction": "buy",
+    "verdicts": [
+      {
+        "agent": "equity_research",
+        "symbol": "APLD",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.18,
+        "conviction": "MODERATE",
+        "reasoning": "Z-Score 0.04~1.0 파산위험구역. F-Score 2~4/9 극히 낮음. TTM 순손실 -$192M, OCF -$97.9M(6개월). P/S 24.8x 극단 고평가.",
+        "key_metrics": {
+          "z_score": "0.04~1.0",
+          "f_score": "2~4",
+          "p_s_ttm": 24.8,
+          "ev_sales": 31.01,
+          "net_income_ttm_M": -192,
+          "ocf_6m_M": -97.9,
+          "analyst_target": 37.75
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-16T07:22:04.089531+00:00"
+      },
+      {
+        "agent": "technical_strategist",
+        "symbol": "APLD",
+        "direction": "AGREE",
+        "confidence_delta": 0.04,
+        "conviction": "WEAK",
+        "reasoning": "SMA200 대비 +23.7%. MACD 히스토그램 확장. 단 BB %B 0.97 상단 근접, ADX 15.6 추세 약함, 연환산 변동성 109% 소형주 위험.",
+        "key_metrics": {
+          "rsi_14": 55.1,
+          "bb_pct_b": 0.972,
+          "adx": 15.6,
+          "hist_vol_annual": "109%",
+          "price_vs_sma200": 1.237,
+          "macd": "bullish_expansion"
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-16T07:22:04.089531+00:00"
+      },
+      {
+        "agent": "macro_economist",
+        "symbol": "APLD",
+        "direction": "AGREE",
+        "confidence_delta": 0.07,
+        "conviction": "MODERATE",
+        "reasoning": "Regime BULL, AI capex 2026년 $660-690B, 전력 수요 2030년 134GW. 구조적 순풍. 단 금리 동결 + 부채 $2.7B + 관세 건설비 +8% 역풍.",
+        "key_metrics": {
+          "regime": "BULL",
+          "hyperscaler_capex_2026_B": 660,
+          "us_datacenter_power_gw": 75.8,
+          "apld_debt_B": 2.7,
+          "tariff_construction_uplift_pct": 8
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-16T07:22:04.089531+00:00"
+      },
+      {
+        "agent": "portfolio_architect",
+        "symbol": "APLD",
+        "direction": "AGREE",
+        "confidence_delta": 0.04,
+        "conviction": "MODERATE",
+        "reasoning": "포트 비중 1.5%, 섹터 12% — 한도 내 통과. 반도체 다운스트림으로 제한적 분산(r≈0.65). 소형주 변동성 및 모멘텀 과열 우려로 균등배분 유지.",
+        "key_metrics": {
+          "position_weight": 0.015,
+          "sector_weight": 0.12,
+          "correlation_vs_semis": 0.65,
+          "small_cap_liquidity": "ELEVATED",
+          "momentum_flag": true
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-16T07:22:04.089531+00:00"
+      },
+      {
+        "agent": "risk_controller",
+        "symbol": "APLD",
+        "direction": "VETO",
+        "confidence_delta": -0.3,
+        "conviction": "STRONG",
+        "reasoning": "VaR(95%,1d) 8.67% — VETO 기준 5% 1.7배 초과. GARCH 11.85%, MC 11.37%, 세 방법 일치. 연간 변동성 119%. CVaR 11.4%.",
+        "key_metrics": {
+          "var_95_1d_historical": 0.0867,
+          "var_95_1d_garch": 0.1185,
+          "var_95_1d_mc": 0.1137,
+          "cvar_95_1d": 0.114,
+          "hist_vol_annual": 1.194,
+          "veto_trigger": "VaR 8.67% > 5%",
+          "risk_gate_pass": false
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-16T07:22:04.089531+00:00"
+      }
+    ],
+    "source": "manual_claude_code_agents"
+  },
+  "MU:QNT:buy": {
+    "saved_at": "2026-04-16T07:26:51.724243+00:00",
+    "expires_at": "2026-04-17T07:26:51.724243+00:00",
+    "symbol": "MU",
+    "strategy": "QNT",
+    "direction": "buy",
+    "verdicts": [
+      {
+        "agent": "equity_research",
+        "symbol": "MU",
+        "direction": "AGREE",
+        "confidence_delta": 0.14,
+        "conviction": "STRONG",
+        "reasoning": "Q2 FY2026 매출 $23.9B(YoY+196%), Q3 가이던스 $33.5B. 2026년 HBM 전량 계약. Forward P/E 9.9x, Z-Score 6.94, F-Score 7/9. 펀더멘탈 강력.",
+        "key_metrics": {
+          "forward_pe": 9.9,
+          "z_score": 6.94,
+          "f_score": 7,
+          "m_score": -2.68,
+          "analyst_consensus": "Strong Buy 31명",
+          "dcf_target": 533,
+          "hbm_2026": "SOLD OUT",
+          "q3_guidance_B": 33.5,
+          "peg": 0.04
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-16T07:26:51.722283+00:00"
+      },
+      {
+        "agent": "technical_strategist",
+        "symbol": "MU",
+        "direction": "AGREE",
+        "confidence_delta": 0.08,
+        "conviction": "MODERATE",
+        "reasoning": "SMA200 대비 +79.1%. MACD 히스토그램 5일 연속 확장. RSI 66.7 상승 모멘텀. 52주 고점 재도전 중, 돌파 확인이 핵심.",
+        "key_metrics": {
+          "rsi_14": 66.7,
+          "bb_pct_b": 0.849,
+          "adx": 24.5,
+          "macd_hist": 10.04,
+          "macd_expanding": true,
+          "price_vs_sma200": 1.791,
+          "52w_high": 465.66
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-16T07:26:51.722283+00:00"
+      },
+      {
+        "agent": "macro_economist",
+        "symbol": "MU",
+        "direction": "AGREE",
+        "confidence_delta": 0.12,
+        "conviction": "MODERATE",
+        "reasoning": "Regime BULL. 메모리 업사이클 중간 단계. DRAM 공급 16% YoY 제한. 1Q26 DRAM 계약가 +55~60% QoQ. HBM 시장 $54.6B. 관세/중국 20% 노출 리스크.",
+        "key_metrics": {
+          "memory_cycle": "업사이클_중간",
+          "dram_supply_growth": "16%",
+          "hbm_market_B": 54.6,
+          "chips_act_B": 6.1,
+          "china_exposure": "20%",
+          "forward_pe": 4.6
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-16T07:26:51.722283+00:00"
+      },
+      {
+        "agent": "portfolio_architect",
+        "symbol": "MU",
+        "direction": "AGREE",
+        "confidence_delta": 0.04,
+        "conviction": "MODERATE",
+        "reasoning": "QNT+MOM 합산 반도체 15.3%, 40% 한도 내. MU 0.6%. 단 QNT 내 반도체 50% 클러스터 — crisis 시 상관관계 0.92 수렴 위험.",
+        "key_metrics": {
+          "semiconductor_combined_pct": 0.153,
+          "mu_position_pct": 0.00625,
+          "qnt_semiconductor_concentration": 0.5,
+          "sector_gate_breach": false,
+          "cluster_risk": "SOX 0.92 crisis 상관"
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-16T07:26:51.722283+00:00"
+      },
+      {
+        "agent": "risk_controller",
+        "symbol": "MU",
+        "direction": "VETO",
+        "confidence_delta": -0.3,
+        "conviction": "STRONG",
+        "reasoning": "GARCH VaR 8.06% > VETO 5% 초과. QNT 반도체 집중도 50% > 40% 섹터 게이트 위반. MU 재무는 건전(Z-Score 12.71)하나 두 기준 동시 위반.",
+        "key_metrics": {
+          "var_95_garch": 0.0806,
+          "var_95_historical": 0.0481,
+          "cvar_95": 0.0703,
+          "z_score": 12.71,
+          "qnt_sector_concentration": 0.5,
+          "veto_trigger": "GARCH VaR 8.06% + 섹터 50%",
+          "risk_gate_pass": false
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-16T07:26:51.722283+00:00"
+      }
+    ],
+    "source": "manual_claude_code_agents"
+  }
+}

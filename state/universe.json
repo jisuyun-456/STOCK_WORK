@@ -1,9 +1,9 @@
 {
   "_meta": {
-    "version": 1,
-    "updated": "2026-04-10",
+    "version": 2,
+    "updated": "2026-04-16",
     "source": "strategies/{momentum,value_quality,quant_factor}.py 하드코딩 추출",
-    "notes": "MMC 제거 (Marsh McLennan — 10/10 dry-run 에서 연속 경고 발생). 자동 점검은 scripts/universe_audit.py, 주 1회 GitHub Actions 로 갱신."
+    "notes": "MMC 제거 (Marsh McLennan — 10/10 dry-run 에서 연속 경고 발생). 2026-04-16: 테마종목 추가 (AI SaaS, 양자, 로봇, 우주항공, AI전력). 자동 점검은 scripts/universe_audit.py, 주 1회 GitHub Actions 로 갱신."
   },
   "NASDAQ_100_SUBSET": [
     "AAPL", "MSFT", "NVDA", "AMZN", "META", "GOOGL", "GOOG", "AVGO",
@@ -16,7 +16,7 @@
     "KHC", "FANG", "ODFL", "FAST", "CPRT", "MCHP", "EXC", "DXCM",
     "ROST", "EA", "CTSH", "VRSK", "IDXX", "GEHC", "LULU", "ON",
     "XEL", "BIIB", "CDW", "ILMN", "TTWO", "ZS", "WBD",
-    "PLTR", "RKLB", "HIMS", "APLD", "IONQ"
+    "PLTR", "RKLB", "HIMS", "APLD", "IONQ", "VST", "ETN", "ROK", "SOUN", "SOFI"
   ],
   "SP500_TOP100": [
     "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "BRK-B", "LLY", "TSM", "AVGO",
@@ -38,7 +38,8 @@
     "WMT", "COST", "HD", "MCD", "NKE", "SBUX", "TJX", "LOW", "TGT", "DG",
     "CAT", "HON", "UNP", "RTX", "GE", "DE", "BA", "LMT", "FDX", "MMM",
     "XOM", "CVX", "COP", "SLB", "EOG", "PSX", "MPC", "VLO", "OXY", "HAL",
-    "NEE", "DUK", "SO", "AEP", "D", "VZ", "T", "TMUS", "CCI", "AMT"
+    "NEE", "DUK", "SO", "AEP", "D", "VZ", "T", "TMUS", "CCI", "AMT",
+    "PLTR", "TSLA", "IONQ", "RKLB", "CEG", "VST", "ISRG", "NOC"
   ],
   "RUSSELL_2000_SUBSET": [
     "IRTC", "INSP", "TMDX", "ACMR", "FORM", "CRDO", "AMBA",
