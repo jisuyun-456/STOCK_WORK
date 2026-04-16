@@ -39,6 +39,7 @@ import tempfile
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from state.cycle_health import CycleHealthTracker, check_stabilization as _check_stabilization
 
 # Windows cp949/euc-kr 콘솔에서 한글·유니코드 print 시 UnicodeEncodeError 방지
 # 모든 하위 모듈(strategies, news, fundamentals 등)에 전역 적용
@@ -1775,15 +1776,23 @@ def main():
     try:
         if DEGRADED_COUNT_PATH.exists():
             _dc = json.loads(DEGRADED_COUNT_PATH.read_text(encoding="utf-8"))
-            if int(_dc.get("consecutive", 0)) >= 2:
+            _consec = int(_dc.get("consecutive", 0))
+            if _consec >= 2:
+                _health_tracker.record(
+                    "DATA_WARNING", "degraded_data",
+                    f"consecutive_degraded={_consec}",
+                )
                 print(
-                    f"  [WARNING] 이전 사이클 degraded {_dc['consecutive']}회 연속 — "
+                    f"  [WARNING] 이전 사이클 degraded {_consec}회 연속 — "
                     f"데이터 소스 확인 권장"
                 )
     except Exception:
         pass
 
     _audit_log("main", "start", {"phase": args.phase, "dry_run": args.dry_run})
+
+    # Cycle Health Tracker — 에러 카운트 누적
+    _health_tracker = CycleHealthTracker()
 
     # N-LOW-4: allocation integrity check — Immutable Ledger last line of defense
     # Note: _check_allocation_integrity compares sum(allocated) vs inception.total.
@@ -1794,6 +1803,7 @@ def main():
         _pre_portfolios = load_portfolios()
         _check_allocation_integrity(_pre_portfolios)
     except Exception as e:
+        _health_tracker.record("DATA_WARNING", "allocation_integrity", str(e))
         print(f"  [integrity] pre-flight check skipped: {e}")
 
     # Phase Monitor -independent lightweight path
@@ -1818,7 +1828,12 @@ def main():
 
     # Phase 1: DATA
     if args.phase in ("all", "data"):
-        market_data = phase_data()
+        try:
+            market_data = phase_data()
+        except Exception as _e:
+            _health_tracker.record("PHASE_ERROR", "phase_data", str(_e))
+            print(f"  [ERROR] phase_data: {_e}")
+            market_data = None
         print()
     else:
         market_data = None
@@ -1864,7 +1879,8 @@ def main():
                 else:
                     detected_consec = 1
                     regime = detected_regime
-            except Exception:
+            except Exception as _he:
+                _health_tracker.record("PHASE_ERROR", "phase_regime_hysteresis", str(_he))
                 detected_consec = 1
                 regime = detected_regime
 
@@ -1986,7 +2002,12 @@ def main():
                     market_data["ff5_days_lag"] = _qnt.get("ff5_days_lag", 0)
                 except Exception as _e:
                     print(f"  [signals] QNT FF5 보충 실패: {_e}")
-        signals = phase_signals(market_data, regime=regime, allocations=allocations)
+        try:
+            signals = phase_signals(market_data, regime=regime, allocations=allocations)
+        except Exception as _se:
+            _health_tracker.record("PHASE_ERROR", "phase_signals", str(_se))
+            print(f"  [ERROR] phase_signals: {_se}")
+            signals = []
         # C2: stop-loss SELL 시그널을 최우선 병합 (동일 심볼 중복 시 stop-loss 우선)
         if stop_loss_signals:
             sl_symbols = {(s.strategy, s.symbol) for s in stop_loss_signals}
@@ -2086,6 +2107,19 @@ def main():
     if args.phase in ("all", "execute"):
         _audit_log("execute", "start", {"signals": len(resolved), "dry_run": args.dry_run})
         results = phase_execute(resolved, dry_run=args.dry_run)
+        # ORDER_ERROR 카운트 — unfilled / partial_fill / error
+        for _r in (results or []):
+            _st = _r.get("status", "")
+            if _st in ("unfilled", "error"):
+                _health_tracker.record(
+                    "ORDER_ERROR", "phase_execute",
+                    f"{_r.get('symbol','?')} status={_st}",
+                )
+            elif _st == "partial_fill":
+                _health_tracker.record(
+                    "ORDER_ERROR", "phase_execute",
+                    f"{_r.get('symbol','?')} partial_fill",
+                )
         _audit_log("execute", "end", {"results": len(results)})
         print()
     else:
@@ -2099,6 +2133,21 @@ def main():
         print()
 
     print("=== Cycle Complete ===")
+
+    # Cycle Health: 에러 카운트 저장 + 안정화 판정
+    _cycle_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    try:
+        _health_tracker.save(cycle_date=_cycle_date, dry_run=args.dry_run)
+        _stab = _check_stabilization()
+        if _stab["status"] == "STABILIZED":
+            print(f"\n{'=' * 50}")
+            print(f"  *** {_stab['message']} ***")
+            print(f"{'=' * 50}\n")
+        else:
+            print(f"  [health] {_stab['message']}")
+    except Exception as _he:
+        print(f"  [health] WARNING: 저장 실패 ({_he})")
+
     _backup_state_files()
     _audit_log("main", "end", {"phase": args.phase, "resolved": len(resolved)})
 
