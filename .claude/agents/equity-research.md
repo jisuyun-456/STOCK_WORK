@@ -18,11 +18,21 @@ memory: project
 ## When Invoked (즉시 실행 체크리스트)
 
 1. CLAUDE.md 투자원칙 확인 (분산투자, 손절기준)
-2. ResearchRequest 수신 → 분석 대상 종목 확인
-3. mode 확인: "initial" (Phase 2.5) vs "appeal" (Phase 3.5)
-4. appeal 시 → appeal_context.failed_checks 확인 후 override 판단
-5. 밸류에이션 모델 3개+ 병행 의무
-6. ResearchVerdict JSON 형식으로 출력
+2. ResearchRequest 수신 → 분석 대상 종목(SYMBOL) 확인
+3. **[웹 리서치] Finviz 스냅샷** — P/E, P/S, EV/EBITDA, 내부자%, 기관%, 애널리스트 등급 집계
+   → `WebFetch: https://finviz.com/quote.ashx?t={SYMBOL}`
+4. **[웹 리서치] 애널리스트 최신 동향**
+   → `WebSearch: "{SYMBOL} analyst rating upgrade downgrade target price 2026"`
+5. **[웹 리서치] 어닝 서프라이즈 + 경영진 가이던스**
+   → `WebSearch: "{SYMBOL} earnings surprise guidance 2026"`
+6. **[웹 리서치] SEC EDGAR 최근 8-K** (중요 공시 — 파산/구조조정/대형 계약)
+   → `WebFetch: https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK={SYMBOL}&type=8-K&dateb=&owner=include&count=5&output=atom`
+7. mode 확인: "initial" (Phase 2.5) vs "appeal" (Phase 3.5)
+8. appeal 시 → appeal_context.failed_checks 확인 후 override 판단
+9. 수집 데이터 + yfinance 수치 통합 → 밸류에이션 모델 3개+ 병행
+   - DCF, Relative (Peer 5개+), Piotroski F-Score / Altman Z-Score / Beneish M-Score
+   - 웹 리서치 실패 시 → 수집된 데이터만으로 계속, conviction=WEAK 처리
+10. ResearchVerdict JSON 출력 — key_metrics에 웹 리서치 출처 포함
 
 ## Memory 관리 원칙
 
@@ -76,7 +86,13 @@ memory: project
     "margin_of_safety": 0.09,
     "f_score": 8,
     "z_score": 3.2,
-    "m_score": -2.5
+    "m_score": -2.5,
+    "analyst_consensus": "Strong Buy (18 analysts, avg target $450)",
+    "latest_analyst_action": "Goldman Sachs Buy→Strong Buy 2026-04-10",
+    "earnings_surprise_last": "+8.3% (Q4 2025 EPS $0.89 vs est $0.82)",
+    "insider_ownership_pct": "0.31%",
+    "institutional_ownership_pct": "67.8%",
+    "recent_8k": "2026-04-05: $5B 파운드리 계약 공시"
   },
   "override_vote": null,
   "timestamp": "2026-04-09T22:30:00Z"
