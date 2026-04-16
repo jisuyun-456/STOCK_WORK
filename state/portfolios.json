@@ -4,8 +4,8 @@
   "strategies": {
     "MOM": {
       "name": "Momentum",
-      "allocated": 5021.06,
-      "cash": 5021.06,
+      "allocated": 15063.15,
+      "cash": 15063.15,
       "positions": {},
       "nav_history": [
         {
@@ -25,8 +25,8 @@
     },
     "VAL": {
       "name": "Value Quality",
-      "allocated": 15063.17,
-      "cash": 15063.17,
+      "allocated": 10042.1,
+      "cash": 10042.1,
       "positions": {},
       "nav_history": [
         {
@@ -46,8 +46,8 @@
     },
     "QNT": {
       "name": "Quant Factor",
-      "allocated": 10042.11,
-      "cash": 10042.11,
+      "allocated": 12552.62,
+      "cash": 12552.62,
       "positions": {},
       "nav_history": [
         {
@@ -67,8 +67,8 @@
     },
     "LEV": {
       "name": "Leveraged ETF",
-      "allocated": 25105.28,
-      "cash": 25105.28,
+      "allocated": 25105.24,
+      "cash": 25105.24,
       "positions": {},
       "nav_history": [
         {
@@ -104,8 +104,8 @@
     },
     "LEV_ST": {
       "name": "Leveraged Short-Term",
-      "allocated": 25105.28,
-      "cash": 25105.28,
+      "allocated": 25105.24,
+      "cash": 25105.24,
       "positions": {},
       "nav_history": [
         {
@@ -121,8 +121,8 @@
     },
     "GRW": {
       "name": "Growth Small Cap",
-      "allocated": 0,
-      "cash": 0,
+      "allocated": 12552.62,
+      "cash": 12552.62,
       "positions": {},
       "nav_history": [
         {

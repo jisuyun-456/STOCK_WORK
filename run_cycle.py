@@ -645,17 +645,19 @@ def phase_regime(market_data: dict, force_regime: str | None = None) -> tuple:
     cash_amount = allocations.pop("CASH", 0)
     if cash_amount > 0:
         print(f"  CASH reserve: ${cash_amount:,.0f} (not deployed)")
-        # Update each strategy's allocated amount in portfolios.json
-        # Tag realloc_flag when allocation changes >5% (regime shift, not market movement)
-        for code in ["MOM", "VAL", "QNT", "LEV", "LEV_ST", "GRW"]:
-            if code in allocations and code in portfolios["strategies"]:
-                strat = portfolios["strategies"][code]
-                old_alloc = float(strat.get("allocated", 0))
-                new_alloc = float(allocations[code])
-                strat["allocated"] = new_alloc
-                if old_alloc > 0 and abs(new_alloc - old_alloc) / old_alloc > 0.05:
-                    strat["realloc_flag"] = True
-        save_portfolios(portfolios)
+
+    # Update each strategy's allocated amount in portfolios.json (always, not just CASH>0)
+    # Bug fix: BULL/NEUTRAL have CASH=0, so the old `if cash_amount > 0` guard
+    # prevented updates → GRW stayed at allocated=$0 in BULL/NEUTRAL regimes.
+    for code in ["MOM", "VAL", "QNT", "LEV", "LEV_ST", "GRW"]:
+        if code in allocations and code in portfolios["strategies"]:
+            strat = portfolios["strategies"][code]
+            old_alloc = float(strat.get("allocated", 0))
+            new_alloc = float(allocations[code])
+            strat["allocated"] = new_alloc
+            if old_alloc > 0 and abs(new_alloc - old_alloc) / old_alloc > 0.05:
+                strat["realloc_flag"] = True
+    save_portfolios(portfolios)
 
     print(f"  Regime: {regime_info.regime} | VIX: {regime_info.vix_level}")
     print(f"  Allocations: {', '.join(f'{k}=${v:,.0f}' for k, v in allocations.items())}")
