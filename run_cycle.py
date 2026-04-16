@@ -1173,7 +1173,11 @@ def _sync_alpaca_positions(portfolios: dict) -> dict:
     if trade_log_path.exists():
         with open(trade_log_path) as f:
             for line in f:
-                entry = json.loads(line.strip())
+                try:
+                    entry = json.loads(line.strip())
+                except json.JSONDecodeError:
+                    print(f"[SYNC] trade_log 손상 줄 스킵: {line[:80]}")
+                    continue
                 sym = entry.get("symbol")
                 strat = entry.get("strategy")
                 if sym and strat and entry.get("side") == "buy":

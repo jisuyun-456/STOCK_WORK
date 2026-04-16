@@ -326,5 +326,7 @@ def _log_result(
     TRADE_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(TRADE_LOG_PATH, "a") as f:
         f.write(json.dumps(entry, default=str) + "\n")
+        f.flush()
+        os.fsync(f.fileno())
 
     return entry
