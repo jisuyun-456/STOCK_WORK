@@ -261,20 +261,19 @@ class LeveragedETFStrategy(BaseStrategy):
                 continue
 
             if delta > 0:
-                # BUY 부족분 — weight_pct = delta / capital
-                weight = delta / capital
+                # BUY — weight_pct = target_weight (order_manager가 delta 계산)
                 reason_tag = "new entry" if sym in new_entries else "rebalance BUY"
                 buy_signals.append(
                     Signal(
                         strategy=self.name,
                         symbol=sym,
                         direction=Direction.BUY,
-                        weight_pct=round(weight, 6),
+                        weight_pct=round(target_weight, 6),
                         confidence=0.95,
                         reason=(
                             f"LEV regime={self.regime}: {reason_tag} "
                             f"current=${current_value:,.0f} → target=${target_value:,.0f} "
-                            f"(Δ=${delta:+,.0f}, weight={weight:.4f})"
+                            f"(Δ=${delta:+,.0f})"
                         ),
                         order_type="market",
                     )
