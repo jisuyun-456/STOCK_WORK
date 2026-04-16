@@ -50,16 +50,16 @@ def load_trade_log() -> list[dict]:
 
 # ─── Benchmark ───────────────────────────────────────────────────────────
 
-def fetch_benchmark_prices() -> dict[str, float]:
-    """Fetch current SPY and QQQ prices via yfinance."""
-    prices = {}
+def fetch_benchmark_prices() -> dict[str, float | None]:
+    """Fetch current SPY and QQQ prices via yfinance. Returns None on failure."""
+    prices: dict[str, float | None] = {}
     for ticker in ["SPY", "QQQ"]:
         try:
             info = yf.Ticker(ticker).fast_info
             prices[ticker] = float(info["last_price"])
         except Exception as e:
             print(f"  [perf] WARNING: {ticker} price fetch failed: {e}")
-            prices[ticker] = 0.0
+            prices[ticker] = None
     return prices
 
 
@@ -179,7 +179,7 @@ def _compute_sharpe(navs: list[float]) -> float | None:
     excess = mean_ret - rf_daily
 
     variance = sum((r - mean_ret) ** 2 for r in daily_returns) / (len(daily_returns) - 1)
-    std_ret = math.sqrt(variance)
+    std_ret = math.sqrt(max(0.0, variance))  # float 반올림 오류로 음수 방지
 
     if std_ret == 0:
         return None
@@ -247,8 +247,8 @@ def append_and_save(
             "schema_version": 1,
             "inception_date": today,
             "benchmarks": {
-                "SPY": {"inception_price": benchmark_prices.get("SPY", 0)},
-                "QQQ": {"inception_price": benchmark_prices.get("QQQ", 0)},
+                "SPY": {"inception_price": benchmark_prices.get("SPY") or 0},
+                "QQQ": {"inception_price": benchmark_prices.get("QQQ") or 0},
             },
             "strategies": {},
             "daily": [],
@@ -310,19 +310,19 @@ def append_and_save(
     # Benchmark returns since inception
     inception_spy = existing.get("benchmarks", {}).get("SPY", {}).get("inception_price", 0)
     inception_qqq = existing.get("benchmarks", {}).get("QQQ", {}).get("inception_price", 0)
-    current_spy = new_daily_entry.get("benchmark_prices", {}).get("SPY", 0)
-    current_qqq = new_daily_entry.get("benchmark_prices", {}).get("QQQ", 0)
+    current_spy = new_daily_entry.get("benchmark_prices", {}).get("SPY") or 0
+    current_qqq = new_daily_entry.get("benchmark_prices", {}).get("QQQ") or 0
 
     # L-5: inception_price=0 자동 보정
-    if inception_spy == 0 and current_spy > 0:
+    if inception_spy == 0 and current_spy:
         existing["benchmarks"]["SPY"]["inception_price"] = current_spy
         inception_spy = current_spy
-    if inception_qqq == 0 and current_qqq > 0:
+    if inception_qqq == 0 and current_qqq:
         existing["benchmarks"]["QQQ"]["inception_price"] = current_qqq
         inception_qqq = current_qqq
 
-    spy_return_pct = ((current_spy / inception_spy) - 1) * 100 if inception_spy > 0 else 0.0
-    qqq_return_pct = ((current_qqq / inception_qqq) - 1) * 100 if inception_qqq > 0 else 0.0
+    spy_return_pct = ((current_spy / inception_spy) - 1) * 100 if inception_spy > 0 and current_spy else 0.0
+    qqq_return_pct = ((current_qqq / inception_qqq) - 1) * 100 if inception_qqq > 0 and current_qqq else 0.0
 
     strategies_agg["TOTAL"] = {
         "initial_nav": total_initial,

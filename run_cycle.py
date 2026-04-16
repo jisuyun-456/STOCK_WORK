@@ -1387,7 +1387,9 @@ def phase_report(signals: list, execution_results: list, regime=None, rebalanced
         "| Strategy | NAV | Today | Total | MDD | Sharpe | Trades |",
         "|----------|-----|-------|-------|-----|--------|--------|",
     ])
-    for code in ["MOM", "VAL", "QNT", "LEV"]:
+    # 동적 전략 목록 — 하드코딩 대신 portfolios.json 기준으로 LEV_ST/GRW 자동 포함
+    strategy_codes = sorted(c for c in strats if c != "TOTAL")
+    for code in strategy_codes:
         m = strats.get(code, {})
         lines.append(
             f"| {code} | ${m.get('current_nav', 0):,.0f} | "
@@ -1472,8 +1474,13 @@ def _load_monitor_peaks() -> dict:
 
 def _save_monitor_peaks(data: dict):
     data["last_updated"] = datetime.now(timezone.utc).isoformat()
-    with open(MONITOR_PEAKS_PATH, "w") as f:
+    MONITOR_PEAKS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = MONITOR_PEAKS_PATH.with_suffix(".tmp")
+    with open(tmp_path, "w") as f:
         json.dump(data, f, indent=2, ensure_ascii=False, default=_json_default)
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(tmp_path, MONITOR_PEAKS_PATH)
 
 
 def _append_monitor_log(entry: dict):
@@ -1749,7 +1756,8 @@ def main():
     parser.add_argument("--research-mode", default=None, choices=["full", "selective", "skip"],
                         help="Research overlay depth (default: full, dry-run default: selective)")
     parser.add_argument("--no-cache", action="store_true", help="Bypass research cache")
-    parser.add_argument("--force-regime", default=None, choices=["BULL", "BEAR", "NEUTRAL", "CRISIS"],
+    parser.add_argument("--force-regime", default=None,
+                        choices=["BULL", "BEAR", "NEUTRAL", "CRISIS", "EUPHORIA"],
                         help="Override live regime detection (simulation/testing only)")
     args = parser.parse_args()
 
@@ -1926,8 +1934,12 @@ def main():
                 if _rs.get("regime") == regime:
                     _regime_state["consecutive_cycles"] = _rs.get("consecutive_cycles", 0) + 1
                     _regime_state["since"] = _rs.get("since", _regime_state["since"])
-            with open(_regime_state_path, "w") as f:
+            _tmp = _regime_state_path.with_suffix(".tmp")
+            with open(_tmp, "w") as f:
                 json.dump(_regime_state, f, indent=2)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(_tmp, _regime_state_path)
         except Exception as e:
             print(f"  [regime_state] Save failed: {e}")
 

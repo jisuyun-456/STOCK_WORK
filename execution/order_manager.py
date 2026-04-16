@@ -35,7 +35,10 @@ def _next_seq(strategy: str, symbol: str, date_str: str) -> str:
     if TRADE_LOG_PATH.exists():
         with open(TRADE_LOG_PATH, "r") as f:
             for line in f:
-                entry = json.loads(line.strip())
+                try:
+                    entry = json.loads(line.strip())
+                except json.JSONDecodeError:
+                    continue  # 손상된 라인 스킵
                 if entry.get("order_id", "").startswith(prefix):
                     seq += 1
 
@@ -147,33 +150,44 @@ def execute_signal(
                 "status": str(order.status),
             }
 
-        # M-3: 부분 체결 확인 — 3초 대기 후 fill 상태 검증
+        # M-3: 부분 체결 확인 — 10초 간격 최대 3회 재시도
+        MAX_FILL_RETRIES = 3
+        FILL_WAIT_SECONDS = 10
         fill_status = "pending"
+        filled_order = None
         try:
-            time.sleep(3)
-            filled_order = get_order_by_client_id(order_id)
-            if filled_order:
+            for attempt in range(MAX_FILL_RETRIES):
+                time.sleep(FILL_WAIT_SECONDS)
+                filled_order = get_order_by_client_id(order_id)
+                if not filled_order:
+                    continue
                 filled_qty = float(filled_order.get("filled_qty", 0))
                 if signal.direction == Direction.BUY:
                     # notional 주문 — filled_qty > 0이면 체결됨
                     if filled_qty > 0:
                         fill_status = "filled"
-                    else:
-                        fill_status = "unfilled"
+                        break
                 else:
                     # SELL — qty 기반 비교
                     requested_qty = qty
                     if filled_qty >= requested_qty:
                         fill_status = "filled"
+                        break
                     elif filled_qty > 0:
                         fill_status = "partial_fill"
                         print(
                             f"[ORDER] WARNING: {signal.symbol} 부분 체결 "
                             f"({filled_qty}/{requested_qty} shares)"
                         )
-                    else:
-                        fill_status = "unfilled"
-                result["filled_qty"] = filled_qty
+                        break
+                if attempt < MAX_FILL_RETRIES - 1:
+                    print(f"[ORDER] fill 대기 중... ({attempt + 1}/{MAX_FILL_RETRIES})")
+
+            if fill_status == "pending":
+                fill_status = "unfilled"
+
+            if filled_order:
+                result["filled_qty"] = float(filled_order.get("filled_qty", 0))
                 result["filled_avg_price"] = filled_order.get("filled_avg_price")
         except Exception as fill_err:
             print(f"[ORDER] WARNING: fill 상태 확인 실패 ({fill_err})")

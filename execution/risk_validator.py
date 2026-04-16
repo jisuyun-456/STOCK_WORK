@@ -11,6 +11,8 @@ Gates:
 from __future__ import annotations
 
 import json
+import math
+import os
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -122,8 +124,12 @@ def _save_sector_cache(symbol: str, sector: str):
     cache = _load_sector_cache()
     cache[symbol] = {"sector": sector, "ts": time.time()}
     _SECTOR_CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(_SECTOR_CACHE_PATH, "w") as f:
+    tmp_path = _SECTOR_CACHE_PATH.with_suffix(".tmp")
+    with open(tmp_path, "w") as f:
         json.dump(cache, f, indent=2)
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(tmp_path, _SECTOR_CACHE_PATH)
 
 
 def get_sector(symbol: str) -> str:
@@ -300,7 +306,16 @@ def check_portfolio_var(
             port_returns = returns.dot(w)
 
         z_score = 1.6449  # norm.ppf(0.95), deterministic
-        var_value = float(port_returns.std() * z_score)
+        std_val = port_returns.std()
+        if math.isnan(std_val) or len(port_returns) < 5:
+            return RiskCheckResult(
+                passed=False,
+                check_name="portfolio_var",
+                reason=f"VaR 계산 불가: 데이터 부족 ({len(port_returns)}행, 최소 5행 필요)",
+                value=0.0,
+                threshold=max_var,
+            )
+        var_value = float(std_val * z_score)
 
         return RiskCheckResult(
             passed=var_value <= max_var,

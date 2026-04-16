@@ -72,10 +72,16 @@ def _classify_regime_from_data(hist, vix_level: float) -> str:
       4. BULL    — SPY ≥ SMA200 and VIX < 20
       5. NEUTRAL — 나머지
     """
+    import math as _math
     close = hist["Close"]
     current_price = close.iloc[-1]
     sma200 = close.rolling(200).mean().iloc[-1]
     sma50 = close.rolling(50).mean().iloc[-1]
+
+    # SMA200 미계산(데이터 부족) 시 NEUTRAL 폴백 — cold-start 안전 처리
+    if _math.isnan(float(sma200)):
+        return "NEUTRAL"
+
     ratio = current_price / sma200 if sma200 > 0 else 1.0
 
     if ratio < 1.0 and vix_level > 30:
