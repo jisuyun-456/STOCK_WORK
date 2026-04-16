@@ -288,6 +288,8 @@ class QuantFactorStrategy(BaseStrategy):
         _cfg = load_strategy_params().get("quant_factor", {})
         self.max_positions: int = int(_cfg.get("max_positions", self.__class__.max_positions))
         self.OLS_WINDOW: int = int(_cfg.get("ols_window", self.__class__.OLS_WINDOW))
+        self.stop_loss_pct: float = float(_cfg.get("stop_loss_pct", self.__class__.stop_loss_pct))
+        self.take_profit_pct: float = float(_cfg.get("take_profit_pct", 0.20))
         self.min_composite_score: float = float(_cfg.get("min_composite_score", 0.01))
 
     def generate_signals(self, market_data: dict, current_positions: dict | None = None) -> list[Signal]:

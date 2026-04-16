@@ -66,6 +66,7 @@ class MomentumStrategy(BaseStrategy):
         _cfg = load_strategy_params().get("momentum", {})
         self.max_positions: int = int(_cfg.get("max_positions", self.__class__.max_positions))
         self.stop_loss_pct: float = float(_cfg.get("stop_loss_pct", self.__class__.stop_loss_pct))
+        self.take_profit_pct: float = float(_cfg.get("take_profit_pct", 0.30))
         self.position_pct: float = float(_cfg.get("position_pct", 0.10))
         # lookback_long (거래일) → 개월 변환 (21거래일 ≈ 1개월)
         lookback_td: int = int(_cfg.get("lookback_long", 252))
@@ -139,8 +140,9 @@ class MomentumStrategy(BaseStrategy):
                 sma200 = series.iloc[-200:].mean()
                 # H1 fix: 날짜 기반 lookback
                 last_date = series.index[-1]
+                lookback_m = getattr(self, "lookback_months", 12)
                 try:
-                    price_12m_ago = series.asof(last_date - pd.DateOffset(months=12))
+                    price_12m_ago = series.asof(last_date - pd.DateOffset(months=lookback_m))
                     price_1m_ago = series.asof(last_date - pd.DateOffset(months=1))
                 except Exception:
                     price_12m_ago = series.iloc[-252]
@@ -153,8 +155,6 @@ class MomentumStrategy(BaseStrategy):
                 # EXIT: momentum < 0 OR price < SMA200
                 should_sell = mom_12_1 < 0 or price_now < sma200
                 if should_sell:
-                    pos = current_positions[symbol]
-                    weight = pos.get("market_value", 0) / 1.0  # actual weight resolved at execution
                     signals.append(Signal(
                         strategy=self.name,
                         symbol=symbol,
@@ -230,6 +230,7 @@ def fetch_momentum_data(universe: list[str] | None = None, days: int = 400) -> d
         start=start.strftime("%Y-%m-%d"),
         end=end.strftime("%Y-%m-%d"),
         progress=False,
+        auto_adjust=True,
     )
 
     if data.empty:

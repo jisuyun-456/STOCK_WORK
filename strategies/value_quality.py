@@ -250,6 +250,7 @@ def fetch_value_data(universe: list[str] | None = None) -> dict:
             start=start.strftime("%Y-%m-%d"),
             end=end.strftime("%Y-%m-%d"),
             progress=False,
+            auto_adjust=True,
         )
         if not raw.empty:
             if isinstance(raw.columns, pd.MultiIndex):
@@ -295,6 +296,8 @@ class ValueQualityStrategy(BaseStrategy):
         from config.loader import load_strategy_params
         _cfg = load_strategy_params().get("value_quality", {})
         self.max_positions: int = int(_cfg.get("max_positions", self.__class__.max_positions))
+        self.stop_loss_pct: float = float(_cfg.get("stop_loss_pct", self.__class__.stop_loss_pct))
+        self.take_profit_pct: float = float(_cfg.get("take_profit_pct", 0.20))
         self.pe_threshold_neutral: float = float(_cfg.get("pe_threshold_neutral", 20))
         self.roe_threshold_neutral: float = float(_cfg.get("roe_threshold_neutral", 0.12))
         # position_pct: 종목당 고정 비중 상한 (strategy_params.json에서 읽음)
