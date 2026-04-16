@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-16T16:54:55.134819+00:00",
+  "last_updated": "2026-04-16T18:07:24.240668+00:00",
   "peaks": {
     "COP": {
       "peak_plpc": -0.00112,
@@ -69,22 +69,22 @@
     "APLD": {
       "peak_plpc": 0.00264,
       "strategy": "MOM",
-      "last_plpc": -0.01717
+      "last_plpc": -0.01387
     },
     "ASML": {
       "peak_plpc": -0.00222,
       "strategy": "MOM",
-      "last_plpc": -0.0058
+      "last_plpc": -0.01017
     },
     "RKLB": {
-      "peak_plpc": 0.00751,
+      "peak_plpc": 0.02083,
       "strategy": "MOM",
-      "last_plpc": 0.0003
+      "last_plpc": 0.02083
     },
     "WBD": {
-      "peak_plpc": 0.00073,
+      "peak_plpc": 0.00201,
       "strategy": "MOM",
-      "last_plpc": 0.00073
+      "last_plpc": 0.00201
     }
   }
 }
