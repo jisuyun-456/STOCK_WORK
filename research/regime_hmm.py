@@ -423,8 +423,10 @@ def _retrain_and_cache(cache_path: str | Path) -> Optional[RegimeHMM]:
             spy_close = raw["Close"]["SPY"].dropna()
             vix_close = raw["Close"]["^VIX"].dropna()
         else:
-            spy_close = raw["Close"].dropna()
-            vix_close = spy_close  # fallback — shouldn't happen
+            # MultiIndex 없음 = SPY 또는 VIX 다운로드 실패
+            # 오염된 데이터로 HMM 재학습하지 않고 안전하게 스킵
+            logger.warning("HMM: VIX 또는 SPY 다운로드 실패 (non-MultiIndex 결과) — HMM 재학습 스킵")
+            return None
 
         hmm = RegimeHMM()
         hmm.fit(spy_close, vix_close)
