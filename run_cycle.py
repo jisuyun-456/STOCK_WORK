@@ -482,6 +482,7 @@ def phase_data() -> dict:
 
     # GRW: 소형 성장주 데이터 (Russell 2000 유니버스)
     try:
+        import pandas as pd
         from strategies.growth_smallcap import fetch_growth_data
         grw_raw = fetch_growth_data()
         market_data["grw_prices"] = grw_raw.get("prices", pd.DataFrame())
@@ -489,7 +490,7 @@ def phase_data() -> dict:
         print(f"  [GRW] 데이터 로드: {len(grw_raw.get('fundamentals', {}))}개 펀더멘탈")
     except Exception as e:
         print(f"  [GRW] 데이터 fetch 실패: {e}")
-        market_data["grw_prices"] = pd.DataFrame()
+        market_data["grw_prices"] = {}
         market_data["grw_fundamentals"] = {}
 
     # 뉴스 수집 — 트리거(FOMC/Earnings/8-K) 충족 시에만 실행
