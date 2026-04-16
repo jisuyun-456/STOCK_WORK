@@ -111,7 +111,7 @@ def compute_strategy_metrics(
     sharpe_ratio = _compute_sharpe(navs)
 
     # Trade counts
-    filled_trades = [t for t in trade_entries if t.get("status") == "filled"]
+    filled_trades = [t for t in trade_entries if t.get("status") in ("filled", "submitted")]
     trade_count = len(filled_trades)
     dry_run_count = len([t for t in trade_entries if t.get("status") == "dry_run"])
     win_rate = _compute_win_rate(filled_trades)
