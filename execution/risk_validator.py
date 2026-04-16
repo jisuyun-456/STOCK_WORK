@@ -290,7 +290,13 @@ def check_portfolio_var(
             port_returns = returns * weights[0]
         else:
             returns = data["Close"].pct_change().dropna()
-            w = np.array(weights)
+            # yfinance sorts columns alphabetically; reorder weights to match
+            ordered_symbols = list(returns.columns)
+            weights_dict = dict(zip(symbols, weights))
+            w = np.array([weights_dict.get(s, 0.0) for s in ordered_symbols])
+            total_w = w.sum()
+            if total_w > 0:
+                w = w / total_w  # normalize in case some symbols were dropped
             port_returns = returns.dot(w)
 
         z_score = 1.6449  # norm.ppf(0.95), deterministic
