@@ -191,8 +191,9 @@ class GrowthSmallCapStrategy(BaseStrategy):
         self,
         market_data: dict,
         current_positions: dict | None = None,
-        regime: str = "NEUTRAL",
+        regime: str | None = None,
     ) -> list[Signal]:
+        regime = regime or getattr(self, "regime", "NEUTRAL")
         # grw_prices/grw_fundamentals 키 우선, fallback으로 prices/fundamentals
         prices: pd.DataFrame = market_data.get("grw_prices", market_data.get("prices", pd.DataFrame()))
         fundamentals: dict = market_data.get("grw_fundamentals", market_data.get("fundamentals", {}))
