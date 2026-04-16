@@ -47,6 +47,7 @@ def execute_signal(
     strategy_capital: float,
     strategy_cash: float,
     dry_run: bool = False,
+    current_positions: dict[str, float] | None = None,
 ) -> dict:
     """Execute a single signal as an Alpaca order.
 
@@ -55,6 +56,8 @@ def execute_signal(
         strategy_capital: Total allocated capital for this strategy
         strategy_cash: Available cash in this strategy
         dry_run: If True, don't actually submit the order
+        current_positions: {symbol: market_value} snapshot for delta BUY sizing.
+            If provided, BUY trade_value = max(0, target - existing).
 
     Returns:
         Dict with execution result
@@ -64,11 +67,14 @@ def execute_signal(
 
     # Calculate quantity
     if signal.direction == Direction.BUY:
-        trade_value = strategy_capital * signal.weight_pct
+        target_value = strategy_capital * signal.weight_pct
+        existing_mv = (current_positions or {}).get(signal.symbol, 0.0)
+        trade_value = max(0.0, target_value - existing_mv)  # delta: 부족분만 매수
         trade_value = min(trade_value, strategy_cash)  # can't exceed available cash
 
         if trade_value <= 0:
-            return _log_result(order_id, signal, "skipped", reason="insufficient_cash")
+            reason = "already_at_target" if existing_mv >= target_value else "insufficient_cash"
+            return _log_result(order_id, signal, "skipped", reason=reason)
 
         # For market orders, estimate qty from recent price
         # Alpaca will handle fractional shares
@@ -89,10 +95,14 @@ def execute_signal(
         return _log_result(order_id, signal, "skipped", reason="hold_signal")
 
     if dry_run:
-        return _log_result(
-            order_id, signal, "dry_run",
-            qty=qty, reason=f"DRY RUN: would {signal.direction.value} ~${qty:.2f} of {signal.symbol}",
-        )
+        if signal.direction == Direction.BUY:
+            dry_reason = (
+                f"DRY RUN: delta ${trade_value:.2f} "
+                f"(target ${target_value:.2f}, existing ${existing_mv:.2f}) of {signal.symbol}"
+            )
+        else:
+            dry_reason = f"DRY RUN: would {signal.direction.value} ~${qty:.2f} of {signal.symbol}"
+        return _log_result(order_id, signal, "dry_run", qty=qty, reason=dry_reason)
 
     # Submit order
     try:
@@ -199,9 +209,21 @@ def execute_signals(
     """
     results = []
 
+    has_buy = any(s.direction == Direction.BUY for s in signals)
+
+    # BUY delta 계산용 positions 스냅샷 (1회 조회)
+    positions_mv: dict[str, float] = {}
+    if has_buy:
+        try:
+            raw_positions = get_positions()
+            positions_mv = {p["symbol"]: float(p["market_value"]) for p in raw_positions}
+            print(f"  [OM] 포지션 스냅샷 {len(positions_mv)}개 조회")
+        except Exception as e:
+            print(f"  [OM] WARNING: 포지션 조회 실패 ({e}) — delta 계산 스킵, full target 사용")
+
     # C6: BUY 주문 있을 때만 Alpaca 잔고 조회 (dry_run 아닌 실거래 시)
     live_buying_power: float | None = None
-    if not dry_run and any(s.direction == Direction.BUY for s in signals):
+    if not dry_run and has_buy:
         try:
             account = get_account_info()
             live_buying_power = float(account.get("buying_power", 0) or 0)
@@ -214,9 +236,10 @@ def execute_signals(
         capital = alloc.get("capital", 0)
         cash = alloc.get("cash", 0)
 
-        # C6: BUY 주문 실시간 잔고 확인
+        # C6: BUY 주문 실시간 잔고 확인 (delta 기반으로 수정)
         if signal.direction == Direction.BUY and live_buying_power is not None:
-            trade_value_estimate = capital * signal.weight_pct
+            existing_mv = positions_mv.get(signal.symbol, 0.0)
+            trade_value_estimate = max(0.0, capital * signal.weight_pct - existing_mv)
             trade_value_estimate = min(trade_value_estimate, cash)  # strategy cash cap
             # 5% 여유 확보 (수수료·슬리피지·경합 주문 대비)
             if trade_value_estimate > live_buying_power * 0.95:
@@ -241,13 +264,15 @@ def execute_signals(
             # 통과 시 로컬 buying_power 차감 (다음 주문 사전 계산용)
             live_buying_power -= trade_value_estimate
 
-        result = execute_signal(signal, capital, cash, dry_run=dry_run)
+        result = execute_signal(signal, capital, cash, dry_run=dry_run, current_positions=positions_mv)
         results.append(result)
 
-        # Deduct cash for buy orders
+        # Deduct cash for buy orders (delta 기준)
         if signal.direction == Direction.BUY and result.get("status") != "skipped":
-            trade_value = capital * signal.weight_pct
-            alloc["cash"] = max(0, cash - trade_value)
+            existing_mv = positions_mv.get(signal.symbol, 0.0)
+            actual_deduction = max(0.0, capital * signal.weight_pct - existing_mv)
+            actual_deduction = min(actual_deduction, cash)
+            alloc["cash"] = max(0, cash - actual_deduction)
 
         # LEV 재설계 2026-04-11: SELL 체결 후 strategy_cash 실시간 동기화.
         # 기존 버그: SELL 후 alloc['cash'] 가 갱신되지 않아 동일 사이클 내
