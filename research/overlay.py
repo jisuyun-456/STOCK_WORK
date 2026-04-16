@@ -19,6 +19,7 @@ from strategies.base_strategy import Signal
 
 from .agent_runner import get_research_mode, run_all_agents, run_all_agents_appeal
 from .cache import get_cached, set_cache
+from .manual_override import load_manual_verdicts
 from .consensus import calculate_consensus, detect_regime
 from .models import RegimeDetection, ResearchRequest, ResearchVerdict
 
@@ -81,9 +82,13 @@ def run_research_overlay(
     all_verdicts: dict[str, list[ResearchVerdict]] = {}
 
     for signal in research_signals:
-        # Check cache (key includes strategy+direction to avoid cross-strategy collision)
+        # Check manual override → cache → auto-rules
         sig_dir = signal.direction.value if hasattr(signal.direction, 'value') else str(signal.direction)
-        if not no_cache:
+        manual = load_manual_verdicts(signal.symbol, signal.strategy, sig_dir)
+        if manual is not None:
+            print(f"  {signal.symbol}: MANUAL OVERRIDE ({len(manual)} verdicts) — skipping auto/cache")
+            verdicts = manual
+        elif not no_cache:
             cached = get_cached(signal.symbol, regime.regime, signal.strategy, sig_dir)
             if cached is not None:
                 print(f"  {signal.symbol}: cache hit ({len(cached)} verdicts)")
@@ -126,7 +131,11 @@ def run_research_overlay(
     # 3b. High-confidence review — VETO-only gate (L-4 fix)
     for signal in high_conf_signals:
         sig_dir = signal.direction.value if hasattr(signal.direction, 'value') else str(signal.direction)
-        if not no_cache:
+        manual = load_manual_verdicts(signal.symbol, signal.strategy, sig_dir)
+        if manual is not None:
+            print(f"  {signal.symbol}: high-conf MANUAL OVERRIDE ({len(manual)} verdicts)")
+            verdicts = manual
+        elif not no_cache:
             cached = get_cached(signal.symbol, regime.regime, signal.strategy, sig_dir)
             if cached is not None:
                 verdicts = cached
