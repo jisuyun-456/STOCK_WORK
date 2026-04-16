@@ -1783,16 +1783,24 @@ def main():
                     with open(_regime_state_path) as f:
                         _rs = json.load(f)
                     prev = _rs.get("regime", "NEUTRAL")
-                    consec = _rs.get("consecutive_cycles", 0)
                     regime_history = list(_rs.get("regime_history", []))
-                    if detected_regime != prev and consec < 3:
-                        print(f"  [Hysteresis] {prev}→{detected_regime} detected but only {consec} cycle(s) (<3). Holding {prev}.")
+                    # Use detected_consecutive (tracks raw detected regime) for hysteresis gate,
+                    # not consecutive_cycles (which tracks the held/applied regime).
+                    prev_detected = _rs.get("detected_regime", "")
+                    if prev_detected == detected_regime:
+                        detected_consec = _rs.get("detected_consecutive", 0) + 1
+                    else:
+                        detected_consec = 1
+                    if detected_regime != prev and detected_consec < 3:
+                        print(f"  [Hysteresis] {prev}→{detected_regime} detected but only {detected_consec} cycle(s) (<3). Holding {prev}.")
                         regime = prev
                     else:
                         regime = detected_regime
                 else:
+                    detected_consec = 1
                     regime = detected_regime
             except Exception:
+                detected_consec = 1
                 regime = detected_regime
 
             # Append *detected* (raw signal, not hysteresis-held) to history
@@ -1842,10 +1850,15 @@ def main():
                 print()
 
         # Save current regime state (includes history + flicker flag)
+        # detected_regime / detected_consecutive: track the raw (pre-hysteresis) signal
+        # regime / consecutive_cycles: track the held/applied regime after hysteresis
+        _today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         _regime_state = {
             "regime": regime,
-            "since": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+            "detected_regime": detected_regime,
+            "since": _today_str,
             "consecutive_cycles": 1,
+            "detected_consecutive": detected_consec if not args.force_regime else 1,
             "regime_history": regime_history,
             "flicker_suppression": flicker_suppression,
         }
