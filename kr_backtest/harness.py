@@ -28,8 +28,6 @@ from kr_research.regime import detect_kr_regime
 from kr_research.scorer import score_universe, select_top_n
 from kr_research.agent_runner import run_rules  # rules mode ONLY
 from kr_paper import portfolio as portfolio_module
-from kr_paper.order_manager import place_kr_order
-from kr_paper.simulator import settlement_date
 from kr_backtest.metrics import (
     compute_cagr,
     compute_mdd,
@@ -136,6 +134,7 @@ class KRBacktest:
         scenario: str = "default_16m",
         max_days: Optional[int] = None,
         portfolio_path_override: Optional[str] = None,
+        initial_state: Optional[dict] = None,
     ) -> BacktestResult:
         """Execute the backtest loop and return a BacktestResult.
 
@@ -145,6 +144,9 @@ class KRBacktest:
                                      (useful for fast unit tests).
             portfolio_path_override: Override the portfolio JSON path for test isolation.
                                      When set, also patches portfolio_module.KR_PORTFOLIOS_PATH.
+            initial_state:           If provided, use this as the starting portfolio state
+                                     instead of a blank slate. Useful for injecting pre-seeded
+                                     pending_settlement records in tests.
         """
         # ------------------------------------------------------------------
         # Apply portfolio path override for test isolation
@@ -154,7 +156,7 @@ class KRBacktest:
             portfolio_module.KR_PORTFOLIOS_PATH = Path(portfolio_path_override)
 
         try:
-            return self._run_inner(scenario=scenario, max_days=max_days)
+            return self._run_inner(scenario=scenario, max_days=max_days, initial_state=initial_state)
         finally:
             # Always restore the original path
             portfolio_module.KR_PORTFOLIOS_PATH = _original_path
@@ -163,19 +165,23 @@ class KRBacktest:
         self,
         scenario: str,
         max_days: Optional[int],
+        initial_state: Optional[dict] = None,
     ) -> BacktestResult:
         # ------------------------------------------------------------------
-        # Initialise portfolio state to a clean slate for this backtest run
+        # Initialise portfolio state — use provided state or create blank slate
         # ------------------------------------------------------------------
-        initial_state: dict = {
-            "KR_PAPER": {
-                "cash_krw": self.initial_krw,
-                "positions": {},
-                "nav_history": [],
-                "pending_settlement": [],
+        if initial_state is not None:
+            portfolio_module.save(initial_state)
+        else:
+            blank: dict = {
+                "KR_PAPER": {
+                    "cash_krw": self.initial_krw,
+                    "positions": {},
+                    "nav_history": [],
+                    "pending_settlement": [],
+                }
             }
-        }
-        portfolio_module.save(initial_state)
+            portfolio_module.save(blank)
 
         trading_days = self._get_trading_days()
         if max_days is not None:
