@@ -484,6 +484,91 @@ def _fund_table_html(td: dict) -> str:
     )
 
 
+def _valuation_panel_html(td: dict) -> str:
+    """밸류에이션 탭: PER/PBR/배당/부채비율 지표 카드 + 섹터 피어 비교 테이블."""
+    per = td.get("per", 0)
+    pbr = td.get("pbr", 0)
+    div_yield = td.get("div_yield", 0)
+    debt_ratio = td.get("debt_ratio", 0)
+    ev_ebitda = td.get("ev_ebitda", 0)
+    roe = td.get("roe", 0)
+
+    def _card(label: str, val: str, sub: str = "", color: str = "") -> str:
+        color_style = f"color:{color}" if color else ""
+        return (
+            f'<div class="metric-card">'
+            f'<div class="metric-label">{label}</div>'
+            f'<div class="metric-val" style="{color_style}">{val}</div>'
+            f'<div class="metric-sub neutral">{sub}</div>'
+            f'</div>'
+        )
+
+    cards = []
+    if per > 0:
+        cards.append(_card("PER (TTM)", f"{per}배", "수익성 지표"))
+    if pbr > 0:
+        color = "#34C759" if pbr < 1.0 else ("#FF9500" if pbr < 2.0 else "")
+        cards.append(_card("PBR", f"{pbr}배", "청산가치 이하" if pbr < 1.0 else "자산가치 대비", color))
+    if roe > 0:
+        color = "#34C759" if roe >= 12 else ""
+        cards.append(_card("ROE", f"{roe}%", "12% 이상 우량" if roe >= 12 else "수익성", color))
+    if ev_ebitda > 0:
+        cards.append(_card("EV/EBITDA", f"{ev_ebitda}배", "기업가치 배수"))
+    if div_yield > 0:
+        cards.append(_card("배당수익률", f"{div_yield}%", "현재가 기준"))
+    if debt_ratio > 0:
+        color = "#FF3B30" if debt_ratio > 300 else ("#FF9500" if debt_ratio > 200 else "#34C759")
+        cards.append(_card("부채비율", f"{debt_ratio}%", "재무안정성", color))
+
+    cards_html = "".join(cards) if cards else '<div class="metric-card"><div class="metric-label" style="color:var(--ink3)">밸류에이션 데이터 없음</div></div>'
+
+    # K-IFRS quality
+    ocf_quality = td.get("ocf_ni_ratio")
+    quality_html = ""
+    if ocf_quality:
+        color = "#34C759" if ocf_quality >= 1.0 else "#FF9500"
+        quality_html = (
+            f'<div style="margin-top:8px;padding:10px 14px;background:var(--cream2);border-radius:8px;font-size:12.5px">'
+            f'<span style="color:var(--ink3)">K-IFRS 회계품질 (OCF/NI)</span>'
+            f'<span style="font-family:\'SF Mono\',\'Fira Code\',monospace;font-weight:600;color:{color};margin-left:12px">{ocf_quality:.2f}x</span>'
+            f'{"<span style=\"color:#34C759;margin-left:8px\">✓ 양호</span>" if ocf_quality >= 1.0 else "<span style=\"color:#FF9500;margin-left:8px\">주의</span>"}'
+            f'</div>'
+        )
+
+    # Peer comparison table
+    peers = td.get("peer_comparison", [])
+    if peers:
+        peer_rows = "".join(
+            f'<tr>'
+            f'<td>{p.get("name", p.get("ticker", "—"))}</td>'
+            f'<td style="font-family:\'SF Mono\',\'Fira Code\',monospace">{p.get("current_price", "—"):,}원' if isinstance(p.get("current_price"), (int, float)) else f'<td>{p.get("current_price", "—")}'
+            f'</td>'
+            f'<td style="font-family:\'SF Mono\',\'Fira Code\',monospace">{p.get("per", "—")}배</td>'
+            f'<td style="font-family:\'SF Mono\',\'Fira Code\',monospace">{p.get("pbr", "—")}배</td>'
+            f'<td style="font-family:\'SF Mono\',\'Fira Code\',monospace">{p.get("roe", "—")}%</td>'
+            f'</tr>'
+            for p in peers
+        )
+        peer_html = (
+            '<div class="section-title" style="margin-top:24px">섹터 피어 비교</div>'
+            '<table class="tech-table"><thead><tr>'
+            '<th>종목</th><th>현재가</th><th>PER</th><th>PBR</th><th>ROE</th>'
+            f'</tr></thead><tbody>{peer_rows}</tbody></table>'
+        )
+    else:
+        peer_html = (
+            '<div class="section-title" style="margin-top:24px">섹터 피어 비교</div>'
+            '<div style="padding:12px;color:var(--ink3);font-size:12.5px">피어 데이터 없음 (analyzer 조회 필요)</div>'
+        )
+
+    return (
+        '<div class="section-title">밸류에이션 지표</div>'
+        f'<div class="metrics-grid">{cards_html}</div>'
+        f'{quality_html}'
+        f'{peer_html}'
+    )
+
+
 # ── Main entry point ────────────────────────────────────────────────────────
 
 def generate_report(result: KRAnalysisResult, ticker_data: dict | None = None) -> Path:
@@ -531,12 +616,11 @@ def generate_report(result: KRAnalysisResult, ticker_data: dict | None = None) -
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="show('summary',this)">요약</button>
     <button class="nav-tab" onclick="show('market',this)">시장</button>
-    <button class="nav-tab" onclick="show('tech',this)">기술</button>
-    <button class="nav-tab" onclick="show('candles',this)">캔들</button>
-    <button class="nav-tab" onclick="show('trade',this)">매매전략</button>
+    <button class="nav-tab" onclick="show('chart',this)">차트/기술</button>
+    <button class="nav-tab" onclick="show('valuation',this)">밸류에이션</button>
+    <button class="nav-tab" onclick="show('strategy',this)">투자전략</button>
     <button class="nav-tab" onclick="show('scenario',this)">시나리오</button>
-    <button class="nav-tab" onclick="show('risk',this)">리스크</button>
-    <button class="nav-tab" onclick="show('supply',this)">수급</button>
+    <button class="nav-tab" onclick="show('risk',this)">리스크/수급</button>
     <button class="nav-tab" onclick="show('conclusion',this)">결론</button>
   </div>
   <div class="nav-meta">{v.company_name or result.ticker} · {result.ticker}<br>{today} · {market_label}</div>
@@ -640,19 +724,8 @@ def generate_report(result: KRAnalysisResult, ticker_data: dict | None = None) -
 </div>
 </div>
 
-<!-- ═══ PANEL: 기술 ═══ -->
-<div id="panel-tech" class="panel">
-<div class="main">
-  <div class="section-title">기술적 지표</div>
-  {_tech_table_html(td)}
-  <div class="section-title">가격 레벨</div>
-  {_price_ladder_html(td, v)}
-  {f'<div style="margin-top:12px;padding:12px;background:var(--cream2);border-radius:8px;font-size:12.5px;color:var(--ink2)">{v.current_status}</div>' if v.current_status else ''}
-</div>
-</div>
-
-<!-- ═══ PANEL: 캔들 ═══ -->
-<div id="panel-candles" class="panel">
+<!-- ═══ PANEL: 차트/기술 ═══ -->
+<div id="panel-chart" class="panel">
 <div class="main">
   <div class="section-title">캔들스틱 차트 (최근 60일)</div>
   <div class="card" style="padding:16px 8px">
@@ -660,11 +733,23 @@ def generate_report(result: KRAnalysisResult, ticker_data: dict | None = None) -
   </div>
   <div class="section-title" style="margin-top:20px">감지된 패턴</div>
   <div class="card" id="patternList" style="padding:14px 16px">패턴 없음</div>
+  <div class="section-title" style="margin-top:24px">기술적 지표</div>
+  {_tech_table_html(td)}
+  <div class="section-title">가격 레벨</div>
+  {_price_ladder_html(td, v)}
+  {f'<div style="margin-top:12px;padding:12px;background:var(--cream2);border-radius:8px;font-size:12.5px;color:var(--ink2)">{v.current_status}</div>' if v.current_status else ''}
 </div>
 </div>
 
-<!-- ═══ PANEL: 매매전략 ═══ -->
-<div id="panel-trade" class="panel">
+<!-- ═══ PANEL: 밸류에이션 ═══ -->
+<div id="panel-valuation" class="panel">
+<div class="main">
+  {_valuation_panel_html(td)}
+</div>
+</div>
+
+<!-- ═══ PANEL: 투자전략 ═══ -->
+<div id="panel-strategy" class="panel">
 <div class="main">
   <div class="trade-box">
     <div class="card-label">Trade Setup</div>
@@ -739,18 +824,12 @@ def generate_report(result: KRAnalysisResult, ticker_data: dict | None = None) -
 </div>
 </div>
 
-<!-- ═══ PANEL: 리스크 ═══ -->
+<!-- ═══ PANEL: 리스크/수급 ═══ -->
 <div id="panel-risk" class="panel">
 <div class="main">
   <div class="section-title">리스크 요인</div>
   <div class="risk-grid">{_risk_cards_html(v.risk_factors)}</div>
-</div>
-</div>
-
-<!-- ═══ PANEL: 수급 ═══ -->
-<div id="panel-supply" class="panel">
-<div class="main">
-  <div class="section-title">수급 분석</div>
+  <div class="section-title" style="margin-top:24px">수급 분석</div>
   <div class="card">{_supply_rows_html(td)}</div>
 </div>
 </div>
@@ -763,7 +842,7 @@ def generate_report(result: KRAnalysisResult, ticker_data: dict | None = None) -
     <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
       <span class="badge badge-{badge_cls}" style="font-size:14px;padding:7px 16px">{verdict_str}</span>
       <div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;color:var(--cream);font-weight:600">신뢰도 {conf_pct}</div>
+        <div style="font-family:'SF Mono','Fira Code',monospace;font-size:18px;color:var(--cream);font-weight:600">신뢰도 {conf_pct}</div>
         <div style="font-size:11px;color:#6A6460;margin-top:2px">{v.current_status or regime.regime + ' Regime'}</div>
       </div>
     </div>
@@ -791,7 +870,7 @@ function show(id, btn) {{
       initRegime();
     }}, 80);
   }}
-  if (id === 'candles') setTimeout(initCandles, 80);
+  if (id === 'chart') setTimeout(initCandles, 80);
 }}
 function initCandles() {{
   const canvas = document.getElementById('candleCanvas');

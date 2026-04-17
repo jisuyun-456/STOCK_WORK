@@ -5,7 +5,7 @@ description: >
   한국은행 기준금리/금통위, KRW/USD 환율, 경상수지, 반도체 수출, 중국 경기 연동.
   Korean Research Division 3/5 — Phase KR-3. 트리거: 한은 기준금리, 원달러 환율, 한국 매크로, 반도체 수출, 금통위, KOSPI regime.
 tools: [Bash, Read, Glob, Grep, WebSearch, WebFetch, Write, Edit]
-model: claude-opus-4-7
+model: claude-sonnet-4-6
 permissionMode: acceptEdits
 memory: project
 ---

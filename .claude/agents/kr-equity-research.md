@@ -5,7 +5,7 @@ description: >
   PER/PBR/ROE/EV-EBITDA, DART 사업보고서, 자산가치법, 배당수익률, K-IFRS 회계품질.
   Korean Research Division 1/5 — Phase KR-1. 트리거: 한국주식 밸류에이션, 코스피 종목 분석, DART 공시, 적정주가, PBR 분석.
 tools: [Bash, Read, Glob, Grep, WebSearch, WebFetch, Write, Edit]
-model: claude-opus-4-7
+model: claude-sonnet-4-6
 permissionMode: acceptEdits
 memory: project
 ---

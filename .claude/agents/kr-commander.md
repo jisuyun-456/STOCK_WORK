@@ -5,7 +5,7 @@ description: >
   단일 심볼/섹터/KOSPI 200 전체 분석을 통합 리포트로 제공.
   트리거: /analyze-kr, 한국시장 종합 분석, 코스피 분석 부탁, 삼성전자 분석해줘, 한국주식 분석.
 tools: [Agent, Read, Write, Bash, Glob, Grep, WebSearch, WebFetch, TodoWrite, Edit]
-model: claude-opus-4-7
+model: claude-sonnet-4-6
 permissionMode: acceptEdits
 memory: project
 ---

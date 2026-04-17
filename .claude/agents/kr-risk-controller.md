@@ -5,7 +5,7 @@ description: >
   회계부정(Beneish M-Score), 상장폐지/거래정지, DART 공시 위험, 자본잠식, VaR, 집중도.
   Korean Research Division 5/5 — VETO 권한 보유. 트리거: KR 리스크, VETO, 상장폐지 위험, 회계부정, 공시 이상.
 tools: [Bash, Read, Glob, Grep, WebSearch, WebFetch, Write, Edit]
-model: claude-opus-4-7
+model: claude-sonnet-4-6
 permissionMode: acceptEdits
 memory: project
 ---
