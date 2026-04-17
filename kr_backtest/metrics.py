@@ -92,43 +92,30 @@ def compute_sharpe(returns: list[float], risk_free_rate: float = 0.03) -> float:
 def compute_sortino(returns: list[float], risk_free_rate: float = 0.03) -> float:
     """
     Sortino = (mean_return_annualized - risk_free_rate) / downside_std_annualized
-
-    downside_std = std of only the negative daily returns
-    Annualization factor: sqrt(252)
-    Returns 0.0 if no negative returns (all positive).
+    downside_std uses semi-deviation from 0: sqrt(mean(min(r, 0)^2) * 252)
+    returns: list of daily returns as decimals
+    Returns 0.0 if fewer than 2 returns or no negative returns.
     """
-    if len(returns) < 1:
+    if len(returns) < 2:
         return 0.0
 
     negative_returns = [r for r in returns if r < 0]
     if not negative_returns:
         return 0.0
 
-    n = len(returns)
-    mean_daily = sum(returns) / n
-    annualized_mean = mean_daily * 252
-
-    # Downside deviation uses only negative returns
-    nd = len(negative_returns)
-    if nd < 2:
-        # single negative return — use it as-is for std calculation
-        downside_mean = sum(negative_returns) / nd
-        if nd == 1:
-            downside_variance = negative_returns[0] ** 2
-        else:
-            downside_variance = sum(r ** 2 for r in negative_returns) / (nd - 1)
-    else:
-        downside_mean = sum(negative_returns) / nd
-        downside_variance = sum((r - downside_mean) ** 2 for r in negative_returns) / (nd - 1)
-
+    # Semi-deviation from 0 (standard Sortino downside deviation)
+    # Use mean over ALL returns (not just negative) as denominator
+    downside_variance = sum(r ** 2 for r in negative_returns) / len(returns)
     downside_std_daily = math.sqrt(downside_variance)
 
-    if downside_std_daily == 0.0:
+    if downside_std_daily == 0:
         return 0.0
 
-    annualized_downside_std = downside_std_daily * math.sqrt(252)
+    mean_daily = sum(returns) / len(returns)
+    mean_annual = mean_daily * 252
+    downside_std_annual = downside_std_daily * math.sqrt(252)
 
-    return (annualized_mean - risk_free_rate) / annualized_downside_std
+    return (mean_annual - risk_free_rate) / downside_std_annual
 
 
 def compute_sector_attribution(trade_log: list[dict]) -> dict[str, float]:

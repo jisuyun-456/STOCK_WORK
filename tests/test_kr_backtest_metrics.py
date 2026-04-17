@@ -54,16 +54,15 @@ def test_sortino_ignores_upside():
     downside_returns = [-0.01, -0.005], upside returns are not used in denominator.
     """
     returns = [0.02, -0.01, 0.03, -0.005, 0.01]
-
-    sharpe = compute_sharpe(returns)
     sortino = compute_sortino(returns)
+    sharpe = compute_sharpe(returns)
+    assert sortino > 0
+    assert sortino > sharpe  # downside std < total std → sortino > sharpe
 
-    # Both should be positive (net positive returns)
-    assert sortino > 0, f"Expected positive Sortino, got {sortino}"
-    # Sortino > Sharpe because downside_std < total_std
-    assert sortino > sharpe, (
-        f"Expected Sortino ({sortino:.4f}) > Sharpe ({sharpe:.4f})"
-    )
+    # Single negative return — should not crash
+    returns_single_neg = [0.02, -0.01, 0.03, 0.01]
+    result = compute_sortino(returns_single_neg)
+    assert result > 0  # should still work consistently
 
 
 def test_sector_attribution_sums():
