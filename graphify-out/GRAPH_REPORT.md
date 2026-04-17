@@ -1,12 +1,12 @@
 # Graph Report - .  (2026-04-17)
 
 ## Corpus Check
-- 99 files · ~132,211 words
+- 100 files · ~133,533 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1671 nodes · 4165 edges · 111 communities detected
-- Extraction: 50% EXTRACTED · 50% INFERRED · 0% AMBIGUOUS · INFERRED: 2071 edges (avg confidence: 0.5)
+- 1693 nodes · 4193 edges · 109 communities detected
+- Extraction: 50% EXTRACTED · 50% INFERRED · 0% AMBIGUOUS · INFERRED: 2082 edges (avg confidence: 0.5)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
@@ -119,8 +119,6 @@
 - [[_COMMUNITY_Community 106|Community 106]]
 - [[_COMMUNITY_Community 107|Community 107]]
 - [[_COMMUNITY_Community 108|Community 108]]
-- [[_COMMUNITY_Community 109|Community 109]]
-- [[_COMMUNITY_Community 110|Community 110]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `Direction` - 327 edges
@@ -150,63 +148,63 @@
 
 ### Community 0 - "Community 0"
 Cohesion: 0.04
-Nodes (278): Hybrid LLM agent runner for Research Overlay.  Supports 3 modes: - rules: Ori, Build context message for a specific agent., Parse LLM response into ResearchVerdict., Parse LLM response into ResearchVerdict., Get Anthropic client. Returns None if unavailable., Run 5 agents in parallel via Claude API (Haiku 4.5)., Gemini API call with exponential backoff on 429., Run 5 agents sequentially via Gemini Flash (rate limit aware with retry). (+270 more)
+Nodes (256): Build context message for a specific agent., Parse LLM response into ResearchVerdict., Gemini API call with exponential backoff on 429., Run 5 agents sequentially via Gemini Flash (rate limit aware with retry)., Run appeal analysis via Gemini Flash (with retry)., Get Anthropic client. Returns None if unavailable., Return current research mode., Run 5 agents in parallel via Claude API (Haiku 4.5). (+248 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.04
-Nodes (70): BacktestReport, calc_alpha(), calc_mdd(), calc_sharpe(), calc_win_rate(), detect_regime(), detect_regime_hmm_vectorized(), generate_windows() (+62 more)
+Cohesion: 0.03
+Nodes (124): System prompts for Research Division agents.  Derived from .claude/agents/*.md, _build_agent_context(), _get_claude_client(), get_research_mode(), _parse_verdict_json(), Hybrid LLM agent runner for Research Overlay.  Supports 3 modes: - rules: Ori, Parse LLM response into ResearchVerdict., Get Anthropic client. Returns None if unavailable. (+116 more)
 
 ### Community 2 - "Community 2"
 Cohesion: 0.04
-Nodes (66): ABC, APSource, Associated Press RSS news source adapter., NewsSource, Abstract base class for news source adapters., Abstract base for all news source adapters., Scrape article body from URL. Returns "" on any failure., Extract article body from parsed HTML. Override for source-specific logic. (+58 more)
+Nodes (70): BacktestReport, calc_alpha(), calc_mdd(), calc_sharpe(), calc_win_rate(), detect_regime(), detect_regime_hmm_vectorized(), generate_windows() (+62 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.04
 Nodes (44): A_BasicRegimeTest, B_RegimeTransitionTest, C_DeltaRebalanceTest, D_EdgeCaseTest, E_WhipsawTest, F_MonthlySimulationTest, G_IntegrationTest, H_OrderSafetyTest (+36 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.05
-Nodes (61): System prompts for Research Division agents.  Derived from .claude/agents/*.md, _build_agent_context(), _get_claude_client(), get_research_mode(), _parse_verdict_json(), run_all_agents(), run_all_agents_appeal(), _run_claude_agents() (+53 more)
+Cohesion: 0.07
+Nodes (49): aggregate_verdicts(), KR Research Division 4-에이전트 병렬 실행기.  두 가지 모드:   rules (기본): 데이터 기반 규칙, LLM 호출 없음, Regime + KRW + BOK 기반 매크로 판단., 점수 → (direction, conviction) 변환., 4에이전트 병렬 실행 → KRVerdict 리스트 반환.      Args:         code:       종목 코드 ("005930"), KRVerdict[] → 가중 합산 결과.      Returns:         {"weighted_score": float, "agree":, PBR/PER/배당 기반 밸류에이션 판단., SMA/RSI/MACD/BB%B 기반 기술적 판단 + 수급. (+41 more)
 
 ### Community 5 - "Community 5"
+Cohesion: 0.05
+Nodes (32): ABC, APSource, Associated Press RSS news source adapter., NewsSource, Abstract base class for news source adapters., Abstract base for all news source adapters., Scrape article body from URL. Returns "" on any failure., Extract article body from parsed HTML. Override for source-specific logic. (+24 more)
+
+### Community 6 - "Community 6"
 Cohesion: 0.06
 Nodes (43): ExitRule, Base strategy interface and Signal data structures for paper trading., Exit rules for a position., Default exit rules. Override per strategy if needed., check_circuit_breaker(), CircuitBreakerState, clear_lock(), _compute_daily_loss() (+35 more)
 
-### Community 6 - "Community 6"
+### Community 7 - "Community 7"
 Cohesion: 0.05
 Nodes (14): _atom_xml(), tests/test_news_triggers.py — news.triggers 단위 테스트.  모든 외부 네트워크(yfinance, SEC ED, requests.get mock: CIK JSON 첫 호출, Atom XML 두 번째 호출., CIK 없는 티커는 건너뛰고 다른 종목에 영향 없음., SEC 서버 오류 시 graceful False., User-Agent 헤더가 SEC 요구 사항 준수 (식별 가능한 문자열 포함)., CIK JSON은 1회만 로드 (캐시 작동)., FOMC True 면 yfinance/SEC 호출 없음. (+6 more)
 
-### Community 7 - "Community 7"
+### Community 8 - "Community 8"
 Cohesion: 0.05
 Nodes (25): Workflow hardening regression tests (2026-04-16).  Covers 10 vulnerability fixes, 60+ rows: VaR computes normally, no 'insufficient' message., yfinance 실패 시 0.0 대신 None 반환해야 한다., math.sqrt(variance) must use max(0.0, variance) to avoid ValueError on tiny nega, 동일 NAV → std=0 → None 반환 (ZeroDivisionError 아님)., _compute_sharpe must use max(0.0, variance) in sqrt to guard float rounding., run_cycle.py는 LEV_ST/GRW를 누락하는 하드코딩 전략 리스트를 갖지 않아야 한다., --force-regime EUPHORIA should be accepted by argparse (not rejected as invalid (+17 more)
 
-### Community 8 - "Community 8"
+### Community 9 - "Community 9"
 Cohesion: 0.06
 Nodes (31): get_analyst_consensus(), yfinance ticker.info → 애널리스트 컨센서스 + 목표주가.  Usage:     from fundamentals.analyst, 종목별 애널리스트 추천 지수와 목표주가를 반환한다.      Returns:         {symbol: {             "rec_m, get_earnings_risk(), _get_via_fmp(), _get_via_yfinance(), 실적발표 D-Day 리스크 플래그.  Primary: yfinance ticker.calendar (무료, API 키 불필요) Fallback:, 종목별 다음 실적발표까지 남은 일수. yfinance 우선, FMP fallback.      Returns:         {symbol: d (+23 more)
 
-### Community 9 - "Community 9"
+### Community 10 - "Community 10"
 Cohesion: 0.06
 Nodes (16): EUPHORIA (5th regime) tests — allocator, consensus detection, HMM score., EUPHORIA는 BULL과 같은 점수(1.0) — HMM 연속 스코어링 일관성., score_from_regime_prob이 EUPHORIA 확률을 올바르게 반영한다., EUPHORIA 50% + BULL 50% → score ≈ 1.0 (둘 다 최고점)., LEV + LEV_ST는 모든 레짐에서 0.50 고정., 과매수 리스크 축소 — BULL(0%)보다 CASH 비율이 높아야 한다., EUPHORIA → BEAR 전환 시 exit signal 발생해야 한다 (severity 0)., EUPHORIA → BULL 전환은 리스크 감소이므로 exit signal 없음. (+8 more)
 
-### Community 10 - "Community 10"
+### Community 11 - "Community 11"
 Cohesion: 0.13
 Nodes (34): _append_monitor_log(), _audit_log(), _backup_state_files(), _build_symbol_strategy_map(), _check_allocation_integrity(), _check_inception_drift(), _check_negative_cash(), _collect_held_symbols() (+26 more)
 
-### Community 11 - "Community 11"
+### Community 12 - "Community 12"
 Cohesion: 0.1
 Nodes (29): build_market_snapshot(), code_to_fdr(), code_to_yf(), fetch_bok_rate(), fetch_dart_disclosures(), fetch_dart_financials(), fetch_foreign_flow(), fetch_kospi_index() (+21 more)
 
-### Community 12 - "Community 12"
+### Community 13 - "Community 13"
 Cohesion: 0.1
 Nodes (21): _generate_signals(), _make_fundamentals(), _make_strategy(), tests/test_value_quality_crisis.py  VAL 전략의 CRISIS 레짐 gate 통과율 개선 검증. 핵심: 필터 통과, position_pct 미설정 시 기본값 = 1/max_positions., position_pct=0.15 < 1/max_positions(0.20) → 0.15 적용., 수정 후 risk_validator position_limit 체크 통과 시뮬., VAL position_limit = 0.25 → weight 0.20 ≤ 0.25 → PASS. (+13 more)
 
-### Community 13 - "Community 13"
+### Community 14 - "Community 14"
 Cohesion: 0.11
 Nodes (28): _build_symbol_strategy_map(), _calc_cumulative_returns(), _calc_daily_pnl(), _calc_mdd(), _calc_position_aging(), copy_to_obsidian(), generate_daily_analysis(), _get_account() (+20 more)
-
-### Community 14 - "Community 14"
-Cohesion: 0.09
-Nodes (27): isolate_override_path(), _make_signal(), _make_verdict(), tests/test_manual_override.py — research.manual_override 단위/통합 테스트.  모든 파일 I/O는, save(..., 'BUY') 후 load(..., 'buy') 성공 (키 정규화)., 동일 키로 두 번 save → 두 번째 값으로 덮어쓰기., expires_at을 과거로 조작 → load returns None., list_active()는 만료된 항목을 제외한다. (+19 more)
 
 ### Community 15 - "Community 15"
 Cohesion: 0.1
@@ -245,40 +243,40 @@ Cohesion: 0.23
 Nodes (5): _make_market_data(), _make_prices(), tests/test_growth_smallcap.py — GrowthSmallCapStrategy 유닛 테스트, TestFetchGrowthData, TestGenerateSignals
 
 ### Community 24 - "Community 24"
+Cohesion: 0.11
+Nodes (15): Tests for execution/monitor_rules.py — MDD check with realloc window.  Bug conte, peak=0 이면 ZeroDivision 없이 False 반환, MDD -10% → threshold -20%: triggered=False, MDD -21% → threshold -20%: triggered=True, VAL: $15K→$10K 재배분. realloc 이후 NAV는 정상(-3.9%).     이전 패턴(full peak)에서는 -33.4%로 오, 재배분 후 진짜 -25.7% 손실은 트리거돼야 함., 복수 realloc이 있을 때 마지막 realloc 이후 window를 사용해야 함., realloc 이후 엔트리가 1개뿐이면 길이 부족 → triggered=False (+7 more)
+
+### Community 25 - "Community 25"
 Cohesion: 0.19
 Nodes (15): _dedup_by_title(), fetch_all_news(), fetch_macro_news(), fetch_macro_news_enhanced(), fetch_news(), fetch_rss_news(), News fetcher — yfinance 뉴스 수집 + BeautifulSoup 본문 스크래핑.  yf.Ticker(symbol).news, 종목의 최신 뉴스를 yfinance에서 수집하고 본문을 스크래핑한다.      yf.Ticker(symbol).news 에서 URL 목록을 (+7 more)
 
-### Community 25 - "Community 25"
+### Community 26 - "Community 26"
 Cohesion: 0.18
 Nodes (15): _parse_atom_entry(), _parse_date(), parse_rss_feed(), _parse_rss_item(), Generic RSS/Atom feed parser using xml.etree.ElementTree (stdlib)., Get text content with Atom namespace fallback., Remove HTML tags from text., Parse RFC 2822 date to ISO format. Returns raw string on failure. (+7 more)
 
-### Community 26 - "Community 26"
+### Community 27 - "Community 27"
 Cohesion: 0.21
 Nodes (15): analyze_portfolio(), analyze_stock(), _calc_macd(), _calc_rsi(), fetch_fundamental(), fetch_institutional(), fetch_technical(), _fmp_get() (+7 more)
 
-### Community 27 - "Community 27"
+### Community 28 - "Community 28"
 Cohesion: 0.2
 Nodes (13): _cik_for(), has_8k_filing(), is_earnings_week(), is_fomc_week(), _load_cik_cache(), News analysis triggers.  뉴스 수집/감성 분석을 실제로 수행해야 하는 3가지 조건을 판단한다: 1) FOMC week, SEC EDGAR company_tickers.json 에서 Ticker→CIK 매핑을 로드한다 (1회 캐시)., Ticker → 10자리 zero-padded CIK. 없으면 None. (+5 more)
 
-### Community 28 - "Community 28"
+### Community 29 - "Community 29"
 Cohesion: 0.42
 Nodes (13): _fmt_pct(), _fmt_price(), _get_price_change(), _load_portfolios(), main(), yfinance로 단기/장기 등락률 조회., _section(), section_global() (+5 more)
 
-### Community 29 - "Community 29"
+### Community 30 - "Community 30"
 Cohesion: 0.2
 Nodes (10): Cross-strategy sector concentration gate tests., MOM/VAL/QNT 전략별 sector limit이 30% 이하인지 확인., check_cross_strategy_concentration() 단위 테스트., portfolios['strategies'] 한 항목 형식 생성., test_blocks_when_cross_strategy_exceeds_threshold(), test_empty_positions_passes(), test_passes_when_below_threshold(), test_trade_value_included_in_calculation() (+2 more)
 
-### Community 30 - "Community 30"
+### Community 31 - "Community 31"
 Cohesion: 0.23
 Nodes (13): _make_portfolios(), _make_trade_log_lines(), Tests for _sync_alpaca_positions multi-strategy position split.  Verifies that w, MOM이 AAPL을 팔고 QNT만 보유 → QNT에 전액 배정., qty=0인 dry_run 엔트리 → equal split (1/n)., Build a minimal portfolios dict with given strategy codes., Serialize trade log entries to JSONL., 단일 전략이 AAPL 보유 → 해당 전략에 전액 배정. (+5 more)
 
-### Community 31 - "Community 31"
-Cohesion: 0.23
-Nodes (12): check_stop_loss(), check_strategy_mdd(), check_take_profit(), check_trailing_stop(), evaluate_position(), get_config(), Intraday Monitor Rules Engine — stop-loss, take-profit, trailing stop.  Each che, Hard stop-loss: exit if unrealized P&L % breaches threshold. (+4 more)
-
 ### Community 32 - "Community 32"
-Cohesion: 0.22
-Nodes (12): analyze_all_sentiment(), analyze_sentiment(), _build_prompt(), _get_client(), _parse_gemini_response(), Sentiment analysis — Gemini API로 뉴스 감성 분석.  fetch_all_news() 결과를 받아 종목별로 Gemin, Gemini Client 인스턴스를 반환한다.      GEMINI_API_KEY가 없거나 SDK 미설치 시 None 반환., 종목의 뉴스 기사들을 Gemini로 감성 분석한다.      기사 목록을 하나의 프롬프트로 묶어 Gemini 1회 호출한다.     429 (+4 more)
+Cohesion: 0.23
+Nodes (12): check_stop_loss(), check_strategy_mdd(), check_take_profit(), check_trailing_stop(), evaluate_position(), get_config(), Intraday Monitor Rules Engine — stop-loss, take-profit, trailing stop.  Each che, Run all position-level checks in priority order.      Returns (should_exit, reas (+4 more)
 
 ### Community 33 - "Community 33"
 Cohesion: 0.27
@@ -309,132 +307,132 @@ Cohesion: 0.18
 Nodes (9): fetch_kr_indices(), fetch_macro(), fetch_sector_performance(), fetch_us_indices(), 데이터 수집 모듈 — yfinance(미국/글로벌/한국) + FRED(매크로), 기준금리, CPI, 실업률, GDP (FRED_API_KEY 없으면 빈 dict), 나스닥, S&P500, DJI, VIX 전일 데이터, S&P500 11개 섹터 ETF 등락률 (+1 more)
 
 ### Community 40 - "Community 40"
-Cohesion: 0.25
-Nodes (10): _make_signal(), Tests for BUY delta sizing in order_manager.  Verifies that execute_signal() and, execute_signals()가 get_positions()를 1회 호출하고 delta BUY를 처리., 포지션 없을 때 trade_value = strategy_capital × weight_pct (delta = target)., 이미 $500 보유 시 target $1000 → delta $500만 매수., target 이미 달성 시 already_at_target으로 skip., test_buy_already_at_target_skips(), test_buy_no_existing_position_uses_full_target() (+2 more)
-
-### Community 41 - "Community 41"
 Cohesion: 0.31
 Nodes (9): execute_signal(), execute_signals(), _log_result(), _next_seq(), Order Manager — translates Signals into Alpaca orders and tracks fills.  Respo, Execute a batch of signals.      Args:         signals: List of approved sign, Generate next sequence number for client_order_id., Log trade result to trade_log.jsonl and return it. (+1 more)
 
-### Community 42 - "Community 42"
+### Community 41 - "Community 41"
 Cohesion: 0.24
 Nodes (9): compute_polymarket_score(), fetch_macro_markets(), _log_weight(), PolymarketSignal, Polymarket prediction market integration for macro regime signals.  Fetches pu, Aggregate prediction market data into a macro sentiment score.      Score: -1., Convert volume to log-scale weight., Single prediction market data point. (+1 more)
 
-### Community 43 - "Community 43"
+### Community 42 - "Community 42"
 Cohesion: 0.4
 Nodes (9): can_call(), get_status(), _load(), main(), FMP API Rate Limiter — 250콜/일 한도 관리 사용법:   python scripts/fmp_rate_limiter.py ch, n콜을 실행할 수 있는지 확인.     Returns: (허용 여부, 메시지), n콜 사용 기록. 차단 시 기록하지 않고 에러 반환., record_calls() (+1 more)
 
-### Community 44 - "Community 44"
+### Community 43 - "Community 43"
 Cohesion: 0.27
 Nodes (9): _make_portfolios_bear(), Tests for phase_regime allocation update bug.  Bug: `if cash_amount > 0` guard p, CRISIS regime에서도 save_portfolios 호출, GRW=0 유지., Simulate portfolios.json stuck in BEAR allocation., BULL regime (CASH=0%)에서 phase_regime이 GRW allocated를 업데이트해야 한다., NEUTRAL regime에서도 모든 전략 allocated가 업데이트됨., test_bull_regime_updates_grw_allocated(), test_crisis_regime_still_works() (+1 more)
 
-### Community 45 - "Community 45"
+### Community 44 - "Community 44"
 Cohesion: 0.31
 Nodes (4): _current_weights(), get_target_mix(), _needs_rebalance(), _positions_market_value()
 
-### Community 46 - "Community 46"
+### Community 45 - "Community 45"
 Cohesion: 0.22
 Nodes (8): allocate(), generate_regime_exit_signals(), get_regime_description(), Regime-based dynamic strategy allocation (Bridgewater-style)., Generate emergency SELL signals when regime transitions to BEAR/CRISIS.      A, Regime에 따라 전략별 자본 배분.      Args:         regime: "BULL" | "NEUTRAL" | "BEAR", # NOTE: LEV 는 자체 generate_signals() 내에서 regime 전환 시 TQQQ↔SQQQ↔현금 을, # NOTE: LEV 는 자체 generate_signals() 내에서 regime 전환 시 TQQQ↔SQQQ↔현금 을
 
-### Community 47 - "Community 47"
+### Community 46 - "Community 46"
 Cohesion: 0.31
 Nodes (8): _make_lev(), Tests for LEV weight_pct meaning unification.  After Task1 fix, order_manager ha, NEUTRAL: TQQQ target=50%, currently at $5k (weight=22%), capital=$25k.     devia, 신규 진입 시 weight_pct = target_weight — Task1 이전부터 올바른 동작., NEUTRAL: SPY target=50%, currently holding $17k → 초과분 매도.     delta = -$4,500, l, test_new_entry_buy_weight_pct_is_target_weight(), test_rebalance_buy_weight_pct_is_target_weight(), test_rebalance_sell_weight_pct_is_liquidation_ratio()
 
-### Community 48 - "Community 48"
+### Community 47 - "Community 47"
 Cohesion: 0.32
 Nodes (7): fetch_google_news_symbol(), _parse_pub_date(), Google News RSS — 종목별 뉴스 검색 수집기.  Google News RSS 검색 엔드포인트를 사용해 특정 종목에 대한 최신 기사를, HTML 태그/엔티티 제거 후 공백 정리., RFC 822 날짜 → ISO 8601 UTC 문자열., 종목별 Google News RSS 기사 수집.      Args:         symbol: 종목 티커 (예: "AAPL"), _strip_html()
 
-### Community 49 - "Community 49"
+### Community 48 - "Community 48"
 Cohesion: 0.36
 Nodes (7): generate_report(), main(), 일일 투자 리포트 메인 오케스트레이터 CLI: python3 scripts/daily_report.py [--mode auto|manual], Gmail SMTP로 리포트 이메일 발송 (PDF 첨부 옵션), email_summary.html 렌더링 (1페이지 요약), _render_email_summary(), send_email()
 
-### Community 50 - "Community 50"
+### Community 49 - "Community 49"
 Cohesion: 0.25
 Nodes (7): generate_html_preview(), generate_pdf(), get_pdf_path(), PDF 생성 모듈 — WeasyPrint + Jinja2 templates/pdf_report.html → A4 PDF, docs/reports/YYYY-MM-DD-report.pdf, context → templates/pdf_report.html 렌더링 → WeasyPrint → PDF 저장     반환: 저장된 PDF 파, PDF 생성이 불가한 환경(Windows 로컬)에서 HTML 미리보기 저장     반환: 저장된 HTML 파일 경로
 
-### Community 51 - "Community 51"
+### Community 50 - "Community 50"
 Cohesion: 0.46
 Nodes (7): apply_rebalance_risk_gate(), _check_drift(), compute_rebalance_orders(), _get_strategy_signals(), _is_schedule_due(), run_rebalance_check(), should_rebalance()
 
-### Community 52 - "Community 52"
+### Community 51 - "Community 51"
 Cohesion: 0.29
 Nodes (5): 떠오르는 기업 스크리닝 — 거래량 급등, 52주 신고가, 섹터별 모멘텀 yfinance 기반 (OpenBB screener 대체), 거래량 급등 TOP N — 최근 거래량 vs 20일 평균 비율, 11개 섹터 ETF 1주/1개월 수익률, sector_momentum(), volume_surge()
 
-### Community 53 - "Community 53"
+### Community 52 - "Community 52"
 Cohesion: 0.43
 Nodes (6): _audit_list(), _classify(), _load_json(), main(), Return 'LIVE' | 'STALE' | 'DELISTED' for a single ticker., Classify every ticker in a universe list.
 
-### Community 54 - "Community 54"
+### Community 53 - "Community 53"
 Cohesion: 0.33
 Nodes (2): _fetch_vix_change(), _spy_change_from_data()
 
-### Community 55 - "Community 55"
-Cohesion: 0.33
-Nodes (3): _calc_momentum(), fetch_factor_data(), _ols_factor_exposure()
-
-### Community 56 - "Community 56"
+### Community 54 - "Community 54"
 Cohesion: 0.4
 Nodes (5): load_strategy_params(), strategy_params.json 로더 — 모듈 레벨 캐시로 중복 IO 방지., strategy_params.json을 읽어 dict로 반환. 모듈 캐시 사용., 캐시를 버리고 다시 읽는다 (테스트/변경 감지용)., reload_strategy_params()
 
-### Community 57 - "Community 57"
+### Community 55 - "Community 55"
 Cohesion: 0.33
 Nodes (3): current_cycle(), 매크로 분석 모듈 — 경기사이클 판단 → 유리 섹터 → 대표 종목 추천, 현재 경기사이클 위치 판단 (간이 규칙 기반)      판단 로직 (Investment Clock):     - 금리 높음 + CPI 높음 +
 
-### Community 58 - "Community 58"
+### Community 56 - "Community 56"
 Cohesion: 0.7
 Nodes (4): main(), print_summary_table(), _result_to_dict(), write_report_json()
 
-### Community 59 - "Community 59"
+### Community 57 - "Community 57"
 Cohesion: 0.4
 Nodes (3): check_stabilization(), Cycle Health Tracker — 사이클별 에러 카운트 추적 + 안정화 판정.  에러 분류:   CRASH        — sys.exi, 최근 N사이클이 모두 에러 0인지 확인.      Returns:         {             "status": "STABILIZED
 
-### Community 60 - "Community 60"
+### Community 58 - "Community 58"
 Cohesion: 0.6
 Nodes (3): _fetch_fmp_profile(), fetch_value_data(), _fetch_yf_fundamentals()
 
-### Community 61 - "Community 61"
+### Community 59 - "Community 59"
 Cohesion: 0.83
 Nodes (3): _load_json(), main(), _section()
 
-### Community 62 - "Community 62"
+### Community 60 - "Community 60"
 Cohesion: 0.67
 Nodes (1): Cycle Health 대시보드 — state/cycle_health.json 요약 출력.  사용법:     python scripts/heal
 
-### Community 63 - "Community 63"
+### Community 61 - "Community 61"
 Cohesion: 0.67
 Nodes (1): Reset inception.strategies to match current allocated amounts.  performance.json
 
-### Community 64 - "Community 64"
-Cohesion: 1.0
-Nodes (1): 에러 카운트 증가 + 이벤트 기록.          Args:             error_type: CRASH | PHASE_ERROR |
-
-### Community 65 - "Community 65"
+### Community 62 - "Community 62"
 Cohesion: 1.0
 Nodes (1): 현재 사이클 결과를 cycle_health.json에 atomic append.          Atomic: tmp 파일 write → fsy
 
-### Community 66 - "Community 66"
+### Community 63 - "Community 63"
 Cohesion: 1.0
-Nodes (1): Check if rebalancing is due based on frequency.
+Nodes (1): 에러 카운트 증가 + 이벤트 기록.          Args:             error_type: CRASH | PHASE_ERROR |
 
-### Community 67 - "Community 67"
+### Community 64 - "Community 64"
 Cohesion: 1.0
 Nodes (0): 
 
-### Community 68 - "Community 68"
+### Community 65 - "Community 65"
 Cohesion: 1.0
 Nodes (1): Fetch articles from this source.          Returns:             [{"title", "bo
 
-### Community 69 - "Community 69"
+### Community 66 - "Community 66"
 Cohesion: 1.0
 Nodes (1): Build (ret, log_vix, vol21) feature DataFrame from price series.          Raises
 
-### Community 70 - "Community 70"
+### Community 67 - "Community 67"
 Cohesion: 1.0
 Nodes (1): Load model from disk. Returns None on any failure.
 
-### Community 71 - "Community 71"
+### Community 68 - "Community 68"
 Cohesion: 1.0
 Nodes (0): 
+
+### Community 69 - "Community 69"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 70 - "Community 70"
+Cohesion: 1.0
+Nodes (1): Generate order ID prefix for strategy attribution.
+
+### Community 71 - "Community 71"
+Cohesion: 1.0
+Nodes (1): Generate trade signals from market data.          Args:             market_da
 
 ### Community 72 - "Community 72"
 Cohesion: 1.0
@@ -442,261 +440,253 @@ Nodes (0):
 
 ### Community 73 - "Community 73"
 Cohesion: 1.0
-Nodes (1): Generate order ID prefix for strategy attribution.
+Nodes (1): MOM 25%+QNT 20% Technology → 총 45% > 30% → BLOCK.
 
 ### Community 74 - "Community 74"
 Cohesion: 1.0
-Nodes (1): Generate trade signals from market data.          Args:             market_da
+Nodes (1): MOM 10%+QNT 10% Technology → 총 20% < 30% → PASS.
 
 ### Community 75 - "Community 75"
 Cohesion: 1.0
-Nodes (0): 
+Nodes (1): Unknown 섹터는 per-strategy 게이트에서 처리 → cross-strategy PASS.
 
 ### Community 76 - "Community 76"
 Cohesion: 1.0
-Nodes (1): MOM 25%+QNT 20% Technology → 총 45% > 30% → BLOCK.
+Nodes (1): Run all position-level checks in priority order.      Returns (should_exit, reas
 
 ### Community 77 - "Community 77"
 Cohesion: 1.0
-Nodes (1): MOM 10%+QNT 10% Technology → 총 20% < 30% → PASS.
+Nodes (1): SEC EDGAR Form 4 기반 인사이더 달러 매수/매도 신호.      Args:         symbols: 조회할 ticker 목록
 
 ### Community 78 - "Community 78"
 Cohesion: 1.0
-Nodes (1): Unknown 섹터는 per-strategy 게이트에서 처리 → cross-strategy PASS.
+Nodes (1): Phase 1.6에서 호출. 전체 펀더멘털 데이터를 한 번에 수집.      Returns:         {             "earni
 
 ### Community 79 - "Community 79"
 Cohesion: 1.0
-Nodes (1): SEC EDGAR Form 4 기반 인사이더 달러 매수/매도 신호.      Args:         symbols: 조회할 ticker 목록
+Nodes (1): Get sector for a symbol. Uses hardcoded map → cache → yfinance fallback.
 
 ### Community 80 - "Community 80"
 Cohesion: 1.0
-Nodes (1): Phase 1.6에서 호출. 전체 펀더멘털 데이터를 한 번에 수집.      Returns:         {             "earni
+Nodes (1): Check that a single position doesn't exceed max_pct of strategy capital.
 
 ### Community 81 - "Community 81"
 Cohesion: 1.0
-Nodes (1): Get sector for a symbol. Uses hardcoded map → cache → yfinance fallback.
+Nodes (1): Check that sector exposure doesn't exceed max_pct.
 
 ### Community 82 - "Community 82"
 Cohesion: 1.0
-Nodes (1): Check that a single position doesn't exceed max_pct of strategy capital.
+Nodes (1): 전략 간 교차 섹터 집중도 체크.      단일 섹터가 전체 포트폴리오(total_portfolio)의 max_pct를 초과하면 BLOCK.
 
 ### Community 83 - "Community 83"
 Cohesion: 1.0
-Nodes (1): Check that sector exposure doesn't exceed max_pct.
+Nodes (1): Parametric VaR check (95% 1-day) for portfolio.
 
 ### Community 84 - "Community 84"
 Cohesion: 1.0
-Nodes (1): 전략 간 교차 섹터 집중도 체크.      단일 섹터가 전체 포트폴리오(total_portfolio)의 max_pct를 초과하면 BLOCK.
+Nodes (1): Check correlation between new symbol and existing holdings.
 
 ### Community 85 - "Community 85"
 Cohesion: 1.0
-Nodes (1): Parametric VaR check (95% 1-day) for portfolio.
+Nodes (1): Ensure strategy maintains minimum cash buffer after trade.
 
 ### Community 86 - "Community 86"
 Cohesion: 1.0
-Nodes (1): Check correlation between new symbol and existing holdings.
+Nodes (1): Run all 5 risk checks on a proposed trade.      Args:         symbol: Ticker
 
 ### Community 87 - "Community 87"
 Cohesion: 1.0
-Nodes (1): Ensure strategy maintains minimum cash buffer after trade.
+Nodes (1): Check correlation between new symbol and existing holdings.
 
 ### Community 88 - "Community 88"
 Cohesion: 1.0
-Nodes (1): Run all 5 risk checks on a proposed trade.      Args:         symbol: Ticker
+Nodes (1): Ensure strategy maintains minimum cash buffer after trade.
 
 ### Community 89 - "Community 89"
 Cohesion: 1.0
-Nodes (1): Check correlation between new symbol and existing holdings.
+Nodes (1): Run all 5 risk checks on a proposed trade.      Args:         symbol: Ticker
 
 ### Community 90 - "Community 90"
 Cohesion: 1.0
-Nodes (1): Ensure strategy maintains minimum cash buffer after trade.
+Nodes (1): Convert regime probability dict to continuous 0~1 composite score.      state_pr
 
 ### Community 91 - "Community 91"
 Cohesion: 1.0
-Nodes (1): Run all 5 risk checks on a proposed trade.      Args:         symbol: Ticker
+Nodes (1): Check if total portfolio NAV has hit MDD threshold.
 
 ### Community 92 - "Community 92"
 Cohesion: 1.0
-Nodes (1): Convert regime probability dict to continuous 0~1 composite score.      state_pr
+Nodes (1): Run all position-level checks in priority order.      Returns (should_exit, reas
 
 ### Community 93 - "Community 93"
 Cohesion: 1.0
-Nodes (1): Check if total portfolio NAV has hit MDD threshold.
+Nodes (1): Get sector for a symbol. Uses hardcoded map → cache → yfinance fallback.
 
 ### Community 94 - "Community 94"
 Cohesion: 1.0
-Nodes (1): Run all position-level checks in priority order.      Returns (should_exit, reas
+Nodes (1): Check that a single position doesn't exceed max_pct of strategy capital.
 
 ### Community 95 - "Community 95"
 Cohesion: 1.0
-Nodes (1): Get sector for a symbol. Uses hardcoded map → cache → yfinance fallback.
+Nodes (1): Check that sector exposure doesn't exceed max_pct.
 
 ### Community 96 - "Community 96"
 Cohesion: 1.0
-Nodes (1): Check that a single position doesn't exceed max_pct of strategy capital.
+Nodes (1): Parametric VaR check (95% 1-day) for portfolio.
 
 ### Community 97 - "Community 97"
 Cohesion: 1.0
-Nodes (1): Check that sector exposure doesn't exceed max_pct.
+Nodes (1): Check correlation between new symbol and existing holdings.
 
 ### Community 98 - "Community 98"
 Cohesion: 1.0
-Nodes (1): Parametric VaR check (95% 1-day) for portfolio.
+Nodes (1): Ensure strategy maintains minimum cash buffer after trade.
 
 ### Community 99 - "Community 99"
 Cohesion: 1.0
-Nodes (1): Check correlation between new symbol and existing holdings.
+Nodes (1): Run all 5 risk checks on a proposed trade.      Args:         symbol: Ticker
 
 ### Community 100 - "Community 100"
 Cohesion: 1.0
-Nodes (1): Ensure strategy maintains minimum cash buffer after trade.
+Nodes (1): Extract notional value from trade entry.
 
 ### Community 101 - "Community 101"
 Cohesion: 1.0
-Nodes (1): Run all 5 risk checks on a proposed trade.      Args:         symbol: Ticker
+Nodes (1): Copy report to Obsidian vault.
 
 ### Community 102 - "Community 102"
 Cohesion: 1.0
-Nodes (1): Extract notional value from trade entry.
+Nodes (1): Compute Maximum Drawdown (%). Returns negative number.
 
 ### Community 103 - "Community 103"
 Cohesion: 1.0
-Nodes (1): Copy report to Obsidian vault.
+Nodes (1): Compute annualized Sharpe ratio. Returns None if < 20 observations.
 
 ### Community 104 - "Community 104"
 Cohesion: 1.0
-Nodes (1): Compute Maximum Drawdown (%). Returns negative number.
+Nodes (1): Win rate from filled trades only (sell with positive pnl).
 
 ### Community 105 - "Community 105"
 Cohesion: 1.0
-Nodes (1): Compute annualized Sharpe ratio. Returns None if < 20 observations.
+Nodes (1): Build one entry for the daily[] array in performance.json.
 
 ### Community 106 - "Community 106"
 Cohesion: 1.0
-Nodes (1): Win rate from filled trades only (sell with positive pnl).
+Nodes (1): Append daily entry, recompute aggregates, save performance.json.      Duplicat
 
 ### Community 107 - "Community 107"
 Cohesion: 1.0
-Nodes (1): Build one entry for the daily[] array in performance.json.
-
-### Community 108 - "Community 108"
-Cohesion: 1.0
-Nodes (1): Append daily entry, recompute aggregates, save performance.json.      Duplicat
-
-### Community 109 - "Community 109"
-Cohesion: 1.0
 Nodes (1): Convert nav_history to SVG path string for inline sparkline.
 
-### Community 110 - "Community 110"
+### Community 108 - "Community 108"
 Cohesion: 1.0
 Nodes (1): Generate reports/strategy/{CODE}-monthly.md for current month.
 
 ## Knowledge Gaps
-- **299 isolated node(s):** `strategy_params.json 로더 — 모듈 레벨 캐시로 중복 IO 방지.`, `strategy_params.json을 읽어 dict로 반환. 모듈 캐시 사용.`, `캐시를 버리고 다시 읽는다 (테스트/변경 감지용).`, `Alpaca Trading Client — paper/live toggle via environment variable.  Switch be`, `Get singleton Alpaca TradingClient.      Environment variables required:` (+294 more)
+- **311 isolated node(s):** `strategy_params.json 로더 — 모듈 레벨 캐시로 중복 IO 방지.`, `strategy_params.json을 읽어 dict로 반환. 모듈 캐시 사용.`, `캐시를 버리고 다시 읽는다 (테스트/변경 감지용).`, `Alpaca Trading Client — paper/live toggle via environment variable.  Switch be`, `Get singleton Alpaca TradingClient.      Environment variables required:` (+306 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **Thin community `Community 64`** (2 nodes): `.record()`, `에러 카운트 증가 + 이벤트 기록.          Args:             error_type: CRASH | PHASE_ERROR |`
+- **Thin community `Community 62`** (2 nodes): `.save()`, `현재 사이클 결과를 cycle_health.json에 atomic append.          Atomic: tmp 파일 write → fsy`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 65`** (2 nodes): `.save()`, `현재 사이클 결과를 cycle_health.json에 atomic append.          Atomic: tmp 파일 write → fsy`
+- **Thin community `Community 63`** (2 nodes): `.record()`, `에러 카운트 증가 + 이벤트 기록.          Args:             error_type: CRASH | PHASE_ERROR |`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 66`** (2 nodes): `.should_rebalance()`, `Check if rebalancing is due based on frequency.`
+- **Thin community `Community 64`** (1 nodes): `__init__.py`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 67`** (1 nodes): `__init__.py`
+- **Thin community `Community 65`** (1 nodes): `Fetch articles from this source.          Returns:             [{"title", "bo`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 68`** (1 nodes): `Fetch articles from this source.          Returns:             [{"title", "bo`
+- **Thin community `Community 66`** (1 nodes): `Build (ret, log_vix, vol21) feature DataFrame from price series.          Raises`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 69`** (1 nodes): `Build (ret, log_vix, vol21) feature DataFrame from price series.          Raises`
+- **Thin community `Community 67`** (1 nodes): `Load model from disk. Returns None on any failure.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 70`** (1 nodes): `Load model from disk. Returns None on any failure.`
+- **Thin community `Community 68`** (1 nodes): `__init__.py`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 71`** (1 nodes): `__init__.py`
+- **Thin community `Community 69`** (1 nodes): `__init__.py`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 70`** (1 nodes): `Generate order ID prefix for strategy attribution.`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 71`** (1 nodes): `Generate trade signals from market data.          Args:             market_da`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `Community 72`** (1 nodes): `__init__.py`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 73`** (1 nodes): `Generate order ID prefix for strategy attribution.`
+- **Thin community `Community 73`** (1 nodes): `MOM 25%+QNT 20% Technology → 총 45% > 30% → BLOCK.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 74`** (1 nodes): `Generate trade signals from market data.          Args:             market_da`
+- **Thin community `Community 74`** (1 nodes): `MOM 10%+QNT 10% Technology → 총 20% < 30% → PASS.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 75`** (1 nodes): `__init__.py`
+- **Thin community `Community 75`** (1 nodes): `Unknown 섹터는 per-strategy 게이트에서 처리 → cross-strategy PASS.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 76`** (1 nodes): `MOM 25%+QNT 20% Technology → 총 45% > 30% → BLOCK.`
+- **Thin community `Community 76`** (1 nodes): `Run all position-level checks in priority order.      Returns (should_exit, reas`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 77`** (1 nodes): `MOM 10%+QNT 10% Technology → 총 20% < 30% → PASS.`
+- **Thin community `Community 77`** (1 nodes): `SEC EDGAR Form 4 기반 인사이더 달러 매수/매도 신호.      Args:         symbols: 조회할 ticker 목록`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 78`** (1 nodes): `Unknown 섹터는 per-strategy 게이트에서 처리 → cross-strategy PASS.`
+- **Thin community `Community 78`** (1 nodes): `Phase 1.6에서 호출. 전체 펀더멘털 데이터를 한 번에 수집.      Returns:         {             "earni`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 79`** (1 nodes): `SEC EDGAR Form 4 기반 인사이더 달러 매수/매도 신호.      Args:         symbols: 조회할 ticker 목록`
+- **Thin community `Community 79`** (1 nodes): `Get sector for a symbol. Uses hardcoded map → cache → yfinance fallback.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 80`** (1 nodes): `Phase 1.6에서 호출. 전체 펀더멘털 데이터를 한 번에 수집.      Returns:         {             "earni`
+- **Thin community `Community 80`** (1 nodes): `Check that a single position doesn't exceed max_pct of strategy capital.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 81`** (1 nodes): `Get sector for a symbol. Uses hardcoded map → cache → yfinance fallback.`
+- **Thin community `Community 81`** (1 nodes): `Check that sector exposure doesn't exceed max_pct.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 82`** (1 nodes): `Check that a single position doesn't exceed max_pct of strategy capital.`
+- **Thin community `Community 82`** (1 nodes): `전략 간 교차 섹터 집중도 체크.      단일 섹터가 전체 포트폴리오(total_portfolio)의 max_pct를 초과하면 BLOCK.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 83`** (1 nodes): `Check that sector exposure doesn't exceed max_pct.`
+- **Thin community `Community 83`** (1 nodes): `Parametric VaR check (95% 1-day) for portfolio.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 84`** (1 nodes): `전략 간 교차 섹터 집중도 체크.      단일 섹터가 전체 포트폴리오(total_portfolio)의 max_pct를 초과하면 BLOCK.`
+- **Thin community `Community 84`** (1 nodes): `Check correlation between new symbol and existing holdings.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 85`** (1 nodes): `Parametric VaR check (95% 1-day) for portfolio.`
+- **Thin community `Community 85`** (1 nodes): `Ensure strategy maintains minimum cash buffer after trade.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 86`** (1 nodes): `Check correlation between new symbol and existing holdings.`
+- **Thin community `Community 86`** (1 nodes): `Run all 5 risk checks on a proposed trade.      Args:         symbol: Ticker`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 87`** (1 nodes): `Ensure strategy maintains minimum cash buffer after trade.`
+- **Thin community `Community 87`** (1 nodes): `Check correlation between new symbol and existing holdings.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 88`** (1 nodes): `Run all 5 risk checks on a proposed trade.      Args:         symbol: Ticker`
+- **Thin community `Community 88`** (1 nodes): `Ensure strategy maintains minimum cash buffer after trade.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 89`** (1 nodes): `Check correlation between new symbol and existing holdings.`
+- **Thin community `Community 89`** (1 nodes): `Run all 5 risk checks on a proposed trade.      Args:         symbol: Ticker`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 90`** (1 nodes): `Ensure strategy maintains minimum cash buffer after trade.`
+- **Thin community `Community 90`** (1 nodes): `Convert regime probability dict to continuous 0~1 composite score.      state_pr`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 91`** (1 nodes): `Run all 5 risk checks on a proposed trade.      Args:         symbol: Ticker`
+- **Thin community `Community 91`** (1 nodes): `Check if total portfolio NAV has hit MDD threshold.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 92`** (1 nodes): `Convert regime probability dict to continuous 0~1 composite score.      state_pr`
+- **Thin community `Community 92`** (1 nodes): `Run all position-level checks in priority order.      Returns (should_exit, reas`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 93`** (1 nodes): `Check if total portfolio NAV has hit MDD threshold.`
+- **Thin community `Community 93`** (1 nodes): `Get sector for a symbol. Uses hardcoded map → cache → yfinance fallback.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 94`** (1 nodes): `Run all position-level checks in priority order.      Returns (should_exit, reas`
+- **Thin community `Community 94`** (1 nodes): `Check that a single position doesn't exceed max_pct of strategy capital.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 95`** (1 nodes): `Get sector for a symbol. Uses hardcoded map → cache → yfinance fallback.`
+- **Thin community `Community 95`** (1 nodes): `Check that sector exposure doesn't exceed max_pct.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 96`** (1 nodes): `Check that a single position doesn't exceed max_pct of strategy capital.`
+- **Thin community `Community 96`** (1 nodes): `Parametric VaR check (95% 1-day) for portfolio.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 97`** (1 nodes): `Check that sector exposure doesn't exceed max_pct.`
+- **Thin community `Community 97`** (1 nodes): `Check correlation between new symbol and existing holdings.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 98`** (1 nodes): `Parametric VaR check (95% 1-day) for portfolio.`
+- **Thin community `Community 98`** (1 nodes): `Ensure strategy maintains minimum cash buffer after trade.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 99`** (1 nodes): `Check correlation between new symbol and existing holdings.`
+- **Thin community `Community 99`** (1 nodes): `Run all 5 risk checks on a proposed trade.      Args:         symbol: Ticker`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 100`** (1 nodes): `Ensure strategy maintains minimum cash buffer after trade.`
+- **Thin community `Community 100`** (1 nodes): `Extract notional value from trade entry.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 101`** (1 nodes): `Run all 5 risk checks on a proposed trade.      Args:         symbol: Ticker`
+- **Thin community `Community 101`** (1 nodes): `Copy report to Obsidian vault.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 102`** (1 nodes): `Extract notional value from trade entry.`
+- **Thin community `Community 102`** (1 nodes): `Compute Maximum Drawdown (%). Returns negative number.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 103`** (1 nodes): `Copy report to Obsidian vault.`
+- **Thin community `Community 103`** (1 nodes): `Compute annualized Sharpe ratio. Returns None if < 20 observations.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 104`** (1 nodes): `Compute Maximum Drawdown (%). Returns negative number.`
+- **Thin community `Community 104`** (1 nodes): `Win rate from filled trades only (sell with positive pnl).`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 105`** (1 nodes): `Compute annualized Sharpe ratio. Returns None if < 20 observations.`
+- **Thin community `Community 105`** (1 nodes): `Build one entry for the daily[] array in performance.json.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 106`** (1 nodes): `Win rate from filled trades only (sell with positive pnl).`
+- **Thin community `Community 106`** (1 nodes): `Append daily entry, recompute aggregates, save performance.json.      Duplicat`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 107`** (1 nodes): `Build one entry for the daily[] array in performance.json.`
+- **Thin community `Community 107`** (1 nodes): `Convert nav_history to SVG path string for inline sparkline.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 108`** (1 nodes): `Append daily entry, recompute aggregates, save performance.json.      Duplicat`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 109`** (1 nodes): `Convert nav_history to SVG path string for inline sparkline.`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 110`** (1 nodes): `Generate reports/strategy/{CODE}-monthly.md for current month.`
+- **Thin community `Community 108`** (1 nodes): `Generate reports/strategy/{CODE}-monthly.md for current month.`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Direction` connect `Community 0` to `Community 3`, `Community 5`, `Community 7`, `Community 40`, `Community 41`, `Community 46`, `Community 47`, `Community 14`, `Community 23`?**
-  _High betweenness centrality (0.108) - this node is a cross-community bridge._
-- **Why does `Signal` connect `Community 0` to `Community 5`, `Community 7`, `Community 40`, `Community 41`, `Community 46`, `Community 14`?**
-  _High betweenness centrality (0.107) - this node is a cross-community bridge._
+- **Why does `Direction` connect `Community 0` to `Community 1`, `Community 3`, `Community 6`, `Community 40`, `Community 8`, `Community 45`, `Community 46`, `Community 23`?**
+  _High betweenness centrality (0.106) - this node is a cross-community bridge._
+- **Why does `Signal` connect `Community 0` to `Community 1`, `Community 6`, `Community 40`, `Community 8`, `Community 45`?**
+  _High betweenness centrality (0.105) - this node is a cross-community bridge._
 - **Are the 325 inferred relationships involving `Direction` (e.g. with `numpy 스칼라 타입을 native Python으로 변환 (Python 3.14 호환).` and `전 전략의 현재 보유 티커 합집합 (portfolios.json 기준).      뉴스 트리거(Earnings/8-K) 에서 '지금 관심 가`) actually correct?**
   _`Direction` has 325 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 308 inferred relationships involving `Signal` (e.g. with `numpy 스칼라 타입을 native Python으로 변환 (Python 3.14 호환).` and `전 전략의 현재 보유 티커 합집합 (portfolios.json 기준).      뉴스 트리거(Earnings/8-K) 에서 '지금 관심 가`) actually correct?**
