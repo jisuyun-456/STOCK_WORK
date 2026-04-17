@@ -275,6 +275,8 @@ def main() -> None:
 
     if args.ticker:
         result = analyze_ticker(args.ticker, mode=args.mode)
+        if args.mode == "data":
+            return  # JSON already printed to stdout
         if result:
             v = result.consensus
             print(f"\n{'='*50}")
