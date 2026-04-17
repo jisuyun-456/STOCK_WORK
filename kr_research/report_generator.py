@@ -1,7 +1,7 @@
 """KR Analysis Report Generator — 인터랙티브 HTML 리포트 생성.
 
 Goldman Sachs / JP Morgan 수준의 8챕터 탭 구조.
-디자인: Anthropic/Claude Warm 팔레트 (Stitch project 18163181581753603475).
+디자인: Apple 스타일 (SF Pro Display / SF Mono / Apple 컬러 팔레트).
 출력: reports/kr/{DATE}-{TICKER}-analysis.html
 """
 from __future__ import annotations
@@ -21,79 +21,79 @@ _STATE_DIR = Path(__file__).parent.parent / "state"
 
 _CSS = """
 :root {
-  --cream:    #FAF9F6;  --cream2:   #F3F0EA;
-  --surface:  #FFFFFF;  --ink:      #1A1814;
-  --ink2:     #4A4540;  --ink3:     #8A857C;
-  --border:   #E8E3DB;
-  --orange:   #D97757;  --orange-bg:#FBF4F0;
-  --amber:    #C9842A;  --amber-bg: #FBF3E2;
-  --up:       #1E7A45;  --up-bg:    #E8F5EE;
-  --dn:       #C8523A;  --dn-bg:    #FBF0ED;
-  --nav-bg:   #1A1814;
-  --shadow:   0 1px 6px rgba(26,24,20,0.07);
+  --cream:    #F5F5F7;  --cream2:   #E8E8ED;
+  --surface:  #FFFFFF;  --ink:      #1D1D1F;
+  --ink2:     #3A3A3C;  --ink3:     #6E6E73;
+  --border:   #D2D2D7;
+  --blue:     #0071E3;  --blue-bg:  #F0F6FF;
+  --amber:    #FF9500;  --amber-bg: #FFF5E0;
+  --up:       #34C759;  --up-bg:    #E8FAF0;
+  --dn:       #FF3B30;  --dn-bg:    #FFF0EF;
+  --nav-bg:   #1D1D1F;
+  --shadow:   0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.06);
 }
 * { margin:0; padding:0; box-sizing:border-box; }
-body { background:var(--cream); color:var(--ink); font-family:'Geist',system-ui,sans-serif; font-size:13px; line-height:1.65; -webkit-font-smoothing:antialiased; }
+body { background:var(--cream); color:var(--ink); font-family:'SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; font-size:13px; line-height:1.65; -webkit-font-smoothing:antialiased; }
 
 /* NAV */
-.nav { background:var(--nav-bg); border-bottom:2px solid var(--orange); padding:0 32px; height:52px; display:flex; align-items:center; position:sticky; top:0; z-index:100; }
-.nav-logo { font-size:15px; font-weight:700; color:var(--cream); margin-right:24px; letter-spacing:-0.02em; }
-.nav-logo span { color:var(--orange); }
+.nav { background:linear-gradient(180deg,#2D2D2F 0%,var(--nav-bg) 100%); border-bottom:1px solid rgba(255,255,255,0.12); padding:0 32px; height:52px; display:flex; align-items:center; position:sticky; top:0; z-index:100; }
+.nav-logo { font-size:15px; font-weight:700; color:#F5F5F7; margin-right:24px; letter-spacing:-0.02em; }
+.nav-logo span { color:var(--blue); }
 .nav-tabs { display:flex; gap:2px; flex:1; }
-.nav-tab { padding:5px 13px; border-radius:6px; font-size:11.5px; font-weight:500; font-family:'IBM Plex Mono',monospace; letter-spacing:0.02em; cursor:pointer; color:#6A6560; background:transparent; border:none; transition:all 0.15s ease; white-space:nowrap; }
-.nav-tab:hover:not(.active) { background:rgba(255,255,255,0.08); color:#B0AA9F; }
-.nav-tab.active { background:var(--orange); color:#fff; font-weight:600; }
-.nav-meta { margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:10px; color:#524D47; letter-spacing:0.06em; text-align:right; line-height:1.4; }
+.nav-tab { padding:5px 13px; border-radius:6px; font-size:11.5px; font-weight:500; font-family:'SF Mono','Fira Code',monospace; letter-spacing:0.02em; cursor:pointer; color:#86868B; background:transparent; border:none; transition:all 0.15s ease; white-space:nowrap; }
+.nav-tab:hover:not(.active) { background:rgba(255,255,255,0.10); color:#AEAEB2; }
+.nav-tab.active { background:var(--blue); color:#fff; font-weight:600; }
+.nav-meta { margin-left:auto; font-family:'SF Mono','Fira Code',monospace; font-size:10px; color:#636366; letter-spacing:0.06em; text-align:right; line-height:1.4; }
 
 /* PANELS */
 .panel { display:none; }
 .panel.active { display:block; }
 
 /* COMPANY HEADER */
-.co-header { background:var(--nav-bg); padding:24px 32px 22px; position:relative; overflow:hidden; }
-.co-header::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(217,119,87,0.07) 0%,transparent 55%); pointer-events:none; }
-.co-sub { font-family:'IBM Plex Mono',monospace; font-size:10px; color:#524D47; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px; }
-.co-name { font-size:28px; font-weight:700; color:var(--cream); letter-spacing:-0.03em; margin-bottom:3px; }
-.co-desc { font-size:12px; color:#7A746D; margin-bottom:16px; }
+.co-header { background:linear-gradient(135deg,#2D2D2F 0%,var(--nav-bg) 60%,#000 100%); padding:24px 32px 22px; position:relative; overflow:hidden; }
+.co-header::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(0,113,227,0.10) 0%,transparent 55%); pointer-events:none; }
+.co-sub { font-family:'SF Mono','Fira Code',monospace; font-size:10px; color:#636366; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px; }
+.co-name { font-size:28px; font-weight:700; color:#F5F5F7; letter-spacing:-0.03em; margin-bottom:3px; }
+.co-desc { font-size:12px; color:#86868B; margin-bottom:16px; }
 .co-rating-row { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
-.badge { display:inline-flex; align-items:center; padding:5px 12px; border-radius:6px; font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; letter-spacing:0.04em; }
-.badge-buy  { background:var(--up);    color:#fff; }
-.badge-hold { background:var(--amber); color:#fff; }
-.badge-sell { background:var(--dn);    color:#fff; }
-.badge-veto { background:#3A3530;      color:var(--cream); }
-.price-chip { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.10); border-radius:8px; padding:8px 14px; }
-.price-label { font-size:10px; color:#6A6460; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:2px; }
-.price-display { font-family:'IBM Plex Mono',monospace; font-size:17px; font-weight:600; color:var(--cream); }
-.up-label { color:#5CB87A; font-family:'IBM Plex Mono',monospace; font-size:11px; }
-.dn-label { color:#E8806A; font-family:'IBM Plex Mono',monospace; font-size:11px; }
+.badge { display:inline-flex; align-items:center; padding:5px 12px; border-radius:6px; font-family:'SF Mono','Fira Code',monospace; font-size:12px; font-weight:600; letter-spacing:0.04em; }
+.badge-buy  { background:var(--up);   color:#fff; }
+.badge-hold { background:var(--amber);color:#fff; }
+.badge-sell { background:var(--dn);   color:#fff; }
+.badge-veto { background:#3A3A3C;     color:#F5F5F7; }
+.price-chip { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:8px 14px; }
+.price-label { font-size:10px; color:#636366; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:2px; }
+.price-display { font-family:'SF Mono','Fira Code',monospace; font-size:17px; font-weight:600; color:#F5F5F7; }
+.up-label { color:var(--up); font-family:'SF Mono','Fira Code',monospace; font-size:11px; }
+.dn-label { color:var(--dn); font-family:'SF Mono','Fira Code',monospace; font-size:11px; }
 
 /* LAYOUT */
 .main { padding:24px 32px; max-width:1280px; margin:0 auto; }
-.card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 20px; box-shadow:var(--shadow); }
-.card-label { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink3); margin-bottom:8px; }
-.section-title { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink3); padding:16px 0 8px; border-bottom:1px solid var(--border); margin-bottom:12px; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 20px; box-shadow:var(--shadow); }
+.card-label { font-family:'SF Mono','Fira Code',monospace; font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink3); margin-bottom:8px; }
+.section-title { font-family:'SF Mono','Fira Code',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink3); padding:16px 0 8px; border-bottom:1px solid var(--border); margin-bottom:12px; }
 
 /* THESIS */
-.thesis { background:var(--orange-bg); border:1px solid #EDD5C5; border-left:3px solid var(--orange); border-radius:10px; padding:16px 18px; margin-bottom:16px; }
-.thesis-label { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.14em; color:var(--orange); text-transform:uppercase; margin-bottom:8px; font-weight:600; }
+.thesis { background:var(--blue-bg); border:1px solid #C5DCF8; border-left:3px solid var(--blue); border-radius:12px; padding:16px 18px; margin-bottom:16px; }
+.thesis-label { font-family:'SF Mono','Fira Code',monospace; font-size:9px; letter-spacing:0.14em; color:var(--blue); text-transform:uppercase; margin-bottom:8px; font-weight:600; }
 .thesis-text { font-size:13px; color:var(--ink2); line-height:1.75; }
 
 /* METRICS */
 .metrics-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:16px; }
-.metric-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:13px 14px; box-shadow:var(--shadow); }
+.metric-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:13px 14px; box-shadow:var(--shadow); }
 .metric-label { font-size:10px; color:var(--ink3); margin-bottom:4px; }
-.metric-val { font-family:'IBM Plex Mono',monospace; font-size:15px; font-weight:600; color:var(--ink); }
-.metric-sub { font-size:10px; margin-top:2px; font-family:'IBM Plex Mono',monospace; }
+.metric-val { font-family:'SF Mono','Fira Code',monospace; font-size:15px; font-weight:600; color:var(--ink); }
+.metric-sub { font-size:10px; margin-top:2px; font-family:'SF Mono','Fira Code',monospace; }
 .up { color:var(--up); } .dn { color:var(--dn); } .neutral { color:var(--amber); }
 
 /* SCENARIOS */
 .scenarios { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px; }
-.sc { border-radius:10px; padding:16px; border:1px solid var(--border); }
-.sc-bull { background:var(--up-bg);  border-color:#B8D8C4; }
+.sc { border-radius:12px; padding:16px; border:1px solid var(--border); }
+.sc-bull { background:var(--up-bg);  border-color:#A8E6C0; }
 .sc-base { background:var(--cream); }
-.sc-bear { background:var(--dn-bg);  border-color:#F0C8B8; }
-.sc-type { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.12em; color:var(--ink3); text-transform:uppercase; margin-bottom:6px; }
-.sc-price { font-family:'IBM Plex Mono',monospace; font-size:20px; font-weight:600; margin-bottom:4px; }
+.sc-bear { background:var(--dn-bg);  border-color:#FFB8B5; }
+.sc-type { font-family:'SF Mono','Fira Code',monospace; font-size:9px; letter-spacing:0.12em; color:var(--ink3); text-transform:uppercase; margin-bottom:6px; }
+.sc-price { font-family:'SF Mono','Fira Code',monospace; font-size:20px; font-weight:600; margin-bottom:4px; }
 .sc-bull .sc-price { color:var(--up); } .sc-base .sc-price { color:var(--ink); } .sc-bear .sc-price { color:var(--dn); }
 .sc-text { font-size:12px; color:var(--ink2); line-height:1.65; }
 
@@ -101,20 +101,20 @@ body { background:var(--cream); color:var(--ink); font-family:'Geist',system-ui,
 .market-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
 .mkt-bars { display:flex; flex-direction:column; gap:10px; }
 .mkt-row { display:flex; align-items:center; gap:12px; }
-.mkt-name { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink2); width:68px; }
+.mkt-name { font-family:'SF Mono','Fira Code',monospace; font-size:11px; color:var(--ink2); width:68px; }
 .mkt-bar-track { flex:1; height:5px; background:var(--cream2); border-radius:3px; overflow:hidden; }
 .mkt-bar-fill { height:100%; border-radius:3px; width:0; transition:width 1.1s cubic-bezier(0.4,0,0.2,1); }
 .mkt-bar-up { background:var(--up); } .mkt-bar-dn { background:var(--dn); } .mkt-bar-neu { background:var(--amber); }
-.mkt-val { font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink); width:100px; text-align:right; }
-.mkt-pct { font-family:'IBM Plex Mono',monospace; font-size:11px; width:56px; text-align:right; }
+.mkt-val { font-family:'SF Mono','Fira Code',monospace; font-size:12px; color:var(--ink); width:100px; text-align:right; }
+.mkt-pct { font-family:'SF Mono','Fira Code',monospace; font-size:11px; width:56px; text-align:right; }
 
 /* TECH TABLE */
 .tech-table { width:100%; border-collapse:collapse; font-size:12.5px; margin-bottom:16px; }
-.tech-table th { background:var(--nav-bg); color:var(--cream); padding:7px 12px; text-align:left; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.06em; font-weight:500; }
+.tech-table th { background:var(--nav-bg); color:#F5F5F7; padding:7px 12px; text-align:left; font-family:'SF Mono','Fira Code',monospace; font-size:10px; letter-spacing:0.06em; font-weight:500; }
 .tech-table td { padding:9px 12px; border-bottom:1px solid var(--border); color:var(--ink2); }
 .tech-table tr:last-child td { border-bottom:none; }
 .tech-table tr:nth-child(even) td { background:var(--cream); }
-.signal-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:10px; font-family:'IBM Plex Mono',monospace; }
+.signal-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:10px; font-family:'SF Mono','Fira Code',monospace; }
 .sig-up   { background:var(--up-bg);    color:var(--up); }
 .sig-warn { background:var(--amber-bg); color:var(--amber); }
 .sig-dn   { background:var(--dn-bg);    color:var(--dn); }
@@ -122,32 +122,32 @@ body { background:var(--cream); color:var(--ink); font-family:'Geist',system-ui,
 /* PRICE LADDER */
 .ladder-row { display:flex; align-items:center; padding:7px 4px; border-bottom:1px solid var(--border); }
 .ladder-row:last-child { border-bottom:none; }
-.ladder-price { width:150px; text-align:right; font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; padding-right:14px; color:var(--ink3); }
+.ladder-price { width:150px; text-align:right; font-family:'SF Mono','Fira Code',monospace; font-size:12px; font-weight:600; padding-right:14px; color:var(--ink3); }
 .ladder-line  { flex:1; height:2px; background:var(--cream2); }
-.ladder-label { padding-left:14px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink3); }
-.ladder-current { background:rgba(217,119,87,0.07); border-radius:6px; margin:2px 0; }
-.ladder-current .ladder-price { color:var(--orange); }
-.ladder-current .ladder-line  { background:var(--orange); height:3px; }
-.ladder-current .ladder-label { color:var(--orange); font-weight:600; }
+.ladder-label { padding-left:14px; font-family:'SF Mono','Fira Code',monospace; font-size:11px; color:var(--ink3); }
+.ladder-current { background:rgba(0,113,227,0.07); border-radius:6px; margin:2px 0; }
+.ladder-current .ladder-price { color:var(--blue); }
+.ladder-current .ladder-line  { background:var(--blue); height:3px; }
+.ladder-current .ladder-label { color:var(--blue); font-weight:600; }
 .ladder-target1 .ladder-price { color:var(--up); } .ladder-target1 .ladder-line { background:var(--up-bg); }
-.ladder-target2 .ladder-price { color:#2D9A5A; }  .ladder-target2 .ladder-line { background:var(--up-bg); }
+.ladder-target2 .ladder-price { color:#30B652; }   .ladder-target2 .ladder-line { background:var(--up-bg); }
 .ladder-stop .ladder-price    { color:var(--dn); } .ladder-stop .ladder-line    { background:var(--dn-bg); }
 .ladder-entry .ladder-price   { color:var(--amber); } .ladder-entry .ladder-line { background:var(--amber-bg); }
 
 /* TRADE BOX */
-.trade-box { background:var(--nav-bg); border-radius:10px; padding:18px 20px; margin-bottom:16px; position:relative; overflow:hidden; }
-.trade-box::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(217,119,87,0.09) 0%,transparent 60%); pointer-events:none; }
-.trade-box .card-label { color:var(--orange); }
+.trade-box { background:var(--nav-bg); border-radius:12px; padding:18px 20px; margin-bottom:16px; position:relative; overflow:hidden; }
+.trade-box::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(0,113,227,0.10) 0%,transparent 60%); pointer-events:none; }
+.trade-box .card-label { color:var(--blue); }
 .trade-row { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
-.trade-item .tlabel { font-size:10px; color:#6A6460; margin-bottom:4px; font-family:'IBM Plex Mono',monospace; letter-spacing:0.04em; }
-.trade-item .tval   { font-family:'IBM Plex Mono',monospace; font-size:14px; font-weight:600; color:var(--cream); }
-.trade-item .tsub   { font-size:10px; font-family:'IBM Plex Mono',monospace; margin-top:2px; color:#6A6460; }
-.trade-item.t1 .tval   { color:#5CB87A; }
-.trade-item.t2 .tval   { color:#7DD8A0; }
-.trade-item.stop .tval { color:#E8806A; }
-.trade-item.rr .tval   { color:var(--orange); font-size:18px; }
-.trade-trigger { margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08); font-size:11.5px; color:#8A847C; font-family:'IBM Plex Mono',monospace; line-height:1.75; }
-.trigger-label { color:var(--orange); font-size:9px; text-transform:uppercase; letter-spacing:0.12em; margin-bottom:4px; }
+.trade-item .tlabel { font-size:10px; color:#636366; margin-bottom:4px; font-family:'SF Mono','Fira Code',monospace; letter-spacing:0.04em; }
+.trade-item .tval   { font-family:'SF Mono','Fira Code',monospace; font-size:14px; font-weight:600; color:#F5F5F7; }
+.trade-item .tsub   { font-size:10px; font-family:'SF Mono','Fira Code',monospace; margin-top:2px; color:#636366; }
+.trade-item.t1 .tval   { color:var(--up); }
+.trade-item.t2 .tval   { color:#30D158; }
+.trade-item.stop .tval { color:var(--dn); }
+.trade-item.rr .tval   { color:var(--blue); font-size:18px; }
+.trade-trigger { margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08); font-size:11.5px; color:#86868B; font-family:'SF Mono','Fira Code',monospace; line-height:1.75; }
+.trigger-label { color:var(--blue); font-size:9px; text-transform:uppercase; letter-spacing:0.12em; margin-bottom:4px; }
 
 /* FACTORS */
 .factors-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
@@ -163,10 +163,10 @@ body { background:var(--cream); color:var(--ink); font-family:'Geist',system-ui,
 
 /* RISK */
 .risk-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.risk-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 15px; }
+.risk-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 15px; }
 .risk-title { font-size:13px; font-weight:600; color:var(--ink); margin-bottom:4px; }
 .risk-desc  { font-size:12px; color:var(--ink2); line-height:1.65; }
-.risk-tag { display:inline-block; padding:1px 7px; border-radius:3px; font-size:10px; font-family:'IBM Plex Mono',monospace; margin-top:6px; }
+.risk-tag { display:inline-block; padding:1px 7px; border-radius:3px; font-size:10px; font-family:'SF Mono','Fira Code',monospace; margin-top:6px; }
 .rt-high { background:var(--dn-bg);    color:var(--dn); }
 .rt-mid  { background:var(--amber-bg); color:var(--amber); }
 .rt-low  { background:var(--up-bg);    color:var(--up); }
@@ -175,15 +175,15 @@ body { background:var(--cream); color:var(--ink); font-family:'Geist',system-ui,
 .flow-item { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border); }
 .flow-item:last-child { border-bottom:none; }
 .flow-name { font-size:12.5px; color:var(--ink2); }
-.flow-val  { font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:500; }
+.flow-val  { font-family:'SF Mono','Fira Code',monospace; font-size:13px; font-weight:500; }
 
 /* CHECKLIST */
-.check-item { display:flex; gap:10px; padding:10px 12px; border-radius:7px; margin-bottom:6px; background:var(--cream); border:1px solid var(--border); }
-.check-num  { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--orange); font-weight:600; flex-shrink:0; width:20px; }
+.check-item { display:flex; gap:10px; padding:10px 12px; border-radius:8px; margin-bottom:6px; background:var(--cream); border:1px solid var(--border); }
+.check-num  { font-family:'SF Mono','Fira Code',monospace; font-size:11px; color:var(--blue); font-weight:600; flex-shrink:0; width:20px; }
 .check-text { font-size:12.5px; color:var(--ink2); line-height:1.6; }
 
 /* FOOTER */
-.report-footer { margin-top:32px; padding-top:16px; border-top:1px solid var(--border); font-size:11px; color:var(--ink3); font-family:'IBM Plex Mono',monospace; line-height:1.7; }
+.report-footer { margin-top:32px; padding-top:16px; border-top:1px solid var(--border); font-size:11px; color:var(--ink3); font-family:'SF Mono','Fira Code',monospace; line-height:1.7; }
 
 /* ANIMATION */
 @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
@@ -330,22 +330,22 @@ def _tech_table_html(td: dict) -> str:
     if cp and "sma20" in td:
         sig = "상방 ✅" if cp > td["sma20"] else "하방 ⚠️"
         cls = "sig-up" if cp > td["sma20"] else "sig-warn"
-        rows.append(f"<tr><td>SMA20</td><td style=\"font-family:'IBM Plex Mono',monospace\">{td['sma20']:,}원</td><td><span class='signal-tag {cls}'>{sig}</span></td></tr>")
+        rows.append(f"<tr><td>SMA20</td><td style=\"font-family:'SF Mono','Fira Code',monospace\">{td['sma20']:,}원</td><td><span class='signal-tag {cls}'>{sig}</span></td></tr>")
     if cp and "sma60" in td:
         sig = "상방 ✅" if cp > td["sma60"] else "하방 ⚠️"
         cls = "sig-up" if cp > td["sma60"] else "sig-warn"
-        rows.append(f"<tr><td>SMA60</td><td style=\"font-family:'IBM Plex Mono',monospace\">{td['sma60']:,}원</td><td><span class='signal-tag {cls}'>{sig}</span></td></tr>")
+        rows.append(f"<tr><td>SMA60</td><td style=\"font-family:'SF Mono','Fira Code',monospace\">{td['sma60']:,}원</td><td><span class='signal-tag {cls}'>{sig}</span></td></tr>")
     if cp and "sma200" in td:
         sig = "상방 ✅" if cp > td["sma200"] else "하방 ⚠️"
         cls = "sig-up" if cp > td["sma200"] else "sig-warn"
-        rows.append(f"<tr><td>SMA200</td><td style=\"font-family:'IBM Plex Mono',monospace\">{td['sma200']:,}원</td><td><span class='signal-tag {cls}'>{sig}</span></td></tr>")
+        rows.append(f"<tr><td>SMA200</td><td style=\"font-family:'SF Mono','Fira Code',monospace\">{td['sma200']:,}원</td><td><span class='signal-tag {cls}'>{sig}</span></td></tr>")
     if "rsi14" in td:
-        rows.append(f"<tr><td>RSI(14)</td><td style=\"font-family:'IBM Plex Mono',monospace\">{td['rsi14']}</td><td>{_sig(td['rsi14'], 'rsi_signal')}</td></tr>")
+        rows.append(f"<tr><td>RSI(14)</td><td style=\"font-family:'SF Mono','Fira Code',monospace\">{td['rsi14']}</td><td>{_sig(td['rsi14'], 'rsi_signal')}</td></tr>")
     if "macd" in td:
-        rows.append(f"<tr><td>MACD</td><td style=\"font-family:'IBM Plex Mono',monospace\">{td['macd']:+,.0f}</td><td>{_sig(td.get('macd_hist',0), 'macd_cross')}</td></tr>")
+        rows.append(f"<tr><td>MACD</td><td style=\"font-family:'SF Mono','Fira Code',monospace\">{td['macd']:+,.0f}</td><td>{_sig(td.get('macd_hist',0), 'macd_cross')}</td></tr>")
     if "bb_upper" in td:
-        rows.append(f"<tr><td>볼린저 상단</td><td style=\"font-family:'IBM Plex Mono',monospace\">{td['bb_upper']:,}원</td><td><span class='signal-tag sig-warn'>위치 {td.get('bb_pct','-')}%</span></td></tr>")
-        rows.append(f"<tr><td>볼린저 하단</td><td style=\"font-family:'IBM Plex Mono',monospace\">{td['bb_lower']:,}원</td><td>{_sig(td.get('bb_pct',50), 'bb_signal')}</td></tr>")
+        rows.append(f"<tr><td>볼린저 상단</td><td style=\"font-family:'SF Mono','Fira Code',monospace\">{td['bb_upper']:,}원</td><td><span class='signal-tag sig-warn'>위치 {td.get('bb_pct','-')}%</span></td></tr>")
+        rows.append(f"<tr><td>볼린저 하단</td><td style=\"font-family:'SF Mono','Fira Code',monospace\">{td['bb_lower']:,}원</td><td>{_sig(td.get('bb_pct',50), 'bb_signal')}</td></tr>")
 
     if not rows:
         return "<p style='color:var(--ink3);font-size:12px'>기술 데이터 없음</p>"
@@ -470,11 +470,11 @@ def _checklist_html(v) -> str:
 def _fund_table_html(td: dict) -> str:
     rows = []
     if td.get("per", 0) > 0:
-        rows.append(f"<tr><td>PER (TTM)</td><td style=\"font-family:'IBM Plex Mono',monospace\">{td['per']}배</td><td style='color:var(--ink3);font-size:11px'>수익성 지표</td></tr>")
+        rows.append(f"<tr><td>PER (TTM)</td><td style=\"font-family:'SF Mono','Fira Code',monospace\">{td['per']}배</td><td style='color:var(--ink3);font-size:11px'>수익성 지표</td></tr>")
     if td.get("pbr", 0) > 0:
-        rows.append(f"<tr><td>PBR</td><td style=\"font-family:'IBM Plex Mono',monospace\">{td['pbr']}배</td><td style='color:var(--ink3);font-size:11px'>자산가치 대비</td></tr>")
+        rows.append(f"<tr><td>PBR</td><td style=\"font-family:'SF Mono','Fira Code',monospace\">{td['pbr']}배</td><td style='color:var(--ink3);font-size:11px'>자산가치 대비</td></tr>")
     if td.get("div_yield", 0) > 0:
-        rows.append(f"<tr><td>배당수익률</td><td style=\"font-family:'IBM Plex Mono',monospace\">{td['div_yield']}%</td><td style='color:var(--ink3);font-size:11px'>현재가 기준</td></tr>")
+        rows.append(f"<tr><td>배당수익률</td><td style=\"font-family:'SF Mono','Fira Code',monospace\">{td['div_yield']}%</td><td style='color:var(--ink3);font-size:11px'>현재가 기준</td></tr>")
     if not rows:
         return ""
     return (
@@ -520,8 +520,6 @@ def generate_report(result: KRAnalysisResult, ticker_data: dict | None = None) -
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{v.company_name or result.ticker} — KR Research</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>{_CSS}</style>
 </head>
@@ -552,12 +550,12 @@ def generate_report(result: KRAnalysisResult, ticker_data: dict | None = None) -
   <div class="co-rating-row">
     <span class="badge badge-{badge_cls}">{verdict_str}</span>
     {f'<div class="price-chip"><div class="price-label">현재가</div><div class="price-display">{cp:,}원</div></div>' if cp else ''}
-    {f'<div class="price-chip"><div class="price-label">T1 목표가</div><div class="price-display" style="color:#5CB87A">{int(v.target_price):,}원</div><div class="up-label">{_pct(cp or entry_mid, v.target_price)}</div></div>' if v.target_price else ''}
-    {f'<div class="price-chip"><div class="price-label">T2 목표가</div><div class="price-display" style="color:#7DD8A0">{int(v.target_price_2):,}원</div><div class="up-label">{_pct(cp or entry_mid, v.target_price_2)}</div></div>' if v.target_price_2 else ''}
-    {f'<div class="price-chip"><div class="price-label">손절가</div><div class="price-display" style="color:#E8806A">{int(v.stop_loss):,}원</div><div class="dn-label">{_pct(cp or entry_mid, v.stop_loss)}</div></div>' if v.stop_loss else ''}
+    {f'<div class="price-chip"><div class="price-label">T1 목표가</div><div class="price-display" style="color:#34C759">{int(v.target_price):,}원</div><div class="up-label">{_pct(cp or entry_mid, v.target_price)}</div></div>' if v.target_price else ''}
+    {f'<div class="price-chip"><div class="price-label">T2 목표가</div><div class="price-display" style="color:#30D158">{int(v.target_price_2):,}원</div><div class="up-label">{_pct(cp or entry_mid, v.target_price_2)}</div></div>' if v.target_price_2 else ''}
+    {f'<div class="price-chip"><div class="price-label">손절가</div><div class="price-display" style="color:#FF3B30">{int(v.stop_loss):,}원</div><div class="dn-label">{_pct(cp or entry_mid, v.stop_loss)}</div></div>' if v.stop_loss else ''}
     <div style="margin-left:auto;text-align:right">
-      <div style="font-size:10px;color:#524D47;font-family:'IBM Plex Mono',monospace;margin-bottom:4px;">신뢰도</div>
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;color:#C9842A;font-weight:600;">{conf_pct}</div>
+      <div style="font-size:10px;color:#636366;font-family:'SF Mono','Fira Code',monospace;margin-bottom:4px;">신뢰도</div>
+      <div style="font-family:'SF Mono','Fira Code',monospace;font-size:14px;color:#FF9500;font-weight:600;">{conf_pct}</div>
     </div>
   </div>
 </div>
@@ -632,7 +630,7 @@ def generate_report(result: KRAnalysisResult, ticker_data: dict | None = None) -
       <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
         <canvas id="regimeChart" width="80" height="80"></canvas>
         <div>
-          <div style="font-size:22px;font-weight:700;color:{'var(--up)' if regime.regime=='BULL' else ('var(--dn)' if regime.regime in ('BEAR','CRISIS') else 'var(--amber)')};font-family:'IBM Plex Mono',monospace">{regime.regime}</div>
+          <div style="font-size:22px;font-weight:700;color:{'var(--up)' if regime.regime=='BULL' else ('var(--dn)' if regime.regime in ('BEAR','CRISIS') else 'var(--amber)')};font-family:'SF Mono','Fira Code',monospace">{regime.regime}</div>
           <div style="font-size:11px;color:var(--ink3);margin-top:2px">신뢰도 {regime.confidence:.0%}</div>
           <div style="font-size:11px;color:var(--ink3);margin-top:4px">{v.current_status or '기술적 상태 참조'}</div>
         </div>
@@ -689,12 +687,12 @@ def generate_report(result: KRAnalysisResult, ticker_data: dict | None = None) -
       <div class="trade-item stop">
         <div class="tlabel">손절가</div>
         <div class="tval">{f'{int(v.stop_loss):,}원' if v.stop_loss else '—'}</div>
-        <div class="tsub" style="color:#E8806A">{_pct(cp or entry_mid, v.stop_loss)}</div>
+        <div class="tsub" style="color:#FF3B30">{_pct(cp or entry_mid, v.stop_loss)}</div>
       </div>
       <div class="trade-item rr">
         <div class="tlabel">R:R 비율</div>
         <div class="tval">{_rr_ratio(entry_mid, v.target_price, v.stop_loss)} : 1</div>
-        <div class="tsub" style="color:var(--orange)">Base case</div>
+        <div class="tsub" style="color:var(--blue)">Base case</div>
       </div>
     </div>
     <div class="trade-trigger">
@@ -839,16 +837,16 @@ function initCandles() {{
     ctx.fillRect(bx, vy(r.v), barW, H - vy(r.v));
     ctx.globalAlpha = 1.0;
     if (i % 10 === 0 && r.d) {{
-      ctx.fillStyle = '#8A857C'; ctx.font = '9px IBM Plex Mono,monospace';
+      ctx.fillStyle = '#6E6E73'; ctx.font = '9px SF Mono,Fira Code,monospace';
       ctx.fillText(r.d.slice(5), x - 10, H - 2);
     }}
     if (patDates.has(r.d)) {{
       const pat = patterns.find(p => p.date === r.d);
       if (pat) {{
         ctx.font = 'bold 11px sans-serif';
-        if (pat.signal === 'buy') {{ ctx.fillStyle = '#1E7A45'; ctx.fillText('\u25b2', x - 4, py(r.l) + 14); }}
-        else if (pat.signal === 'sell') {{ ctx.fillStyle = '#C8523A'; ctx.fillText('\u25bc', x - 4, py(r.h) - 4); }}
-        else {{ ctx.fillStyle = '#C9842A'; ctx.fillText('\u25c6', x - 4, py(r.l) + 14); }}
+        if (pat.signal === 'buy') {{ ctx.fillStyle = '#34C759'; ctx.fillText('\u25b2', x - 4, py(r.l) + 14); }}
+        else if (pat.signal === 'sell') {{ ctx.fillStyle = '#FF3B30'; ctx.fillText('\u25bc', x - 4, py(r.h) - 4); }}
+        else {{ ctx.fillStyle = '#FF9500'; ctx.fillText('\u25c6', x - 4, py(r.l) + 14); }}
       }}
     }}
   }}
@@ -858,26 +856,26 @@ function initCandles() {{
   const tbl = document.createElement('table');
   tbl.style.cssText = 'width:100%;border-collapse:collapse;font-size:12.5px';
   const hdrRow = tbl.insertRow();
-  hdrRow.style.background = '#1A1814'; hdrRow.style.color = '#FAF9F6';
+  hdrRow.style.background = '#1D1D1F'; hdrRow.style.color = '#F5F5F7';
   ['\ub0a0\uc9dc','\ud328\ud134','\uc2e0\ud638','\uc124\uba85'].forEach(h => {{
     const th = document.createElement('th');
     th.textContent = h;
-    th.style.cssText = 'padding:7px 12px;text-align:left;font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:.06em;font-weight:500';
+    th.style.cssText = 'padding:7px 12px;text-align:left;font-family:SF Mono,Fira Code,monospace;font-size:10px;letter-spacing:.06em;font-weight:500';
     hdrRow.appendChild(th);
   }});
   patterns.slice().reverse().forEach(p => {{
     const row = tbl.insertRow();
-    const signalColor = p.signal === 'buy' ? '#1E7A45' : p.signal === 'sell' ? '#C8523A' : '#C9842A';
-    const signalBg = p.signal === 'buy' ? '#E8F5EE' : p.signal === 'sell' ? '#FBF0ED' : '#FBF3E2';
+    const signalColor = p.signal === 'buy' ? '#34C759' : p.signal === 'sell' ? '#FF3B30' : '#FF9500';
+    const signalBg = p.signal === 'buy' ? '#E8FAF0' : p.signal === 'sell' ? '#FFF0EF' : '#FFF5E0';
     const signalLabel = p.signal === 'buy' ? '\ub9e4\uc218' : p.signal === 'sell' ? '\ub9e4\ub3c4' : '\uc911\ub9bd';
-    const cellStyle = 'padding:9px 12px;border-bottom:1px solid #E8E3DB;color:#4A4540';
+    const cellStyle = 'padding:9px 12px;border-bottom:1px solid #D2D2D7;color:#3A3A3C';
     [p.date, p.pattern, p.desc].forEach((txt, ci) => {{
       const td2 = row.insertCell();
       td2.style.cssText = cellStyle;
       if (ci === 1) {{
         const span = document.createElement('span');
         span.textContent = signalLabel;
-        span.style.cssText = 'display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-family:IBM Plex Mono,monospace;background:' + signalBg + ';color:' + signalColor;
+        span.style.cssText = 'display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-family:SF Mono,Fira Code,monospace;background:' + signalBg + ';color:' + signalColor;
         const nameNode = document.createTextNode(p.pattern + ' ');
         td2.appendChild(nameNode);
         td2.appendChild(span);
@@ -892,10 +890,10 @@ function initRegime() {{
   const c = document.getElementById('regimeChart');
   if (!c || c._done) return; c._done = true;
   const conf = {int(regime.confidence * 100)};
-  const color = conf >= 70 ? '#1E7A45' : conf >= 50 ? '#C9842A' : '#C8523A';
+  const color = conf >= 70 ? '#34C759' : conf >= 50 ? '#FF9500' : '#FF3B30';
   new Chart(c, {{
     type: 'doughnut',
-    data: {{ datasets: [{{ data: [conf, 100-conf], backgroundColor: [color, '#E8E3DB'], borderWidth: 0 }}] }},
+    data: {{ datasets: [{{ data: [conf, 100-conf], backgroundColor: [color, '#D2D2D7'], borderWidth: 0 }}] }},
     options: {{ cutout: '72%', plugins: {{ legend: {{ display: false }}, tooltip: {{ enabled: false }} }}, animation: {{ duration: 900 }} }}
   }});
 }}

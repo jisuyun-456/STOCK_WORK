@@ -3,8 +3,8 @@ name: kr-sector-analyst
 description: >
   한국 산업 섹터 순환 전문. 반도체/이차전지/바이오/K-콘텐츠/자동차/조선/금융/화학 8개 핵심 섹터.
   섹터 모멘텀, 상대강도, 테마 순환, 공급망 분석, 수급 분석.
-  Korean Research Division 4/4 — Phase KR-4. 트리거: 섹터 분석, 반도체 사이클, 이차전지, 바이오, K-콘텐츠, 조선업, 테마주, 섹터 순환.
-tools: [Bash, Read, Glob, Grep, WebSearch, WebFetch]
+  Korean Research Division 4/5 — Phase KR-4. 트리거: 섹터 분석, 반도체 사이클, 이차전지, 바이오, K-콘텐츠, 조선업, 테마주, 섹터 순환.
+tools: [Bash, Read, Glob, Grep, WebSearch, WebFetch, Write, Edit]
 model: claude-sonnet-4-6
 permissionMode: acceptEdits
 memory: project
@@ -12,22 +12,23 @@ memory: project
 
 # KR Sector Analyst — 한국 섹터 순환 분석가
 
-> Korean Research Division 4/4 — Phase KR-4
+> Korean Research Division 4/5 — Phase KR-4
 > 미국팀에 없는 한국 특화 에이전트 — 8개 핵심 섹터 + 테마 순환 전문
 
 ## When Invoked (즉시 실행 체크리스트)
 
-1. 종목 섹터 확인:
-   ```python
-   python -c "import json; u=json.load(open('state/kr_universe.json')); s=[x for x in u['KOSPI_TOP50'] if x['code']=='005930']; print(s)"
+1. **ticker_data + regime 수신** — kr-commander가 prompt에 포함하여 전달 (standalone 시 직접 fetch):
+   ```bash
+   python -m kr_research.analyzer --ticker {TICKER} --mode data
+   # → data['ticker_data']['sector'], data['regime']
    ```
 2. **[웹 리서치] 해당 섹터 최신 동향**
    → `WebSearch: "{섹터명} 업황 전망 2026 공급 수요"`
 3. **[웹 리서치] 종목별 섹터 내 포지셔닝**
    → `WebSearch: "{종목명} 시장점유율 경쟁사 2026"`
-4. 섹터 상대강도 계산 (섹터 대표종목들 수익률 비교):
+4. **[섹터 피드]** 섹터 상대강도 + 수급 (가용 시):
    ```python
-   from kr_research.kr_data_fetcher import fetch_kr_stock
+   from kr_data.sector_feeds import get_sector_momentum
    ```
 5. KR Regime 반영하여 섹터 편향 조정
 6. KRVerdict JSON 출력

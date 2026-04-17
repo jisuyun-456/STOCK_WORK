@@ -1,6 +1,6 @@
-# /analyze-kr — 한국 주식 시장 분석
+# /analyze-kr — 한국 주식 시장 5-Agent 병렬 분석
 
-한국 주식 시장 분석 커맨드. **2-레이어 분석**: Layer 1은 pykrx 규칙 스코어링, Layer 2는 실제 Claude 에이전트 호출.
+한국 주식 시장 분석 커맨드. **2-레이어 분석**: Layer 1은 pykrx 규칙 스코어링, Layer 2는 5개 KR 에이전트 병렬 독립 분석 → Consensus 합의.
 **분석 전용 — 매매 실행 없음.**
 
 ## 사용법
@@ -17,16 +17,15 @@ TARGET 예시:
 
 ## 실행 흐름 (2-Layer 파이프라인)
 
-### Layer 1 — pykrx 자동 스코어링 (Claude 호출 없음)
+### Layer 1 — pykrx 자동 스코어링 (LLM 호출 없음)
 
 ```python
-# Layer 1: 1,200종목 전체 룰 스코어링
 from kr_research.scorer import score_universe, select_top_n
 from kr_data.pykrx_client import build_universe
 
 universe = build_universe(market="ALL", min_mcap_krw=100_000_000_000)
 scored = score_universe(universe, market_snapshot)
-top_tickers = select_top_n(scored, n=100)  # Claude 분석 대상
+top_tickers = select_top_n(scored, n=100)
 ```
 
 **스코어링 팩터 (가중합)**:
@@ -35,59 +34,162 @@ top_tickers = select_top_n(scored, n=100)  # Claude 분석 대상
 - flow_score (30%): 외국인/기관 20일 순매수 (pykrx)
 - shorting_score (20%): 공매도 잔고 역수 (pykrx)
 
-### Layer 2 — Claude Code 에이전트 직접 분석 (Claude Code 토큰 사용, API 과금 없음)
+---
 
-**Step 1**: 종목 데이터 fetch (LLM 호출 없음)
+### Layer 2 — 5-Agent 병렬 독립 분석 + Consensus 합의
+
+#### Step 1: 데이터 fetch (LLM 호출 없음)
 
 ```bash
-python -m kr_research.analyzer --ticker {SYMBOL} --mode data
+python -m kr_research.analyzer --ticker {TICKER} --mode data
 ```
 
-→ JSON 출력: `regime`, `ticker_data` (현재가/MA/RSI/MACD/볼린저/PBR/PER/수급/공매도), `system_prompt`, `analysis_prompt`
+→ JSON 출력: `ticker_data`, `regime`, `system_prompt`, `analysis_prompt`
 
-**Step 2**: 에이전트 직접 분석
+#### Step 2: 5 에이전트 병렬 dispatch (단일 메시지, 동시 실행)
 
-위 JSON의 `system_prompt` + `analysis_prompt`를 읽고, **에이전트(Claude) 자신이** GS/JPM 수준 분석을 수행하여 KRVerdict JSON 형식으로 verdict 생성. 별도 API 호출 없음.
+아래 5개 Agent 호출을 **한 메시지에** 전송:
 
-**Step 3**: 결과 저장 및 리포트
+```
+Agent(subagent_type="kr-equity-research",     model="claude-opus-4-7",   prompt=<equity_prompt>)
+Agent(subagent_type="kr-technical-strategist", model="claude-sonnet-4-6", prompt=<tech_prompt>)
+Agent(subagent_type="kr-macro-economist",      model="claude-opus-4-7",   prompt=<macro_prompt>)
+Agent(subagent_type="kr-sector-analyst",       model="claude-sonnet-4-6", prompt=<sector_prompt>)
+Agent(subagent_type="kr-risk-controller",      model="claude-opus-4-7",   prompt=<risk_prompt>)
+```
+
+**각 에이전트 공통 prompt 템플릿**:
+```
+[KR Research Division — 독립 분석 요청]
+
+Ticker: {TICKER}
+KR Regime: {regime.regime} (confidence: {regime.confidence:.0%})
+Regime Factors: {regime.factors}
+
+[종목 데이터]
+{ticker_data_formatted}
+
+당신의 도메인에 한정하여 분석 후 아래 JSON만 출력하라 (마크다운 코드펜스 포함 가능):
+
+{
+  "agent": "<에이전트명>",
+  "symbol": "{TICKER}",
+  "direction": "AGREE" | "DISAGREE" | "VETO",
+  "confidence_delta": <-0.30 ~ +0.30>,
+  "conviction": "STRONG" | "MODERATE" | "WEAK",
+  "reasoning": "<한국어 2~3문장. 구체적 수치 포함>",
+  "key_metrics": { <도메인 핵심 지표 3~5개> }
+}
+
+규칙:
+- VETO는 kr-risk-controller만 사용 가능
+- AGREE → confidence_delta 0 이상
+- DISAGREE → confidence_delta 0 이하
+- 데이터 부족 시 conviction="WEAK" (DISAGREE 금지)
+```
+
+#### Step 3: Verdict 수집 + Consensus 계산
+
+```python
+import json
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
+verdicts = []  # 5개 에이전트 응답 파싱 결과
+
+# VETO 체크 (즉시 중단)
+veto_reason = None
+consensus = None
+for v in verdicts:
+    if v.get("direction") == "VETO":
+        consensus = "VETO"
+        veto_reason = v.get("reasoning", "")
+        final_confidence = 0.0
+        break
+
+if consensus != "VETO":
+    valid = [v for v in verdicts if v.get("direction") in ("AGREE", "DISAGREE")]
+    if len(valid) < 3:
+        consensus = "HOLD"
+        final_confidence = 0.5
+    else:
+        weights = {"STRONG": 1.0, "MODERATE": 0.7, "WEAK": 0.4}
+        weighted_score = sum(
+            v["confidence_delta"] * weights.get(v.get("conviction", "WEAK"), 0.4)
+            for v in valid
+        )
+        final_confidence = max(0.0, min(1.0, 0.5 + weighted_score))
+        if final_confidence >= 0.62:
+            consensus = "BUY"
+        elif final_confidence <= 0.42:
+            consensus = "SELL"
+        else:
+            consensus = "HOLD"
+```
+
+#### Step 4: kr_verdicts.json 저장 (research/kr_manual_override.py 사용)
+
+```python
+from research.kr_manual_override import save_kr_verdicts
+
+save_kr_verdicts(
+    ticker=TICKER,
+    verdicts=verdicts,
+    consensus=consensus,
+    final_confidence=final_confidence,
+    veto_reason=veto_reason,
+    regime=regime_type,
+)
+```
+
+#### Step 5: 리포트 생성
 
 ```python
 from kr_research.models import KRVerdict, KRRegime, KRAnalysisResult
 from kr_research.consensus import aggregate
 from kr_research.report_generator import generate_report
-import json, dataclasses
-from pathlib import Path
-from datetime import datetime
 
-# verdict dict → KRVerdict 객체 구성
-v = KRVerdict(ticker=SYMBOL, agent="claude", **verdict_fields)
-v._ticker_data = ticker_data  # HTML 리포트 8탭 데이터
-regime = KRRegime(regime=regime_type, confidence=regime_conf, factors=regime_factors)
-consensus = aggregate([v], regime)
-result = KRAnalysisResult(ticker=SYMBOL, verdicts=[v], consensus=consensus, regime=regime)
-result._ticker_data = ticker_data
-
-# 리포트 생성
+v = KRVerdict(
+    ticker=TICKER, agent="kr-commander",
+    verdict=consensus, confidence=final_confidence,
+    rationale="5-agent consensus: " + ", ".join(
+        f"{x['agent']}={x['direction']}" for x in verdicts
+    )
+)
+result = KRAnalysisResult(ticker=TICKER, verdicts=[v], consensus=consensus_obj, regime=regime)
 report_path = generate_report(result, ticker_data)
 print(f"리포트: {report_path}")
-
-# state/kr_verdicts.json 저장
-verdicts_path = Path("state/kr_verdicts.json")
-state = {"analyzed_at": datetime.now().isoformat(), "count": 1,
-         "verdicts": [{"ticker": SYMBOL, "verdict": v.verdict, "confidence": v.confidence,
-                        "rationale": v.rationale, "regime": regime.regime,
-                        "analyzed_at": result.analyzed_at.isoformat()}]}
-verdicts_path.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
 ```
+
+#### Step 6: 콘솔 출력
+
+```
+=== /analyze-kr {TICKER} ({종목명}) ===
+KR Regime: {regime} ({confidence:.0%})  |  VKOSPI: {vkospi}  |  BOK: {bok_rate}%
+
+Layer 1 Score: composite={score:.2f} (momentum={m:.2f}, value={v:.2f}, flow={f:.2f})
+
+┌─ 5-Agent Verdict ──────────────────────────────────────────────┐
+│ kr-equity-research    [Opus 4.7]   {direction}  {delta:+.2f}  {conviction} │
+│ kr-technical-strategist [Sonnet]  {direction}  {delta:+.2f}  {conviction} │
+│ kr-macro-economist    [Opus 4.7]   {direction}  {delta:+.2f}  {conviction} │
+│ kr-sector-analyst     [Sonnet]    {direction}  {delta:+.2f}  {conviction} │
+│ kr-risk-controller    [Opus 4.7]   {direction}  {delta:+.2f}  {conviction} │
+└────────────────────────────────────────────────────────────────┘
+Consensus: {consensus}  |  Final Confidence: {final_confidence:.0%}
+Report → {report_path}
+```
+
+---
 
 ### 직접 실행 (CLI)
 
 ```bash
-# 단일 종목 (rules mode — Claude 호출 없음, 백테스트용)
-python -m kr_research.analyzer --ticker 005930 --mode rules
-
-# 단일 종목 데이터 fetch (JSON 출력 — Claude Code 에이전트가 소비)
+# 단일 종목 데이터 fetch (JSON 출력)
 python -m kr_research.analyzer --ticker 005930 --mode data
+
+# Layer 1 rules 스코어링만 (Claude 호출 없음)
+python -m kr_research.analyzer --ticker 005930 --mode rules
 
 # Top N 분석 (rules mode)
 python -m kr_research.analyzer --top-n 50 --mode rules
@@ -96,64 +198,36 @@ python -m kr_research.analyzer --top-n 50 --mode rules
 ## 결과 확인
 
 ```bash
-cat state/kr_verdicts.json      # 분석 결과 (verdict/confidence/rationale)
-cat state/kr_market_state.json  # 시장 스냅샷 (VKOSPI source=pykrx, BOK source=ecos)
-cat state/kr_regime_state.json  # KR Regime (US 보정 후)
+cat state/kr_verdicts.json      # 5-agent consensus 결과
+cat state/kr_market_state.json  # 시장 스냅샷
 ls reports/kr/                  # 생성된 분석 리포트
 ```
 
-## 출력 형식
-
-```
-=== /analyze-kr {SYMBOL} ({종목명}) ===
-KR Regime: BULL (confidence: 78%)  |  VKOSPI: 17.2 [pykrx]  |  BOK: 3.25% [ecos]
-
-Layer 1 Score: composite=0.73 (momentum=0.8, value=0.6, flow=0.7, shorting=0.6)
-
-Layer 2 (claude-sonnet-4-6):
-  verdict: BUY  confidence: 0.75
-  rationale: "반도체 수출 YoY+12%, 외인 순매수 3주 연속, PBR 1.2 저평가"
-
-Result → state/kr_verdicts.json
-Report → reports/kr/YYYY-MM-DD-{SYMBOL}-analysis.md
-```
-
-## 데이터 소스 (신규 아키텍처)
+## 데이터 소스
 
 | 소스 | 용도 | API 키 |
 |------|------|--------|
 | pykrx | OHLCV / 수급 / 공매도 / VKOSPI / 섹터지수 | 불필요 |
 | DART OpenAPI (dart-fss) | 공시, 재무제표, corp_code 매핑 | `DART_API_KEY` ✅ |
-| 한국은행 ECOS | 기준금리 / 경상수지 / M2 | `ECOS_API_KEY` (선택) |
-| 관세청 UNIPASS | 반도체 수출 YoY | `UNIPASS_API_KEY` (선택) |
+| 한국은행 ECOS | 기준금리 / 경상수지 / M2 | `ECOS_API_KEY` ✅ |
+| 관세청 UNIPASS | 반도체 수출 YoY | `UNIPASS_API_KEY` ✅ |
 | KRX KIND | 투자주의/거래정지 | 불필요 (공개) |
-| Claude Code 에이전트 | Layer 2 심층 분석 | Claude Code 토큰 (별도 API 키 불필요) |
 
-## 관련 파일 (신규 구조)
+## 관련 파일
 
 ```
-kr_data/
-  pykrx_client.py      # OHLCV / 수급 / VKOSPI (HIGH #2/#10/#11 fixed)
-  dart_client.py       # DART corp_code 매핑 (HIGH #5 fixed)
-  ecos_client.py       # BOK 실시간 (HIGH #3 fixed — 하드코딩 폐기)
-  unipass_client.py    # 반도체 수출 (HIGH #4 fixed — null 폐기)
-  sector_feeds/        # 8섹터 딥 피드 (HIGH #6/#7/#12 fixed)
+.claude/agents/
+  kr-equity-research.md      # Opus 4.7 — 밸류에이션
+  kr-technical-strategist.md # Sonnet 4.6 — 차트/수급
+  kr-macro-economist.md      # Opus 4.7 — 거시경제/Regime
+  kr-sector-analyst.md       # Sonnet 4.6 — 섹터 순환
+  kr-risk-controller.md      # Opus 4.7 — VETO 권한
 
-kr_research/
-  models.py            # KRVerdict / KRRegime / KRAnalysisResult
-  regime.py            # US 보정 포함 KR Regime 판별
-  scorer.py            # Layer 1 pykrx 스코어링 (Top N 선별)
-  agent_runner.py      # Layer 2 Claude API 실제 호출 (HIGH #1 fixed)
-  consensus.py         # Regime-aware 가중 합산
-  analyzer.py          # CLI 진입점
-
-kr_overlay/
-  us_to_kr.py          # US regime → KR 보정
-  kr_to_us.py          # KR 매크로 → US 신뢰도 조정
-  signal_bridge.py     # 양방향 드리프트 감지
+research/
+  kr_manual_override.py      # kr_verdicts.json 저장/로드/TTL
 
 state/
-  kr_market_state.json # Phase 1.65 출력
-  kr_regime_state.json # US 보정 후 KR regime
-  kr_verdicts.json     # 분석 결과 캐시
+  kr_verdicts.json           # 5-agent consensus + 24h TTL
+  kr_market_state.json       # Phase 1.65 출력
+  kr_regime_state.json       # US 보정 후 KR regime
 ```
