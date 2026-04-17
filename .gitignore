@@ -19,3 +19,7 @@ logs/
 
 # graphify cache (auto-generated)
 graphify-out/cache/
+
+# 로컬 전용 파일 (커밋 불필요)
+.claude/settings.local.json
+.claude/worktrees/
