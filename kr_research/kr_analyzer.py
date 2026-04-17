@@ -20,6 +20,14 @@ import sys
 import time
 from datetime import datetime
 
+# Windows cp949 터미널 인코딩 문제 해결
+if sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf_8"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 # 프로젝트 루트를 sys.path에 추가
 _PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _PROJECT_ROOT not in sys.path:
@@ -109,7 +117,18 @@ def analyze_symbol(code: str, regime=None, force_refresh: bool = False) -> KRAna
         entry = cache.get(clean, {})
         if _is_cache_valid(entry):
             print(f"[kr_analyzer] {clean} 캐시 사용 (유효 시간 내)")
-            result = KRAnalysisResult(**{k: v for k, v in entry.items() if k in KRAnalysisResult.__dataclass_fields__})
+            # KRVerdict 객체로 재구성 (JSON → dataclass)
+            from kr_research.kr_models import KRVerdict, KRRegimeDetection
+            raw_verdicts = entry.pop("verdicts", [])
+            raw_regime = entry.pop("regime", None)
+            filtered = {k: v for k, v in entry.items() if k in KRAnalysisResult.__dataclass_fields__}
+            filtered["verdicts"] = [KRVerdict.from_dict(v) for v in (raw_verdicts or [])]
+            if raw_regime:
+                filtered["regime"] = KRRegimeDetection(**{
+                    k: v for k, v in raw_regime.items()
+                    if k in KRRegimeDetection.__dataclass_fields__
+                })
+            result = KRAnalysisResult(**filtered)
             return result
 
     if regime is None:
@@ -244,7 +263,6 @@ def run_analysis(
     Returns:
         {"regime": dict, "results": list[dict], "report_path": str}
     """
-    build_market_snapshot(force_refresh=force_refresh)
     regime = detect_kr_regime(force_refresh=force_refresh)
     _print_regime(regime)
 

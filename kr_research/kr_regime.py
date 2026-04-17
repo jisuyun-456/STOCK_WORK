@@ -63,7 +63,7 @@ def detect_kr_regime(force_refresh: bool = False) -> KRRegimeDetection:
         regime = "BULL"
         reasoning_parts.append(f"KOSPI/SMA200={ratio:.3f} (>1.05), VKOSPI={vkospi_level:.1f} (<18)")
     else:
-        reasoning_parts.append(f"KOSPI/SMA200={ratio:.3f}, VKOSPI={vkospi_level:.1f} — 중립 구간")
+        reasoning_parts.append(f"KOSPI/SMA200={ratio:.3f}, VKOSPI={vkospi_level:.1f} - 중립 구간")
 
     # ── 반도체 수출 보정 ──────────────────────────
     if semi_yoy is not None:
