@@ -11,90 +11,90 @@
   },
   "strategies": {
     "MOM": {
-      "current_nav": 15065.6,
-      "total_return_pct": -39.7376,
-      "daily_return_pct": 200.0482,
+      "current_nav": 15261.31,
+      "total_return_pct": -38.9548,
+      "daily_return_pct": 1.2991,
       "mdd_pct": -66.5263,
       "sharpe_ratio": null,
       "win_rate": 0.0,
       "trade_count": 50,
-      "dry_run_count": 103,
-      "peak_nav": 15065.6,
-      "last_rebalance": "2026-04-13",
+      "dry_run_count": 931,
+      "peak_nav": 15261.31,
+      "last_rebalance": "2026-04-17",
       "initial_nav": 25000.0
     },
     "VAL": {
-      "current_nav": 10032.41,
-      "total_return_pct": -59.8704,
-      "daily_return_pct": -33.3978,
-      "mdd_pct": -33.3978,
+      "current_nav": 10041.15,
+      "total_return_pct": -59.8354,
+      "daily_return_pct": -0.0095,
+      "mdd_pct": -0.0095,
       "sharpe_ratio": null,
       "win_rate": 0.0,
-      "trade_count": 25,
-      "dry_run_count": 39,
-      "peak_nav": 15063.17,
+      "trade_count": 31,
+      "dry_run_count": 99,
+      "peak_nav": 10042.1,
       "last_rebalance": "2026-04-13",
       "initial_nav": 25000.0
     },
     "QNT": {
-      "current_nav": 12548.0,
-      "total_return_pct": -58.1733,
-      "daily_return_pct": 24.9538,
-      "mdd_pct": -49.7894,
+      "current_nav": 12553.0,
+      "total_return_pct": -58.1567,
+      "daily_return_pct": 0.003,
+      "mdd_pct": 0.0,
       "sharpe_ratio": null,
       "win_rate": 0.0,
-      "trade_count": 66,
-      "dry_run_count": 400,
-      "peak_nav": 20000.0,
+      "trade_count": 86,
+      "dry_run_count": 627,
+      "peak_nav": 12553.0,
       "last_rebalance": null,
       "initial_nav": 30000.0
     },
     "LEV": {
-      "current_nav": 25106.65,
-      "total_return_pct": 25.5332,
-      "daily_return_pct": 0.0055,
-      "mdd_pct": -49.7894,
+      "current_nav": 25101.79,
+      "total_return_pct": 25.5089,
+      "daily_return_pct": -0.0137,
+      "mdd_pct": -0.0137,
       "sharpe_ratio": null,
       "win_rate": 0.0,
-      "trade_count": 10,
-      "dry_run_count": 14,
-      "peak_nav": 50000,
+      "trade_count": 14,
+      "dry_run_count": 38,
+      "peak_nav": 25105.24,
       "last_rebalance": null,
       "initial_nav": 20000.0
     },
     "LEV_ST": {
-      "current_nav": 25105.24,
+      "current_nav": 25105.63,
       "total_return_pct": 0.0,
-      "daily_return_pct": -0.0002,
+      "daily_return_pct": 0.0016,
       "mdd_pct": -0.0002,
       "sharpe_ratio": null,
       "win_rate": null,
       "trade_count": 0,
       "dry_run_count": 0,
-      "peak_nav": 25105.28,
+      "peak_nav": 25105.63,
       "last_rebalance": null,
       "initial_nav": 0.0
     },
     "GRW": {
-      "current_nav": 12552.62,
+      "current_nav": 12552.82,
       "total_return_pct": 0.0,
-      "daily_return_pct": 0.0,
+      "daily_return_pct": 0.0016,
       "mdd_pct": 0.0,
       "sharpe_ratio": null,
       "win_rate": null,
       "trade_count": 0,
       "dry_run_count": 0,
-      "peak_nav": 12552.62,
+      "peak_nav": 12552.82,
       "last_rebalance": null,
       "initial_nav": 0.0
     },
     "TOTAL": {
       "initial_nav": 100000.0,
-      "current_nav": 100420.97,
-      "total_return_pct": 0.421,
-      "spy_return_pct": 3.7854,
-      "qqq_return_pct": 5.6477,
-      "alpha_vs_spy": -3.3645
+      "current_nav": 100611.5,
+      "total_return_pct": 0.6115,
+      "spy_return_pct": 5.1591,
+      "qqq_return_pct": 7.0687,
+      "alpha_vs_spy": -4.5476
     }
   },
   "daily": [
@@ -228,6 +228,27 @@
       "regime": "BULL",
       "signals_count": 36,
       "rebalances": []
+    },
+    {
+      "date": "2026-04-17",
+      "total_nav": 100615.69,
+      "strategy_navs": {
+        "MOM": 15261.31,
+        "VAL": 10041.15,
+        "QNT": 12553.0,
+        "LEV": 25101.79,
+        "LEV_ST": 25105.63,
+        "GRW": 12552.82
+      },
+      "benchmark_prices": {
+        "SPY": 710.8862915039062,
+        "QQQ": 648.9328002929688
+      },
+      "regime": "BULL",
+      "signals_count": 33,
+      "rebalances": [
+        "MOM"
+      ]
     }
   ]
 }
