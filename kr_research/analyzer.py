@@ -29,7 +29,7 @@ load_dotenv(Path(__file__).parent.parent / ".env", override=True)
 from kr_research.models import KRAnalysisResult, KRRegime, KRVerdict
 from kr_research.regime import detect_kr_regime
 from kr_research.scorer import score_universe, select_top_n
-from kr_research.agent_runner import run_rules, run_claude
+from kr_research.agent_runner import run_rules, fetch_ticker_data, SYSTEM_PROMPT
 from kr_research.consensus import aggregate
 from kr_research.report_generator import generate_report
 
@@ -120,14 +120,33 @@ def analyze_ticker(
         return None
 
     try:
-        if mode == "claude":
-            verdicts = run_claude(
-                tickers=[ticker],
-                regime=regime,
-                market_snapshot=market_snapshot,
+        if mode == "data":
+            # Output structured JSON for Claude Code agent consumption — no LLM call
+            from kr_research.agent_runner import _build_analysis_prompt  # type: ignore[attr-defined]
+            ticker_data = fetch_ticker_data(ticker)
+            output = {
+                "ticker": ticker,
+                "regime": {
+                    "type": regime.regime,
+                    "confidence": regime.confidence,
+                    "factors": regime.factors,
+                },
+                "ticker_data": ticker_data,
+                "analysis_prompt": _build_analysis_prompt(ticker, regime, market_snapshot, ticker_data),
+                "system_prompt": SYSTEM_PROMPT,
+            }
+            import sys
+            print(json.dumps(output, ensure_ascii=False, indent=2))
+            return None
+        elif mode == "claude":
+            raise NotImplementedError(
+                "--mode claude is removed. Use /analyze-kr command in Claude Code "
+                "(the agent itself performs Layer 2 analysis using Claude Code tokens)."
             )
         else:
             verdicts = run_rules(tickers=[ticker], regime=regime)
+    except NotImplementedError:
+        raise
     except Exception as e:
         _logger.error("agent run failed for %s: %s", ticker, e)
         verdicts = []
@@ -248,7 +267,8 @@ def main() -> None:
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--ticker", help="단일 종목 분석 (예: 005930)")
     group.add_argument("--top-n", type=int, help="상위 N 종목 분석")
-    parser.add_argument("--mode", choices=["rules", "claude"], default="rules")
+    parser.add_argument("--mode", choices=["rules", "data"], default="rules",
+                        help="rules: rule-based (no LLM); data: output JSON for Claude Code agent")
     parser.add_argument("--no-save", action="store_true", help="state 저장 안함")
     parser.add_argument("--no-report", action="store_true", help="리포트 파일 생성 안함")
     args = parser.parse_args()

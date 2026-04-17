@@ -1,18 +1,16 @@
-"""KR Research Agent Runner — claude mode uses Claude Code CLI (claude -p).
+"""KR Research Agent Runner — data fetching + rules mode.
 
 두 가지 모드:
-  rules:  Python 규칙 기반 (LLM 호출 없음, $0, 백테스트용)
-  claude: Claude Code CLI 헤드리스 모드 (subprocess, 별도 API 키 불필요)
-         종목별 실제 데이터(현재가/MA/PBR/수급) 포함 → 매수가/목표가/손절가 출력
+  rules: Python 규칙 기반 (LLM 호출 없음, 백테스트용)
+  data:  종목 데이터 fetch만 → JSON 출력 → Claude Code 에이전트가 직접 분석
+         (analyzer.py --mode data 경유, Claude Code 토큰 사용, API 과금 없음)
 """
 from __future__ import annotations
 
 import json
 import logging
 import re
-import subprocess
 from datetime import date, timedelta
-from typing import Literal
 
 from kr_research.models import KRVerdict, KRRegime
 
@@ -213,9 +211,16 @@ def _calc_technicals(closes) -> dict:
     return out
 
 
-# ── claude mode — Claude Code CLI subprocess ──────────────────────────────
+# ── Public data API (for analyze-kr command) ──────────────────────────────
 
-_SYSTEM_PROMPT = """You are a senior Korean equity research analyst (Goldman Sachs / JP Morgan level).
+def fetch_ticker_data(ticker: str) -> dict:
+    """Public wrapper — returns raw ticker data dict for Claude Code agent consumption."""
+    return _fetch_ticker_data(ticker)
+
+
+# ── Analysis system prompt (exported for analyzer.py --mode data) ──────────
+
+SYSTEM_PROMPT = """You are a senior Korean equity research analyst (Goldman Sachs / JP Morgan level).
 Analyze the given KRX ticker using the provided market data and return a JSON object.
 
 CRITICAL: Respond with ONLY the JSON below — no markdown, no extra text, no code fences.
@@ -251,86 +256,6 @@ Price rules:
 - sell_factors: 2-3 concrete risks or bearish factors
 - VETO: only for fraud, regulatory halt, delisting risk — extreme cases only
 - All prices must be numerically realistic vs. the current price provided"""
-
-
-def _call_claude_cli(prompt: str, timeout: int = 180) -> str:
-    """Call Claude Code CLI in headless mode. No external API key required."""
-    result = subprocess.run(
-        [
-            "claude", "-p", prompt,
-            "--output-format", "text",
-            "--no-session-persistence",
-            "--model", "claude-sonnet-4-6",
-        ],
-        capture_output=True,
-        encoding="utf-8",
-        errors="replace",
-        timeout=timeout,
-    )
-    if result.returncode != 0:
-        stderr = (result.stderr or "").strip()
-        raise RuntimeError(stderr or "claude CLI returned non-zero exit")
-    return (result.stdout or "").strip()
-
-
-def run_claude(
-    tickers: list[str],
-    regime: KRRegime,
-    market_snapshot: dict,
-    mode: Literal["sequential", "parallel"] = "sequential",
-) -> list[KRVerdict]:
-    """Claude Code CLI 헤드리스 모드로 각 종목 심층 분석."""
-    if mode == "parallel":
-        return _run_parallel(tickers, regime, market_snapshot)
-    return _run_sequential(tickers, regime, market_snapshot)
-
-
-def _run_sequential(tickers: list[str], regime: KRRegime, snapshot: dict) -> list[KRVerdict]:
-    verdicts: list[KRVerdict] = []
-
-    for ticker in tickers:
-        try:
-            ticker_data = _fetch_ticker_data(ticker)
-            full_prompt = _SYSTEM_PROMPT + "\n\n" + _build_analysis_prompt(ticker, regime, snapshot, ticker_data)
-            raw_text = _call_claude_cli(full_prompt)
-            v = _parse_verdict(ticker, raw_text)
-            v._ticker_data = ticker_data  # type: ignore[attr-defined]
-            verdicts.append(v)
-        except Exception as e:
-            _logger.warning("run_claude(%s) failed: %s", ticker, e)
-            verdicts.append(KRVerdict(
-                ticker=ticker, verdict="HOLD", confidence=0.3,
-                agent="claude", rationale=f"error: {e}",
-            ))
-
-    return verdicts
-
-
-def _run_parallel(tickers: list[str], regime: KRRegime, snapshot: dict) -> list[KRVerdict]:
-    from concurrent.futures import ThreadPoolExecutor, as_completed
-
-    results: dict[str, KRVerdict] = {}
-
-    def analyze_one(ticker: str) -> tuple[str, KRVerdict]:
-        try:
-            ticker_data = _fetch_ticker_data(ticker)
-            full_prompt = _SYSTEM_PROMPT + "\n\n" + _build_analysis_prompt(ticker, regime, snapshot, ticker_data)
-            raw_text = _call_claude_cli(full_prompt)
-            return ticker, _parse_verdict(ticker, raw_text)
-        except Exception as e:
-            _logger.warning("run_claude parallel(%s) failed: %s", ticker, e)
-            return ticker, KRVerdict(
-                ticker=ticker, verdict="HOLD", confidence=0.3,
-                agent="claude", rationale=f"error: {e}",
-            )
-
-    with ThreadPoolExecutor(max_workers=min(8, len(tickers))) as pool:
-        futures = {pool.submit(analyze_one, t): t for t in tickers}
-        for future in as_completed(futures):
-            ticker_key, verdict = future.result()
-            results[ticker_key] = verdict
-
-    return [results[t] for t in tickers if t in results]
 
 
 # ── Prompt builder ─────────────────────────────────────────────────────────

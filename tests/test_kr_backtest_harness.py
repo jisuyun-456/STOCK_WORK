@@ -122,14 +122,14 @@ def test_harness_nav_increases_on_bull_regime(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 def test_harness_no_claude_calls(tmp_path: Path) -> None:
-    """Verify that run() never calls the Claude API (run_claude)."""
+    """Verify that run() only uses rules mode — no LLM data fetch (fetch_ticker_data)."""
     portfolio_path = str(tmp_path / "kr_portfolios.json")
 
     with (
         patch("kr_backtest.harness.detect_kr_regime", return_value=_make_bull_regime()),
         patch("kr_backtest.harness.score_universe", return_value=[]),
         patch("kr_backtest.harness.run_rules", return_value=[]) as mock_rules,
-        patch("kr_research.agent_runner.run_claude") as mock_run_claude,
+        patch("kr_research.agent_runner.fetch_ticker_data") as mock_fetch,
     ):
         bt = KRBacktest(start="2025-01-06", end="2025-01-31", initial_krw=10_000_000)
         bt.run(
@@ -138,8 +138,8 @@ def test_harness_no_claude_calls(tmp_path: Path) -> None:
             portfolio_path_override=portfolio_path,
         )
 
-    # run_claude must never be called during a backtest run
-    mock_run_claude.assert_not_called()
+    # fetch_ticker_data (LLM data fetch) must never be called during a backtest run
+    mock_fetch.assert_not_called()
     # run_rules should be called (rules mode only)
     assert mock_rules.called or True  # rules called per trading day
 
