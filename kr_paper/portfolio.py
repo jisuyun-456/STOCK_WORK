@@ -11,7 +11,7 @@ import os
 import tempfile
 from pathlib import Path
 
-KR_PORTFOLIOS_PATH = "state/kr_portfolios.json"
+KR_PORTFOLIOS_PATH = Path(__file__).parent.parent / "state" / "kr_portfolios.json"
 
 DEFAULT_STATE: dict = {
     "KR_PAPER": {
@@ -54,7 +54,10 @@ def save(state: dict) -> None:
         with os.fdopen(tmp_fd, "w", encoding="utf-8") as f:
             json.dump(state, f, ensure_ascii=False, indent=2)
             f.flush()
-            os.fsync(f.fileno())
+            try:
+                os.fsync(f.fileno())
+            except OSError:
+                pass  # fsync unavailable on some platforms (Windows NTFS edge cases)
         os.replace(tmp_path, str(path))
     except Exception:
         # Clean up tmp on failure
@@ -116,6 +119,12 @@ def settle_due(today: str) -> list[dict]:
     for record in due:
         side = record.get("side", "").upper()
         if side == "BUY":
+            if kr["cash_krw"] < record["net_cost_krw"]:
+                import logging
+                logging.getLogger("kr_paper.portfolio").warning(
+                    "settle_due: cash %d < cost %d for %s — settling anyway (T+2 commitment)",
+                    kr["cash_krw"], record["net_cost_krw"], record.get("ticker", "?")
+                )
             kr["cash_krw"] -= record["net_cost_krw"]
         elif side == "SELL":
             kr["cash_krw"] += record["net_proceeds_krw"]
