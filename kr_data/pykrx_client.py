@@ -219,6 +219,25 @@ def fetch_shorting_balance(ticker: str, start: str, end: str) -> Optional[pd.Dat
 # ---------------------------------------------------------------------------
 
 _VKOSPI_TICKER = "1163"
+_VKOSPI_VIX_RATIO = 1.10  # VKOSPI historically ~10% above VIX
+
+
+def _vkospi_from_vix(end: str) -> Optional[pd.DataFrame]:
+    """Fallback: estimate VKOSPI from VIX via yfinance when pykrx index API fails."""
+    try:
+        import yfinance as yf
+        vix = yf.Ticker("^VIX").history(period="5d")
+        if vix.empty:
+            return None
+        vix_level = float(vix["Close"].iloc[-1])
+        estimated = round(vix_level * _VKOSPI_VIX_RATIO, 2)
+        end_dt = pd.Timestamp(end)
+        df = pd.DataFrame({"Close": [estimated], "source": ["estimated_from_vix"]}, index=[end_dt])
+        _logger.info("fetch_vkospi: VIX=%.1f → VKOSPI≈%.2f (fallback)", vix_level, estimated)
+        return df
+    except Exception as exc:
+        _logger.warning("fetch_vkospi: VIX fallback failed: %s", exc)
+        return None
 
 
 @retry_with_backoff
@@ -251,13 +270,13 @@ def fetch_vkospi(start: str, end: str) -> Optional[pd.DataFrame]:
     try:
         df = _fetch_vkospi_raw(start, end)
         if df is None or df.empty:
-            _logger.warning("fetch_vkospi: empty result start=%s end=%s", start, end)
-            return None
+            _logger.warning("fetch_vkospi: empty result start=%s end=%s — using VIX proxy", start, end)
+            return _vkospi_from_vix(end)
     except Exception as exc:
         _logger.warning(
-            "fetch_vkospi: pykrx error=%s — returning None (no estimated fallback)", exc
+            "fetch_vkospi: pykrx error=%s — using VIX proxy fallback", exc
         )
-        return None
+        return _vkospi_from_vix(end)
 
     # Rename "종가" → "Close" if present; otherwise keep existing columns.
     if "종가" in df.columns:
@@ -391,9 +410,14 @@ def _fetch_kosdaq_universe(today: str) -> list[dict]:
 def _df_to_universe_list(df: pd.DataFrame, market_label: str) -> list[dict]:
     result: list[dict] = []
     for ticker, row in df.iterrows():
+        ticker_str = str(ticker)
+        try:
+            name = pykrx_stock.get_market_ticker_name(ticker_str) or ""
+        except Exception:
+            name = ""
         result.append({
-            "ticker": str(ticker),
-            "name": row.get("종목명", ""),
+            "ticker": ticker_str,
+            "name": name,
             "market": market_label,
             "mcap_krw": int(row.get("시가총액", 0)),
         })
