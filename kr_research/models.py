@@ -26,6 +26,29 @@ class KRVerdict:
     timestamp: datetime = field(default_factory=datetime.now)
     veto: bool = False
     veto_reason: str = ""
+    # 가격 전략
+    entry_price_low: float | None = None   # 매수 구간 하단
+    entry_price_high: float | None = None  # 매수 구간 상단
+    target_price: float | None = None      # 목표가 T1 (보수적, 50% 익절)
+    target_price_2: float | None = None    # 목표가 T2 (공격적, 전량 매도)
+    stop_loss: float | None = None         # 손절가
+    # 타이밍
+    buy_trigger: str = ""        # 매수 타이밍 조건
+    sell_trigger: str = ""       # 매도 타이밍 조건
+    current_status: str = ""     # 현재 기술적 상태 한줄 요약
+    # 시나리오
+    bull_case: str = ""          # 강세 시나리오 (수익률 + 촉매)
+    base_case: str = ""          # 기본 시나리오
+    bear_case: str = ""          # 약세 시나리오
+    # 메타
+    company_name: str = ""
+    sector: str = ""
+    risk_factors: list[str] = field(default_factory=list)
+    investment_thesis: str = ""
+    buy_factors: list[str] = field(default_factory=list)
+    sell_factors: list[str] = field(default_factory=list)
+    # 하위호환 (기존 코드용)
+    entry_price: float | None = None
 
 
 @dataclass

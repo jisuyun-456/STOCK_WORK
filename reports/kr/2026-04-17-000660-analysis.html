@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>000660 — KR Research</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --cream:    #FAF9F6;  --cream2:   #F3F0EA;
+  --surface:  #FFFFFF;  --ink:      #1A1814;
+  --ink2:     #4A4540;  --ink3:     #8A857C;
+  --border:   #E8E3DB;
+  --orange:   #D97757;  --orange-bg:#FBF4F0;
+  --amber:    #C9842A;  --amber-bg: #FBF3E2;
+  --up:       #1E7A45;  --up-bg:    #E8F5EE;
+  --dn:       #C8523A;  --dn-bg:    #FBF0ED;
+  --nav-bg:   #1A1814;
+  --shadow:   0 1px 6px rgba(26,24,20,0.07);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--cream); color:var(--ink); font-family:'Geist',system-ui,sans-serif; font-size:13px; line-height:1.65; -webkit-font-smoothing:antialiased; }
+
+/* NAV */
+.nav { background:var(--nav-bg); border-bottom:2px solid var(--orange); padding:0 32px; height:52px; display:flex; align-items:center; position:sticky; top:0; z-index:100; }
+.nav-logo { font-size:15px; font-weight:700; color:var(--cream); margin-right:24px; letter-spacing:-0.02em; }
+.nav-logo span { color:var(--orange); }
+.nav-tabs { display:flex; gap:2px; flex:1; }
+.nav-tab { padding:5px 13px; border-radius:6px; font-size:11.5px; font-weight:500; font-family:'IBM Plex Mono',monospace; letter-spacing:0.02em; cursor:pointer; color:#6A6560; background:transparent; border:none; transition:all 0.15s ease; white-space:nowrap; }
+.nav-tab:hover:not(.active) { background:rgba(255,255,255,0.08); color:#B0AA9F; }
+.nav-tab.active { background:var(--orange); color:#fff; font-weight:600; }
+.nav-meta { margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:10px; color:#524D47; letter-spacing:0.06em; text-align:right; line-height:1.4; }
+
+/* PANELS */
+.panel { display:none; }
+.panel.active { display:block; }
+
+/* COMPANY HEADER */
+.co-header { background:var(--nav-bg); padding:24px 32px 22px; position:relative; overflow:hidden; }
+.co-header::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(217,119,87,0.07) 0%,transparent 55%); pointer-events:none; }
+.co-sub { font-family:'IBM Plex Mono',monospace; font-size:10px; color:#524D47; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px; }
+.co-name { font-size:28px; font-weight:700; color:var(--cream); letter-spacing:-0.03em; margin-bottom:3px; }
+.co-desc { font-size:12px; color:#7A746D; margin-bottom:16px; }
+.co-rating-row { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+.badge { display:inline-flex; align-items:center; padding:5px 12px; border-radius:6px; font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; letter-spacing:0.04em; }
+.badge-buy  { background:var(--up);    color:#fff; }
+.badge-hold { background:var(--amber); color:#fff; }
+.badge-sell { background:var(--dn);    color:#fff; }
+.badge-veto { background:#3A3530;      color:var(--cream); }
+.price-chip { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.10); border-radius:8px; padding:8px 14px; }
+.price-label { font-size:10px; color:#6A6460; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:2px; }
+.price-display { font-family:'IBM Plex Mono',monospace; font-size:17px; font-weight:600; color:var(--cream); }
+.up-label { color:#5CB87A; font-family:'IBM Plex Mono',monospace; font-size:11px; }
+.dn-label { color:#E8806A; font-family:'IBM Plex Mono',monospace; font-size:11px; }
+
+/* LAYOUT */
+.main { padding:24px 32px; max-width:1280px; margin:0 auto; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 20px; box-shadow:var(--shadow); }
+.card-label { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink3); margin-bottom:8px; }
+.section-title { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink3); padding:16px 0 8px; border-bottom:1px solid var(--border); margin-bottom:12px; }
+
+/* THESIS */
+.thesis { background:var(--orange-bg); border:1px solid #EDD5C5; border-left:3px solid var(--orange); border-radius:10px; padding:16px 18px; margin-bottom:16px; }
+.thesis-label { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.14em; color:var(--orange); text-transform:uppercase; margin-bottom:8px; font-weight:600; }
+.thesis-text { font-size:13px; color:var(--ink2); line-height:1.75; }
+
+/* METRICS */
+.metrics-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:16px; }
+.metric-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:13px 14px; box-shadow:var(--shadow); }
+.metric-label { font-size:10px; color:var(--ink3); margin-bottom:4px; }
+.metric-val { font-family:'IBM Plex Mono',monospace; font-size:15px; font-weight:600; color:var(--ink); }
+.metric-sub { font-size:10px; margin-top:2px; font-family:'IBM Plex Mono',monospace; }
+.up { color:var(--up); } .dn { color:var(--dn); } .neutral { color:var(--amber); }
+
+/* SCENARIOS */
+.scenarios { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px; }
+.sc { border-radius:10px; padding:16px; border:1px solid var(--border); }
+.sc-bull { background:var(--up-bg);  border-color:#B8D8C4; }
+.sc-base { background:var(--cream); }
+.sc-bear { background:var(--dn-bg);  border-color:#F0C8B8; }
+.sc-type { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.12em; color:var(--ink3); text-transform:uppercase; margin-bottom:6px; }
+.sc-price { font-family:'IBM Plex Mono',monospace; font-size:20px; font-weight:600; margin-bottom:4px; }
+.sc-bull .sc-price { color:var(--up); } .sc-base .sc-price { color:var(--ink); } .sc-bear .sc-price { color:var(--dn); }
+.sc-text { font-size:12px; color:var(--ink2); line-height:1.65; }
+
+/* MARKET BARS */
+.market-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+.mkt-bars { display:flex; flex-direction:column; gap:10px; }
+.mkt-row { display:flex; align-items:center; gap:12px; }
+.mkt-name { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink2); width:68px; }
+.mkt-bar-track { flex:1; height:5px; background:var(--cream2); border-radius:3px; overflow:hidden; }
+.mkt-bar-fill { height:100%; border-radius:3px; width:0; transition:width 1.1s cubic-bezier(0.4,0,0.2,1); }
+.mkt-bar-up { background:var(--up); } .mkt-bar-dn { background:var(--dn); } .mkt-bar-neu { background:var(--amber); }
+.mkt-val { font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink); width:100px; text-align:right; }
+.mkt-pct { font-family:'IBM Plex Mono',monospace; font-size:11px; width:56px; text-align:right; }
+
+/* TECH TABLE */
+.tech-table { width:100%; border-collapse:collapse; font-size:12.5px; margin-bottom:16px; }
+.tech-table th { background:var(--nav-bg); color:var(--cream); padding:7px 12px; text-align:left; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.06em; font-weight:500; }
+.tech-table td { padding:9px 12px; border-bottom:1px solid var(--border); color:var(--ink2); }
+.tech-table tr:last-child td { border-bottom:none; }
+.tech-table tr:nth-child(even) td { background:var(--cream); }
+.signal-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:10px; font-family:'IBM Plex Mono',monospace; }
+.sig-up   { background:var(--up-bg);    color:var(--up); }
+.sig-warn { background:var(--amber-bg); color:var(--amber); }
+.sig-dn   { background:var(--dn-bg);    color:var(--dn); }
+
+/* PRICE LADDER */
+.ladder-row { display:flex; align-items:center; padding:7px 4px; border-bottom:1px solid var(--border); }
+.ladder-row:last-child { border-bottom:none; }
+.ladder-price { width:150px; text-align:right; font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; padding-right:14px; color:var(--ink3); }
+.ladder-line  { flex:1; height:2px; background:var(--cream2); }
+.ladder-label { padding-left:14px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink3); }
+.ladder-current { background:rgba(217,119,87,0.07); border-radius:6px; margin:2px 0; }
+.ladder-current .ladder-price { color:var(--orange); }
+.ladder-current .ladder-line  { background:var(--orange); height:3px; }
+.ladder-current .ladder-label { color:var(--orange); font-weight:600; }
+.ladder-target1 .ladder-price { color:var(--up); } .ladder-target1 .ladder-line { background:var(--up-bg); }
+.ladder-target2 .ladder-price { color:#2D9A5A; }  .ladder-target2 .ladder-line { background:var(--up-bg); }
+.ladder-stop .ladder-price    { color:var(--dn); } .ladder-stop .ladder-line    { background:var(--dn-bg); }
+.ladder-entry .ladder-price   { color:var(--amber); } .ladder-entry .ladder-line { background:var(--amber-bg); }
+
+/* TRADE BOX */
+.trade-box { background:var(--nav-bg); border-radius:10px; padding:18px 20px; margin-bottom:16px; position:relative; overflow:hidden; }
+.trade-box::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(217,119,87,0.09) 0%,transparent 60%); pointer-events:none; }
+.trade-box .card-label { color:var(--orange); }
+.trade-row { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
+.trade-item .tlabel { font-size:10px; color:#6A6460; margin-bottom:4px; font-family:'IBM Plex Mono',monospace; letter-spacing:0.04em; }
+.trade-item .tval   { font-family:'IBM Plex Mono',monospace; font-size:14px; font-weight:600; color:var(--cream); }
+.trade-item .tsub   { font-size:10px; font-family:'IBM Plex Mono',monospace; margin-top:2px; color:#6A6460; }
+.trade-item.t1 .tval   { color:#5CB87A; }
+.trade-item.t2 .tval   { color:#7DD8A0; }
+.trade-item.stop .tval { color:#E8806A; }
+.trade-item.rr .tval   { color:var(--orange); font-size:18px; }
+.trade-trigger { margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08); font-size:11.5px; color:#8A847C; font-family:'IBM Plex Mono',monospace; line-height:1.75; }
+.trigger-label { color:var(--orange); font-size:9px; text-transform:uppercase; letter-spacing:0.12em; margin-bottom:4px; }
+
+/* FACTORS */
+.factors-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+.factor-col-header { display:flex; align-items:center; gap:8px; font-weight:600; font-size:13px; margin-bottom:12px; padding-bottom:8px; border-bottom:2px solid; }
+.fch-up { border-color:var(--up); color:var(--up); }
+.fch-dn { border-color:var(--dn); color:var(--dn); }
+.factor-item { display:flex; align-items:flex-start; gap:8px; padding:10px 0; border-bottom:1px solid var(--border); }
+.factor-item:last-child { border-bottom:none; }
+.factor-icon { width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; flex-shrink:0; margin-top:1px; }
+.fi-up { background:var(--up-bg); color:var(--up); }
+.fi-dn { background:var(--dn-bg); color:var(--dn); }
+.factor-text { font-size:12.5px; color:var(--ink2); line-height:1.6; }
+
+/* RISK */
+.risk-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.risk-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 15px; }
+.risk-title { font-size:13px; font-weight:600; color:var(--ink); margin-bottom:4px; }
+.risk-desc  { font-size:12px; color:var(--ink2); line-height:1.65; }
+.risk-tag { display:inline-block; padding:1px 7px; border-radius:3px; font-size:10px; font-family:'IBM Plex Mono',monospace; margin-top:6px; }
+.rt-high { background:var(--dn-bg);    color:var(--dn); }
+.rt-mid  { background:var(--amber-bg); color:var(--amber); }
+.rt-low  { background:var(--up-bg);    color:var(--up); }
+
+/* SUPPLY */
+.flow-item { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border); }
+.flow-item:last-child { border-bottom:none; }
+.flow-name { font-size:12.5px; color:var(--ink2); }
+.flow-val  { font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:500; }
+
+/* CHECKLIST */
+.check-item { display:flex; gap:10px; padding:10px 12px; border-radius:7px; margin-bottom:6px; background:var(--cream); border:1px solid var(--border); }
+.check-num  { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--orange); font-weight:600; flex-shrink:0; width:20px; }
+.check-text { font-size:12.5px; color:var(--ink2); line-height:1.6; }
+
+/* FOOTER */
+.report-footer { margin-top:32px; padding-top:16px; border-top:1px solid var(--border); font-size:11px; color:var(--ink3); font-family:'IBM Plex Mono',monospace; line-height:1.7; }
+
+/* ANIMATION */
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.panel.active > * { animation:fadeUp 0.3s ease both; }
+.panel.active > *:nth-child(2){animation-delay:0.06s}
+.panel.active > *:nth-child(3){animation-delay:0.12s}
+.panel.active > *:nth-child(4){animation-delay:0.18s}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">KR <span>Research</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="show('summary',this)">요약</button>
+    <button class="nav-tab" onclick="show('market',this)">시장</button>
+    <button class="nav-tab" onclick="show('tech',this)">기술</button>
+    <button class="nav-tab" onclick="show('trade',this)">매매전략</button>
+    <button class="nav-tab" onclick="show('scenario',this)">시나리오</button>
+    <button class="nav-tab" onclick="show('risk',this)">리스크</button>
+    <button class="nav-tab" onclick="show('supply',this)">수급</button>
+    <button class="nav-tab" onclick="show('conclusion',this)">결론</button>
+  </div>
+  <div class="nav-meta">000660 · 000660<br>2026-04-17 · KOSPI</div>
+</nav>
+
+<!-- COMPANY HEADER -->
+<div class="co-header">
+  <div class="co-sub">KOSPI EQUITY RESEARCH · — · KR RESEARCH</div>
+  <div class="co-name">000660</div>
+  <div class="co-desc">000660 · KOSPI · —</div>
+  <div class="co-rating-row">
+    <span class="badge badge-hold">HOLD</span>
+    
+    
+    
+    
+    <div style="margin-left:auto;text-align:right">
+      <div style="font-size:10px;color:#524D47;font-family:'IBM Plex Mono',monospace;margin-bottom:4px;">신뢰도</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;color:#C9842A;font-weight:600;">30%</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PANEL: 요약 ═══ -->
+<div id="panel-summary" class="panel active">
+<div class="main">
+  <div class="thesis">
+    <div class="thesis-label">Why Invest — 투자 의견</div>
+    <div class="thesis-text">error: Command '['claude', '-p', 'You are a senior Korean equity research analyst (Goldman Sachs / JP Morgan level).\nAnalyze the given KRX ticker using the provided market data and return a JSON object.\n\nCRITICAL: Respond with ONLY the JSON below — no markdown, no extra text, no code fences.\n\n{\n  "company_name": "회사명 (한글)",\n  "sector": "섹터명 (예: 반도체, 이차전지, 바이오)",\n  "verdict": "BUY|HOLD|SELL|VETO",\n  "confidence": 0.0-1.0,\n  "investment_thesis": "왜 지금 이 기업인가 — 2~3문장. 구조적 경쟁우위, 단기 촉매, 밸류에이션 근거를 포함. 한국어.",\n  "rationale": "종합 분석 요약 2~3문장 (기술적+펀더멘털+수급 통합). 한국어.",\n  "entry_price_low": number_or_null,\n  "entry_price_high": number_or_null,\n  "target_price": number_or_null,\n  "target_price_2": number_or_null,\n  "stop_loss": number_or_null,\n  "buy_factors": ["매수 근거1 (구체적 수치/촉매)", "매수 근거2", "매수 근거3"],\n  "sell_factors": ["매도/우려 요인1 (구체적)", "매도/우려 요인2"],\n  "buy_trigger": "구체적 매수 타이밍 조건 — 기술적 트리거 포함. 한국어.",\n  "sell_trigger": "구체적 매도/손절 타이밍 조건. 한국어.",\n  "current_status": "현재 기술적 상태 한줄 (RSI/MACD/추세 요약). 한국어.",\n  "bull_case": "+N~M%: 강세 시나리오 촉매 설명. 한국어.",\n  "base_case": "+N~M%: 기본 시나리오. 한국어.",\n  "bear_case": "-N~M%: 약세 리스크 시나리오. 한국어.",\n  "risk_factors": ["리스크1 (발생확률·영향도 포함)", "리스크2", "리스크3"]\n}\n\nPrice rules:\n- entry_price_low/high: recommended buy zone in KRW (BUY only; HOLD/SELL → null)\n- target_price: conservative T1 target (50% take-profit); target_price_2: aggressive T2\n- stop_loss: stop price in KRW (BUY/HOLD → set; SELL/VETO → null)\n- buy_factors: 3 concrete bullish reasons with specific data points\n- sell_factors: 2-3 concrete risks or bearish factors\n- VETO: only for fraud, regulatory halt, delisting risk — extreme cases only\n- All prices must be numerically realistic vs. the current price provided\n\nKRX 종목 분석 요청: 000660\n\n시장 Regime: BULL (신뢰도: 75%)\nRegime 팩터: {\'kospi_trend\': 1.4726, \'vkospi\': 19.8, \'sox_trend\': 1.0, \'us_regime\': \'NEUTRAL\', \'us_vix\': 20.0}\n\n[종목 데이터]\n현재가: 1,131,000원\nSMA20: 973,650원\nSMA60: 925,883원\nSMA200: 580,572원\n52주 고가: 1,155,000원 / 저가: 173,800원\n1개월 수익률: +12.3%\nRSI(14): 70.3 [과매수(매도 주의)]\nMACD: hist=+23689 [상승추세유지]\n볼린저밴드: 상단=1,175,771 / 하단=771,529 / 위치=88.9% [상단 근접(과매수 주의)]\n\n위 데이터를 바탕으로 JSON 형식으로 분석 결과를 반환하세요.', '--output-format', 'text', '--no-session-persistence', '--model', 'claude-sonnet-4-6']' timed out after 90 seconds</div>
+  </div>
+  <div class="section-title">핵심 지표</div>
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-label">현재가</div>
+      <div class="metric-val">—</div>
+      <div class="metric-sub neutral">HOLD 구간</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">매수 구간</div>
+      <div class="metric-val" style="font-size:13px">—</div>
+      <div class="metric-sub" style="color:var(--ink3)">조정 시 진입</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">T1 목표가 (보수)</div>
+      <div class="metric-val up">—</div>
+      <div class="metric-sub up"> · 50% 청산</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">T2 목표가 (공격)</div>
+      <div class="metric-val up">—</div>
+      <div class="metric-sub up"> · 잔량 청산</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">손절가</div>
+      <div class="metric-val dn">—</div>
+      <div class="metric-sub dn"></div>
+    </div>
+  </div>
+  <div class="section-title">시나리오 전망 (3~6개월)</div>
+  <div class="scenarios">
+    <div class="sc sc-bull">
+      <div class="sc-type">Bull Case</div>
+      <div class="sc-price" style="font-size:16px">—</div>
+    </div>
+    <div class="sc sc-base">
+      <div class="sc-type">Base Case</div>
+      <div class="sc-price" style="font-size:16px">—</div>
+    </div>
+    <div class="sc sc-bear">
+      <div class="sc-type">Bear Case</div>
+      <div class="sc-price" style="font-size:16px">—</div>
+    </div>
+  </div>
+  <div class="report-footer">분석 기준일: 2026-04-17 · 데이터: pykrx · 분석: Claude Code CLI (claude-sonnet-4-6)<br>본 리포트는 참고용이며 투자 결정의 최종 책임은 투자자 본인에게 있습니다.</div>
+</div>
+</div>
+
+<!-- ═══ PANEL: 시장 ═══ -->
+<div id="panel-market" class="panel">
+<div class="main">
+  <div class="section-title">시장 컨텍스트 · 2026-04-17 기준</div>
+  <div class="market-grid">
+    <div class="card">
+      <div class="card-label">글로벌 시장 현황</div>
+      <div class="mkt-bars">
+        <div class="mkt-row"><div class="mkt-name">KOSPI</div><div class="mkt-bar-track"><div class="mkt-bar-fill mkt-bar-dn" data-pct="57"></div></div><div class="mkt-val">6,214p</div><div class="mkt-pct dn">-0.2%</div></div>
+<div class="mkt-row"><div class="mkt-name">KOSDAQ</div><div class="mkt-bar-track"><div class="mkt-bar-fill mkt-bar-up" data-pct="59"></div></div><div class="mkt-val">1,167p</div><div class="mkt-pct up">+0.3%</div></div>
+<div class="mkt-row"><div class="mkt-name">NASDAQ</div><div class="mkt-bar-track"><div class="mkt-bar-fill mkt-bar-up" data-pct="68"></div></div><div class="mkt-val">24,103p</div><div class="mkt-pct up">+0.4%</div></div>
+<div class="mkt-row"><div class="mkt-name">USD/KRW</div><div class="mkt-bar-track"><div class="mkt-bar-fill mkt-bar-neu" data-pct="55"></div></div><div class="mkt-val">1,479원</div><div class="mkt-pct neutral">환율</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">KR Regime</div>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
+        <canvas id="regimeChart" width="80" height="80"></canvas>
+        <div>
+          <div style="font-size:22px;font-weight:700;color:var(--up);font-family:'IBM Plex Mono',monospace">BULL</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:2px">신뢰도 75%</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:4px">기술적 상태 참조</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ PANEL: 기술 ═══ -->
+<div id="panel-tech" class="panel">
+<div class="main">
+  <div class="section-title">기술적 지표</div>
+  <p style='color:var(--ink3);font-size:12px'>기술 데이터 없음</p>
+  <div class="section-title">가격 레벨</div>
+  <p style="color:var(--ink3)">가격 데이터 없음</p>
+  
+</div>
+</div>
+
+<!-- ═══ PANEL: 매매전략 ═══ -->
+<div id="panel-trade" class="panel">
+<div class="main">
+  <div class="trade-box">
+    <div class="card-label">Trade Setup</div>
+    <div class="trade-row">
+      <div class="trade-item">
+        <div class="tlabel">매수 구간</div>
+        <div class="tval" style="font-size:12px">—</div>
+        <div class="tsub">분할 매수 권고</div>
+      </div>
+      <div class="trade-item t1">
+        <div class="tlabel">T1 목표 (50% 청산)</div>
+        <div class="tval">—</div>
+        <div class="tsub" style="color:#5CB87A"></div>
+      </div>
+      <div class="trade-item t2">
+        <div class="tlabel">T2 목표 (잔량)</div>
+        <div class="tval">—</div>
+        <div class="tsub" style="color:#7DD8A0"></div>
+      </div>
+      <div class="trade-item stop">
+        <div class="tlabel">손절가</div>
+        <div class="tval">—</div>
+        <div class="tsub" style="color:#E8806A"></div>
+      </div>
+      <div class="trade-item rr">
+        <div class="tlabel">R:R 비율</div>
+        <div class="tval">— : 1</div>
+        <div class="tsub" style="color:var(--orange)">Base case</div>
+      </div>
+    </div>
+    <div class="trade-trigger">
+      <div class="trigger-label">매수 타이밍</div>
+      —
+      <br><br>
+      <div class="trigger-label">매도 타이밍</div>
+      —
+    </div>
+  </div>
+  <div class="section-title">매수 근거 vs 매도/우려 요인</div>
+  <div class="factors-grid">
+    <div>
+      <div class="factor-col-header fch-up"><span style="font-size:14px">✅</span> 매수 근거</div>
+      <div class="factor-item"><div class="factor-text" style="color:var(--ink3)">데이터 없음</div></div>
+    </div>
+    <div>
+      <div class="factor-col-header fch-dn"><span style="font-size:14px">❌</span> 매도/우려 요인</div>
+      <div class="factor-item"><div class="factor-text" style="color:var(--ink3)">데이터 없음</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ PANEL: 시나리오 ═══ -->
+<div id="panel-scenario" class="panel">
+<div class="main">
+  <div class="section-title">시나리오 전망 상세 (3~6개월)</div>
+  <div class="scenarios" style="margin-bottom:24px">
+    <div class="sc sc-bull">
+      <div class="sc-type">Bull Case</div>
+      <div class="sc-text" style="color:var(--up)">—</div>
+    </div>
+    <div class="sc sc-base">
+      <div class="sc-type">Base Case</div>
+      <div class="sc-text">—</div>
+    </div>
+    <div class="sc sc-bear">
+      <div class="sc-type">Bear Case</div>
+      <div class="sc-text" style="color:var(--dn)">—</div>
+    </div>
+  </div>
+  
+</div>
+</div>
+
+<!-- ═══ PANEL: 리스크 ═══ -->
+<div id="panel-risk" class="panel">
+<div class="main">
+  <div class="section-title">리스크 요인</div>
+  <div class="risk-grid"><div class="risk-card"><div class="risk-desc" style="color:var(--ink3)">리스크 데이터 없음</div></div></div>
+</div>
+</div>
+
+<!-- ═══ PANEL: 수급 ═══ -->
+<div id="panel-supply" class="panel">
+<div class="main">
+  <div class="section-title">수급 분석</div>
+  <div class="card"><div class="flow-item"><div class="flow-name" style="color:var(--ink3)">수급 데이터 없음</div></div></div>
+</div>
+</div>
+
+<!-- ═══ PANEL: 결론 ═══ -->
+<div id="panel-conclusion" class="panel">
+<div class="main">
+  <div class="trade-box" style="margin-bottom:16px">
+    <div class="card-label">최종 투자 판단</div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
+      <span class="badge badge-hold" style="font-size:14px;padding:7px 16px">HOLD</span>
+      <div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;color:var(--cream);font-weight:600">신뢰도 30%</div>
+        <div style="font-size:11px;color:#6A6460;margin-top:2px">BULL Regime</div>
+      </div>
+    </div>
+    <div style="font-size:13px;color:#9A948C;line-height:1.75">error: Command '['claude', '-p', 'You are a senior Korean equity research analyst (Goldman Sachs / JP Morgan level).\nAnalyze the given KRX ticker using the provided market data and return a JSON object.\n\nCRITICAL: Respond with ONLY the JSON below — no markdown, no extra text, no code fences.\n\n{\n  "company_name": "회사명 (한글)",\n  "sector": "섹터명 (예: 반도체, 이차전지, 바이오)",\n  "verdict": "BUY|HOLD|SELL|VETO",\n  "confidence": 0.0-1.0,\n  "investment_thesis": "왜 지금 이 기업인가 — 2~3문장. 구조적 경쟁우위, 단기 촉매, 밸류에이션 근거를 포함. 한국어.",\n  "rationale": "종합 분석 요약 2~3문장 (기술적+펀더멘털+수급 통합). 한국어.",\n  "entry_price_low": number_or_null,\n  "entry_price_high": number_or_null,\n  "target_price": number_or_null,\n  "target_price_2": number_or_null,\n  "stop_loss": number_or_null,\n  "buy_factors": ["매수 근거1 (구체적 수치/촉매)", "매수 근거2", "매수 근거3"],\n  "sell_factors": ["매도/우려 요인1 (구체적)", "매도/우려 요인2"],\n  "buy_trigger": "구체적 매수 타이밍 조건 — 기술적 트리거 포함. 한국어.",\n  "sell_trigger": "구체적 매도/손절 타이밍 조건. 한국어.",\n  "current_status": "현재 기술적 상태 한줄 (RSI/MACD/추세 요약). 한국어.",\n  "bull_case": "+N~M%: 강세 시나리오 촉매 설명. 한국어.",\n  "base_case": "+N~M%: 기본 시나리오. 한국어.",\n  "bear_case": "-N~M%: 약세 리스크 시나리오. 한국어.",\n  "risk_factors": ["리스크1 (발생확률·영향도 포함)", "리스크2", "리스크3"]\n}\n\nPrice rules:\n- entry_price_low/high: recommended buy zone in KRW (BUY only; HOLD/SELL → null)\n- target_price: conservative T1 target (50% take-profit); target_price_2: aggressive T2\n- stop_loss: stop price in KRW (BUY/HOLD → set; SELL/VETO → null)\n- buy_factors: 3 concrete bullish reasons with specific data points\n- sell_factors: 2-3 concrete risks or bearish factors\n- VETO: only for fraud, regulatory halt, delisting risk — extreme cases only\n- All prices must be numerically realistic vs. the current price provided\n\nKRX 종목 분석 요청: 000660\n\n시장 Regime: BULL (신뢰도: 75%)\nRegime 팩터: {\'kospi_trend\': 1.4726, \'vkospi\': 19.8, \'sox_trend\': 1.0, \'us_regime\': \'NEUTRAL\', \'us_vix\': 20.0}\n\n[종목 데이터]\n현재가: 1,131,000원\nSMA20: 973,650원\nSMA60: 925,883원\nSMA200: 580,572원\n52주 고가: 1,155,000원 / 저가: 173,800원\n1개월 수익률: +12.3%\nRSI(14): 70.3 [과매수(매도 주의)]\nMACD: hist=+23689 [상승추세유지]\n볼린저밴드: 상단=1,175,771 / 하단=771,529 / 위치=88.9% [상단 근접(과매수 주의)]\n\n위 데이터를 바탕으로 JSON 형식으로 분석 결과를 반환하세요.', '--output-format', 'text', '--no-session-persistence', '--model', 'claude-sonnet-4-6']' timed out after 90 seconds</div>
+  </div>
+  <div class="section-title">모니터링 체크리스트</div>
+  
+  <div class="report-footer">
+    분석 기준일: 2026-04-17 · 데이터: pykrx · 분석: Claude Code CLI (claude-sonnet-4-6)<br>
+    Regime: BULL (75%) · 종목: 000660<br>
+    본 리포트는 참고용이며 투자 결정의 최종 책임은 투자자 본인에게 있습니다.
+  </div>
+</div>
+</div>
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'market') {
+    setTimeout(() => {
+      document.querySelectorAll('.mkt-bar-fill').forEach(b => { b.style.width = b.dataset.pct + '%'; });
+      initRegime();
+    }, 80);
+  }
+}
+function initRegime() {
+  const c = document.getElementById('regimeChart');
+  if (!c || c._done) return; c._done = true;
+  const conf = 75;
+  const color = conf >= 70 ? '#1E7A45' : conf >= 50 ? '#C9842A' : '#C8523A';
+  new Chart(c, {
+    type: 'doughnut',
+    data: { datasets: [{ data: [conf, 100-conf], backgroundColor: [color, '#E8E3DB'], borderWidth: 0 }] },
+    options: { cutout: '72%', plugins: { legend: { display: false }, tooltip: { enabled: false } }, animation: { duration: 900 } }
+  });
+}
+</script>
+</body>
+</html>

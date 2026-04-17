@@ -1,59 +1,39 @@
-"""KR Research Agent Runner — HIGH #1 FIX: real Claude API dispatch.
+"""KR Research Agent Runner — claude mode uses Claude Code CLI (claude -p).
 
 두 가지 모드:
   rules:  Python 규칙 기반 (LLM 호출 없음, $0, 백테스트용)
-  claude: Anthropic Claude API 실제 호출 (claude-sonnet-4-6)
-
-이전 구현의 `claude` 모드는 "rules fallback으로 돌아감" 이라는 dead stub이었음.
-이 모듈은 진짜 Anthropic client.messages.create()를 호출한다.
+  claude: Claude Code CLI 헤드리스 모드 (subprocess, 별도 API 키 불필요)
+         종목별 실제 데이터(현재가/MA/PBR/수급) 포함 → 매수가/목표가/손절가 출력
 """
 from __future__ import annotations
 
 import json
 import logging
-import os
 import re
+import subprocess
+from datetime import date, timedelta
 from typing import Literal
-
-from anthropic import Anthropic
 
 from kr_research.models import KRVerdict, KRRegime
 
 _logger = logging.getLogger("kr_research.agent_runner")
-_client: Anthropic | None = None
-
-
-def _get_client() -> Anthropic:
-    """Lazy singleton Anthropic client."""
-    global _client
-    if _client is None:
-        api_key = os.environ.get("ANTHROPIC_API_KEY")
-        _client = Anthropic(api_key=api_key)
-    return _client
 
 
 # ── rules mode ─────────────────────────────────────────────────────────────
 
 def run_rules(tickers: list[str], regime: KRRegime) -> list[KRVerdict]:
-    """
-    Layer 1 rules-only mode (no Claude). Used in backtest / dry-run.
-
-    Rules:
-    - CRISIS → SELL all
-    - BEAR   → HOLD all
-    - else   → HOLD (signals come from scorer composite)
-    """
+    """Layer 1 rules-only mode (no Claude). Used in backtest / dry-run."""
     verdicts: list[KRVerdict] = []
     regime_type = regime.regime
 
     for ticker in tickers:
         if regime_type == "CRISIS":
             verdict_str: str = "SELL"
-            rationale = f"CRISIS regime — all positions SELL (rules mode)"
+            rationale = "CRISIS regime — all positions SELL (rules mode)"
             confidence = 0.85
         elif regime_type == "BEAR":
             verdict_str = "HOLD"
-            rationale = f"BEAR regime — hold, no new entries (rules mode)"
+            rationale = "BEAR regime — hold, no new entries (rules mode)"
             confidence = 0.65
         else:
             verdict_str = "HOLD"
@@ -71,18 +51,226 @@ def run_rules(tickers: list[str], regime: KRRegime) -> list[KRVerdict]:
     return verdicts
 
 
-# ── claude mode — HIGH #1 FIX ─────────────────────────────────────────────
+# ── ticker data enrichment ─────────────────────────────────────────────────
 
-_SYSTEM_PROMPT = """You are a Korean stock market analyst specializing in KRX-listed equities.
-Your role: analyze a given KRX ticker based on the market regime and snapshot data provided.
-Respond ONLY with a valid JSON object — no markdown, no explanation, no extra text.
-Required format: {"verdict": "BUY|HOLD|SELL|VETO", "confidence": 0.0-1.0, "rationale": "brief reason"}
+def _fetch_ticker_data(ticker: str) -> dict:
+    """종목별 실제 데이터 수집 (현재가, MA, 기초지표, 수급, 공매도).
 
-Verdict definitions:
-- BUY:  Strong positive signal, worth accumulating
-- HOLD: Neutral, keep existing position or wait
-- SELL: Negative signal, reduce or exit
-- VETO: Extreme risk, mandatory avoidance (regulatory/fraud/delisting risk)"""
+    Returns empty dict on failure — caller handles gracefully.
+    """
+    try:
+        from kr_data.pykrx_client import (
+            fetch_ohlcv_batch,
+            fetch_market_fundamental,
+            fetch_investor_flow,
+            fetch_shorting_balance,
+        )
+
+        today = date.today().strftime("%Y%m%d")
+        d35 = (date.today() - timedelta(days=35)).strftime("%Y%m%d")
+        d20 = (date.today() - timedelta(days=20)).strftime("%Y%m%d")
+        d7  = (date.today() - timedelta(days=7)).strftime("%Y%m%d")
+        d252 = (date.today() - timedelta(days=365)).strftime("%Y%m%d")
+
+        result: dict = {}
+
+        # OHLCV — current price, MAs, 52w range
+        ohlcv = fetch_ohlcv_batch([ticker], d252, today)
+        if ohlcv is not None and not ohlcv.empty:
+            closes = ohlcv[ohlcv["ticker"] == ticker]["종가"] if "ticker" in ohlcv.columns else ohlcv["종가"]
+            if not closes.empty:
+                result["current_price"] = int(closes.iloc[-1])
+                result["high_52w"] = int(closes.max())
+                result["low_52w"] = int(closes.min())
+                if len(closes) >= 20:
+                    result["sma20"] = int(closes.iloc[-20:].mean())
+                if len(closes) >= 60:
+                    result["sma60"] = int(closes.iloc[-60:].mean())
+                if len(closes) >= 200:
+                    result["sma200"] = int(closes.iloc[-200:].mean())
+                # 1-month momentum
+                if len(closes) >= 21:
+                    result["momentum_1m_pct"] = round(
+                        (closes.iloc[-1] - closes.iloc[-21]) / closes.iloc[-21] * 100, 1
+                    )
+
+        # Fundamentals — PBR, PER, DIV
+        fund = fetch_market_fundamental(today)
+        if fund is not None and ticker in fund.index:
+            row = fund.loc[ticker]
+            result["pbr"] = round(float(row.get("PBR", 0)), 2)
+            result["per"] = round(float(row.get("PER", 0)), 1)
+            result["div_yield"] = round(float(row.get("DIV", 0)), 2)
+
+        # Investor flow — foreign net direction (20d)
+        flow = fetch_investor_flow(ticker, d20, today)
+        if flow is not None and not flow.empty:
+            col = next((c for c in flow.columns if "외국인" in str(c)), None)
+            if col:
+                net = flow[col].sum()
+                result["foreign_flow_20d"] = "순매수" if net > 0 else "순매도"
+                result["foreign_flow_raw"] = int(net)
+
+        # Short-selling ratio (7d latest)
+        short = fetch_shorting_balance(ticker, d7, today)
+        if short is not None and not short.empty:
+            ratio_col = next(
+                (c for c in short.columns if any(k in str(c) for k in ["비율", "ratio", "Ratio"])),
+                None
+            )
+            if ratio_col:
+                result["short_ratio_pct"] = round(float(short[ratio_col].iloc[-1]), 2)
+
+        # ── Technical indicators from OHLCV ──────────────────────────────
+        if ohlcv is not None and not ohlcv.empty:
+            closes = ohlcv[ohlcv["ticker"] == ticker]["종가"] if "ticker" in ohlcv.columns else ohlcv["종가"]
+            if len(closes) >= 14:
+                result.update(_calc_technicals(closes))
+
+        return result
+
+    except Exception as e:
+        _logger.warning("_fetch_ticker_data(%s) failed: %s", ticker, e)
+        return {}
+
+
+def _calc_technicals(closes) -> dict:
+    """RSI(14), MACD(12/26/9), Bollinger Bands(20,2) 계산."""
+    import numpy as np
+    out: dict = {}
+
+    arr = closes.values.astype(float)
+
+    # RSI(14)
+    if len(arr) >= 15:
+        delta = np.diff(arr)
+        gain = np.where(delta > 0, delta, 0.0)
+        loss = np.where(delta < 0, -delta, 0.0)
+        avg_gain = np.mean(gain[-14:])
+        avg_loss = np.mean(loss[-14:])
+        if avg_loss == 0:
+            rsi = 100.0
+        else:
+            rs = avg_gain / avg_loss
+            rsi = round(100 - 100 / (1 + rs), 1)
+        out["rsi14"] = rsi
+        if rsi >= 70:
+            out["rsi_signal"] = "과매수(매도 주의)"
+        elif rsi <= 30:
+            out["rsi_signal"] = "과매도(매수 기회)"
+        else:
+            out["rsi_signal"] = "중립"
+
+    # MACD(12,26,9)
+    if len(arr) >= 26:
+        def ema(x, n):
+            k = 2 / (n + 1)
+            result = [x[0]]
+            for v in x[1:]:
+                result.append(v * k + result[-1] * (1 - k))
+            return np.array(result)
+
+        ema12 = ema(arr, 12)
+        ema26 = ema(arr, 26)
+        macd_line = ema12[-len(ema26):] - ema26
+        if len(macd_line) >= 9:
+            signal_line = ema(macd_line, 9)
+            macd_val = round(float(macd_line[-1]), 0)
+            signal_val = round(float(signal_line[-1]), 0)
+            hist = macd_val - signal_val
+            out["macd"] = macd_val
+            out["macd_signal"] = signal_val
+            out["macd_hist"] = round(hist, 0)
+            if hist > 0 and (len(macd_line) < 10 or macd_line[-2] - signal_line[-2] <= 0):
+                out["macd_cross"] = "골든크로스(매수신호)"
+            elif hist < 0 and (len(macd_line) < 10 or macd_line[-2] - signal_line[-2] >= 0):
+                out["macd_cross"] = "데드크로스(매도신호)"
+            elif hist > 0:
+                out["macd_cross"] = "상승추세유지"
+            else:
+                out["macd_cross"] = "하락추세유지"
+
+    # Bollinger Bands(20, 2)
+    if len(arr) >= 20:
+        window = arr[-20:]
+        mid = float(np.mean(window))
+        std = float(np.std(window))
+        upper = round(mid + 2 * std, 0)
+        lower = round(mid - 2 * std, 0)
+        current = arr[-1]
+        bb_pct = round((current - lower) / (upper - lower) * 100, 1) if upper != lower else 50.0
+        out["bb_upper"] = int(upper)
+        out["bb_mid"] = int(mid)
+        out["bb_lower"] = int(lower)
+        out["bb_pct"] = bb_pct  # 0%=하단, 100%=상단
+        if bb_pct >= 80:
+            out["bb_signal"] = "상단 근접(과매수 주의)"
+        elif bb_pct <= 20:
+            out["bb_signal"] = "하단 근접(매수 기회)"
+        else:
+            out["bb_signal"] = "밴드 중간"
+
+    return out
+
+
+# ── claude mode — Claude Code CLI subprocess ──────────────────────────────
+
+_SYSTEM_PROMPT = """You are a senior Korean equity research analyst (Goldman Sachs / JP Morgan level).
+Analyze the given KRX ticker using the provided market data and return a JSON object.
+
+CRITICAL: Respond with ONLY the JSON below — no markdown, no extra text, no code fences.
+
+{
+  "company_name": "회사명 (한글)",
+  "sector": "섹터명 (예: 반도체, 이차전지, 바이오)",
+  "verdict": "BUY|HOLD|SELL|VETO",
+  "confidence": 0.0-1.0,
+  "investment_thesis": "왜 지금 이 기업인가 — 2~3문장. 구조적 경쟁우위, 단기 촉매, 밸류에이션 근거를 포함. 한국어.",
+  "rationale": "종합 분석 요약 2~3문장 (기술적+펀더멘털+수급 통합). 한국어.",
+  "entry_price_low": number_or_null,
+  "entry_price_high": number_or_null,
+  "target_price": number_or_null,
+  "target_price_2": number_or_null,
+  "stop_loss": number_or_null,
+  "buy_factors": ["매수 근거1 (구체적 수치/촉매)", "매수 근거2", "매수 근거3"],
+  "sell_factors": ["매도/우려 요인1 (구체적)", "매도/우려 요인2"],
+  "buy_trigger": "구체적 매수 타이밍 조건 — 기술적 트리거 포함. 한국어.",
+  "sell_trigger": "구체적 매도/손절 타이밍 조건. 한국어.",
+  "current_status": "현재 기술적 상태 한줄 (RSI/MACD/추세 요약). 한국어.",
+  "bull_case": "+N~M%: 강세 시나리오 촉매 설명. 한국어.",
+  "base_case": "+N~M%: 기본 시나리오. 한국어.",
+  "bear_case": "-N~M%: 약세 리스크 시나리오. 한국어.",
+  "risk_factors": ["리스크1 (발생확률·영향도 포함)", "리스크2", "리스크3"]
+}
+
+Price rules:
+- entry_price_low/high: recommended buy zone in KRW (BUY only; HOLD/SELL → null)
+- target_price: conservative T1 target (50% take-profit); target_price_2: aggressive T2
+- stop_loss: stop price in KRW (BUY/HOLD → set; SELL/VETO → null)
+- buy_factors: 3 concrete bullish reasons with specific data points
+- sell_factors: 2-3 concrete risks or bearish factors
+- VETO: only for fraud, regulatory halt, delisting risk — extreme cases only
+- All prices must be numerically realistic vs. the current price provided"""
+
+
+def _call_claude_cli(prompt: str, timeout: int = 180) -> str:
+    """Call Claude Code CLI in headless mode. No external API key required."""
+    result = subprocess.run(
+        [
+            "claude", "-p", prompt,
+            "--output-format", "text",
+            "--no-session-persistence",
+            "--model", "claude-sonnet-4-6",
+        ],
+        capture_output=True,
+        encoding="utf-8",
+        errors="replace",
+        timeout=timeout,
+    )
+    if result.returncode != 0:
+        stderr = (result.stderr or "").strip()
+        raise RuntimeError(stderr or "claude CLI returned non-zero exit")
+    return (result.stdout or "").strip()
 
 
 def run_claude(
@@ -91,18 +279,7 @@ def run_claude(
     market_snapshot: dict,
     mode: Literal["sequential", "parallel"] = "sequential",
 ) -> list[KRVerdict]:
-    """
-    HIGH #1 FIX: Actually calls Claude API for each ticker.
-
-    Args:
-        tickers:         KRX ticker codes to analyze
-        regime:          Current KR market regime
-        market_snapshot: Market data dict
-        mode:            "sequential" (default) | "parallel" (ThreadPoolExecutor)
-
-    Returns:
-        list[KRVerdict] — one per ticker; parse errors → HOLD/0.3
-    """
+    """Claude Code CLI 헤드리스 모드로 각 종목 심층 분석."""
     if mode == "parallel":
         return _run_parallel(tickers, regime, market_snapshot)
     return _run_sequential(tickers, regime, market_snapshot)
@@ -110,28 +287,20 @@ def run_claude(
 
 def _run_sequential(tickers: list[str], regime: KRRegime, snapshot: dict) -> list[KRVerdict]:
     verdicts: list[KRVerdict] = []
-    client = _get_client()
 
     for ticker in tickers:
         try:
-            prompt = _build_analysis_prompt(ticker, regime, snapshot)
-            response = client.messages.create(
-                model="claude-sonnet-4-6",
-                max_tokens=512,
-                system=_SYSTEM_PROMPT,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            raw_text = response.content[0].text
-            verdict = _parse_verdict(ticker, raw_text)
-            verdicts.append(verdict)
+            ticker_data = _fetch_ticker_data(ticker)
+            full_prompt = _SYSTEM_PROMPT + "\n\n" + _build_analysis_prompt(ticker, regime, snapshot, ticker_data)
+            raw_text = _call_claude_cli(full_prompt)
+            v = _parse_verdict(ticker, raw_text)
+            v._ticker_data = ticker_data  # type: ignore[attr-defined]
+            verdicts.append(v)
         except Exception as e:
             _logger.warning("run_claude(%s) failed: %s", ticker, e)
             verdicts.append(KRVerdict(
-                ticker=ticker,
-                verdict="HOLD",
-                confidence=0.3,
-                agent="claude",
-                rationale=f"error: {e}",
+                ticker=ticker, verdict="HOLD", confidence=0.3,
+                agent="claude", rationale=f"error: {e}",
             ))
 
     return verdicts
@@ -140,28 +309,19 @@ def _run_sequential(tickers: list[str], regime: KRRegime, snapshot: dict) -> lis
 def _run_parallel(tickers: list[str], regime: KRRegime, snapshot: dict) -> list[KRVerdict]:
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
-    client = _get_client()
     results: dict[str, KRVerdict] = {}
 
     def analyze_one(ticker: str) -> tuple[str, KRVerdict]:
         try:
-            prompt = _build_analysis_prompt(ticker, regime, snapshot)
-            response = client.messages.create(
-                model="claude-sonnet-4-6",
-                max_tokens=512,
-                system=_SYSTEM_PROMPT,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            raw_text = response.content[0].text
+            ticker_data = _fetch_ticker_data(ticker)
+            full_prompt = _SYSTEM_PROMPT + "\n\n" + _build_analysis_prompt(ticker, regime, snapshot, ticker_data)
+            raw_text = _call_claude_cli(full_prompt)
             return ticker, _parse_verdict(ticker, raw_text)
         except Exception as e:
             _logger.warning("run_claude parallel(%s) failed: %s", ticker, e)
             return ticker, KRVerdict(
-                ticker=ticker,
-                verdict="HOLD",
-                confidence=0.3,
-                agent="claude",
-                rationale=f"error: {e}",
+                ticker=ticker, verdict="HOLD", confidence=0.3,
+                agent="claude", rationale=f"error: {e}",
             )
 
     with ThreadPoolExecutor(max_workers=min(8, len(tickers))) as pool:
@@ -170,78 +330,130 @@ def _run_parallel(tickers: list[str], regime: KRRegime, snapshot: dict) -> list[
             ticker_key, verdict = future.result()
             results[ticker_key] = verdict
 
-    # Return in original order
     return [results[t] for t in tickers if t in results]
 
 
 # ── Prompt builder ─────────────────────────────────────────────────────────
 
-def _build_analysis_prompt(ticker: str, regime: KRRegime, snapshot: dict) -> str:
-    """Build concise analysis prompt for Claude."""
-    snapshot_str = str(snapshot)[:500]
+def _build_analysis_prompt(ticker: str, regime: KRRegime, snapshot: dict, ticker_data: dict) -> str:
+    """종목별 실제 데이터를 포함한 분석 프롬프트."""
     factors_str = str(regime.factors)[:300]
 
+    # Price section
+    price_lines: list[str] = []
+    if ticker_data:
+        cp = ticker_data.get("current_price")
+        if cp:
+            price_lines.append(f"현재가: {cp:,}원")
+        for label, key in [("SMA20", "sma20"), ("SMA60", "sma60"), ("SMA200", "sma200")]:
+            if key in ticker_data:
+                price_lines.append(f"{label}: {ticker_data[key]:,}원")
+        if "high_52w" in ticker_data and "low_52w" in ticker_data:
+            price_lines.append(f"52주 고가: {ticker_data['high_52w']:,}원 / 저가: {ticker_data['low_52w']:,}원")
+        if "momentum_1m_pct" in ticker_data:
+            price_lines.append(f"1개월 수익률: {ticker_data['momentum_1m_pct']:+.1f}%")
+        for label, key in [("PBR", "pbr"), ("PER", "per"), ("배당수익률", "div_yield")]:
+            if key in ticker_data:
+                price_lines.append(f"{label}: {ticker_data[key]}")
+        if "foreign_flow_20d" in ticker_data:
+            price_lines.append(f"외국인 20일 수급: {ticker_data['foreign_flow_20d']}")
+        if "short_ratio_pct" in ticker_data:
+            price_lines.append(f"공매도 잔고비율: {ticker_data['short_ratio_pct']}%")
+        # Technical indicators
+        if "rsi14" in ticker_data:
+            price_lines.append(f"RSI(14): {ticker_data['rsi14']} [{ticker_data.get('rsi_signal','')}]")
+        if "macd_cross" in ticker_data:
+            price_lines.append(f"MACD: hist={ticker_data.get('macd_hist',0):+.0f} [{ticker_data.get('macd_cross','')}]")
+        if "bb_pct" in ticker_data:
+            price_lines.append(f"볼린저밴드: 상단={ticker_data['bb_upper']:,} / 하단={ticker_data['bb_lower']:,} / 위치={ticker_data['bb_pct']}% [{ticker_data.get('bb_signal','')}]")
+    else:
+        price_lines.append("(종목 데이터 없음 — 시장 컨텍스트만으로 판단)")
+
+    price_section = "\n".join(price_lines)
+
     return (
-        f"Analyze KRX ticker: {ticker}\n\n"
-        f"Market regime: {regime.regime} (confidence: {regime.confidence:.0%})\n"
-        f"Regime factors: {factors_str}\n"
-        f"Market snapshot: {snapshot_str}\n\n"
-        f'Respond with ONLY valid JSON: {{"verdict": "BUY|HOLD|SELL|VETO", '
-        f'"confidence": 0.0-1.0, "rationale": "brief reason"}}'
+        f"KRX 종목 분석 요청: {ticker}\n\n"
+        f"시장 Regime: {regime.regime} (신뢰도: {regime.confidence:.0%})\n"
+        f"Regime 팩터: {factors_str}\n\n"
+        f"[종목 데이터]\n{price_section}\n\n"
+        f"위 데이터를 바탕으로 JSON 형식으로 분석 결과를 반환하세요."
     )
 
 
 # ── Response parser ────────────────────────────────────────────────────────
 
 def _parse_verdict(ticker: str, text: str) -> KRVerdict:
-    """Parse Claude response text → KRVerdict.
-
-    Handles:
-    - Clean JSON: {"verdict": "BUY", ...}
-    - JSON embedded in text/markdown
-    - Malformed or missing JSON → HOLD fallback
-    """
+    """Parse Claude response → KRVerdict (전체 필드 파싱)."""
     _VALID_VERDICTS = {"BUY", "HOLD", "SELL", "VETO"}
 
-    # Try to extract JSON from text
-    match = re.search(r'\{[^{}]+\}', text, re.DOTALL)
+    # Try full JSON first, then nested JSON
+    match = re.search(r'\{[\s\S]*\}', text, re.DOTALL)
     if not match:
-        _logger.debug("_parse_verdict(%s): no JSON found in response", ticker)
-        return KRVerdict(
-            ticker=ticker,
-            verdict="HOLD",
-            confidence=0.3,
-            agent="claude",
-            rationale="no json in response",
-        )
+        _logger.debug("_parse_verdict(%s): no JSON found", ticker)
+        return KRVerdict(ticker=ticker, verdict="HOLD", confidence=0.3,
+                         agent="claude", rationale="no json in response")
 
     try:
         data = json.loads(match.group())
-    except json.JSONDecodeError as e:
-        _logger.debug("_parse_verdict(%s): JSON decode error: %s", ticker, e)
-        return KRVerdict(
-            ticker=ticker,
-            verdict="HOLD",
-            confidence=0.3,
-            agent="claude",
-            rationale=f"json_parse_error: {e}",
-        )
+    except json.JSONDecodeError:
+        # Fallback: try first simple JSON object
+        simple = re.search(r'\{[^{}]+\}', text, re.DOTALL)
+        if simple:
+            try:
+                data = json.loads(simple.group())
+            except json.JSONDecodeError as e:
+                return KRVerdict(ticker=ticker, verdict="HOLD", confidence=0.3,
+                                 agent="claude", rationale=f"json_parse_error: {e}")
+        else:
+            return KRVerdict(ticker=ticker, verdict="HOLD", confidence=0.3,
+                             agent="claude", rationale="json_parse_error")
 
     verdict_str = str(data.get("verdict", "HOLD")).upper()
     if verdict_str not in _VALID_VERDICTS:
         verdict_str = "HOLD"
 
-    confidence = float(data.get("confidence", 0.5))
-    confidence = max(0.0, min(1.0, confidence))
+    confidence = max(0.0, min(1.0, float(data.get("confidence", 0.5))))
 
-    rationale = str(data.get("rationale", ""))
+    def _to_price(val) -> float | None:
+        try:
+            return float(val) if val is not None else None
+        except (TypeError, ValueError):
+            return None
+
+    def _to_str_list(val) -> list[str]:
+        if isinstance(val, list):
+            return [str(x) for x in val]
+        return []
 
     return KRVerdict(
         ticker=ticker,
         verdict=verdict_str,  # type: ignore[arg-type]
         confidence=confidence,
         agent="claude",
-        rationale=rationale,
+        rationale=str(data.get("rationale", "")),
         veto=verdict_str == "VETO",
-        veto_reason=rationale if verdict_str == "VETO" else "",
+        veto_reason=str(data.get("rationale", "")) if verdict_str == "VETO" else "",
+        # 가격 전략
+        entry_price_low=_to_price(data.get("entry_price_low")),
+        entry_price_high=_to_price(data.get("entry_price_high")),
+        target_price=_to_price(data.get("target_price")),
+        target_price_2=_to_price(data.get("target_price_2")),
+        stop_loss=_to_price(data.get("stop_loss")),
+        # 하위호환
+        entry_price=_to_price(data.get("entry_price_low") or data.get("entry_price")),
+        # 타이밍
+        buy_trigger=str(data.get("buy_trigger", "")),
+        sell_trigger=str(data.get("sell_trigger", "")),
+        current_status=str(data.get("current_status", "")),
+        # 시나리오
+        bull_case=str(data.get("bull_case", "")),
+        base_case=str(data.get("base_case", "")),
+        bear_case=str(data.get("bear_case", "")),
+        # 메타
+        company_name=str(data.get("company_name", "")),
+        sector=str(data.get("sector", "")),
+        risk_factors=_to_str_list(data.get("risk_factors", [])),
+        investment_thesis=str(data.get("investment_thesis", "")),
+        buy_factors=_to_str_list(data.get("buy_factors", [])),
+        sell_factors=_to_str_list(data.get("sell_factors", [])),
     )

@@ -23,11 +23,15 @@ import os
 from datetime import datetime
 from pathlib import Path
 
+from dotenv import load_dotenv
+load_dotenv(Path(__file__).parent.parent / ".env", override=True)
+
 from kr_research.models import KRAnalysisResult, KRRegime, KRVerdict
 from kr_research.regime import detect_kr_regime
 from kr_research.scorer import score_universe, select_top_n
 from kr_research.agent_runner import run_rules, run_claude
 from kr_research.consensus import aggregate
+from kr_research.report_generator import generate_report
 
 _logger = logging.getLogger("kr_research.analyzer")
 
@@ -134,12 +138,14 @@ def analyze_ticker(
 
     consensus = aggregate(verdicts, regime)
 
-    return KRAnalysisResult(
+    result = KRAnalysisResult(
         ticker=ticker,
         verdicts=verdicts,
         consensus=consensus,
         regime=regime,
     )
+    result._ticker_data = getattr(verdicts[0], "_ticker_data", {}) if verdicts else {}
+    return result
 
 
 def analyze_top_n(
@@ -244,16 +250,50 @@ def main() -> None:
     group.add_argument("--top-n", type=int, help="상위 N 종목 분석")
     parser.add_argument("--mode", choices=["rules", "claude"], default="rules")
     parser.add_argument("--no-save", action="store_true", help="state 저장 안함")
+    parser.add_argument("--no-report", action="store_true", help="리포트 파일 생성 안함")
     args = parser.parse_args()
 
     if args.ticker:
         result = analyze_ticker(args.ticker, mode=args.mode)
         if result:
-            print(f"\nTicker:    {result.ticker}")
-            print(f"Verdict:   {result.consensus.verdict}")
-            print(f"Confidence:{result.consensus.confidence:.0%}")
-            print(f"Regime:    {result.regime.regime}")
-            print(f"Rationale: {result.consensus.rationale}")
+            v = result.consensus
+            print(f"\n{'='*50}")
+            print(f"  {result.ticker}  |  {v.verdict}  |  신뢰도 {v.confidence:.0%}  |  Regime: {result.regime.regime}")
+            print(f"{'='*50}")
+
+            # 가격 정보
+            if any(x is not None for x in [v.entry_price, v.target_price, v.stop_loss]):
+                cp = None
+                # current price from ticker_data not stored on result — show from verdict fields
+                if v.entry_price:
+                    print(f"  매수 진입가:  {v.entry_price:>10,.0f}원")
+                if v.target_price:
+                    upside = ""
+                    if v.entry_price:
+                        upside = f"  (+{(v.target_price/v.entry_price-1)*100:.1f}%)"
+                    print(f"  목표가:      {v.target_price:>10,.0f}원{upside}")
+                if v.stop_loss:
+                    downside = ""
+                    if v.entry_price:
+                        downside = f"  ({(v.stop_loss/v.entry_price-1)*100:.1f}%)"
+                    print(f"  손절가:      {v.stop_loss:>10,.0f}원{downside}")
+                print()
+
+            print(f"  근거: {v.rationale}")
+            if v.buy_trigger:
+                print(f"\n  매수 타이밍: {v.buy_trigger}")
+            if v.sell_trigger:
+                print(f"  매도 타이밍: {v.sell_trigger}")
+            if v.risk_factors:
+                print(f"\n  리스크: " + " / ".join(v.risk_factors[:2]))
+            print(f"{'='*50}")
+
+            # 리포트 저장
+            if not args.no_report and args.mode == "claude":
+                td = getattr(result, "_ticker_data", {})
+                report_path = generate_report(result, td)
+                print(f"  리포트: {report_path}")
+            print()
         else:
             print("Analysis failed.")
             sys.exit(1)

@@ -128,7 +128,21 @@ def aggregate(verdicts: list[KRVerdict], regime: KRRegime) -> KRVerdict:
         final_verdict = "HOLD"
 
     agent_summary = ", ".join(f"{v.agent}:{v.verdict}" for v in verdicts)
-    rationale = f"consensus={final_score:.2f} [{agent_summary}]"
+    consensus_note = f"consensus={final_score:.2f} [{agent_summary}]"
+
+    # Use original rationale if single claude verdict; else append consensus note
+    if len(verdicts) == 1 and verdicts[0].agent == "claude":
+        rationale = verdicts[0].rationale
+    else:
+        claude_v = next((v for v in verdicts if v.agent == "claude"), None)
+        rationale = (claude_v.rationale + " | " + consensus_note) if claude_v else consensus_note
+
+    # Propagate all fields from claude verdict (highest priority source)
+    claude_v = next((v for v in verdicts if v.agent == "claude"), None)
+    src = claude_v or next(
+        (v for v in verdicts if v.entry_price_low is not None or v.target_price is not None),
+        None
+    )
 
     return KRVerdict(
         ticker=ticker,
@@ -136,4 +150,26 @@ def aggregate(verdicts: list[KRVerdict], regime: KRRegime) -> KRVerdict:
         confidence=round(confidence, 3),
         agent="consensus",
         rationale=rationale,
+        # 가격 전략
+        entry_price_low=src.entry_price_low if src else None,
+        entry_price_high=src.entry_price_high if src else None,
+        target_price=src.target_price if src else None,
+        target_price_2=src.target_price_2 if src else None,
+        stop_loss=src.stop_loss if src else None,
+        entry_price=src.entry_price if src else None,
+        # 타이밍
+        buy_trigger=src.buy_trigger if src else "",
+        sell_trigger=src.sell_trigger if src else "",
+        current_status=src.current_status if src else "",
+        # 시나리오
+        bull_case=src.bull_case if src else "",
+        base_case=src.base_case if src else "",
+        bear_case=src.bear_case if src else "",
+        # 메타
+        company_name=src.company_name if src else "",
+        sector=src.sector if src else "",
+        risk_factors=src.risk_factors if src else [],
+        investment_thesis=src.investment_thesis if src else "",
+        buy_factors=src.buy_factors if src else [],
+        sell_factors=src.sell_factors if src else [],
     )
