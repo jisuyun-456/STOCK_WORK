@@ -1,0 +1,13 @@
+{
+  "regime": "CRISIS",
+  "confidence": 1.0,
+  "factors": {
+    "kospi_trend": 1.0,
+    "vkospi": 5146.56,
+    "sox_trend": 1.0,
+    "us_regime": "BULL",
+    "us_vix": 20.0
+  },
+  "corrected_from": "CRISIS",
+  "timestamp": "2026-04-17T23:08:54.180301"
+}

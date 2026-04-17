@@ -1,12 +1,45 @@
 {
-  "account_total": 100420.97,
-  "last_updated": "2026-04-16T07:30:53.985647+00:00",
+  "account_total": 100422.52,
+  "last_updated": "2026-04-17T14:48:34.303360+00:00",
   "strategies": {
     "MOM": {
       "name": "Momentum",
-      "allocated": 15063.15,
-      "cash": 15063.15,
-      "positions": {},
+      "allocated": 15063.38,
+      "cash": 9037.88,
+      "positions": {
+        "APLD": {
+          "qty": 49.729613733,
+          "avg_entry": 30.29,
+          "current": 30.25,
+          "market_value": 1504.320815,
+          "unrealized_pl": -1.989185,
+          "unrealized_plpc": -0.00132
+        },
+        "ASML": {
+          "qty": 1.050650693,
+          "avg_entry": 1433.702,
+          "current": 1436.19,
+          "market_value": 1508.934019,
+          "unrealized_pl": 2.614019,
+          "unrealized_plpc": 0.00174
+        },
+        "RKLB": {
+          "qty": 18.747853142,
+          "avg_entry": 80.346266,
+          "current": 80.67,
+          "market_value": 1512.389313,
+          "unrealized_pl": 6.069318,
+          "unrealized_plpc": 0.00403
+        },
+        "WBD": {
+          "qty": 55.176556776,
+          "avg_entry": 27.3,
+          "current": 27.28,
+          "market_value": 1505.216469,
+          "unrealized_pl": -1.103531,
+          "unrealized_plpc": -0.00073
+        }
+      },
       "nav_history": [
         {
           "date": "2026-04-14",
@@ -18,25 +51,17 @@
         },
         {
           "date": "2026-04-16",
-          "nav": 15063.15
+          "nav": 15065.6
         }
       ],
-      "last_rebalance": "2026-04-13"
+      "last_rebalance": "2026-04-17"
     },
     "VAL": {
       "name": "Value Quality",
-      "allocated": 10042.1,
+      "allocated": 10042.25,
       "cash": 10042.1,
       "positions": {},
       "nav_history": [
-        {
-          "date": "2026-04-14",
-          "nav": 15000.0
-        },
-        {
-          "date": "2026-04-15",
-          "nav": 15063.17
-        },
         {
           "date": "2026-04-16",
           "nav": 10042.1
@@ -46,18 +71,10 @@
     },
     "QNT": {
       "name": "Quant Factor",
-      "allocated": 12552.62,
+      "allocated": 12552.82,
       "cash": 12552.62,
       "positions": {},
       "nav_history": [
-        {
-          "date": "2026-04-14",
-          "nav": 20000.0
-        },
-        {
-          "date": "2026-04-15",
-          "nav": 10042.11
-        },
         {
           "date": "2026-04-16",
           "nav": 12552.62
@@ -67,34 +84,10 @@
     },
     "LEV": {
       "name": "Leveraged ETF",
-      "allocated": 25105.24,
+      "allocated": 25105.63,
       "cash": 25105.24,
       "positions": {},
       "nav_history": [
-        {
-          "date": "2026-04-09",
-          "nav": 20000
-        },
-        {
-          "date": "2026-04-10",
-          "nav": 20000
-        },
-        {
-          "date": "2026-04-11",
-          "nav": 50000
-        },
-        {
-          "date": "2026-04-13",
-          "nav": 49993.51
-        },
-        {
-          "date": "2026-04-14",
-          "nav": 49991.54
-        },
-        {
-          "date": "2026-04-15",
-          "nav": 25105.28
-        },
         {
           "date": "2026-04-16",
           "nav": 25105.24
@@ -104,7 +97,7 @@
     },
     "LEV_ST": {
       "name": "Leveraged Short-Term",
-      "allocated": 25105.24,
+      "allocated": 25105.63,
       "cash": 25105.24,
       "positions": {},
       "nav_history": [
@@ -121,7 +114,7 @@
     },
     "GRW": {
       "name": "Growth Small Cap",
-      "allocated": 12552.62,
+      "allocated": 12552.82,
       "cash": 12552.62,
       "positions": {},
       "nav_history": [
@@ -138,17 +131,16 @@
     }
   },
   "inception": {
-    "total": 100420.97,
+    "total": 100000,
     "strategies": {
-      "MOM": 15063.15,
-      "VAL": 10042.1,
-      "QNT": 12552.62,
-      "LEV": 25105.24,
-      "LEV_ST": 25105.24,
-      "GRW": 12552.62
+      "MOM": 25000,
+      "VAL": 25000,
+      "QNT": 30000,
+      "LEV": 20000,
+      "LEV_ST": 0,
+      "GRW": 0
     },
-    "date": "2026-04-10",
-    "reset_date": "2026-04-16"
+    "date": "2026-04-10"
   },
   "alerts": [
     {

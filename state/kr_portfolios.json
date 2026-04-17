@@ -1,0 +1,13 @@
+{
+  "KR_PAPER": {
+    "cash_krw": 9352000,
+    "positions": {
+      "005930": {
+        "qty": 3,
+        "avg_price_krw": 216000
+      }
+    },
+    "nav_history": [],
+    "pending_settlement": []
+  }
+}

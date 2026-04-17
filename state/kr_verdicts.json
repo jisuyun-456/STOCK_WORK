@@ -1,81 +1,15 @@
 {
-  "005930": {
-    "symbol": "005930",
-    "name": "삼성전자",
-    "sector": "반도체",
-    "verdicts": [
-      {
-        "agent": "kr_equity_research",
-        "symbol": "005930",
-        "direction": "AGREE",
-        "confidence_delta": 0.13,
-        "conviction": "STRONG",
-        "reasoning": "PER 5.4 (저PER). 배당수익률 26.0%",
-        "key_metrics": {
-          "per": 5.3906107,
-          "pbr": null,
-          "dividend_yield": 0.26
-        },
-        "timestamp": "2026-04-17T09:45:17.190958"
-      },
-      {
-        "agent": "kr_macro_economist",
-        "symbol": "005930",
-        "direction": "CAUTION",
-        "confidence_delta": 0.0,
-        "conviction": "WEAK",
-        "reasoning": "KR Regime: NEUTRAL",
-        "key_metrics": {
-          "kr_regime": "NEUTRAL",
-          "bok_rate": 3.0,
-          "usdkrw_change": -1.7
-        },
-        "timestamp": "2026-04-17T09:45:17.191662"
-      },
-      {
-        "agent": "kr_sector_analyst",
-        "symbol": "005930",
-        "direction": "AGREE",
-        "confidence_delta": 0.06,
-        "conviction": "MODERATE",
-        "reasoning": "섹터: 반도체 (바이어스 +0.06). Regime NEUTRAL 기반 조정",
-        "key_metrics": {
-          "sector": "반도체",
-          "sector_bias": 0.06
-        },
-        "timestamp": "2026-04-17T09:45:17.192027"
-      },
-      {
-        "agent": "kr_technical_strategist",
-        "symbol": "005930",
-        "direction": "AGREE",
-        "confidence_delta": 0.01,
-        "conviction": "WEAK",
-        "reasoning": "MACD 골든크로스. BB%B 0.90 (밴드 상단)",
-        "key_metrics": {
-          "rsi14": 69.7,
-          "macd": 7856.07,
-          "sma200": 0,
-          "bb_pct_b": 0.901
-        },
-        "timestamp": "2026-04-17T09:45:17.602039"
-      }
-    ],
-    "regime": {
-      "regime": "NEUTRAL",
-      "kospi_vs_sma200": 1.4726,
-      "vkospi_level": 56.84,
-      "usdkrw_20d_change": -1.7,
-      "bok_rate": 3.0,
-      "reasoning": "KOSPI/SMA200=1.473, VKOSPI=56.8 - 중립 구간. BOK 기준금리 3.00%",
-      "semiconductor_export_yoy": null,
-      "timestamp": "2026-04-17T09:45:16.210240"
-    },
-    "weighted_score": 0.169,
-    "agree_count": 3,
-    "disagree_count": 0,
-    "caution_count": 1,
-    "summary": "STRONG BUY 신호 (분석 전용)",
-    "timestamp": "2026-04-17T09:45:17.602455"
-  }
+  "analyzed_at": "2026-04-17T21:26:47.095198",
+  "count": 1,
+  "verdicts": [
+    {
+      "ticker": "000660",
+      "company_name": "SK하이닉스",
+      "verdict": "HOLD",
+      "confidence": 0.72,
+      "rationale": "기술적으로 SMA20/60/200 완전 정배열, MACD hist +23,497 강세 유지. 단, RSI 70 과매수 경계 + BB% 88.3% 상단 근접으로 단기 5~10% 조정 가능성 내포. 52주 고가(1,155,000) 돌파 시 추가 상승 모멘텀 발생 여부가 핵심 분기점.",
+      "regime": "BULL",
+      "analyzed_at": "2026-04-17T21:26:45.646822"
+    }
+  ]
 }

@@ -42,6 +42,12 @@ def _next_seq(strategy: str, symbol: str, date_str: str) -> str:
                 if entry.get("order_id", "").startswith(prefix):
                     seq += 1
 
+    # Crash-safety: if a previous run submitted the order but was killed before
+    # writing to trade_log, Alpaca will still have the order. Bump seq until free.
+    from execution.alpaca_client import get_order_by_client_id
+    while get_order_by_client_id(f"{prefix}-{seq:03d}") is not None:
+        seq += 1
+
     return f"{prefix}-{seq:03d}"
 
 
@@ -78,6 +84,9 @@ def execute_signal(
         if trade_value <= 0:
             reason = "already_at_target" if existing_mv >= target_value else "insufficient_cash"
             return _log_result(order_id, signal, "skipped", reason=reason)
+
+        if trade_value < 1.0:
+            return _log_result(order_id, signal, "skipped", reason="below_min_notional")
 
         # For market orders, estimate qty from recent price
         # Alpaca will handle fractional shares
