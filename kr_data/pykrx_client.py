@@ -40,12 +40,11 @@ _KOSDAQ_TOP_N = 300
 # OHLCV
 # ---------------------------------------------------------------------------
 
-@retry_with_backoff
 def fetch_ohlcv_batch(tickers: list[str], start: str, end: str) -> pd.DataFrame:
     """Fetch OHLCV for multiple tickers via pykrx.
 
-    Returns DataFrame with MultiIndex (ticker, date), or empty DataFrame on
-    failure.  Uses a 1-hour disk cache.
+    Returns DataFrame with columns [ticker, <date-col>, ...], or empty
+    DataFrame on failure.  Uses a 1-hour disk cache.
 
     Args:
         tickers: List of KRX ticker codes, e.g. ["005930", "000660"].
@@ -74,8 +73,11 @@ def fetch_ohlcv_batch(tickers: list[str], start: str, end: str) -> pd.DataFrame:
         return pd.DataFrame()
 
     result = pd.concat(frames)
-    result = result.reset_index().rename(columns={"index": "date"})
-    result = result.set_index(["ticker", result.columns[0]])
+    # Reset index so the date column becomes a regular column.
+    # The date index from pykrx is typically named "날짜"; after reset_index()
+    # it becomes the first column.  Avoid fragile rename({"index": "date"}).
+    result = result.reset_index()
+    # "ticker" is always present as a regular column; keep as-is.
 
     _cache.set_df(cache_key, result)
     return result
@@ -86,6 +88,11 @@ def fetch_ohlcv_batch(tickers: list[str], start: str, end: str) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 @retry_with_backoff
+def _fetch_market_fundamental_raw(date: str, market: str) -> pd.DataFrame:
+    """Raw pykrx call — raises on failure so @retry_with_backoff can retry."""
+    return pykrx_stock.get_market_fundamental(date, market=market)
+
+
 def fetch_market_fundamental(date: str, market: str = "KOSPI") -> Optional[pd.DataFrame]:
     """Fetch PER, PBR, DIV for all stocks on *date* via pykrx.
 
@@ -104,12 +111,16 @@ def fetch_market_fundamental(date: str, market: str = "KOSPI") -> Optional[pd.Da
         return cached
 
     try:
-        df = pykrx_stock.get_market_fundamental(date, market=market)
+        df = _fetch_market_fundamental_raw(date, market)
         if df is None or df.empty:
-            _logger.warning("fetch_market_fundamental: empty result date=%s market=%s", date, market)
+            _logger.warning(
+                "fetch_market_fundamental: empty result date=%s market=%s", date, market
+            )
             return None
     except Exception as exc:
-        _logger.warning("fetch_market_fundamental: date=%s market=%s error=%s", date, market, exc)
+        _logger.warning(
+            "fetch_market_fundamental: date=%s market=%s error=%s", date, market, exc
+        )
         return None
 
     _cache.set_df(cache_key, df)
@@ -121,6 +132,11 @@ def fetch_market_fundamental(date: str, market: str = "KOSPI") -> Optional[pd.Da
 # ---------------------------------------------------------------------------
 
 @retry_with_backoff
+def _fetch_investor_flow_raw(ticker: str, start: str, end: str) -> pd.DataFrame:
+    """Raw pykrx call — raises on failure so @retry_with_backoff can retry."""
+    return pykrx_stock.get_market_trading_volume_by_investor(start, end, ticker)
+
+
 def fetch_investor_flow(ticker: str, start: str, end: str) -> Optional[pd.DataFrame]:
     """Fetch institutional/foreign net-buy data via pykrx.
 
@@ -143,7 +159,7 @@ def fetch_investor_flow(ticker: str, start: str, end: str) -> Optional[pd.DataFr
         return cached
 
     try:
-        df = pykrx_stock.get_market_trading_volume_by_investor(start, end, ticker)
+        df = _fetch_investor_flow_raw(ticker, start, end)
         if df is None or df.empty:
             _logger.warning("fetch_investor_flow: empty result ticker=%s", ticker)
             return None
@@ -160,6 +176,11 @@ def fetch_investor_flow(ticker: str, start: str, end: str) -> Optional[pd.DataFr
 # ---------------------------------------------------------------------------
 
 @retry_with_backoff
+def _fetch_shorting_balance_raw(ticker: str, start: str, end: str) -> pd.DataFrame:
+    """Raw pykrx call — raises on failure so @retry_with_backoff can retry."""
+    return pykrx_stock.get_shorting_balance(start, end, ticker)
+
+
 def fetch_shorting_balance(ticker: str, start: str, end: str) -> Optional[pd.DataFrame]:
     """Fetch short-selling balance via pykrx.
 
@@ -181,7 +202,7 @@ def fetch_shorting_balance(ticker: str, start: str, end: str) -> Optional[pd.Dat
         return cached
 
     try:
-        df = pykrx_stock.get_shorting_balance(start, end, ticker)
+        df = _fetch_shorting_balance_raw(ticker, start, end)
         if df is None or df.empty:
             _logger.warning("fetch_shorting_balance: empty result ticker=%s", ticker)
             return None
@@ -201,6 +222,11 @@ _VKOSPI_TICKER = "1163"
 
 
 @retry_with_backoff
+def _fetch_vkospi_raw(start: str, end: str) -> pd.DataFrame:
+    """Raw pykrx call — raises on failure so @retry_with_backoff can retry."""
+    return pykrx_stock.get_index_ohlcv(start, end, _VKOSPI_TICKER)
+
+
 def fetch_vkospi(start: str, end: str) -> Optional[pd.DataFrame]:
     """Fetch VKOSPI index data from pykrx.
 
@@ -223,12 +249,14 @@ def fetch_vkospi(start: str, end: str) -> Optional[pd.DataFrame]:
         return cached
 
     try:
-        df = pykrx_stock.get_index_ohlcv(start, end, _VKOSPI_TICKER)
+        df = _fetch_vkospi_raw(start, end)
         if df is None or df.empty:
             _logger.warning("fetch_vkospi: empty result start=%s end=%s", start, end)
             return None
     except Exception as exc:
-        _logger.warning("fetch_vkospi: pykrx error=%s — returning None (no estimated fallback)", exc)
+        _logger.warning(
+            "fetch_vkospi: pykrx error=%s — returning None (no estimated fallback)", exc
+        )
         return None
 
     # Rename "종가" → "Close" if present; otherwise keep existing columns.
@@ -236,7 +264,7 @@ def fetch_vkospi(start: str, end: str) -> Optional[pd.DataFrame]:
         df = df.rename(columns={"종가": "Close"})
     elif "Close" not in df.columns:
         # pykrx may return English column names depending on version.
-        pass
+        _logger.warning("fetch_vkospi: unexpected columns %s", df.columns.tolist())
 
     # Attach provenance metadata — HIGH #2 guarantee.
     df = df.copy()
@@ -251,6 +279,11 @@ def fetch_vkospi(start: str, end: str) -> Optional[pd.DataFrame]:
 # ---------------------------------------------------------------------------
 
 @retry_with_backoff
+def _fetch_sector_index_ohlcv_raw(sector_code: str, start: str, end: str) -> pd.DataFrame:
+    """Raw pykrx call — raises on failure so @retry_with_backoff can retry."""
+    return pykrx_stock.get_index_ohlcv(start, end, sector_code)
+
+
 def fetch_sector_index_ohlcv(sector_code: str, start: str, end: str) -> Optional[pd.DataFrame]:
     """Fetch sector index OHLCV via pykrx.
 
@@ -269,7 +302,7 @@ def fetch_sector_index_ohlcv(sector_code: str, start: str, end: str) -> Optional
         return cached
 
     try:
-        df = pykrx_stock.get_index_ohlcv(start, end, sector_code)
+        df = _fetch_sector_index_ohlcv_raw(sector_code, start, end)
         if df is None or df.empty:
             _logger.warning("fetch_sector_index_ohlcv: empty result code=%s", sector_code)
             return None
@@ -284,6 +317,12 @@ def fetch_sector_index_ohlcv(sector_code: str, start: str, end: str) -> Optional
 # ---------------------------------------------------------------------------
 # Universe builder (replaces manual kr_universe.json curation)
 # ---------------------------------------------------------------------------
+
+@retry_with_backoff
+def _fetch_market_cap_raw(date: str, market: str) -> pd.DataFrame:
+    """Raw pykrx call — raises on failure so @retry_with_backoff can retry."""
+    return pykrx_stock.get_market_cap(date, market=market)
+
 
 def build_universe(
     market: str = "ALL",
@@ -327,7 +366,7 @@ def build_universe(
 
 def _fetch_kospi_universe(today: str, min_mcap_krw: int) -> list[dict]:
     try:
-        df = pykrx_stock.get_market_cap(today, market="KOSPI")
+        df = _fetch_market_cap_raw(today, "KOSPI")
         if df is None or df.empty:
             return []
         filtered = df[df["시가총액"] >= min_mcap_krw]
@@ -339,7 +378,7 @@ def _fetch_kospi_universe(today: str, min_mcap_krw: int) -> list[dict]:
 
 def _fetch_kosdaq_universe(today: str) -> list[dict]:
     try:
-        df = pykrx_stock.get_market_cap(today, market="KOSDAQ")
+        df = _fetch_market_cap_raw(today, "KOSDAQ")
         if df is None or df.empty:
             return []
         top300 = df.nlargest(_KOSDAQ_TOP_N, "시가총액")
