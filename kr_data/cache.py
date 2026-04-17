@@ -26,11 +26,23 @@ class KRCache:
         self._dir.mkdir(parents=True, exist_ok=True)
 
     # ------------------------------------------------------------------
+    # Key sanitisation — prevents path traversal attacks
+    # ------------------------------------------------------------------
+
+    def _safe_key(self, key: str) -> str:
+        """Return a filesystem-safe version of *key*.
+
+        Compound keys like "pykrx/ohlcv/005930" are flattened to
+        "pykrx_ohlcv_005930" so they stay inside self._dir.
+        """
+        return key.replace("/", "_").replace("\\", "_").replace("..", "__")
+
+    # ------------------------------------------------------------------
     # JSON cache
     # ------------------------------------------------------------------
 
     def _json_path(self, key: str) -> Path:
-        return self._dir / f"{key}.json"
+        return self._dir / f"{self._safe_key(key)}.json"
 
     def get(self, key: str, ttl_seconds: int) -> Optional[dict]:
         """Return cached value if not expired, else None.
@@ -50,14 +62,14 @@ class KRCache:
             _logger.warning("cache read error for %s: %s", key, exc)
             return None
 
-        cached_at: float = data.get("_cached_at", 0.0)
+        cached_at: float = data.get("__kr_cached_at__", 0.0)
         age = time.time() - cached_at
         if age >= ttl_seconds:
             _logger.debug("cache expired (age=%.1fs ttl=%ds): %s", age, ttl_seconds, key)
             return None
 
         _logger.debug("cache hit: %s", key)
-        return {k: v for k, v in data.items() if k != "_cached_at"}
+        return data.get("__data__")
 
     def set(self, key: str, value: dict) -> None:
         """Save value as JSON to cache/kr/{key}.json with timestamp.
@@ -67,8 +79,7 @@ class KRCache:
             value: Dict to cache. Must be JSON-serialisable.
         """
         path = self._json_path(key)
-        payload = dict(value)
-        payload["_cached_at"] = time.time()
+        payload = {"__data__": value, "__kr_cached_at__": time.time()}
         try:
             path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
             _logger.debug("cache set: %s", key)
@@ -80,10 +91,10 @@ class KRCache:
     # ------------------------------------------------------------------
 
     def _parquet_path(self, key: str) -> Path:
-        return self._dir / f"{key}.parquet"
+        return self._dir / f"{self._safe_key(key)}.parquet"
 
     def _meta_path(self, key: str) -> Path:
-        return self._dir / f"{key}.meta.json"
+        return self._dir / f"{self._safe_key(key)}.meta.json"
 
     def get_df(self, key: str, ttl_seconds: int) -> Optional[pd.DataFrame]:
         """Return cached DataFrame if not expired, else None.

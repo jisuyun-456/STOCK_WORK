@@ -1,6 +1,6 @@
 """Tests for kr_data.retry.retry_with_backoff"""
 import pytest
-from unittest.mock import MagicMock, call
+from unittest.mock import MagicMock, call, patch
 
 from kr_data.retry import retry_with_backoff
 
@@ -18,7 +18,8 @@ def test_retry_succeeds_on_first_try():
     assert mock_fn.call_count == 1
 
 
-def test_retry_retries_three_times():
+@patch("tenacity.nap.time.sleep")
+def test_retry_retries_three_times(mock_sleep):
     """Function raises on first 2 calls, succeeds on 3rd → called exactly 3 times."""
     call_count = {"n": 0}
 
@@ -34,7 +35,8 @@ def test_retry_retries_three_times():
     assert call_count["n"] == 3
 
 
-def test_retry_reraises_after_exhaustion():
+@patch("tenacity.nap.time.sleep")
+def test_retry_reraises_after_exhaustion(mock_sleep):
     """Function always raises → exception propagates after 3 attempts."""
     call_count = {"n": 0}
 
