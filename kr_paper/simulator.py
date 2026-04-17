@@ -9,6 +9,8 @@ def business_days_add(start: date, n: int) -> date:
     Add n business days to start date.
     Business days = weekdays only (Mon-Fri). No Korean holiday adjustment.
     Saturday=5, Sunday=6 in weekday() notation.
+    If n=0, returns start unchanged (including weekends).
+    Callers are responsible for ensuring start is a business day if needed.
     """
     current = start
     added = 0
@@ -64,7 +66,7 @@ def simulate_sell(
     Returns a dict with proceeds and tax breakdown.
     """
     gross_proceeds_krw = qty * price_krw
-    trading_tax_krw = int(gross_proceeds_krw * KR_TRADING_TAX)
+    trading_tax_krw = round(gross_proceeds_krw * KR_TRADING_TAX)
     capital_gains_tax_krw = 0  # 유예 중
     net_proceeds_krw = gross_proceeds_krw - trading_tax_krw
     return {
@@ -88,7 +90,7 @@ def apply_dividend(ticker: str, gross_dividend_krw: int) -> dict:
     Calculate dividend after tax (배당소득세 15.4%).
     Returns a dict with gross, tax, and net dividend amounts.
     """
-    tax_krw = int(gross_dividend_krw * KR_DIVIDEND_TAX)
+    tax_krw = round(gross_dividend_krw * KR_DIVIDEND_TAX)
     net_dividend_krw = gross_dividend_krw - tax_krw
     return {
         "ticker": ticker,
