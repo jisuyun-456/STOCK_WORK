@@ -140,20 +140,26 @@ def settle_due(today: str) -> list[dict]:
 
 
 def compute_nav(prices: dict[str, int]) -> int:
-    """NAV = cash_krw + sum(qty * current_price) for each position.
+    """NAV = cash_krw - pending_buy_costs + sum(qty * current_price).
 
+    Subtracts pending BUY settlement costs so that T+2 lag doesn't inflate
+    NAV (position is already booked but cash hasn't been deducted yet).
     Falls back to avg_price_krw when ticker not in prices.
     """
     state = load()
     kr = state["KR_PAPER"]
     cash = kr["cash_krw"]
     positions: dict = kr["positions"]
+    pending: list[dict] = kr.get("pending_settlement", [])
 
     market_value = sum(
         pos["qty"] * prices.get(ticker, pos["avg_price_krw"])
         for ticker, pos in positions.items()
     )
-    return cash + market_value
+    pending_buy_cost = sum(
+        r["net_cost_krw"] for r in pending if r.get("side", "").upper() == "BUY"
+    )
+    return cash + market_value - pending_buy_cost
 
 
 def append_nav_history(date: str, nav: int) -> None:

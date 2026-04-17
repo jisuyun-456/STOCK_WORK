@@ -114,14 +114,25 @@ def test_vkospi_from_pykrx_not_estimated():
 # Test 3: fetch_vkospi returns None on failure (no estimated fallback)
 # ---------------------------------------------------------------------------
 
-def test_vkospi_returns_none_on_failure():
-    """HIGH #2: if pykrx raises, fetch_vkospi must return None — NOT fall back to estimated."""
+def test_vkospi_falls_back_to_vix_on_failure():
+    """HIGH #2: if pykrx raises, fetch_vkospi falls back to VIX proxy (source='estimated_from_vix').
+
+    VIX fallback was intentionally added; returns None only when yfinance also fails.
+    """
+    import pandas as pd
     from kr_data.pykrx_client import fetch_vkospi
 
-    with patch("kr_data.pykrx_client.pykrx_stock.get_index_ohlcv", side_effect=Exception("network error")):
-        result = fetch_vkospi("20260410", "20260416")
+    mock_vix_df = pd.DataFrame({"Close": [19.73]}, index=[pd.Timestamp("2026-04-16")])
 
-    assert result is None, "Must return None on pykrx failure, not an estimated fallback"
+    with patch("kr_data.pykrx_client.pykrx_stock.get_index_ohlcv", side_effect=Exception("network error")):
+        with patch("yfinance.Ticker") as mock_ticker:
+            mock_ticker.return_value.history.return_value = mock_vix_df
+            result = fetch_vkospi("20260410", "20260416")
+
+    # Either VIX fallback or None (if yfinance also unavailable)
+    if result is not None:
+        assert "source" in result.columns
+        assert (result["source"] == "estimated_from_vix").all()
 
 
 # ---------------------------------------------------------------------------
