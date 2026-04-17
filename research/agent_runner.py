@@ -443,6 +443,36 @@ def _run_data_driven_agents(
         verdicts.append(_verdict("equity_research", "AGREE", +0.05, "WEAK",
             f"내부자 순매수 {_insider_net}건 (30일) — 경영진 신뢰.", metrics_ins))
 
+    # ── 3d. equity_research (SEC Form 4: 달러 기준 내부자 매수) ──────────────
+    _form4_info = _fund.get("form4", {}).get(sym, {})
+    _form4_net = _form4_info.get("net_purchase_usd", 0)
+    _form4_max = _form4_info.get("max_single_usd", 0)
+    _form4_days = _form4_info.get("days_since_latest", 99)
+    _is_buy = direction.lower() == "buy"
+
+    if _form4_max >= 500_000 and _is_buy and _form4_days <= 7:
+        metrics_f4 = {
+            "form4_max_single_usd": _form4_max,
+            "form4_days_ago": _form4_days,
+            "form4_titles": _form4_info.get("titles", []),
+        }
+        verdicts.append(_verdict("equity_research", "AGREE", +0.12, "STRONG",
+            f"SEC Form 4: 임원 대규모 자사주 매수 ${_form4_max:,.0f} ({_form4_days}일 전). 강한 인사이더 신뢰.",
+            metrics_f4))
+    elif _form4_net >= 100_000 and _is_buy and _form4_days <= 14:
+        metrics_f4 = {
+            "form4_net_usd": _form4_net,
+            "form4_days_ago": _form4_days,
+        }
+        verdicts.append(_verdict("equity_research", "AGREE", +0.07, "MODERATE",
+            f"SEC Form 4: 임원 순매수 ${_form4_net:,.0f} ({_form4_days}일 전).",
+            metrics_f4))
+    elif _form4_net <= -100_000 and _is_buy:
+        metrics_f4 = {"form4_net_usd": _form4_net}
+        verdicts.append(_verdict("equity_research", "DISAGREE", -0.08, "MODERATE",
+            f"SEC Form 4: 임원 순매도 ${abs(_form4_net):,.0f} -- 경영진 신뢰 저하.",
+            metrics_f4))
+
     # ── 4. macro_economist ──────────────────────────────────────────────────
     macro_news = market_data.get("news", {}).get("_MACRO", [])
     macro_neg = sum(1 for n in macro_news[:10] if any(

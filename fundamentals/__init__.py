@@ -32,6 +32,7 @@ from .analyst import get_analyst_consensus
 from .earnings import get_earnings_risk
 from .economic import get_economic_blackouts
 from .insider import get_insider_signals
+from .sec_form4 import get_form4_signals
 
 
 def collect_all(symbols: list[str]) -> dict:
@@ -43,6 +44,7 @@ def collect_all(symbols: list[str]) -> dict:
             "economic_blackout": {"FOMC": days, "CPI": days, ...},
             "analyst": {symbol: {"rec_mean": ..., "target_price": ..., "analyst_count": ...}},
             "insider": {symbol: {"buy_30d": ..., "sell_30d": ..., "net_30d": ...}},
+            "form4": {symbol: {"net_purchase_usd": ..., "max_single_usd": ..., ...}},
         }
     """
     print(f"  [fundamentals] 수집 시작: {len(symbols)} 종목")
@@ -51,6 +53,7 @@ def collect_all(symbols: list[str]) -> dict:
     economic = get_economic_blackouts()
     analyst = get_analyst_consensus(symbols)
     insider = get_insider_signals(symbols)
+    form4 = get_form4_signals(symbols)
 
     # 블랙아웃 경고 출력
     for event, days in economic.items():
@@ -62,9 +65,19 @@ def collect_all(symbols: list[str]) -> dict:
         if days <= 3:
             print(f"  ⚠️  {sym} 실적발표 D-{days} — 포지션 50% 축소 권고")
 
+    # Form 4 대규모 매수 알림
+    for sym, f4 in form4.items():
+        if f4.get("max_single_usd", 0) >= 500_000:
+            titles = ", ".join(f4.get("titles", [])[:2]) or "임원"
+            print(
+                f"  📋 {sym} Form 4: {titles} 자사주 ${f4['max_single_usd']:,.0f} 매수 "
+                f"({f4.get('days_since_latest', 99)}일 전)"
+            )
+
     print(
         f"  [fundamentals] 완료: earnings={len(earnings)}종목, "
-        f"economic={list(economic.keys())}, analyst={len(analyst)}종목, insider={len(insider)}종목"
+        f"economic={list(economic.keys())}, analyst={len(analyst)}종목, "
+        f"insider={len(insider)}종목, form4={len(form4)}종목"
     )
 
     return {
@@ -72,4 +85,5 @@ def collect_all(symbols: list[str]) -> dict:
         "economic_blackout": economic,
         "analyst": analyst,
         "insider": insider,
+        "form4": form4,
     }
