@@ -534,6 +534,7 @@ def generate_report(result: KRAnalysisResult, ticker_data: dict | None = None) -
     <button class="nav-tab active" onclick="show('summary',this)">요약</button>
     <button class="nav-tab" onclick="show('market',this)">시장</button>
     <button class="nav-tab" onclick="show('tech',this)">기술</button>
+    <button class="nav-tab" onclick="show('candles',this)">캔들</button>
     <button class="nav-tab" onclick="show('trade',this)">매매전략</button>
     <button class="nav-tab" onclick="show('scenario',this)">시나리오</button>
     <button class="nav-tab" onclick="show('risk',this)">리스크</button>
@@ -649,6 +650,18 @@ def generate_report(result: KRAnalysisResult, ticker_data: dict | None = None) -
   <div class="section-title">가격 레벨</div>
   {_price_ladder_html(td, v)}
   {f'<div style="margin-top:12px;padding:12px;background:var(--cream2);border-radius:8px;font-size:12.5px;color:var(--ink2)">{v.current_status}</div>' if v.current_status else ''}
+</div>
+</div>
+
+<!-- ═══ PANEL: 캔들 ═══ -->
+<div id="panel-candles" class="panel">
+<div class="main">
+  <div class="section-title">캔들스틱 차트 (최근 60일)</div>
+  <div class="card" style="padding:16px 8px">
+    <canvas id="candleCanvas" height="380" style="width:100%;display:block"></canvas>
+  </div>
+  <div class="section-title" style="margin-top:20px">감지된 패턴</div>
+  <div class="card" id="patternList" style="padding:14px 16px">패턴 없음</div>
 </div>
 </div>
 
@@ -780,6 +793,100 @@ function show(id, btn) {{
       initRegime();
     }}, 80);
   }}
+  if (id === 'candles') setTimeout(initCandles, 80);
+}}
+function initCandles() {{
+  const canvas = document.getElementById('candleCanvas');
+  if (!canvas || canvas._done) return; canvas._done = true;
+  const ohlcv = {json.dumps(td.get('ohlcv_60d', []))};
+  const patterns = {json.dumps(td.get('candle_patterns', []))};
+  if (!ohlcv.length) {{
+    const msg = document.createElement('p');
+    msg.style.cssText = 'color:var(--ink3);padding:16px';
+    msg.textContent = 'OHLCV \ub370\uc774\ud130 \uc5c6\uc74c';
+    canvas.parentElement.replaceChild(msg, canvas);
+    return;
+  }}
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth; const H = canvas.height;
+  canvas.width = W;
+  const PAD_L = 8, PAD_R = 8, PAD_TOP = 20, VOL_H = Math.floor(H * 0.18);
+  const chartH = H - PAD_TOP - VOL_H - 4;
+  const n = ohlcv.length;
+  const barW = Math.max(3, Math.floor((W - PAD_L - PAD_R) / n) - 1);
+  const gap = Math.floor((W - PAD_L - PAD_R) / n);
+  const highs = ohlcv.map(r => r.h), lows = ohlcv.map(r => r.l);
+  const priceMax = Math.max(...highs), priceMin = Math.min(...lows);
+  const priceRange = priceMax - priceMin || 1;
+  const vols = ohlcv.map(r => r.v), volMax = Math.max(...vols) || 1;
+  const py = p => PAD_TOP + chartH - ((p - priceMin) / priceRange) * chartH;
+  const vy = v => H - Math.floor((v / volMax) * VOL_H);
+  const patDates = new Set(patterns.map(p => p.date));
+  for (let i = 0; i < n; i++) {{
+    const r = ohlcv[i];
+    const x = PAD_L + i * gap + Math.floor(gap / 2);
+    const isBull = r.c >= r.o;
+    const color = isBull ? '#5CB87A' : '#E8806A';
+    ctx.strokeStyle = color; ctx.fillStyle = color;
+    ctx.beginPath(); ctx.lineWidth = 1;
+    ctx.moveTo(x, py(r.h)); ctx.lineTo(x, py(r.l)); ctx.stroke();
+    const bodyTop = py(Math.max(r.o, r.c));
+    const bodyBot = py(Math.min(r.o, r.c));
+    const bodyH = Math.max(1, bodyBot - bodyTop);
+    const bx = x - Math.floor(barW / 2);
+    ctx.fillRect(bx, bodyTop, barW, bodyH);
+    ctx.globalAlpha = 0.35;
+    ctx.fillRect(bx, vy(r.v), barW, H - vy(r.v));
+    ctx.globalAlpha = 1.0;
+    if (i % 10 === 0 && r.d) {{
+      ctx.fillStyle = '#8A857C'; ctx.font = '9px IBM Plex Mono,monospace';
+      ctx.fillText(r.d.slice(5), x - 10, H - 2);
+    }}
+    if (patDates.has(r.d)) {{
+      const pat = patterns.find(p => p.date === r.d);
+      if (pat) {{
+        ctx.font = 'bold 11px sans-serif';
+        if (pat.signal === 'buy') {{ ctx.fillStyle = '#1E7A45'; ctx.fillText('\u25b2', x - 4, py(r.l) + 14); }}
+        else if (pat.signal === 'sell') {{ ctx.fillStyle = '#C8523A'; ctx.fillText('\u25bc', x - 4, py(r.h) - 4); }}
+        else {{ ctx.fillStyle = '#C9842A'; ctx.fillText('\u25c6', x - 4, py(r.l) + 14); }}
+      }}
+    }}
+  }}
+  const pl = document.getElementById('patternList');
+  while (pl.firstChild) pl.removeChild(pl.firstChild);
+  if (patterns.length === 0) {{ pl.textContent = '\uac10\uc9c0\ub41c \ud328\ud134 \uc5c6\uc74c (\ucd5c\uadfc 60\uc77c)'; return; }}
+  const tbl = document.createElement('table');
+  tbl.style.cssText = 'width:100%;border-collapse:collapse;font-size:12.5px';
+  const hdrRow = tbl.insertRow();
+  hdrRow.style.background = '#1A1814'; hdrRow.style.color = '#FAF9F6';
+  ['\ub0a0\uc9dc','\ud328\ud134','\uc2e0\ud638','\uc124\uba85'].forEach(h => {{
+    const th = document.createElement('th');
+    th.textContent = h;
+    th.style.cssText = 'padding:7px 12px;text-align:left;font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:.06em;font-weight:500';
+    hdrRow.appendChild(th);
+  }});
+  patterns.slice().reverse().forEach(p => {{
+    const row = tbl.insertRow();
+    const signalColor = p.signal === 'buy' ? '#1E7A45' : p.signal === 'sell' ? '#C8523A' : '#C9842A';
+    const signalBg = p.signal === 'buy' ? '#E8F5EE' : p.signal === 'sell' ? '#FBF0ED' : '#FBF3E2';
+    const signalLabel = p.signal === 'buy' ? '\ub9e4\uc218' : p.signal === 'sell' ? '\ub9e4\ub3c4' : '\uc911\ub9bd';
+    const cellStyle = 'padding:9px 12px;border-bottom:1px solid #E8E3DB;color:#4A4540';
+    [p.date, p.pattern, p.desc].forEach((txt, ci) => {{
+      const td2 = row.insertCell();
+      td2.style.cssText = cellStyle;
+      if (ci === 1) {{
+        const span = document.createElement('span');
+        span.textContent = signalLabel;
+        span.style.cssText = 'display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-family:IBM Plex Mono,monospace;background:' + signalBg + ';color:' + signalColor;
+        const nameNode = document.createTextNode(p.pattern + ' ');
+        td2.appendChild(nameNode);
+        td2.appendChild(span);
+      }} else {{
+        td2.textContent = txt;
+      }}
+    }});
+  }});
+  pl.appendChild(tbl);
 }}
 function initRegime() {{
   const c = document.getElementById('regimeChart');

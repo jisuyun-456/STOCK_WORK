@@ -121,9 +121,35 @@ def _fetch_ticker_data(ticker: str) -> dict:
 
         # ── Technical indicators from OHLCV ──────────────────────────────
         if ohlcv is not None and not ohlcv.empty:
-            closes = ohlcv[ohlcv["ticker"] == ticker]["종가"] if "ticker" in ohlcv.columns else ohlcv["종가"]
+            tkr_ohlcv = ohlcv[ohlcv["ticker"] == ticker] if "ticker" in ohlcv.columns else ohlcv
+            closes = tkr_ohlcv["종가"]
             if len(closes) >= 14:
                 result.update(_calc_technicals(closes))
+
+            # OHLCV 60일 보존 + 캔들 패턴 감지
+            if not tkr_ohlcv.empty:
+                last60 = tkr_ohlcv.tail(60).copy()
+                date_col = next(
+                    (c for c in last60.columns if str(c) in ("날짜", "date", "Date")), None
+                )
+                if date_col is None:
+                    last60 = last60.reset_index()
+                    date_col = str(last60.columns[0])
+                rows = []
+                for _, row in last60.iterrows():
+                    try:
+                        rows.append({
+                            "d": str(row[date_col])[:10],
+                            "o": int(row.get("시가", row.get("종가", 0))),
+                            "h": int(row.get("고가", row.get("종가", 0))),
+                            "l": int(row.get("저가", row.get("종가", 0))),
+                            "c": int(row.get("종가", 0)),
+                            "v": int(row.get("거래량", 0)),
+                        })
+                    except Exception:
+                        pass
+                result["ohlcv_60d"] = rows
+                result["candle_patterns"] = _detect_candle_patterns(rows)
 
         return result
 
@@ -209,6 +235,73 @@ def _calc_technicals(closes) -> dict:
             out["bb_signal"] = "밴드 중간"
 
     return out
+
+
+def _detect_candle_patterns(rows: list[dict]) -> list[dict]:
+    """망치형/유성형/도지/상승장악형/하락장악형/새벽별/석별형 감지 (최근 8개 반환)."""
+    patterns: list[dict] = []
+    n = len(rows)
+    for i in range(2, n):
+        o, h, l, c = rows[i]["o"], rows[i]["h"], rows[i]["l"], rows[i]["c"]
+        d = rows[i]["d"]
+        total = h - l
+        if total == 0:
+            continue
+        body = abs(c - o)
+        upper_wick = h - max(c, o)
+        lower_wick = min(c, o) - l
+        body_pct = body / total
+        is_bull = c >= o
+
+        # Doji
+        if body_pct < 0.1:
+            patterns.append({"date": d, "pattern": "도지", "signal": "neutral",
+                              "desc": "매수/매도 균형 — 방향 전환 대기"})
+            continue
+
+        # Hammer: long lower wick ≥ 2×body, after downtrend
+        if lower_wick >= 2 * body and upper_wick <= body * 0.5:
+            if rows[i - 1]["c"] < rows[i - 2]["c"]:
+                patterns.append({"date": d, "pattern": "망치형", "signal": "buy",
+                                  "desc": "하락 후 저점 반전 — 매수 신호"})
+            continue
+
+        # Shooting Star: long upper wick ≥ 2×body, after uptrend
+        if upper_wick >= 2 * body and lower_wick <= body * 0.5:
+            if rows[i - 1]["c"] > rows[i - 2]["c"]:
+                patterns.append({"date": d, "pattern": "유성형", "signal": "sell",
+                                  "desc": "상승 후 고점 거부 — 매도 경계"})
+            continue
+
+        # Bullish Engulfing
+        po, pc = rows[i - 1]["o"], rows[i - 1]["c"]
+        if is_bull and pc < po and o <= pc and c >= po:
+            patterns.append({"date": d, "pattern": "상승장악형", "signal": "buy",
+                              "desc": "전일 음봉 완전 포함 — 강한 매수 전환"})
+            continue
+
+        # Bearish Engulfing
+        if not is_bull and pc > po and o >= pc and c <= po:
+            patterns.append({"date": d, "pattern": "하락장악형", "signal": "sell",
+                              "desc": "전일 양봉 완전 포함 — 강한 매도 전환"})
+            continue
+
+        # Morning Star: bearish → small body → bullish
+        b0 = abs(rows[i - 2]["c"] - rows[i - 2]["o"])
+        b1 = abs(rows[i - 1]["c"] - rows[i - 1]["o"])
+        if (rows[i - 2]["c"] < rows[i - 2]["o"] and b1 < b0 * 0.4
+                and is_bull and body > b0 * 0.5):
+            patterns.append({"date": d, "pattern": "새벽별", "signal": "buy",
+                              "desc": "3캔들 바닥 반전 — 강력 매수"})
+            continue
+
+        # Evening Star: bullish → small body → bearish
+        if (rows[i - 2]["c"] > rows[i - 2]["o"] and b1 < b0 * 0.4
+                and not is_bull and body > b0 * 0.5):
+            patterns.append({"date": d, "pattern": "석별형", "signal": "sell",
+                              "desc": "3캔들 천장 반전 — 경계 신호"})
+
+    return patterns[-8:]
 
 
 # ── Public data API (for analyze-kr command) ──────────────────────────────
