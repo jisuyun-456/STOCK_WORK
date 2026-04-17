@@ -73,11 +73,27 @@ def check_trailing_stop(
 
 
 def check_strategy_mdd(nav_history: list[dict], threshold: float = STRATEGY_MDD_THRESHOLD) -> tuple[bool, str]:
-    """Check if a strategy's NAV has hit MDD threshold from its peak."""
+    """Check if a strategy's NAV has hit MDD threshold from its peak.
+
+    Uses only the post-realloc window to avoid false triggers from allocation
+    changes (e.g. VAL $15K→$10K would otherwise show phantom -33% MDD).
+    Same pattern as scripts/performance_calculator.py lines 95-100.
+    """
     if len(nav_history) < 2:
         return False, ""
 
-    navs = [h["nav"] for h in nav_history]
+    # Find last realloc event — MDD window resets from this point
+    last_realloc_idx = 0
+    for i, h in enumerate(nav_history):
+        if h.get("event") == "realloc":
+            last_realloc_idx = i
+
+    # Use only post-realloc window
+    window = nav_history[last_realloc_idx:]
+    if len(window) < 2:
+        return False, ""
+
+    navs = [h["nav"] for h in window]
     peak = max(navs)
     if peak <= 0:
         return False, ""
