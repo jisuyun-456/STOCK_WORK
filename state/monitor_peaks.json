@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-17T15:58:31.748637+00:00",
+  "last_updated": "2026-04-17T16:59:08.375828+00:00",
   "peaks": {
     "COP": {
       "peak_plpc": -0.00112,
@@ -67,154 +67,154 @@
       "last_plpc": 0.01187
     },
     "APLD": {
-      "peak_plpc": 0.01601,
+      "peak_plpc": 0.02542,
       "strategy": "MOM",
-      "last_plpc": 0.01524
+      "last_plpc": 0.02542
     },
     "ASML": {
       "peak_plpc": 0.02286,
       "strategy": "MOM",
-      "last_plpc": 0.02014
+      "last_plpc": 0.01834
     },
     "RKLB": {
       "peak_plpc": 0.07174,
       "strategy": "MOM",
-      "last_plpc": 0.0535
+      "last_plpc": 0.05842
     },
     "WBD": {
-      "peak_plpc": 0.00659,
+      "peak_plpc": 0.00806,
       "strategy": "MOM",
-      "last_plpc": 0.00659
+      "last_plpc": 0.00806
     },
     "ADI": {
-      "peak_plpc": 0.01672,
+      "peak_plpc": 0.01853,
       "strategy": "UNKNOWN",
-      "last_plpc": 0.01672
+      "last_plpc": 0.01853
     },
     "ADP": {
       "peak_plpc": 0.00072,
       "strategy": "VAL",
-      "last_plpc": -0.00259
+      "last_plpc": -0.0018
     },
     "AMAT": {
-      "peak_plpc": -0.00274,
+      "peak_plpc": -0.002,
       "strategy": "MOM",
-      "last_plpc": -0.00303
+      "last_plpc": -0.002
     },
     "AMD": {
-      "peak_plpc": -0.00222,
+      "peak_plpc": 0.00316,
       "strategy": "MOM",
-      "last_plpc": -0.00688
+      "last_plpc": 0.00316
     },
     "AMGN": {
-      "peak_plpc": 0.00745,
+      "peak_plpc": 0.00831,
       "strategy": "UNKNOWN",
-      "last_plpc": 0.00745
+      "last_plpc": 0.00831
     },
     "AVGO": {
-      "peak_plpc": -0.0029,
+      "peak_plpc": -0.00279,
       "strategy": "UNKNOWN",
-      "last_plpc": -0.00443
+      "last_plpc": -0.00279
     },
     "C": {
-      "peak_plpc": 0.00895,
+      "peak_plpc": 0.01271,
       "strategy": "UNKNOWN",
-      "last_plpc": 0.00895
+      "last_plpc": 0.01271
     },
     "CAT": {
-      "peak_plpc": 0.00939,
+      "peak_plpc": 0.01254,
       "strategy": "UNKNOWN",
-      "last_plpc": 0.00939
+      "last_plpc": 0.01254
     },
     "FDX": {
-      "peak_plpc": 0.0061,
+      "peak_plpc": 0.00771,
       "strategy": "UNKNOWN",
-      "last_plpc": 0.0061
+      "last_plpc": 0.00771
     },
     "GE": {
       "peak_plpc": 0.00998,
       "strategy": "UNKNOWN",
-      "last_plpc": 0.00267
+      "last_plpc": -0.00021
     },
     "GILD": {
       "peak_plpc": 0.00345,
       "strategy": "UNKNOWN",
-      "last_plpc": 0.00345
+      "last_plpc": 0.00095
     },
     "GOOGL": {
-      "peak_plpc": 0.00177,
+      "peak_plpc": 0.00446,
       "strategy": "MOM",
-      "last_plpc": 0.00177
+      "last_plpc": 0.00446
     },
     "GS": {
-      "peak_plpc": 0.00074,
+      "peak_plpc": 0.00239,
       "strategy": "UNKNOWN",
-      "last_plpc": 0.00074
+      "last_plpc": 0.00239
     },
     "HAL": {
-      "peak_plpc": 0.01395,
+      "peak_plpc": 0.02912,
       "strategy": "UNKNOWN",
-      "last_plpc": 0.01395
+      "last_plpc": 0.02912
     },
     "INTC": {
       "peak_plpc": -0.0004,
       "strategy": "MOM",
-      "last_plpc": -0.00586
+      "last_plpc": -0.01087
     },
     "KLAC": {
-      "peak_plpc": 0.00134,
+      "peak_plpc": 0.00606,
       "strategy": "MOM",
-      "last_plpc": 0.0002
+      "last_plpc": 0.00606
     },
     "LRCX": {
-      "peak_plpc": 0.00083,
+      "peak_plpc": 0.00413,
       "strategy": "MOM",
-      "last_plpc": -0.00409
+      "last_plpc": 0.00413
     },
     "MPC": {
-      "peak_plpc": 0.00278,
+      "peak_plpc": 0.00629,
       "strategy": "UNKNOWN",
-      "last_plpc": 0.00278
+      "last_plpc": 0.00629
     },
     "MRVL": {
-      "peak_plpc": 0.00659,
+      "peak_plpc": 0.00932,
       "strategy": "QNT",
-      "last_plpc": 0.00659
+      "last_plpc": 0.00932
     },
     "MU": {
       "peak_plpc": -0.00189,
       "strategy": "QNT",
-      "last_plpc": -0.01509
+      "last_plpc": -0.00489
     },
     "PEP": {
       "peak_plpc": 0.00719,
       "strategy": "UNKNOWN",
-      "last_plpc": 0.00719
+      "last_plpc": 0.00649
     },
     "PSX": {
-      "peak_plpc": -0.00519,
+      "peak_plpc": 0.00067,
       "strategy": "UNKNOWN",
-      "last_plpc": -0.00519
+      "last_plpc": 0.00067
     },
     "SPY": {
-      "peak_plpc": 0.00021,
+      "peak_plpc": 0.00155,
       "strategy": "LEV",
-      "last_plpc": 0.00021
+      "last_plpc": 0.00155
     },
     "TQQQ": {
-      "peak_plpc": -0.00017,
+      "peak_plpc": 0.00222,
       "strategy": "LEV",
-      "last_plpc": -0.00222
+      "last_plpc": 0.00222
     },
     "VLO": {
-      "peak_plpc": -0.00911,
+      "peak_plpc": 0.00103,
       "strategy": "UNKNOWN",
-      "last_plpc": -0.00911
+      "last_plpc": 0.00103
     },
     "ZTS": {
       "peak_plpc": 0.01215,
       "strategy": "UNKNOWN",
-      "last_plpc": 0.01215
+      "last_plpc": 0.01136
     }
   }
 }
