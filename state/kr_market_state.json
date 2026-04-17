@@ -1,0 +1,30 @@
+{
+  "kospi": {
+    "close": 6213.53,
+    "sma200": 4219.38,
+    "kospi_vs_sma200": 1.4726,
+    "52w_high": 6307.27,
+    "52w_low": 3014.47,
+    "change_1d_pct": -0.2
+  },
+  "vkospi": {
+    "level": 56.84,
+    "source": "estimated"
+  },
+  "usdkrw": {
+    "rate": 1478.6,
+    "20d_change_pct": -1.7,
+    "sma50": 1474.0
+  },
+  "bok_rate": {
+    "rate": 3.0,
+    "source": "default",
+    "last_change": ""
+  },
+  "semiconductor_export": {
+    "yoy_pct": null,
+    "source": "unknown"
+  },
+  "timestamp": "2026-04-17T09:45:16.209582",
+  "cached": false
+}

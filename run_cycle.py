@@ -37,7 +37,7 @@ import socket
 import sys
 import tempfile
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from state.cycle_health import CycleHealthTracker, check_stabilization as _check_stabilization
 
@@ -1747,12 +1747,181 @@ def phase_monitor(dry_run: bool = False) -> list[dict]:
     return execution_results
 
 
+# ─── Phase 1.65: KR_CONTEXT ──────────────────────────────────────────────
+
+def _estimate_kr_regime_raw(vkospi: float | None) -> str:
+    """Quick VKOSPI-based regime estimate before full detect_kr_regime."""
+    if vkospi is None:
+        return "NEUTRAL"
+    if vkospi >= 30:
+        return "CRISIS"
+    if vkospi >= 22:
+        return "BEAR"
+    if vkospi <= 15:
+        return "BULL"
+    return "NEUTRAL"
+
+
+def phase_kr_context(snapshot: dict, regime_state: dict) -> dict:
+    """Phase 1.65: Fetch KR market context and apply bidirectional overlay.
+
+    Steps:
+    1. Fetch pykrx snapshot (VKOSPI level, market fundamentals)
+    2. Fetch ECOS macro (base rate)
+    3. Fetch UNIPASS semi export YoY
+    4. Fetch sector feed scores (all 8 sectors)
+    5. Apply us_to_kr bias (US regime → KR regime correction)
+    6. Detect KR regime (using kr_research.regime.detect_kr_regime)
+    7. Save state/kr_market_state.json and state/kr_regime_state.json
+
+    Returns: kr_context dict for use in Phase 2+
+    On any failure: log warning, return {} (graceful degradation)
+    """
+    import json as _json
+
+    print("[Phase 1.65: KR_CONTEXT] 한국 시장 컨텍스트 수집 중...")
+
+    try:
+        today = datetime.now().strftime("%Y%m%d")
+        start_1m = (datetime.now() - timedelta(days=30)).strftime("%Y%m%d")
+
+        # Step 1: pykrx VKOSPI snapshot
+        vkospi_val = None
+        vkospi_source = "unavailable"
+        try:
+            from kr_data.pykrx_client import fetch_vkospi
+            vkospi_df = fetch_vkospi(start_1m, today)
+            if vkospi_df is not None and len(vkospi_df) > 0:
+                vkospi_val = float(vkospi_df["Close"].iloc[-1])
+                vkospi_source = "pykrx"
+        except Exception as _e:
+            print(f"  [kr] VKOSPI 수집 실패: {_e}")
+
+        # Step 2: ECOS macro (BOK base rate)
+        bok_rate = None
+        bok_source = "unavailable"
+        try:
+            from kr_data.ecos_client import fetch_base_rate
+            bok_df = fetch_base_rate()
+            if bok_df is not None and len(bok_df) > 0:
+                bok_rate = float(bok_df["rate"].iloc[-1])
+                bok_source = "ecos"
+        except Exception as _e:
+            print(f"  [kr] BOK rate 수집 실패: {_e}")
+
+        # Step 3: UNIPASS semiconductor export YoY
+        semi_yoy = None
+        semi_source = "unavailable"
+        try:
+            from kr_data.unipass_client import fetch_semiconductor_export_yoy
+            semi_export = fetch_semiconductor_export_yoy()
+            if semi_export:
+                semi_yoy = semi_export.get("yoy_pct")
+                semi_source = "unipass" if semi_yoy is not None else "unavailable"
+        except Exception as _e:
+            print(f"  [kr] 반도체 수출 수집 실패: {_e}")
+
+        # Step 4: Sector feed scores
+        sector_scores: dict = {}
+        try:
+            from kr_data.sector_feeds import compute_all_scores
+            sector_scores = compute_all_scores()
+        except Exception as _e:
+            print(f"  [kr] Sector scores 수집 실패: {_e}")
+
+        # Step 5: US regime context
+        us_regime = regime_state.get("regime", "NEUTRAL")
+        us_vix = float(snapshot.get("vix", 20.0))
+        nasdaq_ratio = float(snapshot.get("spy_sma200_ratio", 1.0))
+        sox_ratio = 1.0  # fallback (SOX data not in US snapshot by default)
+
+        # Step 6: Apply us_to_kr overlay to raw regime
+        kr_regime_raw = _estimate_kr_regime_raw(vkospi_val)
+        corrected_regime = kr_regime_raw
+        bias: dict = {}
+        try:
+            from kr_overlay.us_to_kr import apply_us_to_kr_bias
+            corrected_regime, bias = apply_us_to_kr_bias(kr_regime_raw, {
+                "us_regime": us_regime,
+                "vix": us_vix,
+                "nasdaq_sma200_ratio": nasdaq_ratio,
+                "sox_sma200_ratio": sox_ratio,
+            })
+        except Exception as _e:
+            print(f"  [kr] US→KR bias 적용 실패: {_e}")
+
+        # Step 7: KR regime detection (structured snapshot)
+        kr_regime_obj = None
+        try:
+            from kr_research.regime import detect_kr_regime
+            kr_snapshot_structured = {
+                "vkospi": {"level": vkospi_val if vkospi_val is not None else 20.0},
+                "semiconductor_export": {"yoy_pct": semi_yoy},
+                "kospi": {},
+            }
+            kr_regime_obj = detect_kr_regime(
+                kr_snapshot=kr_snapshot_structured,
+                us_regime=us_regime,
+                sox_trend=sox_ratio,
+                us_vix=us_vix,
+            )
+        except Exception as _e:
+            print(f"  [kr] KR regime detection 실패: {_e}")
+
+        # Build kr_context
+        kr_regime_str = kr_regime_obj.regime if kr_regime_obj else corrected_regime
+        kr_regime_conf = kr_regime_obj.confidence if kr_regime_obj else 0.5
+        kr_regime_factors = kr_regime_obj.factors if kr_regime_obj else {}
+
+        kr_context = {
+            "timestamp": datetime.now().isoformat(),
+            "vkospi": {"value": vkospi_val, "source": vkospi_source},
+            "bok_rate": {"value": bok_rate, "source": bok_source},
+            "semiconductor_export": {"yoy_pct": semi_yoy, "source": semi_source},
+            "sector_scores": sector_scores,
+            "kr_regime": kr_regime_str,
+            "kr_regime_confidence": kr_regime_conf,
+            "us_to_kr_bias": bias,
+            "overlay_applied": corrected_regime != kr_regime_raw,
+        }
+
+        # Step 8: Save state files
+        _state_dir = Path("state")
+        _state_dir.mkdir(parents=True, exist_ok=True)
+
+        (_state_dir / "kr_market_state.json").write_text(
+            _json.dumps(kr_context, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+
+        kr_regime_state = {
+            "regime": kr_regime_str,
+            "confidence": kr_regime_conf,
+            "factors": kr_regime_factors,
+            "corrected_from": kr_regime_raw,
+            "timestamp": datetime.now().isoformat(),
+        }
+        (_state_dir / "kr_regime_state.json").write_text(
+            _json.dumps(kr_regime_state, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+
+        print(f"  KR regime={kr_regime_str} (conf={kr_regime_conf:.2f}), "
+              f"VKOSPI={vkospi_val}, semi_yoy={semi_yoy}, BOK={bok_rate}")
+        print(f"  US→KR overlay: {kr_regime_raw}→{corrected_regime}, bias={bias}")
+        return kr_context
+
+    except Exception as e:
+        print(f"  [Phase 1.65: KR_CONTEXT] 실패 (graceful degradation): {e}")
+        return {}
+
+
 # ─── Main ────────────────────────────────────────────────────────────────
 
 def main():
     parser = argparse.ArgumentParser(description="Paper Trading Cycle (Phase 2.5)")
     parser.add_argument("--phase", required=True,
-                        choices=["all", "data", "signals", "research", "risk", "resolve", "rebalance", "execute", "report", "monitor"])
+                        choices=["all", "data", "signals", "research", "risk", "resolve", "rebalance", "execute", "report", "monitor", "kr_context"])
     parser.add_argument("--dry-run", action="store_true", help="Simulate without placing real orders")
     parser.add_argument("--research-mode", default=None, choices=["full", "selective", "skip"],
                         help="Research overlay depth (default: full, dry-run default: selective)")
@@ -1760,6 +1929,7 @@ def main():
     parser.add_argument("--force-regime", default=None,
                         choices=["BULL", "BEAR", "NEUTRAL", "CRISIS", "EUPHORIA"],
                         help="Override live regime detection (simulation/testing only)")
+    parser.add_argument("--skip-kr", action="store_true", help="Skip Phase 1.65 KR context")
     args = parser.parse_args()
 
     # Default research mode: selective for dry-run, full otherwise
@@ -1980,6 +2150,17 @@ def main():
             print(f"  [Phase 1.6] 수집 실패 (fallback 빈 데이터): {_fe}")
             print()
 
+    # Phase 1.65: KR_CONTEXT — 한국 시장 컨텍스트 + 양방향 오버레이
+    kr_context: dict = {}
+    if not getattr(args, "skip_kr", False) and args.phase in ("all", "kr_context"):
+        _regime_state_for_kr = {"regime": regime}
+        _snapshot_for_kr = {}
+        if market_data is not None:
+            _snapshot_for_kr["vix"] = market_data.get("vix", 20.0)
+            _snapshot_for_kr["spy_sma200_ratio"] = market_data.get("spy_sma200_ratio", 1.0)
+        kr_context = phase_kr_context(_snapshot_for_kr, _regime_state_for_kr)
+        print()
+
     # Phase 1.8: STOP-LOSS CHECK — 강제 청산 시그널 선행 생성 (C2)
     stop_loss_signals: list = []
     if args.phase in ("all", "signals"):
@@ -2048,6 +2229,9 @@ def main():
         if market_data is None:
             from strategies.momentum import fetch_momentum_data
             market_data = fetch_momentum_data(days=400)
+        # Attach kr_context to market_data so research overlay can use kr_to_us signals
+        if kr_context and market_data is not None:
+            market_data["kr_context"] = kr_context
         signals, _research_regime, research_verdicts = phase_research(
             signals, market_data, research_mode, args.no_cache
         )
