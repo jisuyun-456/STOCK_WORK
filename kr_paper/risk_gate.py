@@ -67,6 +67,8 @@ def check_vi_cooldown(ticker: str, vi_active_until: dict, now: datetime = None) 
     vi_active_until: dict mapping ticker -> datetime when VI expires.
     If ticker in vi_active_until and now < vi_active_until[ticker] → fail.
     now defaults to datetime.now() if not provided.
+
+    NOTE: All datetimes assumed to be naive KST. Do not mix tz-aware and naive.
     """
     if now is None:
         now = datetime.now()
@@ -123,8 +125,8 @@ def validate_kr_order(
     ticker: str,
     current_price: int,
     base_price: int,
-    halted_tickers: set = None,
-    vi_active_until: dict = None,
+    halted_tickers: set | None = None,
+    vi_active_until: dict | None = None,
     cb_level: int = 0,
     side: str = "BUY",
     now: datetime = None,

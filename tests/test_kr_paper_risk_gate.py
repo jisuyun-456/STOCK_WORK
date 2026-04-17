@@ -30,6 +30,10 @@ def test_price_below_limit_passed():
     result2 = check_price_limit("005930", current_price=129999, base_price=100000)
     assert result2.passed is True
 
+    # Exactly at upper limit (base*1.30) — passes per KRX rules (limit price is valid)
+    result_at_limit = check_price_limit("005930", current_price=130000, base_price=100000)
+    assert result_at_limit.passed is True  # KRX allows trading at exactly the limit price
+
 
 def test_trading_halt_rejected():
     """Halted ticker → fail; non-halted ticker → pass."""
