@@ -51,3 +51,4 @@
 {"ts": "2026-04-20T16:39:58.903381+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 30, "exits": [], "mdd_status": {"MOM": "ok", "VAL": "ok", "QNT": "ok", "LEV": "ok", "LEV_ST": "ok", "GRW": "ok"}, "portfolio_mdd": "ok", "circuit_breaker_stage": "NORMAL"}
 {"ts": "2026-04-20T17:56:04.577253+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 30, "exits": [], "mdd_status": {"MOM": "ok", "VAL": "ok", "QNT": "ok", "LEV": "ok", "LEV_ST": "ok", "GRW": "ok"}, "portfolio_mdd": "ok", "circuit_breaker_stage": "NORMAL"}
 {"ts": "2026-04-20T19:04:08.484513+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 30, "exits": [], "mdd_status": {"MOM": "ok", "VAL": "ok", "QNT": "ok", "LEV": "ok", "LEV_ST": "ok", "GRW": "ok"}, "portfolio_mdd": "ok", "circuit_breaker_stage": "NORMAL"}
+{"ts": "2026-04-20T20:09:39.440736+00:00", "run_type": "monitor", "market_open": false, "positions_checked": 0, "exits": []}
