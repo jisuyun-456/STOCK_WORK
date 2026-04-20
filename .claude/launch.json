@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Report Server (HTML 리포트 뷰어)",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8765", "--directory", "reports"],
+      "port": 8765
+    },
+    {
+      "name": "Trading Cycle — Dry Run",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["run_cycle.py", "--dry-run", "--research-mode", "selective"],
+      "port": null
+    },
+    {
+      "name": "KR Analyzer — 000660 (SK하이닉스)",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "kr_research.analyzer", "--ticker", "000660", "--mode", "data"],
+      "port": null
+    },
+    {
+      "name": "Test Suite",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "pytest", "tests/", "-x", "-q", "--tb=short"],
+      "port": null
+    }
+  ]
+}

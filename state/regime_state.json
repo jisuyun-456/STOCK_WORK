@@ -2,10 +2,10 @@
   "regime": "BULL",
   "detected_regime": "BULL",
   "since": "2026-04-16",
-  "consecutive_cycles": 17,
-  "detected_consecutive": 19,
+  "consecutive_cycles": 19,
+  "detected_consecutive": 21,
   "regime_history": [
-    "CRISIS",
+    "BULL",
     "BULL",
     "BULL",
     "BULL",

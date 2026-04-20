@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>한미반도체 — KR Research</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --cream:    #FAF9F6;  --cream2:   #F3F0EA;
+  --surface:  #FFFFFF;  --ink:      #1A1814;
+  --ink2:     #4A4540;  --ink3:     #8A857C;
+  --border:   #E8E3DB;
+  --orange:   #D97757;  --orange-bg:#FBF4F0;
+  --amber:    #C9842A;  --amber-bg: #FBF3E2;
+  --up:       #1E7A45;  --up-bg:    #E8F5EE;
+  --dn:       #C8523A;  --dn-bg:    #FBF0ED;
+  --nav-bg:   #1A1814;
+  --shadow:   0 1px 6px rgba(26,24,20,0.07);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--cream); color:var(--ink); font-family:'Geist',system-ui,sans-serif; font-size:13px; line-height:1.65; -webkit-font-smoothing:antialiased; }
+
+/* NAV */
+.nav { background:var(--nav-bg); border-bottom:2px solid var(--orange); padding:0 32px; height:52px; display:flex; align-items:center; position:sticky; top:0; z-index:100; }
+.nav-logo { font-size:15px; font-weight:700; color:var(--cream); margin-right:24px; letter-spacing:-0.02em; }
+.nav-logo span { color:var(--orange); }
+.nav-tabs { display:flex; gap:2px; flex:1; }
+.nav-tab { padding:5px 13px; border-radius:6px; font-size:11.5px; font-weight:500; font-family:'IBM Plex Mono',monospace; letter-spacing:0.02em; cursor:pointer; color:#6A6560; background:transparent; border:none; transition:all 0.15s ease; white-space:nowrap; }
+.nav-tab:hover:not(.active) { background:rgba(255,255,255,0.08); color:#B0AA9F; }
+.nav-tab.active { background:var(--orange); color:#fff; font-weight:600; }
+.nav-meta { margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:10px; color:#524D47; letter-spacing:0.06em; text-align:right; line-height:1.4; }
+
+/* PANELS */
+.panel { display:none; }
+.panel.active { display:block; }
+
+/* COMPANY HEADER */
+.co-header { background:var(--nav-bg); padding:24px 32px 22px; position:relative; overflow:hidden; }
+.co-header::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(217,119,87,0.07) 0%,transparent 55%); pointer-events:none; }
+.co-sub { font-family:'IBM Plex Mono',monospace; font-size:10px; color:#524D47; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px; }
+.co-name { font-size:28px; font-weight:700; color:var(--cream); letter-spacing:-0.03em; margin-bottom:3px; }
+.co-desc { font-size:12px; color:#7A746D; margin-bottom:16px; }
+.co-rating-row { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+.badge { display:inline-flex; align-items:center; padding:5px 12px; border-radius:6px; font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; letter-spacing:0.04em; }
+.badge-buy  { background:var(--up);    color:#fff; }
+.badge-hold { background:var(--amber); color:#fff; }
+.badge-sell { background:var(--dn);    color:#fff; }
+.badge-veto { background:#3A3530;      color:var(--cream); }
+.price-chip { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.10); border-radius:8px; padding:8px 14px; }
+.price-label { font-size:10px; color:#6A6460; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:2px; }
+.price-display { font-family:'IBM Plex Mono',monospace; font-size:17px; font-weight:600; color:var(--cream); }
+.up-label { color:#5CB87A; font-family:'IBM Plex Mono',monospace; font-size:11px; }
+.dn-label { color:#E8806A; font-family:'IBM Plex Mono',monospace; font-size:11px; }
+
+/* LAYOUT */
+.main { padding:24px 32px; max-width:1280px; margin:0 auto; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 20px; box-shadow:var(--shadow); }
+.card-label { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink3); margin-bottom:8px; }
+.section-title { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink3); padding:16px 0 8px; border-bottom:1px solid var(--border); margin-bottom:12px; }
+
+/* THESIS */
+.thesis { background:var(--orange-bg); border:1px solid #EDD5C5; border-left:3px solid var(--orange); border-radius:10px; padding:16px 18px; margin-bottom:16px; }
+.thesis-label { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.14em; color:var(--orange); text-transform:uppercase; margin-bottom:8px; font-weight:600; }
+.thesis-text { font-size:13px; color:var(--ink2); line-height:1.75; }
+
+/* METRICS */
+.metrics-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:16px; }
+.metric-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:13px 14px; box-shadow:var(--shadow); }
+.metric-label { font-size:10px; color:var(--ink3); margin-bottom:4px; }
+.metric-val { font-family:'IBM Plex Mono',monospace; font-size:15px; font-weight:600; color:var(--ink); }
+.metric-sub { font-size:10px; margin-top:2px; font-family:'IBM Plex Mono',monospace; }
+.up { color:var(--up); } .dn { color:var(--dn); } .neutral { color:var(--amber); }
+
+/* SCENARIOS */
+.scenarios { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px; }
+.sc { border-radius:10px; padding:16px; border:1px solid var(--border); }
+.sc-bull { background:var(--up-bg);  border-color:#B8D8C4; }
+.sc-base { background:var(--cream); }
+.sc-bear { background:var(--dn-bg);  border-color:#F0C8B8; }
+.sc-type { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.12em; color:var(--ink3); text-transform:uppercase; margin-bottom:6px; }
+.sc-price { font-family:'IBM Plex Mono',monospace; font-size:20px; font-weight:600; margin-bottom:4px; }
+.sc-bull .sc-price { color:var(--up); } .sc-base .sc-price { color:var(--ink); } .sc-bear .sc-price { color:var(--dn); }
+.sc-text { font-size:12px; color:var(--ink2); line-height:1.65; }
+
+/* MARKET BARS */
+.market-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+.mkt-bars { display:flex; flex-direction:column; gap:10px; }
+.mkt-row { display:flex; align-items:center; gap:12px; }
+.mkt-name { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink2); width:68px; }
+.mkt-bar-track { flex:1; height:5px; background:var(--cream2); border-radius:3px; overflow:hidden; }
+.mkt-bar-fill { height:100%; border-radius:3px; width:0; transition:width 1.1s cubic-bezier(0.4,0,0.2,1); }
+.mkt-bar-up { background:var(--up); } .mkt-bar-dn { background:var(--dn); } .mkt-bar-neu { background:var(--amber); }
+.mkt-val { font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink); width:100px; text-align:right; }
+.mkt-pct { font-family:'IBM Plex Mono',monospace; font-size:11px; width:56px; text-align:right; }
+
+/* TECH TABLE */
+.tech-table { width:100%; border-collapse:collapse; font-size:12.5px; margin-bottom:16px; }
+.tech-table th { background:var(--nav-bg); color:var(--cream); padding:7px 12px; text-align:left; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.06em; font-weight:500; }
+.tech-table td { padding:9px 12px; border-bottom:1px solid var(--border); color:var(--ink2); }
+.tech-table tr:last-child td { border-bottom:none; }
+.tech-table tr:nth-child(even) td { background:var(--cream); }
+.signal-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:10px; font-family:'IBM Plex Mono',monospace; }
+.sig-up   { background:var(--up-bg);    color:var(--up); }
+.sig-warn { background:var(--amber-bg); color:var(--amber); }
+.sig-dn   { background:var(--dn-bg);    color:var(--dn); }
+
+/* PRICE LADDER */
+.ladder-row { display:flex; align-items:center; padding:7px 4px; border-bottom:1px solid var(--border); }
+.ladder-row:last-child { border-bottom:none; }
+.ladder-price { width:150px; text-align:right; font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; padding-right:14px; color:var(--ink3); }
+.ladder-line  { flex:1; height:2px; background:var(--cream2); }
+.ladder-label { padding-left:14px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink3); }
+.ladder-current { background:rgba(217,119,87,0.07); border-radius:6px; margin:2px 0; }
+.ladder-current .ladder-price { color:var(--orange); }
+.ladder-current .ladder-line  { background:var(--orange); height:3px; }
+.ladder-current .ladder-label { color:var(--orange); font-weight:600; }
+.ladder-target1 .ladder-price { color:var(--up); } .ladder-target1 .ladder-line { background:var(--up-bg); }
+.ladder-target2 .ladder-price { color:#2D9A5A; }  .ladder-target2 .ladder-line { background:var(--up-bg); }
+.ladder-stop .ladder-price    { color:var(--dn); } .ladder-stop .ladder-line    { background:var(--dn-bg); }
+.ladder-entry .ladder-price   { color:var(--amber); } .ladder-entry .ladder-line { background:var(--amber-bg); }
+
+/* TRADE BOX */
+.trade-box { background:var(--nav-bg); border-radius:10px; padding:18px 20px; margin-bottom:16px; position:relative; overflow:hidden; }
+.trade-box::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(217,119,87,0.09) 0%,transparent 60%); pointer-events:none; }
+.trade-box .card-label { color:var(--orange); }
+.trade-row { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
+.trade-item .tlabel { font-size:10px; color:#6A6460; margin-bottom:4px; font-family:'IBM Plex Mono',monospace; letter-spacing:0.04em; }
+.trade-item .tval   { font-family:'IBM Plex Mono',monospace; font-size:14px; font-weight:600; color:var(--cream); }
+.trade-item .tsub   { font-size:10px; font-family:'IBM Plex Mono',monospace; margin-top:2px; color:#6A6460; }
+.trade-item.t1 .tval   { color:#5CB87A; }
+.trade-item.t2 .tval   { color:#7DD8A0; }
+.trade-item.stop .tval { color:#E8806A; }
+.trade-item.rr .tval   { color:var(--orange); font-size:18px; }
+.trade-trigger { margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08); font-size:11.5px; color:#8A847C; font-family:'IBM Plex Mono',monospace; line-height:1.75; }
+.trigger-label { color:var(--orange); font-size:9px; text-transform:uppercase; letter-spacing:0.12em; margin-bottom:4px; }
+
+/* FACTORS */
+.factors-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+.factor-col-header { display:flex; align-items:center; gap:8px; font-weight:600; font-size:13px; margin-bottom:12px; padding-bottom:8px; border-bottom:2px solid; }
+.fch-up { border-color:var(--up); color:var(--up); }
+.fch-dn { border-color:var(--dn); color:var(--dn); }
+.factor-item { display:flex; align-items:flex-start; gap:8px; padding:10px 0; border-bottom:1px solid var(--border); }
+.factor-item:last-child { border-bottom:none; }
+.factor-icon { width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; flex-shrink:0; margin-top:1px; }
+.fi-up { background:var(--up-bg); color:var(--up); }
+.fi-dn { background:var(--dn-bg); color:var(--dn); }
+.factor-text { font-size:12.5px; color:var(--ink2); line-height:1.6; }
+
+/* RISK */
+.risk-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.risk-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 15px; }
+.risk-title { font-size:13px; font-weight:600; color:var(--ink); margin-bottom:4px; }
+.risk-desc  { font-size:12px; color:var(--ink2); line-height:1.65; }
+.risk-tag { display:inline-block; padding:1px 7px; border-radius:3px; font-size:10px; font-family:'IBM Plex Mono',monospace; margin-top:6px; }
+.rt-high { background:var(--dn-bg);    color:var(--dn); }
+.rt-mid  { background:var(--amber-bg); color:var(--amber); }
+.rt-low  { background:var(--up-bg);    color:var(--up); }
+
+/* SUPPLY */
+.flow-item { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border); }
+.flow-item:last-child { border-bottom:none; }
+.flow-name { font-size:12.5px; color:var(--ink2); }
+.flow-val  { font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:500; }
+
+/* CHECKLIST */
+.check-item { display:flex; gap:10px; padding:10px 12px; border-radius:7px; margin-bottom:6px; background:var(--cream); border:1px solid var(--border); }
+.check-num  { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--orange); font-weight:600; flex-shrink:0; width:20px; }
+.check-text { font-size:12.5px; color:var(--ink2); line-height:1.6; }
+
+/* FOOTER */
+.report-footer { margin-top:32px; padding-top:16px; border-top:1px solid var(--border); font-size:11px; color:var(--ink3); font-family:'IBM Plex Mono',monospace; line-height:1.7; }
+
+/* ANIMATION */
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.panel.active > * { animation:fadeUp 0.3s ease both; }
+.panel.active > *:nth-child(2){animation-delay:0.06s}
+.panel.active > *:nth-child(3){animation-delay:0.12s}
+.panel.active > *:nth-child(4){animation-delay:0.18s}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">KR <span>Research</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="show('summary',this)">요약</button>
+    <button class="nav-tab" onclick="show('market',this)">시장</button>
+    <button class="nav-tab" onclick="show('tech',this)">기술</button>
+    <button class="nav-tab" onclick="show('candles',this)">캔들</button>
+    <button class="nav-tab" onclick="show('trade',this)">매매전략</button>
+    <button class="nav-tab" onclick="show('scenario',this)">시나리오</button>
+    <button class="nav-tab" onclick="show('risk',this)">리스크</button>
+    <button class="nav-tab" onclick="show('supply',this)">수급</button>
+    <button class="nav-tab" onclick="show('conclusion',this)">결론</button>
+  </div>
+  <div class="nav-meta">한미반도체 · 042700<br>2026-04-17 · KOSPI</div>
+</nav>
+
+<!-- COMPANY HEADER -->
+<div class="co-header">
+  <div class="co-sub">KOSPI EQUITY RESEARCH · 반도체장비 · KR RESEARCH</div>
+  <div class="co-name">한미반도체</div>
+  <div class="co-desc">042700 · KOSPI · 반도체장비 · 현재가 286,500원</div>
+  <div class="co-rating-row">
+    <span class="badge badge-hold">HOLD</span>
+    <div class="price-chip"><div class="price-label">현재가</div><div class="price-display">286,500원</div></div>
+    <div class="price-chip"><div class="price-label">T1 목표가</div><div class="price-display" style="color:#5CB87A">330,000원</div><div class="up-label">+15.2%</div></div>
+    <div class="price-chip"><div class="price-label">T2 목표가</div><div class="price-display" style="color:#7DD8A0">380,000원</div><div class="up-label">+32.6%</div></div>
+    <div class="price-chip"><div class="price-label">손절가</div><div class="price-display" style="color:#E8806A">230,000원</div><div class="dn-label">-19.7%</div></div>
+    <div style="margin-left:auto;text-align:right">
+      <div style="font-size:10px;color:#524D47;font-family:'IBM Plex Mono',monospace;margin-bottom:4px;">신뢰도</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;color:#C9842A;font-weight:600;">62%</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PANEL: 요약 ═══ -->
+<div id="panel-summary" class="panel active">
+<div class="main">
+  <div class="thesis">
+    <div class="thesis-label">Why Invest — 투자 의견</div>
+    <div class="thesis-text">한미반도체는 HBM(고대역폭메모리) 제조의 핵심 장비인 TC본더(열압착 본더) 분야에서 글로벌 독점적 지위를 보유한 기업으로, AI 서버 수요 구조적 증가에 따른 장기 수혜가 기대된다. 다만 현재 PBR 50.28배, PER 180.3배의 극단적 밸류에이션은 향후 2~3년간의 성장 기대를 이미 선반영하고 있으며, 52주 고가 대비 -14.1% 조정 구간에서 거래량 급감(2월 대비 1/16 수준)은 단기 관심 이탈을 시사한다. MACD 양전환 유지와 SMA200(154,831원) 대비 +85% 괴리는 장기 상승추세를 확인하나, 1개월 -7.4% 모멘텀 약화와 캔들패턴 매도 신호 다발(하락장악형, 유성형, 석별형)로 현 구간 신규 진입보다 조정 대기가 합리적이다.</div>
+  </div>
+  <div class="section-title">핵심 지표</div>
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-label">현재가</div>
+      <div class="metric-val">286,500</div>
+      <div class="metric-sub neutral">HOLD 구간</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">매수 구간</div>
+      <div class="metric-val" style="font-size:13px">245,000–260,000</div>
+      <div class="metric-sub" style="color:var(--ink3)">조정 시 진입</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">T1 목표가 (보수)</div>
+      <div class="metric-val up">330,000</div>
+      <div class="metric-sub up">+15.2% · 50% 청산</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">T2 목표가 (공격)</div>
+      <div class="metric-val up">380,000</div>
+      <div class="metric-sub up">+32.6% · 잔량 청산</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">손절가</div>
+      <div class="metric-val dn">230,000</div>
+      <div class="metric-sub dn">-19.7%</div>
+    </div>
+  </div>
+  <div class="section-title">시나리오 전망 (3~6개월)</div>
+  <div class="scenarios">
+    <div class="sc sc-bull">
+      <div class="sc-type">Bull Case</div>
+      <div class="sc-price" style="font-size:16px">HBM4 양산 본격화 + 삼성전자/SK하이닉스 CAPEX 확대 → TC본더 수주 급증. 목표가 380,000</div>
+    </div>
+    <div class="sc sc-base">
+      <div class="sc-type">Base Case</div>
+      <div class="sc-price" style="font-size:16px">현재 수주 잔고 기반 완만한 실적 성장. 밸류에이션 부담으로 280,000~330,000원 박스권. 거래량 </div>
+    </div>
+    <div class="sc sc-bear">
+      <div class="sc-type">Bear Case</div>
+      <div class="sc-price" style="font-size:16px">반도체 업황 둔화 + HBM 수요 지연 + 경쟁사(ASM Pacific) 대두. SMA60(250,861원)</div>
+    </div>
+  </div>
+  <div class="report-footer">분석 기준일: 2026-04-17 · 데이터: pykrx · 분석: Claude Code CLI (claude-sonnet-4-6)<br>본 리포트는 참고용이며 투자 결정의 최종 책임은 투자자 본인에게 있습니다.</div>
+</div>
+</div>
+
+<!-- ═══ PANEL: 시장 ═══ -->
+<div id="panel-market" class="panel">
+<div class="main">
+  <div class="section-title">시장 컨텍스트 · 2026-04-17 기준</div>
+  <div class="market-grid">
+    <div class="card">
+      <div class="card-label">글로벌 시장 현황</div>
+      <div class="mkt-bars">
+        <div class="mkt-row"><div class="mkt-name">KOSPI</div><div class="mkt-bar-track"><div class="mkt-bar-fill mkt-bar-dn" data-pct="57"></div></div><div class="mkt-val">6,214p</div><div class="mkt-pct dn">-0.2%</div></div>
+<div class="mkt-row"><div class="mkt-name">KOSDAQ</div><div class="mkt-bar-track"><div class="mkt-bar-fill mkt-bar-up" data-pct="64"></div></div><div class="mkt-val">1,170p</div><div class="mkt-pct up">+0.6%</div></div>
+<div class="mkt-row"><div class="mkt-name">NASDAQ</div><div class="mkt-bar-track"><div class="mkt-bar-fill mkt-bar-up" data-pct="68"></div></div><div class="mkt-val">24,103p</div><div class="mkt-pct up">+0.4%</div></div>
+<div class="mkt-row"><div class="mkt-name">USD/KRW</div><div class="mkt-bar-track"><div class="mkt-bar-fill mkt-bar-neu" data-pct="55"></div></div><div class="mkt-val">1,479원</div><div class="mkt-pct neutral">환율</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">KR Regime</div>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
+        <canvas id="regimeChart" width="80" height="80"></canvas>
+        <div>
+          <div style="font-size:22px;font-weight:700;color:var(--up);font-family:'IBM Plex Mono',monospace">BULL</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:2px">신뢰도 75%</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:4px">52주 고점 대비 -14.1% 조정 구간. SMA20 위 유지하나 모멘텀 약화. 거래량 급감으로 방향성 탐색 중.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ PANEL: 기술 ═══ -->
+<div id="panel-tech" class="panel">
+<div class="main">
+  <div class="section-title">기술적 지표</div>
+  <table class="tech-table"><thead><tr><th>지표</th><th>값</th><th>신호</th></tr></thead><tbody><tr><td>SMA20</td><td style="font-family:'IBM Plex Mono',monospace">277,000원</td><td><span class='signal-tag sig-up'>상방 ✅</span></td></tr><tr><td>SMA60</td><td style="font-family:'IBM Plex Mono',monospace">250,861원</td><td><span class='signal-tag sig-up'>상방 ✅</span></td></tr><tr><td>SMA200</td><td style="font-family:'IBM Plex Mono',monospace">154,831원</td><td><span class='signal-tag sig-up'>상방 ✅</span></td></tr><tr><td>RSI(14)</td><td style="font-family:'IBM Plex Mono',monospace">59.8</td><td><span class="signal-tag sig-up">중립</span></td></tr><tr><td>MACD</td><td style="font-family:'IBM Plex Mono',monospace">+4,757</td><td><span class="signal-tag sig-up">상승추세유지</span></td></tr><tr><td>볼린저 상단</td><td style="font-family:'IBM Plex Mono',monospace">308,758원</td><td><span class='signal-tag sig-warn'>위치 65.0%</span></td></tr><tr><td>볼린저 하단</td><td style="font-family:'IBM Plex Mono',monospace">245,242원</td><td><span class="signal-tag sig-up">밴드 중간</span></td></tr></tbody></table>
+  <div class="section-title">가격 레벨</div>
+  <div class="ladder-row ladder-target2"><div class="ladder-price">380,000원</div><div class="ladder-line"></div><div class="ladder-label">T2 목표가</div></div>
+<div class="ladder-row "><div class="ladder-price">333,500원</div><div class="ladder-line"></div><div class="ladder-label">52주 고가</div></div>
+<div class="ladder-row ladder-target1"><div class="ladder-price">330,000원</div><div class="ladder-line"></div><div class="ladder-label">T1 목표가</div></div>
+<div class="ladder-row ladder-current"><div class="ladder-price">286,500원</div><div class="ladder-line"></div><div class="ladder-label">현재가 ◀</div></div>
+<div class="ladder-row "><div class="ladder-price">277,000원</div><div class="ladder-line"></div><div class="ladder-label">SMA20 (지지)</div></div>
+<div class="ladder-row ladder-entry"><div class="ladder-price">260,000원</div><div class="ladder-line"></div><div class="ladder-label">매수 구간 상단</div></div>
+<div class="ladder-row ladder-entry"><div class="ladder-price">245,000원</div><div class="ladder-line"></div><div class="ladder-label">매수 구간 하단</div></div>
+<div class="ladder-row ladder-stop"><div class="ladder-price">230,000원</div><div class="ladder-line"></div><div class="ladder-label">손절가</div></div>
+<div class="ladder-row "><div class="ladder-price">154,831원</div><div class="ladder-line"></div><div class="ladder-label">SMA200</div></div>
+<div class="ladder-row "><div class="ladder-price">68,000원</div><div class="ladder-line"></div><div class="ladder-label">52주 저가</div></div>
+  <div style="margin-top:12px;padding:12px;background:var(--cream2);border-radius:8px;font-size:12.5px;color:var(--ink2)">52주 고점 대비 -14.1% 조정 구간. SMA20 위 유지하나 모멘텀 약화. 거래량 급감으로 방향성 탐색 중.</div>
+</div>
+</div>
+
+<!-- ═══ PANEL: 캔들 ═══ -->
+<div id="panel-candles" class="panel">
+<div class="main">
+  <div class="section-title">캔들스틱 차트 (최근 60일)</div>
+  <div class="card" style="padding:16px 8px">
+    <canvas id="candleCanvas" height="380" style="width:100%;display:block"></canvas>
+  </div>
+  <div class="section-title" style="margin-top:20px">감지된 패턴</div>
+  <div class="card" id="patternList" style="padding:14px 16px">패턴 없음</div>
+</div>
+</div>
+
+<!-- ═══ PANEL: 매매전략 ═══ -->
+<div id="panel-trade" class="panel">
+<div class="main">
+  <div class="trade-box">
+    <div class="card-label">Trade Setup</div>
+    <div class="trade-row">
+      <div class="trade-item">
+        <div class="tlabel">매수 구간</div>
+        <div class="tval" style="font-size:12px">245,000–260,000원</div>
+        <div class="tsub">분할 매수 권고</div>
+      </div>
+      <div class="trade-item t1">
+        <div class="tlabel">T1 목표 (50% 청산)</div>
+        <div class="tval">330,000원</div>
+        <div class="tsub" style="color:#5CB87A">+15.2%</div>
+      </div>
+      <div class="trade-item t2">
+        <div class="tlabel">T2 목표 (잔량)</div>
+        <div class="tval">380,000원</div>
+        <div class="tsub" style="color:#7DD8A0">+32.6%</div>
+      </div>
+      <div class="trade-item stop">
+        <div class="tlabel">손절가</div>
+        <div class="tval">230,000원</div>
+        <div class="tsub" style="color:#E8806A">-19.7%</div>
+      </div>
+      <div class="trade-item rr">
+        <div class="tlabel">R:R 비율</div>
+        <div class="tval">3.4 : 1</div>
+        <div class="tsub" style="color:var(--orange)">Base case</div>
+      </div>
+    </div>
+    <div class="trade-trigger">
+      <div class="trigger-label">매수 타이밍</div>
+      SMA20(277,000원) 지지 확인 + 거래량 50만주 이상 양봉 출현 시 분할 매수 1차 진입. 볼린저 하단(245,242원) 접근 시 2차 추가 매수. RSI 40 이하 과매도 진입 시 비중 확대.
+      <br><br>
+      <div class="trigger-label">매도 타이밍</div>
+      SMA60(250,861원) 이탈 시 손절 검토. 목표가 T1(330,000원) 도달 시 50% 익절. 거래량 없이 SMA20 하향 이탈 지속 3일 시 전량 청산.
+    </div>
+  </div>
+  <div class="section-title">매수 근거 vs 매도/우려 요인</div>
+  <div class="factors-grid">
+    <div>
+      <div class="factor-col-header fch-up"><span style="font-size:14px">✅</span> 매수 근거</div>
+      <div class="factor-item"><div class="factor-icon fi-up">✓</div><div class="factor-text">TC본더 글로벌 독점: 삼성전자/SK하이닉스 HBM 패키징 필수 장비 공급</div></div><div class="factor-item"><div class="factor-icon fi-up">✓</div><div class="factor-text">AI 서버 구조적 수요 증가: NVIDIA/AMD 차세대 GPU용 HBM3E/HBM4 확대</div></div><div class="factor-item"><div class="factor-icon fi-up">✓</div><div class="factor-text">SMA200(154,831원) 대비 +85% 괴리 — 장기 상승추세 강력 유지</div></div><div class="factor-item"><div class="factor-icon fi-up">✓</div><div class="factor-text">MACD hist +776 양전환 유지, 단기 기술적 반등 동력 잔존</div></div><div class="factor-item"><div class="factor-icon fi-up">✓</div><div class="factor-text">KR Regime BULL(0.752) — 시장 환경 우호적</div></div>
+    </div>
+    <div>
+      <div class="factor-col-header fch-dn"><span style="font-size:14px">❌</span> 매도/우려 요인</div>
+      <div class="factor-item"><div class="factor-icon fi-dn">✕</div><div class="factor-text">PBR 50.28배/PER 180.3배: 역사적 고점 밸류에이션, 실적 미달 시 급락 리스크</div></div><div class="factor-item"><div class="factor-icon fi-dn">✕</div><div class="factor-text">캔들패턴 매도 신호 다발: 하락장악형(4/2), 유성형(3/23), 석별형(3/10)</div></div><div class="factor-item"><div class="factor-icon fi-dn">✕</div><div class="factor-text">거래량 급감(6백만→35.9만): 기관/외인 관심 이탈 가능성</div></div><div class="factor-item"><div class="factor-icon fi-dn">✕</div><div class="factor-text">52주 고가(333,500) 대비 -14.1% 조정 — 고점 회복 실패 시 더블탑 우려</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ PANEL: 시나리오 ═══ -->
+<div id="panel-scenario" class="panel">
+<div class="main">
+  <div class="section-title">시나리오 전망 상세 (3~6개월)</div>
+  <div class="scenarios" style="margin-bottom:24px">
+    <div class="sc sc-bull">
+      <div class="sc-type">Bull Case</div>
+      <div class="sc-text" style="color:var(--up)">HBM4 양산 본격화 + 삼성전자/SK하이닉스 CAPEX 확대 → TC본더 수주 급증. 목표가 380,000~420,000원 (+33~47%). AI 서버 투자 사이클 가속이 촉매.</div>
+    </div>
+    <div class="sc sc-base">
+      <div class="sc-type">Base Case</div>
+      <div class="sc-text">현재 수주 잔고 기반 완만한 실적 성장. 밸류에이션 부담으로 280,000~330,000원 박스권. 거래량 회복 없이 횡보 전망.</div>
+    </div>
+    <div class="sc sc-bear">
+      <div class="sc-type">Bear Case</div>
+      <div class="sc-text" style="color:var(--dn)">반도체 업황 둔화 + HBM 수요 지연 + 경쟁사(ASM Pacific) 대두. SMA60(250,861원) → SMA200(154,831원) 구간 조정. 최대 -46%.</div>
+    </div>
+  </div>
+  <div class="section-title">기초 분석</div><table class="tech-table"><thead><tr><th>지표</th><th>값</th><th>비고</th></tr></thead><tbody><tr><td>PER (TTM)</td><td style="font-family:'IBM Plex Mono',monospace">180.3배</td><td style='color:var(--ink3);font-size:11px'>수익성 지표</td></tr><tr><td>PBR</td><td style="font-family:'IBM Plex Mono',monospace">50.28배</td><td style='color:var(--ink3);font-size:11px'>자산가치 대비</td></tr><tr><td>배당수익률</td><td style="font-family:'IBM Plex Mono',monospace">0.25%</td><td style='color:var(--ink3);font-size:11px'>현재가 기준</td></tr></tbody></table>
+</div>
+</div>
+
+<!-- ═══ PANEL: 리스크 ═══ -->
+<div id="panel-risk" class="panel">
+<div class="main">
+  <div class="section-title">리스크 요인</div>
+  <div class="risk-grid"><div class="risk-card"><div class="card-label">기술적 리스크</div><div class="risk-title">밸류에이션 리스크: PER 180배는 향후 3년 EPS CAGR 50%+ 가정 — 실적 1</div><div class="risk-desc">밸류에이션 리스크: PER 180배는 향후 3년 EPS CAGR 50%+ 가정 — 실적 1분기만 미달해도 30%+ 급락 가능</div><span class="risk-tag rt-high">HIGH</span></div>
+<div class="risk-card"><div class="card-label">지정학/규제 리스크</div><div class="risk-title">고객 집중 리스크: 삼성전자/SK하이닉스 양사 의존도 극도로 높음 — CAPEX 감축 시 </div><div class="risk-desc">고객 집중 리스크: 삼성전자/SK하이닉스 양사 의존도 극도로 높음 — CAPEX 감축 시 직격</div><span class="risk-tag rt-high">HIGH</span></div>
+<div class="risk-card"><div class="card-label">산업 리스크</div><div class="risk-title">경쟁 리스크: ASM Pacific, Shinkawa 등 TC본더 시장 진입 시도 — 독점</div><div class="risk-desc">경쟁 리스크: ASM Pacific, Shinkawa 등 TC본더 시장 진입 시도 — 독점 프리미엄 훼손 가능</div><span class="risk-tag rt-mid">MID</span></div>
+<div class="risk-card"><div class="card-label">매크로 리스크</div><div class="risk-title">거래량 리스크: 유동성 급감으로 대규모 매도 시 슬리피지 확대, 가격 급변동 가능성</div><div class="risk-desc">거래량 리스크: 유동성 급감으로 대규모 매도 시 슬리피지 확대, 가격 급변동 가능성</div><span class="risk-tag rt-mid">MID</span></div>
+<div class="risk-card"><div class="card-label">재무 리스크</div><div class="risk-title">매크로 리스크: US Regime NEUTRAL, VIX 20 — 글로벌 기술주 조정 시 </div><div class="risk-desc">매크로 리스크: US Regime NEUTRAL, VIX 20 — 글로벌 기술주 조정 시 동반 하락</div><span class="risk-tag rt-mid">MID</span></div></div>
+</div>
+</div>
+
+<!-- ═══ PANEL: 수급 ═══ -->
+<div id="panel-supply" class="panel">
+<div class="main">
+  <div class="section-title">수급 분석</div>
+  <div class="card"><div class="flow-item"><div class="flow-name" style="color:var(--ink3)">수급 데이터 없음</div></div></div>
+</div>
+</div>
+
+<!-- ═══ PANEL: 결론 ═══ -->
+<div id="panel-conclusion" class="panel">
+<div class="main">
+  <div class="trade-box" style="margin-bottom:16px">
+    <div class="card-label">최종 투자 판단</div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
+      <span class="badge badge-hold" style="font-size:14px;padding:7px 16px">HOLD</span>
+      <div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;color:var(--cream);font-weight:600">신뢰도 62%</div>
+        <div style="font-size:11px;color:#6A6460;margin-top:2px">52주 고점 대비 -14.1% 조정 구간. SMA20 위 유지하나 모멘텀 약화. 거래량 급감으로 방향성 탐색 중.</div>
+      </div>
+    </div>
+    <div style="font-size:13px;color:#9A948C;line-height:1.75">HOLD 판단 근거: (1) 밸류에이션 극단(PBR 50x, PER 180x) - 성장 프리미엄 과다 반영, (2) 기술적으로 SMA20(277,000) 위 유지하나 52주 고점 미회복(-14.1%), (3) RSI 59.8 중립/MACD 양전환으로 추세 붕괴는 아닌 상태, (4) 캔들패턴 매도 우위(하락장악형/유성형/석별형 3건 vs 망치형 1건), (5) 거래량 급감(974만→35.9만)으로 추가 상승 동력 부족, (6) HBM/AI 구조적 성장 테마는 유효하나 밸류에이션 부담으로 진입 타이밍 아님.</div>
+  </div>
+  <div class="section-title">모니터링 체크리스트</div>
+  <div class="check-item"><div class="check-num">01</div><div class="check-text"><strong>매수 타이밍</strong> — SMA20(277,000원) 지지 확인 + 거래량 50만주 이상 양봉 출현 시 분할 매수 1차 진입. 볼린저 하단(245,242원) 접근 시 2차 추가 매수. RSI 40 이하 과매도 진입 시 비중 확대.</div></div>
+<div class="check-item"><div class="check-num">02</div><div class="check-text"><strong>매도/손절</strong> — SMA60(250,861원) 이탈 시 손절 검토. 목표가 T1(330,000원) 도달 시 50% 익절. 거래량 없이 SMA20 하향 이탈 지속 3일 시 전량 청산.</div></div>
+<div class="check-item"><div class="check-num">03</div><div class="check-text"><strong>리스크 모니터링</strong> — 밸류에이션 리스크: PER 180배는 향후 3년 EPS CAGR 50%+ 가정 — 실적 1분기만 미달해도 30%+ 급락 가능</div></div>
+<div class="check-item"><div class="check-num">04</div><div class="check-text"><strong>리스크 모니터링</strong> — 고객 집중 리스크: 삼성전자/SK하이닉스 양사 의존도 극도로 높음 — CAPEX 감축 시 직격</div></div>
+<div class="check-item"><div class="check-num">05</div><div class="check-text"><strong>리스크 모니터링</strong> — 경쟁 리스크: ASM Pacific, Shinkawa 등 TC본더 시장 진입 시도 — 독점 프리미엄 훼손 가능</div></div>
+  <div class="report-footer">
+    분석 기준일: 2026-04-17 · 데이터: pykrx · 분석: Claude Code CLI (claude-sonnet-4-6)<br>
+    Regime: BULL (75%) · 종목: 042700<br>
+    본 리포트는 참고용이며 투자 결정의 최종 책임은 투자자 본인에게 있습니다.
+  </div>
+</div>
+</div>
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'market') {
+    setTimeout(() => {
+      document.querySelectorAll('.mkt-bar-fill').forEach(b => { b.style.width = b.dataset.pct + '%'; });
+      initRegime();
+    }, 80);
+  }
+  if (id === 'candles') setTimeout(initCandles, 80);
+}
+function initCandles() {
+  const canvas = document.getElementById('candleCanvas');
+  if (!canvas || canvas._done) return; canvas._done = true;
+  const ohlcv = [{"d": "2026-01-20", "o": 176400, "h": 176400, "l": 169600, "c": 172100, "v": 974249}, {"d": "2026-01-21", "o": 167400, "h": 173300, "l": 165500, "c": 172200, "v": 1012880}, {"d": "2026-01-22", "o": 178700, "h": 178800, "l": 169400, "c": 170400, "v": 1034728}, {"d": "2026-01-23", "o": 169800, "h": 173800, "l": 168900, "c": 171100, "v": 644666}, {"d": "2026-01-26", "o": 171200, "h": 171400, "l": 168400, "c": 169500, "v": 753397}, {"d": "2026-01-27", "o": 169800, "h": 175800, "l": 164700, "c": 174800, "v": 1620819}, {"d": "2026-01-28", "o": 182000, "h": 184900, "l": 177600, "c": 182000, "v": 2220792}, {"d": "2026-01-29", "o": 198900, "h": 210000, "l": 189000, "c": 203500, "v": 7160116}, {"d": "2026-01-30", "o": 199900, "h": 220000, "l": 198400, "c": 211000, "v": 4364912}, {"d": "2026-02-02", "o": 205000, "h": 205000, "l": 186100, "c": 187100, "v": 2807793}, {"d": "2026-02-03", "o": 197500, "h": 199300, "l": 191300, "c": 199300, "v": 1841243}, {"d": "2026-02-04", "o": 194000, "h": 208000, "l": 191900, "c": 202500, "v": 1487504}, {"d": "2026-02-05", "o": 197100, "h": 200500, "l": 191700, "c": 193500, "v": 1211016}, {"d": "2026-02-06", "o": 190800, "h": 199400, "l": 180400, "c": 196000, "v": 1470302}, {"d": "2026-02-09", "o": 202500, "h": 203000, "l": 193700, "c": 197800, "v": 1365865}, {"d": "2026-02-10", "o": 197000, "h": 201000, "l": 194000, "c": 194900, "v": 825009}, {"d": "2026-02-11", "o": 192700, "h": 193900, "l": 187500, "c": 190500, "v": 670835}, {"d": "2026-02-12", "o": 200500, "h": 224500, "l": 199400, "c": 209500, "v": 5790612}, {"d": "2026-02-13", "o": 205500, "h": 208500, "l": 200000, "c": 202500, "v": 1093939}, {"d": "2026-02-19", "o": 207000, "h": 207500, "l": 200000, "c": 201500, "v": 817087}, {"d": "2026-02-20", "o": 200500, "h": 202000, "l": 197300, "c": 200500, "v": 836127}, {"d": "2026-02-23", "o": 201500, "h": 208500, "l": 200500, "c": 204000, "v": 939820}, {"d": "2026-02-24", "o": 203500, "h": 214000, "l": 196800, "c": 210000, "v": 1645860}, {"d": "2026-02-25", "o": 210500, "h": 215500, "l": 208000, "c": 214500, "v": 1064978}, {"d": "2026-02-26", "o": 233000, "h": 277500, "l": 228000, "c": 275500, "v": 6002195}, {"d": "2026-02-27", "o": 263500, "h": 332500, "l": 261500, "c": 323500, "v": 6701641}, {"d": "2026-03-03", "o": 314000, "h": 319500, "l": 280000, "c": 282000, "v": 2299627}, {"d": "2026-03-04", "o": 261500, "h": 300000, "l": 251500, "c": 259000, "v": 4796391}, {"d": "2026-03-05", "o": 302000, "h": 323000, "l": 301000, "c": 315000, "v": 3089855}, {"d": "2026-03-06", "o": 326000, "h": 334000, "l": 305000, "c": 333500, "v": 2232244}, {"d": "2026-03-09", "o": 303500, "h": 313500, "l": 293000, "c": 305000, "v": 1519978}, {"d": "2026-03-10", "o": 334500, "h": 335500, "l": 306500, "c": 324000, "v": 1602070}, {"d": "2026-03-11", "o": 326500, "h": 327500, "l": 303500, "c": 312500, "v": 1091554}, {"d": "2026-03-12", "o": 305000, "h": 317000, "l": 303500, "c": 317000, "v": 790870}, {"d": "2026-03-13", "o": 303000, "h": 313000, "l": 299000, "c": 305500, "v": 830276}, {"d": "2026-03-16", "o": 304500, "h": 305000, "l": 290000, "c": 300000, "v": 879249}, {"d": "2026-03-17", "o": 317500, "h": 318000, "l": 300000, "c": 301000, "v": 656744}, {"d": "2026-03-18", "o": 308500, "h": 312500, "l": 302000, "c": 311000, "v": 920505}, {"d": "2026-03-19", "o": 301000, "h": 313500, "l": 300000, "c": 307000, "v": 788358}, {"d": "2026-03-20", "o": 310000, "h": 318500, "l": 307500, "c": 309500, "v": 680315}, {"d": "2026-03-23", "o": 301500, "h": 313000, "l": 296000, "c": 297000, "v": 788575}, {"d": "2026-03-24", "o": 309500, "h": 309500, "l": 286500, "c": 296500, "v": 853963}, {"d": "2026-03-25", "o": 300500, "h": 304000, "l": 296500, "c": 300000, "v": 675633}, {"d": "2026-03-26", "o": 296000, "h": 298500, "l": 277000, "c": 278000, "v": 650141}, {"d": "2026-03-27", "o": 269000, "h": 281000, "l": 257000, "c": 275500, "v": 773071}, {"d": "2026-03-30", "o": 259500, "h": 264500, "l": 253500, "c": 260500, "v": 596465}, {"d": "2026-03-31", "o": 251000, "h": 265000, "l": 242500, "c": 251000, "v": 886467}, {"d": "2026-04-01", "o": 265500, "h": 275000, "l": 260000, "c": 273500, "v": 815377}, {"d": "2026-04-02", "o": 280500, "h": 282500, "l": 251500, "c": 256000, "v": 850313}, {"d": "2026-04-03", "o": 264000, "h": 264500, "l": 252500, "c": 260000, "v": 528858}, {"d": "2026-04-06", "o": 259500, "h": 263500, "l": 248500, "c": 252000, "v": 577342}, {"d": "2026-04-07", "o": 260500, "h": 262000, "l": 247500, "c": 253500, "v": 579361}, {"d": "2026-04-08", "o": 277000, "h": 281500, "l": 267500, "c": 280500, "v": 1027627}, {"d": "2026-04-09", "o": 278000, "h": 286000, "l": 271500, "c": 286000, "v": 646513}, {"d": "2026-04-10", "o": 290000, "h": 290500, "l": 278500, "c": 286000, "v": 1087130}, {"d": "2026-04-13", "o": 278000, "h": 280000, "l": 275000, "c": 276500, "v": 387276}, {"d": "2026-04-14", "o": 285000, "h": 286000, "l": 280500, "c": 284000, "v": 558026}, {"d": "2026-04-15", "o": 296000, "h": 296500, "l": 289500, "c": 295000, "v": 898476}, {"d": "2026-04-16", "o": 294000, "h": 295000, "l": 288000, "c": 292000, "v": 458794}, {"d": "2026-04-17", "o": 290500, "h": 291000, "l": 285500, "c": 286500, "v": 359159}];
+  const patterns = [{"date": "2026-03-10", "pattern": "\uc11d\ubcc4\ud615", "signal": "sell", "desc": "3\uce94\ub4e4 \ucc9c\uc7a5 \ubc18\uc804 \u2014 \uacbd\uacc4 \uc2e0\ud638"}, {"date": "2026-03-16", "pattern": "\ub9dd\uce58\ud615", "signal": "buy", "desc": "\ud558\ub77d \ud6c4 \uc800\uc810 \ubc18\uc804 \u2014 \ub9e4\uc218 \uc2e0\ud638"}, {"date": "2026-03-20", "pattern": "\ub3c4\uc9c0", "signal": "neutral", "desc": "\ub9e4\uc218/\ub9e4\ub3c4 \uade0\ud615 \u2014 \ubc29\ud5a5 \uc804\ud658 \ub300\uae30"}, {"date": "2026-03-23", "pattern": "\uc720\uc131\ud615", "signal": "sell", "desc": "\uc0c1\uc2b9 \ud6c4 \uace0\uc810 \uac70\ubd80 \u2014 \ub9e4\ub3c4 \uacbd\uacc4"}, {"date": "2026-03-25", "pattern": "\ub3c4\uc9c0", "signal": "neutral", "desc": "\ub9e4\uc218/\ub9e4\ub3c4 \uade0\ud615 \u2014 \ubc29\ud5a5 \uc804\ud658 \ub300\uae30"}, {"date": "2026-03-30", "pattern": "\ub3c4\uc9c0", "signal": "neutral", "desc": "\ub9e4\uc218/\ub9e4\ub3c4 \uade0\ud615 \u2014 \ubc29\ud5a5 \uc804\ud658 \ub300\uae30"}, {"date": "2026-03-31", "pattern": "\ub3c4\uc9c0", "signal": "neutral", "desc": "\ub9e4\uc218/\ub9e4\ub3c4 \uade0\ud615 \u2014 \ubc29\ud5a5 \uc804\ud658 \ub300\uae30"}, {"date": "2026-04-02", "pattern": "\ud558\ub77d\uc7a5\uc545\ud615", "signal": "sell", "desc": "\uc804\uc77c \uc591\ubd09 \uc644\uc804 \ud3ec\ud568 \u2014 \uac15\ud55c \ub9e4\ub3c4 \uc804\ud658"}];
+  if (!ohlcv.length) {
+    const msg = document.createElement('p');
+    msg.style.cssText = 'color:var(--ink3);padding:16px';
+    msg.textContent = 'OHLCV 데이터 없음';
+    canvas.parentElement.replaceChild(msg, canvas);
+    return;
+  }
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth; const H = canvas.height;
+  canvas.width = W;
+  const PAD_L = 8, PAD_R = 8, PAD_TOP = 20, VOL_H = Math.floor(H * 0.18);
+  const chartH = H - PAD_TOP - VOL_H - 4;
+  const n = ohlcv.length;
+  const barW = Math.max(3, Math.floor((W - PAD_L - PAD_R) / n) - 1);
+  const gap = Math.floor((W - PAD_L - PAD_R) / n);
+  const highs = ohlcv.map(r => r.h), lows = ohlcv.map(r => r.l);
+  const priceMax = Math.max(...highs), priceMin = Math.min(...lows);
+  const priceRange = priceMax - priceMin || 1;
+  const vols = ohlcv.map(r => r.v), volMax = Math.max(...vols) || 1;
+  const py = p => PAD_TOP + chartH - ((p - priceMin) / priceRange) * chartH;
+  const vy = v => H - Math.floor((v / volMax) * VOL_H);
+  const patDates = new Set(patterns.map(p => p.date));
+  for (let i = 0; i < n; i++) {
+    const r = ohlcv[i];
+    const x = PAD_L + i * gap + Math.floor(gap / 2);
+    const isBull = r.c >= r.o;
+    const color = isBull ? '#5CB87A' : '#E8806A';
+    ctx.strokeStyle = color; ctx.fillStyle = color;
+    ctx.beginPath(); ctx.lineWidth = 1;
+    ctx.moveTo(x, py(r.h)); ctx.lineTo(x, py(r.l)); ctx.stroke();
+    const bodyTop = py(Math.max(r.o, r.c));
+    const bodyBot = py(Math.min(r.o, r.c));
+    const bodyH = Math.max(1, bodyBot - bodyTop);
+    const bx = x - Math.floor(barW / 2);
+    ctx.fillRect(bx, bodyTop, barW, bodyH);
+    ctx.globalAlpha = 0.35;
+    ctx.fillRect(bx, vy(r.v), barW, H - vy(r.v));
+    ctx.globalAlpha = 1.0;
+    if (i % 10 === 0 && r.d) {
+      ctx.fillStyle = '#8A857C'; ctx.font = '9px IBM Plex Mono,monospace';
+      ctx.fillText(r.d.slice(5), x - 10, H - 2);
+    }
+    if (patDates.has(r.d)) {
+      const pat = patterns.find(p => p.date === r.d);
+      if (pat) {
+        ctx.font = 'bold 11px sans-serif';
+        if (pat.signal === 'buy') { ctx.fillStyle = '#1E7A45'; ctx.fillText('▲', x - 4, py(r.l) + 14); }
+        else if (pat.signal === 'sell') { ctx.fillStyle = '#C8523A'; ctx.fillText('▼', x - 4, py(r.h) - 4); }
+        else { ctx.fillStyle = '#C9842A'; ctx.fillText('◆', x - 4, py(r.l) + 14); }
+      }
+    }
+  }
+  const pl = document.getElementById('patternList');
+  while (pl.firstChild) pl.removeChild(pl.firstChild);
+  if (patterns.length === 0) { pl.textContent = '감지된 패턴 없음 (최근 60일)'; return; }
+  const tbl = document.createElement('table');
+  tbl.style.cssText = 'width:100%;border-collapse:collapse;font-size:12.5px';
+  const hdrRow = tbl.insertRow();
+  hdrRow.style.background = '#1A1814'; hdrRow.style.color = '#FAF9F6';
+  ['날짜','패턴','신호','설명'].forEach(h => {
+    const th = document.createElement('th');
+    th.textContent = h;
+    th.style.cssText = 'padding:7px 12px;text-align:left;font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:.06em;font-weight:500';
+    hdrRow.appendChild(th);
+  });
+  patterns.slice().reverse().forEach(p => {
+    const row = tbl.insertRow();
+    const signalColor = p.signal === 'buy' ? '#1E7A45' : p.signal === 'sell' ? '#C8523A' : '#C9842A';
+    const signalBg = p.signal === 'buy' ? '#E8F5EE' : p.signal === 'sell' ? '#FBF0ED' : '#FBF3E2';
+    const signalLabel = p.signal === 'buy' ? '매수' : p.signal === 'sell' ? '매도' : '중립';
+    const cellStyle = 'padding:9px 12px;border-bottom:1px solid #E8E3DB;color:#4A4540';
+    [p.date, p.pattern, p.desc].forEach((txt, ci) => {
+      const td2 = row.insertCell();
+      td2.style.cssText = cellStyle;
+      if (ci === 1) {
+        const span = document.createElement('span');
+        span.textContent = signalLabel;
+        span.style.cssText = 'display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-family:IBM Plex Mono,monospace;background:' + signalBg + ';color:' + signalColor;
+        const nameNode = document.createTextNode(p.pattern + ' ');
+        td2.appendChild(nameNode);
+        td2.appendChild(span);
+      } else {
+        td2.textContent = txt;
+      }
+    });
+  });
+  pl.appendChild(tbl);
+}
+function initRegime() {
+  const c = document.getElementById('regimeChart');
+  if (!c || c._done) return; c._done = true;
+  const conf = 75;
+  const color = conf >= 70 ? '#1E7A45' : conf >= 50 ? '#C9842A' : '#C8523A';
+  new Chart(c, {
+    type: 'doughnut',
+    data: { datasets: [{ data: [conf, 100-conf], backgroundColor: [color, '#E8E3DB'], borderWidth: 0 }] },
+    options: { cutout: '72%', plugins: { legend: { display: false }, tooltip: { enabled: false } }, animation: { duration: 900 } }
+  });
+}
+</script>
+</body>
+</html>

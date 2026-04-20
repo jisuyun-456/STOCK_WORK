@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>셀트리온 — KR Research</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --cream:    #F5F5F7;  --cream2:   #E8E8ED;
+  --surface:  #FFFFFF;  --ink:      #1D1D1F;
+  --ink2:     #3A3A3C;  --ink3:     #6E6E73;
+  --border:   #D2D2D7;
+  --blue:     #0071E3;  --blue-bg:  #F0F6FF;
+  --amber:    #FF9500;  --amber-bg: #FFF5E0;
+  --up:       #34C759;  --up-bg:    #E8FAF0;
+  --dn:       #FF3B30;  --dn-bg:    #FFF0EF;
+  --nav-bg:   #1D1D1F;
+  --shadow:   0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.06);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--cream); color:var(--ink); font-family:'SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; font-size:13px; line-height:1.65; -webkit-font-smoothing:antialiased; }
+
+/* NAV */
+.nav { background:linear-gradient(180deg,#2D2D2F 0%,var(--nav-bg) 100%); border-bottom:1px solid rgba(255,255,255,0.12); padding:0 32px; height:52px; display:flex; align-items:center; position:sticky; top:0; z-index:100; }
+.nav-logo { font-size:15px; font-weight:700; color:#F5F5F7; margin-right:24px; letter-spacing:-0.02em; }
+.nav-logo span { color:var(--blue); }
+.nav-tabs { display:flex; gap:2px; flex:1; }
+.nav-tab { padding:5px 13px; border-radius:6px; font-size:11.5px; font-weight:500; font-family:'SF Mono','Fira Code',monospace; letter-spacing:0.02em; cursor:pointer; color:#86868B; background:transparent; border:none; transition:all 0.15s ease; white-space:nowrap; }
+.nav-tab:hover:not(.active) { background:rgba(255,255,255,0.10); color:#AEAEB2; }
+.nav-tab.active { background:var(--blue); color:#fff; font-weight:600; }
+.nav-meta { margin-left:auto; font-family:'SF Mono','Fira Code',monospace; font-size:10px; color:#636366; letter-spacing:0.06em; text-align:right; line-height:1.4; }
+
+/* PANELS */
+.panel { display:none; }
+.panel.active { display:block; }
+
+/* COMPANY HEADER */
+.co-header { background:linear-gradient(135deg,#2D2D2F 0%,var(--nav-bg) 60%,#000 100%); padding:24px 32px 22px; position:relative; overflow:hidden; }
+.co-header::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(0,113,227,0.10) 0%,transparent 55%); pointer-events:none; }
+.co-sub { font-family:'SF Mono','Fira Code',monospace; font-size:10px; color:#636366; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px; }
+.co-name { font-size:28px; font-weight:700; color:#F5F5F7; letter-spacing:-0.03em; margin-bottom:3px; }
+.co-desc { font-size:12px; color:#86868B; margin-bottom:16px; }
+.co-rating-row { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+.badge { display:inline-flex; align-items:center; padding:5px 12px; border-radius:6px; font-family:'SF Mono','Fira Code',monospace; font-size:12px; font-weight:600; letter-spacing:0.04em; }
+.badge-buy  { background:var(--up);   color:#fff; }
+.badge-hold { background:var(--amber);color:#fff; }
+.badge-sell { background:var(--dn);   color:#fff; }
+.badge-veto { background:#3A3A3C;     color:#F5F5F7; }
+.price-chip { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:8px 14px; }
+.price-label { font-size:10px; color:#636366; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:2px; }
+.price-display { font-family:'SF Mono','Fira Code',monospace; font-size:17px; font-weight:600; color:#F5F5F7; }
+.up-label { color:var(--up); font-family:'SF Mono','Fira Code',monospace; font-size:11px; }
+.dn-label { color:var(--dn); font-family:'SF Mono','Fira Code',monospace; font-size:11px; }
+
+/* LAYOUT */
+.main { padding:24px 32px; max-width:1280px; margin:0 auto; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 20px; box-shadow:var(--shadow); }
+.card-label { font-family:'SF Mono','Fira Code',monospace; font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink3); margin-bottom:8px; }
+.section-title { font-family:'SF Mono','Fira Code',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink3); padding:16px 0 8px; border-bottom:1px solid var(--border); margin-bottom:12px; }
+
+/* THESIS */
+.thesis { background:var(--blue-bg); border:1px solid #C5DCF8; border-left:3px solid var(--blue); border-radius:12px; padding:16px 18px; margin-bottom:16px; }
+.thesis-label { font-family:'SF Mono','Fira Code',monospace; font-size:9px; letter-spacing:0.14em; color:var(--blue); text-transform:uppercase; margin-bottom:8px; font-weight:600; }
+.thesis-text { font-size:13px; color:var(--ink2); line-height:1.75; }
+
+/* METRICS */
+.metrics-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:16px; }
+.metric-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:13px 14px; box-shadow:var(--shadow); }
+.metric-label { font-size:10px; color:var(--ink3); margin-bottom:4px; }
+.metric-val { font-family:'SF Mono','Fira Code',monospace; font-size:15px; font-weight:600; color:var(--ink); }
+.metric-sub { font-size:10px; margin-top:2px; font-family:'SF Mono','Fira Code',monospace; }
+.up { color:var(--up); } .dn { color:var(--dn); } .neutral { color:var(--amber); }
+
+/* SCENARIOS */
+.scenarios { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px; }
+.sc { border-radius:12px; padding:16px; border:1px solid var(--border); }
+.sc-bull { background:var(--up-bg);  border-color:#A8E6C0; }
+.sc-base { background:var(--cream); }
+.sc-bear { background:var(--dn-bg);  border-color:#FFB8B5; }
+.sc-type { font-family:'SF Mono','Fira Code',monospace; font-size:9px; letter-spacing:0.12em; color:var(--ink3); text-transform:uppercase; margin-bottom:6px; }
+.sc-price { font-family:'SF Mono','Fira Code',monospace; font-size:20px; font-weight:600; margin-bottom:4px; }
+.sc-bull .sc-price { color:var(--up); } .sc-base .sc-price { color:var(--ink); } .sc-bear .sc-price { color:var(--dn); }
+.sc-text { font-size:12px; color:var(--ink2); line-height:1.65; }
+
+/* MARKET BARS */
+.market-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+.mkt-bars { display:flex; flex-direction:column; gap:10px; }
+.mkt-row { display:flex; align-items:center; gap:12px; }
+.mkt-name { font-family:'SF Mono','Fira Code',monospace; font-size:11px; color:var(--ink2); width:68px; }
+.mkt-bar-track { flex:1; height:5px; background:var(--cream2); border-radius:3px; overflow:hidden; }
+.mkt-bar-fill { height:100%; border-radius:3px; width:0; transition:width 1.1s cubic-bezier(0.4,0,0.2,1); }
+.mkt-bar-up { background:var(--up); } .mkt-bar-dn { background:var(--dn); } .mkt-bar-neu { background:var(--amber); }
+.mkt-val { font-family:'SF Mono','Fira Code',monospace; font-size:12px; color:var(--ink); width:100px; text-align:right; }
+.mkt-pct { font-family:'SF Mono','Fira Code',monospace; font-size:11px; width:56px; text-align:right; }
+
+/* TECH TABLE */
+.tech-table { width:100%; border-collapse:collapse; font-size:12.5px; margin-bottom:16px; }
+.tech-table th { background:var(--nav-bg); color:#F5F5F7; padding:7px 12px; text-align:left; font-family:'SF Mono','Fira Code',monospace; font-size:10px; letter-spacing:0.06em; font-weight:500; }
+.tech-table td { padding:9px 12px; border-bottom:1px solid var(--border); color:var(--ink2); }
+.tech-table tr:last-child td { border-bottom:none; }
+.tech-table tr:nth-child(even) td { background:var(--cream); }
+.signal-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:10px; font-family:'SF Mono','Fira Code',monospace; }
+.sig-up   { background:var(--up-bg);    color:var(--up); }
+.sig-warn { background:var(--amber-bg); color:var(--amber); }
+.sig-dn   { background:var(--dn-bg);    color:var(--dn); }
+
+/* PRICE LADDER */
+.ladder-row { display:flex; align-items:center; padding:7px 4px; border-bottom:1px solid var(--border); }
+.ladder-row:last-child { border-bottom:none; }
+.ladder-price { width:150px; text-align:right; font-family:'SF Mono','Fira Code',monospace; font-size:12px; font-weight:600; padding-right:14px; color:var(--ink3); }
+.ladder-line  { flex:1; height:2px; background:var(--cream2); }
+.ladder-label { padding-left:14px; font-family:'SF Mono','Fira Code',monospace; font-size:11px; color:var(--ink3); }
+.ladder-current { background:rgba(0,113,227,0.07); border-radius:6px; margin:2px 0; }
+.ladder-current .ladder-price { color:var(--blue); }
+.ladder-current .ladder-line  { background:var(--blue); height:3px; }
+.ladder-current .ladder-label { color:var(--blue); font-weight:600; }
+.ladder-target1 .ladder-price { color:var(--up); } .ladder-target1 .ladder-line { background:var(--up-bg); }
+.ladder-target2 .ladder-price { color:#30B652; }   .ladder-target2 .ladder-line { background:var(--up-bg); }
+.ladder-stop .ladder-price    { color:var(--dn); } .ladder-stop .ladder-line    { background:var(--dn-bg); }
+.ladder-entry .ladder-price   { color:var(--amber); } .ladder-entry .ladder-line { background:var(--amber-bg); }
+
+/* TRADE BOX */
+.trade-box { background:var(--nav-bg); border-radius:12px; padding:18px 20px; margin-bottom:16px; position:relative; overflow:hidden; }
+.trade-box::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(0,113,227,0.10) 0%,transparent 60%); pointer-events:none; }
+.trade-box .card-label { color:var(--blue); }
+.trade-row { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
+.trade-item .tlabel { font-size:10px; color:#636366; margin-bottom:4px; font-family:'SF Mono','Fira Code',monospace; letter-spacing:0.04em; }
+.trade-item .tval   { font-family:'SF Mono','Fira Code',monospace; font-size:14px; font-weight:600; color:#F5F5F7; }
+.trade-item .tsub   { font-size:10px; font-family:'SF Mono','Fira Code',monospace; margin-top:2px; color:#636366; }
+.trade-item.t1 .tval   { color:var(--up); }
+.trade-item.t2 .tval   { color:#30D158; }
+.trade-item.stop .tval { color:var(--dn); }
+.trade-item.rr .tval   { color:var(--blue); font-size:18px; }
+.trade-trigger { margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08); font-size:11.5px; color:#86868B; font-family:'SF Mono','Fira Code',monospace; line-height:1.75; }
+.trigger-label { color:var(--blue); font-size:9px; text-transform:uppercase; letter-spacing:0.12em; margin-bottom:4px; }
+
+/* FACTORS */
+.factors-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+.factor-col-header { display:flex; align-items:center; gap:8px; font-weight:600; font-size:13px; margin-bottom:12px; padding-bottom:8px; border-bottom:2px solid; }
+.fch-up { border-color:var(--up); color:var(--up); }
+.fch-dn { border-color:var(--dn); color:var(--dn); }
+.factor-item { display:flex; align-items:flex-start; gap:8px; padding:10px 0; border-bottom:1px solid var(--border); }
+.factor-item:last-child { border-bottom:none; }
+.factor-icon { width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; flex-shrink:0; margin-top:1px; }
+.fi-up { background:var(--up-bg); color:var(--up); }
+.fi-dn { background:var(--dn-bg); color:var(--dn); }
+.factor-text { font-size:12.5px; color:var(--ink2); line-height:1.6; }
+
+/* RISK */
+.risk-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.risk-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 15px; }
+.risk-title { font-size:13px; font-weight:600; color:var(--ink); margin-bottom:4px; }
+.risk-desc  { font-size:12px; color:var(--ink2); line-height:1.65; }
+.risk-tag { display:inline-block; padding:1px 7px; border-radius:3px; font-size:10px; font-family:'SF Mono','Fira Code',monospace; margin-top:6px; }
+.rt-high { background:var(--dn-bg);    color:var(--dn); }
+.rt-mid  { background:var(--amber-bg); color:var(--amber); }
+.rt-low  { background:var(--up-bg);    color:var(--up); }
+
+/* SUPPLY */
+.flow-item { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border); }
+.flow-item:last-child { border-bottom:none; }
+.flow-name { font-size:12.5px; color:var(--ink2); }
+.flow-val  { font-family:'SF Mono','Fira Code',monospace; font-size:13px; font-weight:500; }
+
+/* CHECKLIST */
+.check-item { display:flex; gap:10px; padding:10px 12px; border-radius:8px; margin-bottom:6px; background:var(--cream); border:1px solid var(--border); }
+.check-num  { font-family:'SF Mono','Fira Code',monospace; font-size:11px; color:var(--blue); font-weight:600; flex-shrink:0; width:20px; }
+.check-text { font-size:12.5px; color:var(--ink2); line-height:1.6; }
+
+/* FOOTER */
+.report-footer { margin-top:32px; padding-top:16px; border-top:1px solid var(--border); font-size:11px; color:var(--ink3); font-family:'SF Mono','Fira Code',monospace; line-height:1.7; }
+
+/* ANIMATION */
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.panel.active > * { animation:fadeUp 0.3s ease both; }
+.panel.active > *:nth-child(2){animation-delay:0.06s}
+.panel.active > *:nth-child(3){animation-delay:0.12s}
+.panel.active > *:nth-child(4){animation-delay:0.18s}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">KR <span>Research</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="show('summary',this)">요약</button>
+    <button class="nav-tab" onclick="show('market',this)">시장</button>
+    <button class="nav-tab" onclick="show('chart',this)">차트/기술</button>
+    <button class="nav-tab" onclick="show('valuation',this)">밸류에이션</button>
+    <button class="nav-tab" onclick="show('strategy',this)">투자전략</button>
+    <button class="nav-tab" onclick="show('scenario',this)">시나리오</button>
+    <button class="nav-tab" onclick="show('risk',this)">리스크/수급</button>
+    <button class="nav-tab" onclick="show('conclusion',this)">결론</button>
+  </div>
+  <div class="nav-meta">셀트리온 · 068270<br>2026-04-18 · KOSPI</div>
+</nav>
+
+<!-- COMPANY HEADER -->
+<div class="co-header">
+  <div class="co-sub">KOSPI EQUITY RESEARCH · 바이오/헬스케어 · KR RESEARCH</div>
+  <div class="co-name">셀트리온</div>
+  <div class="co-desc">068270 · KOSPI · 바이오/헬스케어 · 현재가 207,500원</div>
+  <div class="co-rating-row">
+    <span class="badge badge-buy">BUY</span>
+    <div class="price-chip"><div class="price-label">현재가</div><div class="price-display">207,500원</div></div>
+    <div class="price-chip"><div class="price-label">T1 목표가</div><div class="price-display" style="color:#34C759">240,000원</div><div class="up-label">+15.7%</div></div>
+    <div class="price-chip"><div class="price-label">T2 목표가</div><div class="price-display" style="color:#30D158">260,000원</div><div class="up-label">+25.3%</div></div>
+    <div class="price-chip"><div class="price-label">손절가</div><div class="price-display" style="color:#FF3B30">183,000원</div><div class="dn-label">-11.8%</div></div>
+    <div style="margin-left:auto;text-align:right">
+      <div style="font-size:10px;color:#636366;font-family:'SF Mono','Fira Code',monospace;margin-bottom:4px;">신뢰도</div>
+      <div style="font-family:'SF Mono','Fira Code',monospace;font-size:14px;color:#FF9500;font-weight:600;">66%</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PANEL: 요약 ═══ -->
+<div id="panel-summary" class="panel active">
+<div class="main">
+  <div class="thesis">
+    <div class="thesis-label">Why Invest — 투자 의견</div>
+    <div class="thesis-text">셀트리온헬스케어 합병 완료로 직판 체계 내재화. 짐펜트라(미국) + 베그젤마(유럽) + 유플라이마 신제품 3각 편대. 바이오시밀러 시장 CAGR 15% 성장 수혜. ROE 개선 추세(합병 시너지 2026년 본격화).</div>
+  </div>
+  <div class="section-title">핵심 지표</div>
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-label">현재가</div>
+      <div class="metric-val">207,500</div>
+      <div class="metric-sub neutral">BUY 구간</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">매수 구간</div>
+      <div class="metric-val" style="font-size:13px">193,000–203,000</div>
+      <div class="metric-sub" style="color:var(--ink3)">조정 시 진입</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">T1 목표가 (보수)</div>
+      <div class="metric-val up">240,000</div>
+      <div class="metric-sub up">+15.7% · 50% 청산</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">T2 목표가 (공격)</div>
+      <div class="metric-val up">260,000</div>
+      <div class="metric-sub up">+25.3% · 잔량 청산</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">손절가</div>
+      <div class="metric-val dn">183,000</div>
+      <div class="metric-sub dn">-11.8%</div>
+    </div>
+  </div>
+  <div class="section-title">시나리오 전망 (3~6개월)</div>
+  <div class="scenarios">
+    <div class="sc sc-bull">
+      <div class="sc-type">Bull Case</div>
+      <div class="sc-price" style="font-size:16px">짐펜트라 미국 점유율 10% 이상 조기 달성 + 유럽 베그젤마 가이던스 상향 — T2: 260,000원(+2</div>
+    </div>
+    <div class="sc sc-base">
+      <div class="sc-type">Base Case</div>
+      <div class="sc-price" style="font-size:16px">합병 시너지 순조로운 실현, 2026년 영업이익 20% 성장 — T1: 240,000원(+15.7%)</div>
+    </div>
+    <div class="sc sc-bear">
+      <div class="sc-type">Bear Case</div>
+      <div class="sc-price" style="font-size:16px">짐펜트라 점유율 부진 + 합병 비용 초과 — SMA200 190,000원 지지 테스트</div>
+    </div>
+  </div>
+  <div class="report-footer">분석 기준일: 2026-04-18 · 데이터: pykrx · 분석: Claude Code CLI (claude-sonnet-4-6)<br>본 리포트는 참고용이며 투자 결정의 최종 책임은 투자자 본인에게 있습니다.</div>
+</div>
+</div>
+
+<!-- ═══ PANEL: 시장 ═══ -->
+<div id="panel-market" class="panel">
+<div class="main">
+  <div class="section-title">시장 컨텍스트 · 2026-04-18 기준</div>
+  <div class="market-grid">
+    <div class="card">
+      <div class="card-label">글로벌 시장 현황</div>
+      <div class="mkt-bars">
+        <div class="mkt-row"><div class="mkt-name">NASDAQ</div><div class="mkt-bar-track"><div class="mkt-bar-fill mkt-bar-up" data-pct="80"></div></div><div class="mkt-val">24,468p</div><div class="mkt-pct up">+1.5%</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">KR Regime</div>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
+        <canvas id="regimeChart" width="80" height="80"></canvas>
+        <div>
+          <div style="font-size:22px;font-weight:700;color:var(--amber);font-family:'SF Mono','Fira Code',monospace">NEUTRAL</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:2px">신뢰도 50%</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:4px">SMA20 상방, SMA60 하방 — 박스권 중반. BB 상단 근접으로 단기 저항 구간</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ PANEL: 차트/기술 ═══ -->
+<div id="panel-chart" class="panel">
+<div class="main">
+  <div class="section-title">캔들스틱 차트 (최근 60일)</div>
+  <div class="card" style="padding:16px 8px">
+    <canvas id="candleCanvas" height="380" style="width:100%;display:block"></canvas>
+  </div>
+  <div class="section-title" style="margin-top:20px">감지된 패턴</div>
+  <div class="card" id="patternList" style="padding:14px 16px">패턴 없음</div>
+  <div class="section-title" style="margin-top:24px">기술적 지표</div>
+  <table class="tech-table"><thead><tr><th>지표</th><th>값</th><th>신호</th></tr></thead><tbody><tr><td>SMA20</td><td style="font-family:'SF Mono','Fira Code',monospace">200,130원</td><td><span class='signal-tag sig-up'>상방 ✅</span></td></tr><tr><td>SMA60</td><td style="font-family:'SF Mono','Fira Code',monospace">212,308원</td><td><span class='signal-tag sig-warn'>하방 ⚠️</span></td></tr><tr><td>SMA200</td><td style="font-family:'SF Mono','Fira Code',monospace">189,591원</td><td><span class='signal-tag sig-up'>상방 ✅</span></td></tr><tr><td>RSI(14)</td><td style="font-family:'SF Mono','Fira Code',monospace">55.3</td><td><span class="signal-tag sig-up">중립</span></td></tr><tr><td>MACD</td><td style="font-family:'SF Mono','Fira Code',monospace">-1,459</td><td><span class="signal-tag sig-up">상승추세유지</span></td></tr><tr><td>볼린저 상단</td><td style="font-family:'SF Mono','Fira Code',monospace">210,148원</td><td><span class='signal-tag sig-warn'>위치 86.8%</span></td></tr><tr><td>볼린저 하단</td><td style="font-family:'SF Mono','Fira Code',monospace">190,112원</td><td><span class="signal-tag sig-warn">상단 근접(과매수 주의)</span></td></tr></tbody></table>
+  <div class="section-title">가격 레벨</div>
+  <div class="ladder-row ladder-target2"><div class="ladder-price">260,000원</div><div class="ladder-line"></div><div class="ladder-label">T2 목표가</div></div>
+<div class="ladder-row "><div class="ladder-price">248,500원</div><div class="ladder-line"></div><div class="ladder-label">52주 고가</div></div>
+<div class="ladder-row ladder-target1"><div class="ladder-price">240,000원</div><div class="ladder-line"></div><div class="ladder-label">T1 목표가</div></div>
+<div class="ladder-row ladder-current"><div class="ladder-price">207,500원</div><div class="ladder-line"></div><div class="ladder-label">현재가 ◀</div></div>
+<div class="ladder-row ladder-entry"><div class="ladder-price">203,000원</div><div class="ladder-line"></div><div class="ladder-label">매수 구간 상단</div></div>
+<div class="ladder-row "><div class="ladder-price">200,130원</div><div class="ladder-line"></div><div class="ladder-label">SMA20 (지지)</div></div>
+<div class="ladder-row ladder-entry"><div class="ladder-price">193,000원</div><div class="ladder-line"></div><div class="ladder-label">매수 구간 하단</div></div>
+<div class="ladder-row "><div class="ladder-price">189,591원</div><div class="ladder-line"></div><div class="ladder-label">SMA200</div></div>
+<div class="ladder-row ladder-stop"><div class="ladder-price">183,000원</div><div class="ladder-line"></div><div class="ladder-label">손절가</div></div>
+<div class="ladder-row "><div class="ladder-price">146,215원</div><div class="ladder-line"></div><div class="ladder-label">52주 저가</div></div>
+  <div style="margin-top:12px;padding:12px;background:var(--cream2);border-radius:8px;font-size:12.5px;color:var(--ink2)">SMA20 상방, SMA60 하방 — 박스권 중반. BB 상단 근접으로 단기 저항 구간</div>
+</div>
+</div>
+
+<!-- ═══ PANEL: 밸류에이션 ═══ -->
+<div id="panel-valuation" class="panel">
+<div class="main">
+  <div class="section-title">밸류에이션 지표</div><div class="metrics-grid"><div class="metric-card"><div class="metric-label">PER (TTM)</div><div class="metric-val" style="">37.5배</div><div class="metric-sub neutral">수익성 지표</div></div><div class="metric-card"><div class="metric-label">PBR</div><div class="metric-val" style="">2.2배</div><div class="metric-sub neutral">자산가치 대비</div></div><div class="metric-card"><div class="metric-label">ROE</div><div class="metric-val" style="">7.2%</div><div class="metric-sub neutral">수익성</div></div><div class="metric-card"><div class="metric-label">배당수익률</div><div class="metric-val" style="">0.3%</div><div class="metric-sub neutral">현재가 기준</div></div></div><div class="section-title" style="margin-top:24px">섹터 피어 비교</div><div style="padding:12px;color:var(--ink3);font-size:12.5px">피어 데이터 없음 (analyzer 조회 필요)</div>
+</div>
+</div>
+
+<!-- ═══ PANEL: 투자전략 ═══ -->
+<div id="panel-strategy" class="panel">
+<div class="main">
+  <div class="trade-box">
+    <div class="card-label">Trade Setup</div>
+    <div class="trade-row">
+      <div class="trade-item">
+        <div class="tlabel">매수 구간</div>
+        <div class="tval" style="font-size:12px">193,000–203,000원</div>
+        <div class="tsub">분할 매수 권고</div>
+      </div>
+      <div class="trade-item t1">
+        <div class="tlabel">T1 목표 (50% 청산)</div>
+        <div class="tval">240,000원</div>
+        <div class="tsub" style="color:#5CB87A">+15.7%</div>
+      </div>
+      <div class="trade-item t2">
+        <div class="tlabel">T2 목표 (잔량)</div>
+        <div class="tval">260,000원</div>
+        <div class="tsub" style="color:#7DD8A0">+25.3%</div>
+      </div>
+      <div class="trade-item stop">
+        <div class="tlabel">손절가</div>
+        <div class="tval">183,000원</div>
+        <div class="tsub" style="color:#FF3B30">-11.8%</div>
+      </div>
+      <div class="trade-item rr">
+        <div class="tlabel">R:R 비율</div>
+        <div class="tval">2.8 : 1</div>
+        <div class="tsub" style="color:var(--blue)">Base case</div>
+      </div>
+    </div>
+    <div class="trade-trigger">
+      <div class="trigger-label">매수 타이밍</div>
+      SMA60(212,308) 돌파 + 거래량 20일 평균 150% 이상 시 1차 매수 진입
+      <br><br>
+      <div class="trigger-label">매도 타이밍</div>
+      SMA20(200,130) 이탈 + 거래량 감소 시 손절, 목표가 도달 시 T1에서 50% 청산
+    </div>
+  </div>
+  <div class="section-title">매수 근거 vs 매도/우려 요인</div>
+  <div class="factors-grid">
+    <div>
+      <div class="factor-col-header fch-up"><span style="font-size:14px">✅</span> 매수 근거</div>
+      <div class="factor-item"><div class="factor-icon fi-up">✓</div><div class="factor-text">합병 완료로 헬스케어 직판 마진 내재화 — GPM 35에서 40% 이상 확대 전망</div></div><div class="factor-item"><div class="factor-icon fi-up">✓</div><div class="factor-text">짐펜트라 미국 직접판매 본격화 — 블록버스터 램시마 후속 성장동력</div></div><div class="factor-item"><div class="factor-icon fi-up">✓</div><div class="factor-text">바이오시밀러 시장 CAGR 15% 고성장 지속, 글로벌 특허절벽 수혜</div></div><div class="factor-item"><div class="factor-icon fi-up">✓</div><div class="factor-text">금리 인하 사이클 — 바이오 섹터 멀티플 재평가 긍정적</div></div>
+    </div>
+    <div>
+      <div class="factor-col-header fch-dn"><span style="font-size:14px">❌</span> 매도/우려 요인</div>
+      <div class="factor-item"><div class="factor-icon fi-dn">✕</div><div class="factor-text">PER 37.5배 — 단기 실적 기대치 미달 시 멀티플 압축 가능성</div></div><div class="factor-item"><div class="factor-icon fi-dn">✕</div><div class="factor-text">ROE 7.2% — 합병 비용 반영으로 자본효율성 저하 구간</div></div><div class="factor-item"><div class="factor-icon fi-dn">✕</div><div class="factor-text">합병 통합 비용 2025~2026년 일회성 손익 변동성</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ PANEL: 시나리오 ═══ -->
+<div id="panel-scenario" class="panel">
+<div class="main">
+  <div class="section-title">시나리오 전망 상세 (3~6개월)</div>
+  <div class="scenarios" style="margin-bottom:24px">
+    <div class="sc sc-bull">
+      <div class="sc-type">Bull Case</div>
+      <div class="sc-text" style="color:var(--up)">짐펜트라 미국 점유율 10% 이상 조기 달성 + 유럽 베그젤마 가이던스 상향 — T2: 260,000원(+25.3%)</div>
+    </div>
+    <div class="sc sc-base">
+      <div class="sc-type">Base Case</div>
+      <div class="sc-text">합병 시너지 순조로운 실현, 2026년 영업이익 20% 성장 — T1: 240,000원(+15.7%)</div>
+    </div>
+    <div class="sc sc-bear">
+      <div class="sc-type">Bear Case</div>
+      <div class="sc-text" style="color:var(--dn)">짐펜트라 점유율 부진 + 합병 비용 초과 — SMA200 190,000원 지지 테스트</div>
+    </div>
+  </div>
+  <div class="section-title">기초 분석</div><table class="tech-table"><thead><tr><th>지표</th><th>값</th><th>비고</th></tr></thead><tbody><tr><td>PER (TTM)</td><td style="font-family:'SF Mono','Fira Code',monospace">37.5배</td><td style='color:var(--ink3);font-size:11px'>수익성 지표</td></tr><tr><td>PBR</td><td style="font-family:'SF Mono','Fira Code',monospace">2.2배</td><td style='color:var(--ink3);font-size:11px'>자산가치 대비</td></tr><tr><td>배당수익률</td><td style="font-family:'SF Mono','Fira Code',monospace">0.3%</td><td style='color:var(--ink3);font-size:11px'>현재가 기준</td></tr></tbody></table>
+</div>
+</div>
+
+<!-- ═══ PANEL: 리스크/수급 ═══ -->
+<div id="panel-risk" class="panel">
+<div class="main">
+  <div class="section-title">리스크 요인</div>
+  <div class="risk-grid"><div class="risk-card"><div class="card-label">기술적 리스크</div><div class="risk-title">FDA/EMA 바이오시밀러 허가 지연 리스크</div><div class="risk-desc">FDA/EMA 바이오시밀러 허가 지연 리스크</div><span class="risk-tag rt-high">HIGH</span></div>
+<div class="risk-card"><div class="card-label">지정학/규제 리스크</div><div class="risk-title">합병 통합 비용 과다 및 영업망 재편 지연</div><div class="risk-desc">합병 통합 비용 과다 및 영업망 재편 지연</div><span class="risk-tag rt-high">HIGH</span></div>
+<div class="risk-card"><div class="card-label">산업 리스크</div><div class="risk-title">글로벌 바이오시밀러 경쟁 심화로 ASP 하락</div><div class="risk-desc">글로벌 바이오시밀러 경쟁 심화로 ASP 하락</div><span class="risk-tag rt-mid">MID</span></div>
+<div class="risk-card"><div class="card-label">매크로 리스크</div><div class="risk-title">짐펜트라 미국 시장 점유율 확보 속도 부진</div><div class="risk-desc">짐펜트라 미국 시장 점유율 확보 속도 부진</div><span class="risk-tag rt-mid">MID</span></div></div>
+  <div class="section-title" style="margin-top:24px">수급 분석</div>
+  <div class="card"><div class="flow-item"><div class="flow-name" style="color:var(--ink3)">수급 데이터 없음</div></div></div>
+</div>
+</div>
+
+<!-- ═══ PANEL: 결론 ═══ -->
+<div id="panel-conclusion" class="panel">
+<div class="main">
+  <div class="trade-box" style="margin-bottom:16px">
+    <div class="card-label">최종 투자 판단</div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
+      <span class="badge badge-buy" style="font-size:14px;padding:7px 16px">BUY</span>
+      <div>
+        <div style="font-family:'SF Mono','Fira Code',monospace;font-size:18px;color:var(--cream);font-weight:600">신뢰도 66%</div>
+        <div style="font-size:11px;color:#6A6460;margin-top:2px">SMA20 상방, SMA60 하방 — 박스권 중반. BB 상단 근접으로 단기 저항 구간</div>
+      </div>
+    </div>
+    <div style="font-size:13px;color:#9A948C;line-height:1.75">consensus=0.68 [equity:BUY, technical:HOLD, macro:BUY, sector:BUY, commander:HOLD]</div>
+  </div>
+  <div class="section-title">모니터링 체크리스트</div>
+  <div class="check-item"><div class="check-num">01</div><div class="check-text"><strong>매수 타이밍</strong> — SMA60(212,308) 돌파 + 거래량 20일 평균 150% 이상 시 1차 매수 진입</div></div>
+<div class="check-item"><div class="check-num">02</div><div class="check-text"><strong>매도/손절</strong> — SMA20(200,130) 이탈 + 거래량 감소 시 손절, 목표가 도달 시 T1에서 50% 청산</div></div>
+<div class="check-item"><div class="check-num">03</div><div class="check-text"><strong>리스크 모니터링</strong> — FDA/EMA 바이오시밀러 허가 지연 리스크</div></div>
+<div class="check-item"><div class="check-num">04</div><div class="check-text"><strong>리스크 모니터링</strong> — 합병 통합 비용 과다 및 영업망 재편 지연</div></div>
+<div class="check-item"><div class="check-num">05</div><div class="check-text"><strong>리스크 모니터링</strong> — 글로벌 바이오시밀러 경쟁 심화로 ASP 하락</div></div>
+  <div class="report-footer">
+    분석 기준일: 2026-04-18 · 데이터: pykrx · 분석: Claude Code CLI (claude-sonnet-4-6)<br>
+    Regime: NEUTRAL (50%) · 종목: 068270<br>
+    본 리포트는 참고용이며 투자 결정의 최종 책임은 투자자 본인에게 있습니다.
+  </div>
+</div>
+</div>
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'market') {
+    setTimeout(() => {
+      document.querySelectorAll('.mkt-bar-fill').forEach(b => { b.style.width = b.dataset.pct + '%'; });
+      initRegime();
+    }, 80);
+  }
+  if (id === 'chart') setTimeout(initCandles, 80);
+}
+function initCandles() {
+  const canvas = document.getElementById('candleCanvas');
+  if (!canvas || canvas._done) return; canvas._done = true;
+  const ohlcv = [];
+  const patterns = [{"date": "2026-02-26", "pattern": "\ub3c4\uc9c0", "signal": "neutral"}, {"date": "2026-03-11", "pattern": "\ub3c4\uc9c0", "signal": "neutral"}, {"date": "2026-03-19", "pattern": "\uc720\uc131\ud615", "signal": "sell"}, {"date": "2026-03-27", "pattern": "\uc0c1\uc2b9\uc7a5\uc545\ud615", "signal": "buy"}, {"date": "2026-04-01", "pattern": "\ub9dd\uce58\ud615", "signal": "buy"}, {"date": "2026-04-02", "pattern": "\ud558\ub77d\uc7a5\uc545\ud615", "signal": "sell"}, {"date": "2026-04-08", "pattern": "\ub3c4\uc9c0", "signal": "neutral"}, {"date": "2026-04-14", "pattern": "\ub3c4\uc9c0", "signal": "neutral"}];
+  if (!ohlcv.length) {
+    const msg = document.createElement('p');
+    msg.style.cssText = 'color:var(--ink3);padding:16px';
+    msg.textContent = 'OHLCV 데이터 없음';
+    canvas.parentElement.replaceChild(msg, canvas);
+    return;
+  }
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth; const H = canvas.height;
+  canvas.width = W;
+  const PAD_L = 8, PAD_R = 8, PAD_TOP = 20, VOL_H = Math.floor(H * 0.18);
+  const chartH = H - PAD_TOP - VOL_H - 4;
+  const n = ohlcv.length;
+  const barW = Math.max(3, Math.floor((W - PAD_L - PAD_R) / n) - 1);
+  const gap = Math.floor((W - PAD_L - PAD_R) / n);
+  const highs = ohlcv.map(r => r.h), lows = ohlcv.map(r => r.l);
+  const priceMax = Math.max(...highs), priceMin = Math.min(...lows);
+  const priceRange = priceMax - priceMin || 1;
+  const vols = ohlcv.map(r => r.v), volMax = Math.max(...vols) || 1;
+  const py = p => PAD_TOP + chartH - ((p - priceMin) / priceRange) * chartH;
+  const vy = v => H - Math.floor((v / volMax) * VOL_H);
+  const patDates = new Set(patterns.map(p => p.date));
+  for (let i = 0; i < n; i++) {
+    const r = ohlcv[i];
+    const x = PAD_L + i * gap + Math.floor(gap / 2);
+    const isBull = r.c >= r.o;
+    const color = isBull ? '#5CB87A' : '#E8806A';
+    ctx.strokeStyle = color; ctx.fillStyle = color;
+    ctx.beginPath(); ctx.lineWidth = 1;
+    ctx.moveTo(x, py(r.h)); ctx.lineTo(x, py(r.l)); ctx.stroke();
+    const bodyTop = py(Math.max(r.o, r.c));
+    const bodyBot = py(Math.min(r.o, r.c));
+    const bodyH = Math.max(1, bodyBot - bodyTop);
+    const bx = x - Math.floor(barW / 2);
+    ctx.fillRect(bx, bodyTop, barW, bodyH);
+    ctx.globalAlpha = 0.35;
+    ctx.fillRect(bx, vy(r.v), barW, H - vy(r.v));
+    ctx.globalAlpha = 1.0;
+    if (i % 10 === 0 && r.d) {
+      ctx.fillStyle = '#6E6E73'; ctx.font = '9px SF Mono,Fira Code,monospace';
+      ctx.fillText(r.d.slice(5), x - 10, H - 2);
+    }
+    if (patDates.has(r.d)) {
+      const pat = patterns.find(p => p.date === r.d);
+      if (pat) {
+        ctx.font = 'bold 11px sans-serif';
+        if (pat.signal === 'buy') { ctx.fillStyle = '#34C759'; ctx.fillText('▲', x - 4, py(r.l) + 14); }
+        else if (pat.signal === 'sell') { ctx.fillStyle = '#FF3B30'; ctx.fillText('▼', x - 4, py(r.h) - 4); }
+        else { ctx.fillStyle = '#FF9500'; ctx.fillText('◆', x - 4, py(r.l) + 14); }
+      }
+    }
+  }
+  const pl = document.getElementById('patternList');
+  while (pl.firstChild) pl.removeChild(pl.firstChild);
+  if (patterns.length === 0) { pl.textContent = '감지된 패턴 없음 (최근 60일)'; return; }
+  const tbl = document.createElement('table');
+  tbl.style.cssText = 'width:100%;border-collapse:collapse;font-size:12.5px';
+  const hdrRow = tbl.insertRow();
+  hdrRow.style.background = '#1D1D1F'; hdrRow.style.color = '#F5F5F7';
+  ['날짜','패턴','신호','설명'].forEach(h => {
+    const th = document.createElement('th');
+    th.textContent = h;
+    th.style.cssText = 'padding:7px 12px;text-align:left;font-family:SF Mono,Fira Code,monospace;font-size:10px;letter-spacing:.06em;font-weight:500';
+    hdrRow.appendChild(th);
+  });
+  patterns.slice().reverse().forEach(p => {
+    const row = tbl.insertRow();
+    const signalColor = p.signal === 'buy' ? '#34C759' : p.signal === 'sell' ? '#FF3B30' : '#FF9500';
+    const signalBg = p.signal === 'buy' ? '#E8FAF0' : p.signal === 'sell' ? '#FFF0EF' : '#FFF5E0';
+    const signalLabel = p.signal === 'buy' ? '매수' : p.signal === 'sell' ? '매도' : '중립';
+    const cellStyle = 'padding:9px 12px;border-bottom:1px solid #D2D2D7;color:#3A3A3C';
+    [p.date, p.pattern, p.desc].forEach((txt, ci) => {
+      const td2 = row.insertCell();
+      td2.style.cssText = cellStyle;
+      if (ci === 1) {
+        const span = document.createElement('span');
+        span.textContent = signalLabel;
+        span.style.cssText = 'display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-family:SF Mono,Fira Code,monospace;background:' + signalBg + ';color:' + signalColor;
+        const nameNode = document.createTextNode(p.pattern + ' ');
+        td2.appendChild(nameNode);
+        td2.appendChild(span);
+      } else {
+        td2.textContent = txt;
+      }
+    });
+  });
+  pl.appendChild(tbl);
+}
+function initRegime() {
+  const c = document.getElementById('regimeChart');
+  if (!c || c._done) return; c._done = true;
+  const conf = 50;
+  const color = conf >= 70 ? '#34C759' : conf >= 50 ? '#FF9500' : '#FF3B30';
+  new Chart(c, {
+    type: 'doughnut',
+    data: { datasets: [{ data: [conf, 100-conf], backgroundColor: [color, '#D2D2D7'], borderWidth: 0 }] },
+    options: { cutout: '72%', plugins: { legend: { display: false }, tooltip: { enabled: false } }, animation: { duration: 900 } }
+  });
+}
+</script>
+</body>
+</html>

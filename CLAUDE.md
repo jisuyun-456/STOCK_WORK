@@ -127,8 +127,16 @@ Phase 7:   COMMIT    -> git add + commit + push
 | 상관관계 | <= 0.85 | REJECT |
 | 현금 버퍼 | >= 5% | REJECT |
 
-## 태스크 관리
-`.claude/feature_list.json` -- 전체 태스크 목록
+## 태스크 관리 (3단계 위계)
+
+| 우선순위 | 소스 | 경로 | 역할 |
+|---------|------|------|------|
+| **1** | **Obsidian log** | `ClaudeVault/_AutoResearch/STOCK/wiki/log.md` | 세션간 연속성, NEXT SESSION TASKS (세션 시작 시 필독) |
+| **2** | **AutoResearch** | `_AutoResearch/STOCK/wiki/` | iteration 이력, 실험 결과 |
+| **3** | **.claude/plans/** | `.claude/plans/*.md` | 구현 블루프린트 (코딩 착수 전 참조) |
+
+세션 시작 시: Obsidian log의 `## 🔴 NEXT SESSION TASKS` 섹션 확인 → 태스크 선택
+세션 종료 시: Obsidian log 업데이트 + git commit 필수
 
 ## 검증 체크포인트 (코딩 완료 후 필수)
 1. 훅 결과 확인
