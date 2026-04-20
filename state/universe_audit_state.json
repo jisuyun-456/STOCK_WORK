@@ -1,4 +1,13 @@
 {
-  "consecutive_delisted": {},
-  "last_audit_ts": "2026-04-13T10:30:22.756119+00:00"
+  "consecutive_delisted": {
+    "RUSSELL_2000_SUBSET:JAMF": 1,
+    "RUSSELL_2000_SUBSET:RXDX": 1,
+    "RUSSELL_2000_SUBSET:MRUS": 1,
+    "RUSSELL_2000_SUBSET:DINE": 1,
+    "RUSSELL_2000_SUBSET:FAT": 1,
+    "RUSSELL_2000_SUBSET:CSWI": 1,
+    "RUSSELL_2000_SUBSET:NOVA": 1,
+    "RUSSELL_2000_SUBSET:BIGC": 1
+  },
+  "last_audit_ts": "2026-04-20T10:47:56.504400+00:00"
 }
