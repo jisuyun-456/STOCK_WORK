@@ -23,3 +23,6 @@ graphify-out/cache/
 # 로컬 전용 파일 (커밋 불필요)
 .claude/settings.local.json
 .claude/worktrees/
+
+# 데이터 캐시 (parquet 바이너리, 재생성 가능)
+cache/
