@@ -69,3 +69,4 @@
 {"ts": "2026-04-23T18:41:58.643860+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 29, "exits": [], "mdd_status": {"MOM": "ok", "VAL": "ok", "QNT": "ok", "LEV": "ok", "LEV_ST": "ok", "GRW": "ok"}, "portfolio_mdd": "ok", "circuit_breaker_stage": "NORMAL"}
 {"ts": "2026-04-23T20:05:07.567856+00:00", "run_type": "monitor", "market_open": false, "positions_checked": 0, "exits": []}
 {"ts": "2026-04-23T21:12:56.171927+00:00", "run_type": "monitor", "market_open": false, "positions_checked": 0, "exits": []}
+{"ts": "2026-04-24T15:06:35.032668+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 29, "exits": [{"symbol": "INTC", "strategy": "QNT", "reason": "take_profit: 25.5% >= 20%", "plpc": 0.25469, "status": "filled"}], "mdd_status": {"MOM": "ok", "VAL": "ok", "QNT": "ok", "LEV": "ok", "LEV_ST": "ok", "GRW": "ok"}, "portfolio_mdd": "ok", "circuit_breaker_stage": "NORMAL"}
