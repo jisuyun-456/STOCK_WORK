@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-24T17:48:54.370755+00:00",
+  "last_updated": "2026-04-24T18:45:18.835066+00:00",
   "peaks": {
     "COP": {
       "peak_plpc": -0.00112,
@@ -69,67 +69,67 @@
     "APLD": {
       "peak_plpc": 0.1473,
       "strategy": "MOM",
-      "last_plpc": 0.14063
+      "last_plpc": 0.14365
     },
     "ASML": {
       "peak_plpc": 0.02902,
       "strategy": "MOM",
-      "last_plpc": 0.00311
+      "last_plpc": 0.00112
     },
     "RKLB": {
       "peak_plpc": 0.10958,
       "strategy": "QNT",
-      "last_plpc": -0.09767
+      "last_plpc": -0.09845
     },
     "WBD": {
       "peak_plpc": 0.00842,
       "strategy": "MOM",
-      "last_plpc": -0.00897
+      "last_plpc": -0.00915
     },
     "ADI": {
       "peak_plpc": 0.06548,
       "strategy": "QNT",
-      "last_plpc": 0.0612
+      "last_plpc": 0.05621
     },
     "ADP": {
       "peak_plpc": 0.00853,
       "strategy": "VAL",
-      "last_plpc": -0.02513
+      "last_plpc": -0.01971
     },
     "AMAT": {
       "peak_plpc": 0.05769,
       "strategy": "QNT",
-      "last_plpc": 0.05078
+      "last_plpc": 0.0532
     },
     "AMD": {
       "peak_plpc": 0.19583,
       "strategy": "QNT",
-      "last_plpc": 0.18346
+      "last_plpc": 0.17624
     },
     "AMGN": {
       "peak_plpc": 0.01024,
       "strategy": "VAL",
-      "last_plpc": 0.00199
+      "last_plpc": 0.00185
     },
     "AVGO": {
       "peak_plpc": 0.03764,
       "strategy": "QNT",
-      "last_plpc": 0.01929
+      "last_plpc": 0.02155
     },
     "C": {
       "peak_plpc": 0.01271,
       "strategy": "QNT",
-      "last_plpc": -0.03333
+      "last_plpc": -0.03367
     },
     "CAT": {
       "peak_plpc": 0.0392,
       "strategy": "QNT",
-      "last_plpc": 0.03086
+      "last_plpc": 0.02842
     },
     "FDX": {
       "peak_plpc": 0.02173,
       "strategy": "QNT",
-      "last_plpc": -0.00975
+      "last_plpc": -0.01009
     },
     "GE": {
       "peak_plpc": 0.00998,
@@ -139,12 +139,12 @@
     "GILD": {
       "peak_plpc": 0.00881,
       "strategy": "VAL",
-      "last_plpc": -0.02123
+      "last_plpc": -0.01886
     },
     "GOOGL": {
-      "peak_plpc": 0.01784,
+      "peak_plpc": 0.0179,
       "strategy": "QNT",
-      "last_plpc": 0.01364
+      "last_plpc": 0.0179
     },
     "GS": {
       "peak_plpc": 0.01025,
@@ -154,67 +154,67 @@
     "HAL": {
       "peak_plpc": 0.03326,
       "strategy": "QNT",
-      "last_plpc": 0.01965
+      "last_plpc": 0.01939
     },
     "KLAC": {
       "peak_plpc": 0.07381,
       "strategy": "QNT",
-      "last_plpc": 0.07116
+      "last_plpc": 0.07216
     },
     "LRCX": {
       "peak_plpc": 0.04984,
       "strategy": "QNT",
-      "last_plpc": 0.04148
+      "last_plpc": 0.04052
     },
     "MPC": {
       "peak_plpc": 0.02082,
       "strategy": "QNT",
-      "last_plpc": 0.01544
+      "last_plpc": 0.0185
     },
     "MRVL": {
       "peak_plpc": 0.08596,
       "strategy": "QNT",
-      "last_plpc": 0.05477
+      "last_plpc": 0.05673
     },
     "MU": {
       "peak_plpc": 0.06224,
       "strategy": "QNT",
-      "last_plpc": 0.04974
+      "last_plpc": 0.04856
     },
     "PEP": {
       "peak_plpc": 0.00719,
       "strategy": "VAL",
-      "last_plpc": -0.00951
+      "last_plpc": -0.01025
     },
     "PSX": {
       "peak_plpc": 0.00912,
       "strategy": "QNT",
-      "last_plpc": -0.00191
+      "last_plpc": 0.00576
     },
     "SPY": {
       "peak_plpc": 0.00404,
       "strategy": "LEV",
-      "last_plpc": 0.0038
+      "last_plpc": 0.0035
     },
     "TQQQ": {
       "peak_plpc": 0.06476,
       "strategy": "LEV",
-      "last_plpc": 0.06433
+      "last_plpc": 0.06305
     },
     "VLO": {
       "peak_plpc": 0.02779,
       "strategy": "QNT",
-      "last_plpc": 0.00056
+      "last_plpc": 0.00412
     },
     "ZTS": {
       "peak_plpc": 0.01215,
       "strategy": "VAL",
-      "last_plpc": -0.0097
+      "last_plpc": -0.00634
     },
     "NVDA": {
       "peak_plpc": 0.04281,
       "strategy": "QNT",
-      "last_plpc": 0.03909
+      "last_plpc": 0.03327
     }
   }
 }
