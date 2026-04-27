@@ -1,5 +1,5 @@
 {
-  "ts": "2026-04-20T10:47:56.504596+00:00",
+  "ts": "2026-04-27T11:01:25.287412+00:00",
   "dry_run": false,
   "summary": {
     "NASDAQ_100_SUBSET": {
@@ -41,8 +41,17 @@
         "NOVA",
         "BIGC"
       ],
-      "to_remove_tickers": []
+      "to_remove_tickers": [
+        "JAMF",
+        "RXDX",
+        "MRUS",
+        "DINE",
+        "FAT",
+        "CSWI",
+        "NOVA",
+        "BIGC"
+      ]
     }
   },
-  "removed": 0
+  "removed": 8
 }
