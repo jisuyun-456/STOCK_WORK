@@ -5984,5 +5984,151 @@
         "timestamp": "2026-04-28T16:02:11.192156+00:00"
       }
     ]
+  },
+  "CVX:QNT:buy": {
+    "cached_at": "2026-04-29T15:38:40.290997+00:00",
+    "expires_at": "2026-05-06T15:38:40.290997+00:00",
+    "regime_at_cache": "BULL",
+    "verdicts": [
+      {
+        "agent": "equity_research",
+        "symbol": "CVX",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.05,
+        "conviction": "MODERATE",
+        "reasoning": "Momentum signal conf=0.50 conflicts with valuation view",
+        "key_metrics": {
+          "signal_confidence": 0.5
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-29T15:38:40.290091+00:00"
+      },
+      {
+        "agent": "technical_strategist",
+        "symbol": "CVX",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.03,
+        "conviction": "MODERATE",
+        "reasoning": "Technical trend does not confirm momentum",
+        "key_metrics": {
+          "momentum_aligned": false
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-29T15:38:40.290091+00:00"
+      },
+      {
+        "agent": "macro_economist",
+        "symbol": "CVX",
+        "direction": "AGREE",
+        "confidence_delta": 0.06,
+        "conviction": "STRONG",
+        "reasoning": "Regime BULL: favorable for buy",
+        "key_metrics": {
+          "regime": "BULL",
+          "vix": 18.24
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-29T15:38:40.290091+00:00"
+      },
+      {
+        "agent": "portfolio_architect",
+        "symbol": "CVX",
+        "direction": "AGREE",
+        "confidence_delta": 0.02,
+        "conviction": "MODERATE",
+        "reasoning": "Portfolio allocation acceptable for CVX at 5% weight",
+        "key_metrics": {
+          "target_weight": 0.05
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-29T15:38:40.290091+00:00"
+      },
+      {
+        "agent": "risk_controller",
+        "symbol": "CVX",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.1,
+        "conviction": "STRONG",
+        "reasoning": "Risk assessment: elevated risk (regime=BULL)",
+        "key_metrics": {
+          "regime_risk": false
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-29T15:38:40.290091+00:00"
+      }
+    ]
+  },
+  "MRVL:QNT:sell": {
+    "cached_at": "2026-04-29T15:38:40.307528+00:00",
+    "expires_at": "2026-05-06T15:38:40.307528+00:00",
+    "regime_at_cache": "BULL",
+    "verdicts": [
+      {
+        "agent": "equity_research",
+        "symbol": "MRVL",
+        "direction": "AGREE",
+        "confidence_delta": 0.05,
+        "conviction": "MODERATE",
+        "reasoning": "Momentum signal conf=0.90 aligns with valuation view",
+        "key_metrics": {
+          "signal_confidence": 0.9
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-29T15:38:40.306564+00:00"
+      },
+      {
+        "agent": "technical_strategist",
+        "symbol": "MRVL",
+        "direction": "AGREE",
+        "confidence_delta": 0.08,
+        "conviction": "STRONG",
+        "reasoning": "Technical trend confirms momentum",
+        "key_metrics": {
+          "momentum_aligned": true
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-29T15:38:40.306564+00:00"
+      },
+      {
+        "agent": "macro_economist",
+        "symbol": "MRVL",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.08,
+        "conviction": "WEAK",
+        "reasoning": "Regime BULL: unfavorable for sell",
+        "key_metrics": {
+          "regime": "BULL",
+          "vix": 18.24
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-29T15:38:40.306564+00:00"
+      },
+      {
+        "agent": "portfolio_architect",
+        "symbol": "MRVL",
+        "direction": "AGREE",
+        "confidence_delta": 0.02,
+        "conviction": "MODERATE",
+        "reasoning": "Portfolio allocation acceptable for MRVL at 0% weight",
+        "key_metrics": {
+          "target_weight": 0.0
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-29T15:38:40.306564+00:00"
+      },
+      {
+        "agent": "risk_controller",
+        "symbol": "MRVL",
+        "direction": "AGREE",
+        "confidence_delta": 0.0,
+        "conviction": "MODERATE",
+        "reasoning": "Risk assessment: acceptable (regime=BULL)",
+        "key_metrics": {
+          "regime_risk": false
+        },
+        "override_vote": null,
+        "timestamp": "2026-04-29T15:38:40.306564+00:00"
+      }
+    ]
   }
 }
