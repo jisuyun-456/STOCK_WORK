@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-30T18:52:19.001884+00:00",
+  "last_updated": "2026-05-01T14:53:16.477199+00:00",
   "peaks": {
     "COP": {
       "peak_plpc": -0.00112,
@@ -69,42 +69,42 @@
     "APLD": {
       "peak_plpc": 0.1473,
       "strategy": "MOM",
-      "last_plpc": 0.10349
+      "last_plpc": 0.1054
     },
     "ASML": {
       "peak_plpc": 0.02902,
       "strategy": "MOM",
-      "last_plpc": -0.0196
+      "last_plpc": -0.01998
     },
     "WBD": {
       "peak_plpc": 0.00842,
       "strategy": "MOM",
-      "last_plpc": -0.01043
+      "last_plpc": -0.00531
     },
     "ADI": {
       "peak_plpc": 0.06548,
       "strategy": "QNT",
-      "last_plpc": 0.0496
+      "last_plpc": 0.04277
     },
     "ADP": {
       "peak_plpc": 0.0587,
       "strategy": "VAL",
-      "last_plpc": 0.05425
+      "last_plpc": 0.04422
     },
     "AMAT": {
       "peak_plpc": 0.05769,
       "strategy": "QNT",
-      "last_plpc": -0.01588
+      "last_plpc": -0.01111
     },
     "AMD": {
-      "peak_plpc": 0.19583,
+      "peak_plpc": 0.19709,
       "strategy": "QNT",
-      "last_plpc": 0.19542
+      "last_plpc": 0.19709
     },
     "AMGN": {
       "peak_plpc": 0.01024,
       "strategy": "VAL",
-      "last_plpc": 0.00474
+      "last_plpc": -0.04688
     },
     "AVGO": {
       "peak_plpc": 0.03764,
@@ -114,17 +114,17 @@
     "C": {
       "peak_plpc": 0.01271,
       "strategy": "QNT",
-      "last_plpc": -0.03093
+      "last_plpc": -0.02554
     },
     "CAT": {
       "peak_plpc": 0.10376,
       "strategy": "QNT",
-      "last_plpc": 0.10261
+      "last_plpc": 0.09974
     },
     "FDX": {
       "peak_plpc": 0.02173,
       "strategy": "QNT",
-      "last_plpc": 0.0176
+      "last_plpc": 0.01534
     },
     "GE": {
       "peak_plpc": 0.00998,
@@ -134,12 +134,12 @@
     "GILD": {
       "peak_plpc": 0.00881,
       "strategy": "VAL",
-      "last_plpc": -0.0105
+      "last_plpc": -0.01559
     },
     "GOOGL": {
-      "peak_plpc": 0.13458,
+      "peak_plpc": 0.13901,
       "strategy": "QNT",
-      "last_plpc": 0.13083
+      "last_plpc": 0.13901
     },
     "GS": {
       "peak_plpc": 0.01025,
@@ -149,22 +149,22 @@
     "HAL": {
       "peak_plpc": 0.0689,
       "strategy": "QNT",
-      "last_plpc": 0.0656
+      "last_plpc": 0.05191
     },
     "KLAC": {
       "peak_plpc": 0.07381,
       "strategy": "QNT",
-      "last_plpc": -0.03043
+      "last_plpc": -0.04384
     },
     "LRCX": {
       "peak_plpc": 0.04984,
       "strategy": "QNT",
-      "last_plpc": -0.02121
+      "last_plpc": -0.02013
     },
     "MPC": {
       "peak_plpc": 0.12911,
       "strategy": "QNT",
-      "last_plpc": 0.12911
+      "last_plpc": 0.109
     },
     "MRVL": {
       "peak_plpc": 0.08596,
@@ -172,9 +172,9 @@
       "last_plpc": -0.01423
     },
     "MU": {
-      "peak_plpc": 0.11622,
+      "peak_plpc": 0.12505,
       "strategy": "QNT",
-      "last_plpc": 0.08219
+      "last_plpc": 0.12505
     },
     "PEP": {
       "peak_plpc": 0.01105,
@@ -184,27 +184,27 @@
     "PSX": {
       "peak_plpc": 0.10068,
       "strategy": "QNT",
-      "last_plpc": 0.10037
+      "last_plpc": 0.09414
     },
     "SPY": {
-      "peak_plpc": 0.01104,
+      "peak_plpc": 0.01723,
       "strategy": "LEV",
-      "last_plpc": 0.01104
+      "last_plpc": 0.01723
     },
     "TQQQ": {
-      "peak_plpc": 0.08168,
+      "peak_plpc": 0.11247,
       "strategy": "LEV",
-      "last_plpc": 0.08168
+      "last_plpc": 0.11247
     },
     "VLO": {
       "peak_plpc": 0.07794,
       "strategy": "QNT",
-      "last_plpc": 0.07704
+      "last_plpc": 0.04794
     },
     "ZTS": {
       "peak_plpc": 0.01215,
       "strategy": "VAL",
-      "last_plpc": -0.02281
+      "last_plpc": -0.02499
     },
     "NVDA": {
       "peak_plpc": 0.06873,
@@ -214,12 +214,12 @@
     "OXY": {
       "peak_plpc": 0.05326,
       "strategy": "QNT",
-      "last_plpc": 0.05222
+      "last_plpc": 0.02571
     },
     "RKLB": {
       "peak_plpc": 0.0663,
       "strategy": "QNT",
-      "last_plpc": 0.0663
+      "last_plpc": 0.02957
     }
   }
 }
