@@ -1,5 +1,5 @@
 {
-  "ts": "2026-04-27T11:01:25.287412+00:00",
+  "ts": "2026-05-04T11:05:12.005417+00:00",
   "dry_run": false,
   "summary": {
     "NASDAQ_100_SUBSET": {
@@ -27,31 +27,13 @@
       "to_remove_tickers": []
     },
     "RUSSELL_2000_SUBSET": {
-      "total": 93,
+      "total": 85,
       "live": 85,
       "stale": 0,
-      "delisted": 8,
-      "delisted_tickers": [
-        "JAMF",
-        "RXDX",
-        "MRUS",
-        "DINE",
-        "FAT",
-        "CSWI",
-        "NOVA",
-        "BIGC"
-      ],
-      "to_remove_tickers": [
-        "JAMF",
-        "RXDX",
-        "MRUS",
-        "DINE",
-        "FAT",
-        "CSWI",
-        "NOVA",
-        "BIGC"
-      ]
+      "delisted": 0,
+      "delisted_tickers": [],
+      "to_remove_tickers": []
     }
   },
-  "removed": 8
+  "removed": 0
 }
