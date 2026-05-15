@@ -139,3 +139,4 @@
 {"ts": "2026-05-14T20:13:14.114670+00:00", "run_type": "monitor", "market_open": false, "positions_checked": 0, "exits": []}
 {"ts": "2026-05-14T21:43:31.170514+00:00", "run_type": "monitor", "market_open": false, "positions_checked": 0, "exits": []}
 {"ts": "2026-05-15T16:02:53.767530+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 27, "exits": [{"symbol": "INTC", "strategy": "QNT", "reason": "stop_loss: -11.7% <= -10%", "plpc": -0.11725, "status": "filled"}], "mdd_status": {"MOM": "ok", "VAL": "ok", "QNT": "ok", "LEV": "ok", "LEV_ST": "ok", "GRW": "ok"}, "portfolio_mdd": "ok", "circuit_breaker_stage": "NORMAL"}
+{"ts": "2026-05-15T18:00:39.675923+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 26, "exits": [], "mdd_status": {"MOM": "ok", "VAL": "ok", "QNT": "ok", "LEV": "ok", "LEV_ST": "ok", "GRW": "ok"}, "portfolio_mdd": "ok", "circuit_breaker_stage": "NORMAL"}
