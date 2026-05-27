@@ -4818,8 +4818,8 @@
     ]
   },
   "TQQQ:LEV:buy": {
-    "cached_at": "2026-05-20T16:38:47.376687+00:00",
-    "expires_at": "2026-05-27T16:38:47.376687+00:00",
+    "cached_at": "2026-05-27T16:54:02.082402+00:00",
+    "expires_at": "2026-06-03T16:54:02.082402+00:00",
     "regime_at_cache": "BULL",
     "verdicts": [
       {
@@ -4833,7 +4833,7 @@
           "signal_confidence": 0.95
         },
         "override_vote": null,
-        "timestamp": "2026-05-20T16:38:47.375712+00:00"
+        "timestamp": "2026-05-27T16:54:02.081426+00:00"
       },
       {
         "agent": "technical_strategist",
@@ -4846,7 +4846,7 @@
           "momentum_aligned": true
         },
         "override_vote": null,
-        "timestamp": "2026-05-20T16:38:47.375712+00:00"
+        "timestamp": "2026-05-27T16:54:02.081426+00:00"
       },
       {
         "agent": "macro_economist",
@@ -4857,10 +4857,10 @@
         "reasoning": "Regime BULL: favorable for buy",
         "key_metrics": {
           "regime": "BULL",
-          "vix": 17.8
+          "vix": 16.75
         },
         "override_vote": null,
-        "timestamp": "2026-05-20T16:38:47.375712+00:00"
+        "timestamp": "2026-05-27T16:54:02.081426+00:00"
       },
       {
         "agent": "portfolio_architect",
@@ -4873,7 +4873,7 @@
           "target_weight": 0.5
         },
         "override_vote": null,
-        "timestamp": "2026-05-20T16:38:47.375712+00:00"
+        "timestamp": "2026-05-27T16:54:02.081426+00:00"
       },
       {
         "agent": "risk_controller",
@@ -4886,7 +4886,7 @@
           "regime_risk": false
         },
         "override_vote": null,
-        "timestamp": "2026-05-20T16:38:47.375712+00:00"
+        "timestamp": "2026-05-27T16:54:02.081426+00:00"
       }
     ]
   },
