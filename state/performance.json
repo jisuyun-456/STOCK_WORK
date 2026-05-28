@@ -11,11 +11,11 @@
   },
   "strategies": {
     "MOM": {
-      "current_nav": 17887.22,
-      "total_return_pct": -28.4511,
-      "daily_return_pct": -2.1986,
+      "current_nav": 18009.59,
+      "total_return_pct": -27.9616,
+      "daily_return_pct": 0.6841,
       "mdd_pct": -66.5263,
-      "sharpe_ratio": 2.06,
+      "sharpe_ratio": 2.04,
       "win_rate": 0.0,
       "trade_count": 86,
       "dry_run_count": 1307,
@@ -24,11 +24,11 @@
       "initial_nav": 25000.0
     },
     "VAL": {
-      "current_nav": 11117.42,
-      "total_return_pct": -55.5303,
-      "daily_return_pct": 0.6855,
+      "current_nav": 11029.19,
+      "total_return_pct": -55.8832,
+      "daily_return_pct": -0.7936,
       "mdd_pct": -3.0042,
-      "sharpe_ratio": 3.78,
+      "sharpe_ratio": 3.38,
       "win_rate": 0.0,
       "trade_count": 46,
       "dry_run_count": 100,
@@ -37,37 +37,37 @@
       "initial_nav": 25000.0
     },
     "QNT": {
-      "current_nav": 14586.02,
-      "total_return_pct": -51.3799,
-      "daily_return_pct": -1.7238,
+      "current_nav": 14401.61,
+      "total_return_pct": -51.9946,
+      "daily_return_pct": -1.2643,
       "mdd_pct": -3.1248,
-      "sharpe_ratio": 5.67,
+      "sharpe_ratio": 4.97,
       "win_rate": 0.0,
-      "trade_count": 198,
+      "trade_count": 199,
       "dry_run_count": 633,
       "peak_nav": 14841.86,
-      "last_rebalance": "2026-05-27",
+      "last_rebalance": "2026-05-28",
       "initial_nav": 30000.0
     },
     "LEV": {
-      "current_nav": 27920.42,
-      "total_return_pct": 39.6021,
-      "daily_return_pct": 0.8483,
+      "current_nav": 27969.4,
+      "total_return_pct": 39.847,
+      "daily_return_pct": 0.1754,
       "mdd_pct": -2.5588,
-      "sharpe_ratio": 4.26,
+      "sharpe_ratio": 4.25,
       "win_rate": 0.0,
       "trade_count": 13,
       "dry_run_count": 40,
-      "peak_nav": 27920.42,
-      "last_rebalance": "2026-05-27",
+      "peak_nav": 27969.4,
+      "last_rebalance": "2026-05-28",
       "initial_nav": 20000.0
     },
     "LEV_ST": {
-      "current_nav": 27233.67,
+      "current_nav": 27199.12,
       "total_return_pct": 0.0,
-      "daily_return_pct": 0.8445,
+      "daily_return_pct": -0.1269,
       "mdd_pct": -1.7142,
-      "sharpe_ratio": 5.92,
+      "sharpe_ratio": 5.68,
       "win_rate": null,
       "trade_count": 0,
       "dry_run_count": 0,
@@ -76,11 +76,11 @@
       "initial_nav": 0.0
     },
     "GRW": {
-      "current_nav": 13616.84,
+      "current_nav": 13599.56,
       "total_return_pct": 0.0,
-      "daily_return_pct": 0.8445,
+      "daily_return_pct": -0.1269,
       "mdd_pct": -1.7141,
-      "sharpe_ratio": 6.05,
+      "sharpe_ratio": 5.8,
       "win_rate": null,
       "trade_count": 0,
       "dry_run_count": 0,
@@ -90,11 +90,11 @@
     },
     "TOTAL": {
       "initial_nav": 100000.0,
-      "current_nav": 108879.4,
-      "total_return_pct": 8.8794,
-      "spy_return_pct": 10.9111,
-      "qqq_return_pct": 20.1241,
-      "alpha_vs_spy": -2.0317
+      "current_nav": 109216.57,
+      "total_return_pct": 9.2166,
+      "spy_return_pct": 11.6063,
+      "qqq_return_pct": 21.4597,
+      "alpha_vs_spy": -2.3898
     }
   },
   "daily": [
@@ -837,6 +837,28 @@
       "signals_count": 22,
       "rebalances": [
         "MOM",
+        "QNT",
+        "LEV"
+      ]
+    },
+    {
+      "date": "2026-05-28",
+      "total_nav": 112208.47,
+      "strategy_navs": {
+        "MOM": 18009.59,
+        "VAL": 11029.19,
+        "QNT": 14401.61,
+        "LEV": 27969.4,
+        "LEV_ST": 27199.12,
+        "GRW": 13599.56
+      },
+      "benchmark_prices": {
+        "SPY": 754.469970703125,
+        "QQQ": 736.155029296875
+      },
+      "regime": "BULL",
+      "signals_count": 0,
+      "rebalances": [
         "QNT",
         "LEV"
       ]
