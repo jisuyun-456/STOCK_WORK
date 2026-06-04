@@ -182,3 +182,4 @@
 {"ts": "2026-06-03T21:35:04.406037+00:00", "run_type": "monitor", "market_open": false, "positions_checked": 0, "exits": []}
 {"ts": "2026-06-04T16:52:45.744896+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 26, "exits": [{"symbol": "APLD", "strategy": "MOM", "reason": "trailing_stop: peak=27.4%, current=12.3%, drawdown=-15.1% <= -15%", "plpc": 0.12337, "status": "filled"}], "mdd_status": {"MOM": "ok", "VAL": "ok", "QNT": "ok", "LEV": "ok", "LEV_ST": "ok", "GRW": "ok"}, "portfolio_mdd": "ok", "circuit_breaker_stage": "NORMAL"}
 {"ts": "2026-06-04T19:22:17.561458+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 25, "exits": [], "mdd_status": {"MOM": "ok", "VAL": "ok", "QNT": "ok", "LEV": "ok", "LEV_ST": "ok", "GRW": "ok"}, "portfolio_mdd": "ok", "circuit_breaker_stage": "NORMAL"}
+{"ts": "2026-06-04T21:11:24.616394+00:00", "run_type": "monitor", "market_open": false, "positions_checked": 0, "exits": []}
