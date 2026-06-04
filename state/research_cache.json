@@ -4161,8 +4161,8 @@
     ]
   },
   "GOOG:MOM:buy": {
-    "cached_at": "2026-05-08T15:12:11.152255+00:00",
-    "expires_at": "2026-05-15T15:12:11.152255+00:00",
+    "cached_at": "2026-06-04T16:36:25.745355+00:00",
+    "expires_at": "2026-06-11T16:36:25.745355+00:00",
     "regime_at_cache": "BULL",
     "verdicts": [
       {
@@ -4171,25 +4171,25 @@
         "direction": "AGREE",
         "confidence_delta": 0.05,
         "conviction": "MODERATE",
-        "reasoning": "Momentum signal conf=0.63 aligns with valuation view",
+        "reasoning": "Momentum signal conf=0.67 aligns with valuation view",
         "key_metrics": {
-          "signal_confidence": 0.6312
+          "signal_confidence": 0.6653
         },
         "override_vote": null,
-        "timestamp": "2026-05-08T15:12:11.150834+00:00"
+        "timestamp": "2026-06-04T16:36:25.744335+00:00"
       },
       {
         "agent": "technical_strategist",
         "symbol": "GOOG",
         "direction": "AGREE",
-        "confidence_delta": -0.03,
+        "confidence_delta": 0.08,
         "conviction": "MODERATE",
         "reasoning": "Technical trend confirms momentum",
         "key_metrics": {
           "momentum_aligned": true
         },
         "override_vote": null,
-        "timestamp": "2026-05-08T15:12:11.150834+00:00"
+        "timestamp": "2026-06-04T16:36:25.744335+00:00"
       },
       {
         "agent": "macro_economist",
@@ -4200,10 +4200,10 @@
         "reasoning": "Regime BULL: favorable for buy",
         "key_metrics": {
           "regime": "BULL",
-          "vix": 17.38
+          "vix": 15.55
         },
         "override_vote": null,
-        "timestamp": "2026-05-08T15:12:11.150834+00:00"
+        "timestamp": "2026-06-04T16:36:25.744335+00:00"
       },
       {
         "agent": "portfolio_architect",
@@ -4216,7 +4216,7 @@
           "target_weight": 0.1
         },
         "override_vote": null,
-        "timestamp": "2026-05-08T15:12:11.150834+00:00"
+        "timestamp": "2026-06-04T16:36:25.744335+00:00"
       },
       {
         "agent": "risk_controller",
@@ -4229,7 +4229,7 @@
           "regime_risk": false
         },
         "override_vote": null,
-        "timestamp": "2026-05-08T15:12:11.150834+00:00"
+        "timestamp": "2026-06-04T16:36:25.744335+00:00"
       }
     ]
   },
