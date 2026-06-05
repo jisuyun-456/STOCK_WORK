@@ -4745,8 +4745,8 @@
     ]
   },
   "SPY:LEV:buy": {
-    "cached_at": "2026-05-28T17:11:06.910822+00:00",
-    "expires_at": "2026-06-04T17:11:06.910822+00:00",
+    "cached_at": "2026-06-05T16:16:26.021378+00:00",
+    "expires_at": "2026-06-12T16:16:26.021378+00:00",
     "regime_at_cache": "BULL",
     "verdicts": [
       {
@@ -4760,7 +4760,7 @@
           "signal_confidence": 0.95
         },
         "override_vote": null,
-        "timestamp": "2026-05-28T17:11:06.909798+00:00"
+        "timestamp": "2026-06-05T16:16:26.020397+00:00"
       },
       {
         "agent": "technical_strategist",
@@ -4773,7 +4773,7 @@
           "momentum_aligned": true
         },
         "override_vote": null,
-        "timestamp": "2026-05-28T17:11:06.909798+00:00"
+        "timestamp": "2026-06-05T16:16:26.020397+00:00"
       },
       {
         "agent": "macro_economist",
@@ -4784,10 +4784,10 @@
         "reasoning": "Regime BULL: favorable for buy",
         "key_metrics": {
           "regime": "BULL",
-          "vix": 15.83
+          "vix": 17.35
         },
         "override_vote": null,
-        "timestamp": "2026-05-28T17:11:06.909798+00:00"
+        "timestamp": "2026-06-05T16:16:26.020397+00:00"
       },
       {
         "agent": "portfolio_architect",
@@ -4800,7 +4800,7 @@
           "target_weight": 0.5
         },
         "override_vote": null,
-        "timestamp": "2026-05-28T17:11:06.909798+00:00"
+        "timestamp": "2026-06-05T16:16:26.020397+00:00"
       },
       {
         "agent": "risk_controller",
@@ -4813,7 +4813,7 @@
           "regime_risk": false
         },
         "override_vote": null,
-        "timestamp": "2026-05-28T17:11:06.909798+00:00"
+        "timestamp": "2026-06-05T16:16:26.020397+00:00"
       }
     ]
   },
@@ -7004,6 +7004,79 @@
         },
         "override_vote": null,
         "timestamp": "2026-05-29T17:01:07.694485+00:00"
+      }
+    ]
+  },
+  "SQQQ:LEV_ST:buy": {
+    "cached_at": "2026-06-05T16:16:26.032023+00:00",
+    "expires_at": "2026-06-12T16:16:26.032023+00:00",
+    "regime_at_cache": "BULL",
+    "verdicts": [
+      {
+        "agent": "equity_research",
+        "symbol": "SQQQ",
+        "direction": "AGREE",
+        "confidence_delta": 0.05,
+        "conviction": "MODERATE",
+        "reasoning": "Momentum signal conf=0.92 aligns with valuation view",
+        "key_metrics": {
+          "signal_confidence": 0.92
+        },
+        "override_vote": null,
+        "timestamp": "2026-06-05T16:16:26.031029+00:00"
+      },
+      {
+        "agent": "technical_strategist",
+        "symbol": "SQQQ",
+        "direction": "AGREE",
+        "confidence_delta": 0.08,
+        "conviction": "STRONG",
+        "reasoning": "Technical trend confirms momentum",
+        "key_metrics": {
+          "momentum_aligned": true
+        },
+        "override_vote": null,
+        "timestamp": "2026-06-05T16:16:26.031029+00:00"
+      },
+      {
+        "agent": "macro_economist",
+        "symbol": "SQQQ",
+        "direction": "AGREE",
+        "confidence_delta": 0.06,
+        "conviction": "STRONG",
+        "reasoning": "Regime BULL: favorable for buy",
+        "key_metrics": {
+          "regime": "BULL",
+          "vix": 17.35
+        },
+        "override_vote": null,
+        "timestamp": "2026-06-05T16:16:26.031029+00:00"
+      },
+      {
+        "agent": "portfolio_architect",
+        "symbol": "SQQQ",
+        "direction": "AGREE",
+        "confidence_delta": 0.02,
+        "conviction": "MODERATE",
+        "reasoning": "Portfolio allocation acceptable for SQQQ at 100% weight",
+        "key_metrics": {
+          "target_weight": 1.0
+        },
+        "override_vote": null,
+        "timestamp": "2026-06-05T16:16:26.031029+00:00"
+      },
+      {
+        "agent": "risk_controller",
+        "symbol": "SQQQ",
+        "direction": "AGREE",
+        "confidence_delta": 0.0,
+        "conviction": "MODERATE",
+        "reasoning": "Risk assessment: acceptable (regime=BULL)",
+        "key_metrics": {
+          "regime_risk": false
+        },
+        "override_vote": null,
+        "timestamp": "2026-06-05T16:16:26.031029+00:00"
       }
     ]
   }
