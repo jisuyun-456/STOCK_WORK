@@ -1825,22 +1825,22 @@
     ]
   },
   "PSX:QNT:buy": {
-    "cached_at": "2026-05-29T17:01:07.685903+00:00",
-    "expires_at": "2026-06-05T17:01:07.685903+00:00",
+    "cached_at": "2026-06-08T16:59:48.771761+00:00",
+    "expires_at": "2026-06-15T16:59:48.771761+00:00",
     "regime_at_cache": "BULL",
     "verdicts": [
       {
         "agent": "equity_research",
         "symbol": "PSX",
-        "direction": "AGREE",
+        "direction": "DISAGREE",
         "confidence_delta": -0.05,
         "conviction": "MODERATE",
-        "reasoning": "Momentum signal conf=0.50 aligns with valuation view",
+        "reasoning": "Momentum signal conf=0.50 conflicts with valuation view",
         "key_metrics": {
-          "signal_confidence": 0.5037
+          "signal_confidence": 0.5
         },
         "override_vote": null,
-        "timestamp": "2026-05-29T17:01:07.684834+00:00"
+        "timestamp": "2026-06-08T16:59:48.770765+00:00"
       },
       {
         "agent": "technical_strategist",
@@ -1853,7 +1853,7 @@
           "momentum_aligned": false
         },
         "override_vote": null,
-        "timestamp": "2026-05-29T17:01:07.684834+00:00"
+        "timestamp": "2026-06-08T16:59:48.770765+00:00"
       },
       {
         "agent": "macro_economist",
@@ -1864,10 +1864,10 @@
         "reasoning": "Regime BULL: favorable for buy",
         "key_metrics": {
           "regime": "BULL",
-          "vix": 15.25
+          "vix": 18.46
         },
         "override_vote": null,
-        "timestamp": "2026-05-29T17:01:07.684834+00:00"
+        "timestamp": "2026-06-08T16:59:48.770765+00:00"
       },
       {
         "agent": "portfolio_architect",
@@ -1880,7 +1880,7 @@
           "target_weight": 0.05
         },
         "override_vote": null,
-        "timestamp": "2026-05-29T17:01:07.684834+00:00"
+        "timestamp": "2026-06-08T16:59:48.770765+00:00"
       },
       {
         "agent": "risk_controller",
@@ -1893,7 +1893,7 @@
           "regime_risk": false
         },
         "override_vote": null,
-        "timestamp": "2026-05-29T17:01:07.684834+00:00"
+        "timestamp": "2026-06-08T16:59:48.770765+00:00"
       }
     ]
   },
