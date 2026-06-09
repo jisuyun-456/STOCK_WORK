@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-06-08T19:39:10.144195+00:00",
+  "last_updated": "2026-06-09T16:29:58.159752+00:00",
   "peaks": {
     "COP": {
       "peak_plpc": -0.00112,
@@ -49,7 +49,7 @@
     "SLB": {
       "peak_plpc": 0.01544,
       "strategy": "QNT",
-      "last_plpc": -0.02178
+      "last_plpc": -0.05733
     },
     "TGT": {
       "peak_plpc": 0.01291,
@@ -69,22 +69,22 @@
     "WBD": {
       "peak_plpc": 0.00842,
       "strategy": "MOM",
-      "last_plpc": -0.02592
+      "last_plpc": -0.02672
     },
     "ADI": {
       "peak_plpc": 0.14914,
       "strategy": "QNT",
-      "last_plpc": 0.06265
+      "last_plpc": 0.01976
     },
     "ADP": {
       "peak_plpc": 0.16249,
       "strategy": "VAL",
-      "last_plpc": 0.1393
+      "last_plpc": 0.13964
     },
     "AMGN": {
       "peak_plpc": 0.03453,
       "strategy": "VAL",
-      "last_plpc": 0.00407
+      "last_plpc": 0.01032
     },
     "AVGO": {
       "peak_plpc": 0.03764,
@@ -94,12 +94,12 @@
     "C": {
       "peak_plpc": 0.02685,
       "strategy": "QNT",
-      "last_plpc": 0.01132
+      "last_plpc": 0.01
     },
     "CAT": {
       "peak_plpc": 0.16806,
       "strategy": "QNT",
-      "last_plpc": 0.13037
+      "last_plpc": 0.09969
     },
     "GE": {
       "peak_plpc": 0.00998,
@@ -109,7 +109,7 @@
     "GILD": {
       "peak_plpc": 0.02812,
       "strategy": "VAL",
-      "last_plpc": -0.03095
+      "last_plpc": -0.05617
     },
     "GS": {
       "peak_plpc": 0.02318,
@@ -119,12 +119,12 @@
     "HAL": {
       "peak_plpc": 0.09731,
       "strategy": "QNT",
-      "last_plpc": 0.02049
+      "last_plpc": -0.00839
     },
     "KLAC": {
       "peak_plpc": 0.18551,
       "strategy": "QNT",
-      "last_plpc": 0.17377
+      "last_plpc": 0.129
     },
     "MPC": {
       "peak_plpc": 0.18109,
@@ -134,22 +134,22 @@
     "PEP": {
       "peak_plpc": 0.01105,
       "strategy": "VAL",
-      "last_plpc": -0.09545
+      "last_plpc": -0.07202
     },
     "PSX": {
       "peak_plpc": 0.12633,
       "strategy": "QNT",
-      "last_plpc": 0.00945
+      "last_plpc": -0.01708
     },
     "SPY": {
       "peak_plpc": 0.06834,
       "strategy": "LEV",
-      "last_plpc": 0.04056
+      "last_plpc": 0.02312
     },
     "VLO": {
       "peak_plpc": 0.12092,
       "strategy": "QNT",
-      "last_plpc": 0.10246
+      "last_plpc": 0.05751
     },
     "NVDA": {
       "peak_plpc": 0.06873,
@@ -184,72 +184,62 @@
     "VZ": {
       "peak_plpc": 0.03682,
       "strategy": "VAL",
-      "last_plpc": -0.03438
+      "last_plpc": -0.02394
     },
     "ZTS": {
-      "peak_plpc": 0.07894,
+      "peak_plpc": 0.0859,
       "strategy": "VAL",
-      "last_plpc": 0.04378
+      "last_plpc": 0.0859
     },
     "LRCX": {
       "peak_plpc": 0.07542,
       "strategy": "QNT",
-      "last_plpc": 0.01794
-    },
-    "ON": {
-      "peak_plpc": 0.07777,
-      "strategy": "UNKNOWN",
-      "last_plpc": -0.01367
+      "last_plpc": -0.01779
     },
     "FDX": {
       "peak_plpc": 0.01186,
       "strategy": "QNT",
-      "last_plpc": 0.003
+      "last_plpc": -0.0066
     },
     "AMAT": {
       "peak_plpc": 0.00938,
       "strategy": "QNT",
-      "last_plpc": -0.02086
+      "last_plpc": -0.04763
     },
     "INTC": {
       "peak_plpc": 0.00499,
       "strategy": "QNT",
-      "last_plpc": -0.01237
+      "last_plpc": -0.0917
     },
     "GOOG": {
       "peak_plpc": -0.00243,
-      "strategy": "MOM",
-      "last_plpc": -0.02287
+      "strategy": "UNKNOWN",
+      "last_plpc": -0.02813
     },
     "GOOGL": {
       "peak_plpc": -0.00229,
       "strategy": "MOM",
-      "last_plpc": -0.02399
+      "last_plpc": -0.02999
     },
     "AMD": {
       "peak_plpc": 0.02167,
       "strategy": "QNT",
-      "last_plpc": 0.02167
+      "last_plpc": -0.06703
     },
     "APLD": {
       "peak_plpc": 0.04591,
       "strategy": "MOM",
-      "last_plpc": 0.04591
-    },
-    "MRVL": {
-      "peak_plpc": 0.04258,
-      "strategy": "QNT",
-      "last_plpc": 0.02442
+      "last_plpc": 0.00144
     },
     "MU": {
       "peak_plpc": -0.00215,
       "strategy": "QNT",
-      "last_plpc": -0.01435
+      "last_plpc": -0.08281
     },
     "RKLB": {
       "peak_plpc": -0.00442,
       "strategy": "QNT",
-      "last_plpc": -0.01152
+      "last_plpc": -0.09235
     }
   }
 }
