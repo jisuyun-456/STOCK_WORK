@@ -197,3 +197,4 @@
 {"ts": "2026-06-10T19:34:36.548094+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 26, "exits": [], "mdd_status": {"MOM": "ok", "VAL": "ok", "QNT": "ok", "LEV": "ok", "LEV_ST": "ok", "GRW": "ok"}, "portfolio_mdd": "ok", "circuit_breaker_stage": "NORMAL"}
 {"ts": "2026-06-10T21:58:56.248062+00:00", "run_type": "monitor", "market_open": false, "positions_checked": 0, "exits": []}
 {"ts": "2026-06-11T17:35:47.981762+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 26, "exits": [{"symbol": "KLAC", "strategy": "QNT", "reason": "take_profit: 30.7% >= 20%", "plpc": 0.30698, "status": "filled"}], "mdd_status": {"MOM": "ok", "VAL": "ok", "QNT": "ok", "LEV": "ok", "LEV_ST": "ok", "GRW": "ok"}, "portfolio_mdd": "ok", "circuit_breaker_stage": "NORMAL"}
+{"ts": "2026-06-11T20:17:31.455205+00:00", "run_type": "monitor", "market_open": false, "positions_checked": 0, "exits": []}
