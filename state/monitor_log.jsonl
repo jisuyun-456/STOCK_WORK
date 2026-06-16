@@ -205,3 +205,4 @@
 {"ts": "2026-06-15T18:23:18.551765+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 25, "exits": [{"symbol": "LRCX", "strategy": "QNT", "reason": "take_profit: 22.5% >= 20%", "plpc": 0.22477, "status": "filled"}], "mdd_status": {"MOM": "ok", "VAL": "ok", "QNT": "ok", "LEV": "ok", "LEV_ST": "ok", "GRW": "ok"}, "portfolio_mdd": "ok", "circuit_breaker_stage": "NORMAL"}
 {"ts": "2026-06-15T21:30:00.923849+00:00", "run_type": "monitor", "market_open": false, "positions_checked": 0, "exits": []}
 {"ts": "2026-06-16T18:26:10.527400+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 25, "exits": [], "mdd_status": {"MOM": "ok", "VAL": "ok", "QNT": "ok", "LEV": "ok", "LEV_ST": "ok", "GRW": "ok"}, "portfolio_mdd": "ok", "circuit_breaker_stage": "NORMAL"}
+{"ts": "2026-06-16T21:25:33.366348+00:00", "run_type": "monitor", "market_open": false, "positions_checked": 0, "exits": []}
