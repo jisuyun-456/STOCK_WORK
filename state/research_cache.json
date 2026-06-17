@@ -1387,9 +1387,9 @@
     ]
   },
   "MPC:QNT:buy": {
-    "cached_at": "2026-06-09T16:21:42.416061+00:00",
-    "expires_at": "2026-06-16T16:21:42.416061+00:00",
-    "regime_at_cache": "NEUTRAL",
+    "cached_at": "2026-06-17T16:50:32.139047+00:00",
+    "expires_at": "2026-06-24T16:50:32.139047+00:00",
+    "regime_at_cache": "BULL",
     "verdicts": [
       {
         "agent": "equity_research",
@@ -1399,10 +1399,10 @@
         "conviction": "MODERATE",
         "reasoning": "Momentum signal conf=0.50 aligns with valuation view",
         "key_metrics": {
-          "signal_confidence": 0.5012
+          "signal_confidence": 0.5037
         },
         "override_vote": null,
-        "timestamp": "2026-06-09T16:21:42.415049+00:00"
+        "timestamp": "2026-06-17T16:50:32.138022+00:00"
       },
       {
         "agent": "technical_strategist",
@@ -1415,21 +1415,21 @@
           "momentum_aligned": false
         },
         "override_vote": null,
-        "timestamp": "2026-06-09T16:21:42.415049+00:00"
+        "timestamp": "2026-06-17T16:50:32.138022+00:00"
       },
       {
         "agent": "macro_economist",
         "symbol": "MPC",
-        "direction": "DISAGREE",
-        "confidence_delta": -0.08,
-        "conviction": "WEAK",
-        "reasoning": "Regime NEUTRAL: unfavorable for buy",
+        "direction": "AGREE",
+        "confidence_delta": 0.06,
+        "conviction": "STRONG",
+        "reasoning": "Regime BULL: favorable for buy",
         "key_metrics": {
-          "regime": "NEUTRAL",
-          "vix": 21.14
+          "regime": "BULL",
+          "vix": 16.88
         },
         "override_vote": null,
-        "timestamp": "2026-06-09T16:21:42.415049+00:00"
+        "timestamp": "2026-06-17T16:50:32.138022+00:00"
       },
       {
         "agent": "portfolio_architect",
@@ -1442,7 +1442,7 @@
           "target_weight": 0.05
         },
         "override_vote": null,
-        "timestamp": "2026-06-09T16:21:42.415049+00:00"
+        "timestamp": "2026-06-17T16:50:32.138022+00:00"
       },
       {
         "agent": "risk_controller",
@@ -1450,12 +1450,12 @@
         "direction": "DISAGREE",
         "confidence_delta": -0.1,
         "conviction": "STRONG",
-        "reasoning": "Risk assessment: elevated risk (regime=NEUTRAL)",
+        "reasoning": "Risk assessment: elevated risk (regime=BULL)",
         "key_metrics": {
           "regime_risk": false
         },
         "override_vote": null,
-        "timestamp": "2026-06-09T16:21:42.415049+00:00"
+        "timestamp": "2026-06-17T16:50:32.138022+00:00"
       }
     ]
   },
