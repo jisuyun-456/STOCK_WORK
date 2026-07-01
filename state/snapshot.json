@@ -1,214 +1,205 @@
 {
-  "timestamp": "2026-06-30T16:06:33.485541+00:00",
+  "timestamp": "2026-07-01T16:06:34.802893+00:00",
   "symbols_count": 89,
-  "days_count": 274,
+  "days_count": 275,
   "alpaca_positions": [
     {
       "symbol": "ADP",
       "qty": 7.84976353,
       "avg_entry_price": 201.37,
-      "current_price": 223.77,
-      "market_value": 1756.541585,
-      "unrealized_pl": 175.834703,
-      "unrealized_plpc": 0.11124
+      "current_price": 236.265,
+      "market_value": 1854.62438,
+      "unrealized_pl": 273.917498,
+      "unrealized_plpc": 0.17329
     },
     {
       "symbol": "AMAT",
       "qty": 2.77008669,
       "avg_entry_price": 640.337361,
-      "current_price": 732.8554,
-      "market_value": 2030.072989,
-      "unrealized_pl": 256.282988,
-      "unrealized_plpc": 0.14448
-    },
-    {
-      "symbol": "AMD",
-      "qty": 4.219989444,
-      "avg_entry_price": 478.979871,
-      "current_price": 576.0,
-      "market_value": 2430.71392,
-      "unrealized_pl": 409.42392,
-      "unrealized_plpc": 0.20256
+      "current_price": 661.59,
+      "market_value": 1832.661653,
+      "unrealized_pl": 58.871652,
+      "unrealized_plpc": 0.03319
     },
     {
       "symbol": "APLD",
       "qty": 29.42243083,
       "avg_entry_price": 40.48,
-      "current_price": 37.81,
-      "market_value": 1112.46211,
-      "unrealized_pl": -78.55789,
-      "unrealized_plpc": -0.06596
+      "current_price": 36.32,
+      "market_value": 1068.622688,
+      "unrealized_pl": -122.397312,
+      "unrealized_plpc": -0.10277
     },
     {
       "symbol": "CAT",
       "qty": 1.38205459,
       "avg_entry_price": 1007.5,
-      "current_price": 1064.73,
-      "market_value": 1471.514984,
-      "unrealized_pl": 79.094985,
-      "unrealized_plpc": 0.0568
+      "current_price": 1019.53,
+      "market_value": 1409.046116,
+      "unrealized_pl": 16.626117,
+      "unrealized_plpc": 0.01194
     },
     {
       "symbol": "CSCO",
       "qty": 11.564333696,
       "avg_entry_price": 120.406418,
-      "current_price": 118.13,
-      "market_value": 1366.09474,
-      "unrealized_pl": -26.325257,
-      "unrealized_plpc": -0.01891
+      "current_price": 116.5,
+      "market_value": 1347.244876,
+      "unrealized_pl": -45.175121,
+      "unrealized_plpc": -0.03244
     },
     {
       "symbol": "FDX",
       "qty": 4.125849102,
       "avg_entry_price": 329.76,
-      "current_price": 311.53,
-      "market_value": 1285.325771,
-      "unrealized_pl": -75.214229,
-      "unrealized_plpc": -0.05528
+      "current_price": 316.495,
+      "market_value": 1305.810612,
+      "unrealized_pl": -54.729388,
+      "unrealized_plpc": -0.04023
     },
     {
       "symbol": "GILD",
       "qty": 15.130863639,
       "avg_entry_price": 132.81,
-      "current_price": 125.86,
-      "market_value": 1904.370498,
-      "unrealized_pl": -105.159502,
-      "unrealized_plpc": -0.05233
+      "current_price": 126.15,
+      "market_value": 1908.758448,
+      "unrealized_pl": -100.771552,
+      "unrealized_plpc": -0.05015
     },
     {
       "symbol": "GOOG",
       "qty": 4.832684696,
       "avg_entry_price": 367.014102,
-      "current_price": 354.135,
-      "market_value": 1711.422795,
-      "unrealized_pl": -62.240639,
-      "unrealized_plpc": -0.03509
+      "current_price": 355.95,
+      "market_value": 1720.194118,
+      "unrealized_pl": -53.469316,
+      "unrealized_plpc": -0.03015
     },
     {
       "symbol": "GOOGL",
       "qty": 4.824090666,
       "avg_entry_price": 369.984754,
-      "current_price": 357.23,
-      "market_value": 1723.309909,
-      "unrealized_pl": -61.530089,
-      "unrealized_plpc": -0.03447
+      "current_price": 359.29,
+      "market_value": 1733.247535,
+      "unrealized_pl": -51.592463,
+      "unrealized_plpc": -0.02891
     },
     {
       "symbol": "HAL",
       "qty": 39.738925773,
       "avg_entry_price": 35.039196,
-      "current_price": 34.27,
-      "market_value": 1361.852986,
-      "unrealized_pl": -30.567023,
-      "unrealized_plpc": -0.02195
+      "current_price": 33.705,
+      "market_value": 1339.400493,
+      "unrealized_pl": -53.019516,
+      "unrealized_plpc": -0.03808
     },
     {
       "symbol": "INTC",
       "qty": 12.420940931,
       "avg_entry_price": 136.427668,
-      "current_price": 140.4601,
-      "market_value": 1744.646605,
-      "unrealized_pl": 50.086599,
-      "unrealized_plpc": 0.02956
+      "current_price": 128.87,
+      "market_value": 1600.686658,
+      "unrealized_pl": -93.873348,
+      "unrealized_plpc": -0.0554
     },
     {
       "symbol": "LMT",
-      "qty": 4.284241823,
+      "qty": 3.413277333,
       "avg_entry_price": 504.516339,
-      "current_price": 506.0,
-      "market_value": 2167.826362,
-      "unrealized_pl": 6.356362,
-      "unrealized_plpc": 0.00294
+      "current_price": 522.73,
+      "market_value": 1784.22246,
+      "unrealized_pl": 62.168276,
+      "unrealized_plpc": 0.0361
     },
     {
       "symbol": "LRCX",
       "qty": 6.340277417,
       "avg_entry_price": 373.455268,
-      "current_price": 428.13,
-      "market_value": 2714.462971,
-      "unrealized_pl": 346.652969,
-      "unrealized_plpc": 0.1464
+      "current_price": 394.96,
+      "market_value": 2504.155969,
+      "unrealized_pl": 136.345967,
+      "unrealized_plpc": 0.05758
     },
     {
       "symbol": "MRVL",
       "qty": 8.221468511,
       "avg_entry_price": 278.823667,
-      "current_price": 297.215,
-      "market_value": 2443.543763,
-      "unrealized_pl": 151.203765,
-      "unrealized_plpc": 0.06596
+      "current_price": 276.84,
+      "market_value": 2276.031343,
+      "unrealized_pl": -16.308655,
+      "unrealized_plpc": -0.00711
     },
     {
       "symbol": "MU",
       "qty": 0.651228438,
       "avg_entry_price": 1044.334,
-      "current_price": 1150.805,
-      "market_value": 749.436943,
-      "unrealized_pl": 69.336943,
-      "unrealized_plpc": 0.10195
+      "current_price": 1051.13,
+      "market_value": 684.525748,
+      "unrealized_pl": 4.425748,
+      "unrealized_plpc": 0.00651
     },
     {
       "symbol": "NFLX",
-      "qty": 24.489241527,
+      "qty": 20.300109303,
       "avg_entry_price": 74.36,
-      "current_price": 72.7011,
-      "market_value": 1780.394797,
-      "unrealized_pl": -40.625203,
-      "unrealized_plpc": -0.02231
+      "current_price": 73.48,
+      "market_value": 1491.652032,
+      "unrealized_pl": -17.864096,
+      "unrealized_plpc": -0.01183
     },
     {
       "symbol": "SLB",
       "qty": 26.970984469,
       "avg_entry_price": 51.349998,
-      "current_price": 46.49,
-      "market_value": 1253.881068,
-      "unrealized_pl": -131.078931,
-      "unrealized_plpc": -0.09464
+      "current_price": 45.9463,
+      "market_value": 1239.216944,
+      "unrealized_pl": -145.743055,
+      "unrealized_plpc": -0.10523
     },
     {
       "symbol": "SPY",
       "qty": 18.46252553,
       "avg_entry_price": 712.560152,
-      "current_price": 746.2161,
-      "market_value": 13777.033797,
-      "unrealized_pl": 621.373799,
-      "unrealized_plpc": 0.04723
+      "current_price": 748.95,
+      "market_value": 13827.508496,
+      "unrealized_pl": 671.848498,
+      "unrealized_plpc": 0.05107
     },
     {
       "symbol": "VLO",
       "qty": 2.945226791,
       "avg_entry_price": 234.185701,
-      "current_price": 264.53,
-      "market_value": 779.100843,
-      "unrealized_pl": 89.370842,
-      "unrealized_plpc": 0.12957
+      "current_price": 267.06,
+      "market_value": 786.552267,
+      "unrealized_pl": 96.822266,
+      "unrealized_plpc": 0.14038
     },
     {
       "symbol": "VZ",
       "qty": 15.953810131,
       "avg_entry_price": 46.98,
-      "current_price": 42.94,
-      "market_value": 685.056607,
-      "unrealized_pl": -64.453393,
-      "unrealized_plpc": -0.08599
+      "current_price": 42.05,
+      "market_value": 670.857716,
+      "unrealized_pl": -78.652284,
+      "unrealized_plpc": -0.10494
     },
     {
       "symbol": "WBD",
       "qty": 62.332298351,
       "avg_entry_price": 27.293876,
-      "current_price": 26.78,
-      "market_value": 1669.25895,
-      "unrealized_pl": -32.031072,
-      "unrealized_plpc": -0.01883
+      "current_price": 26.805,
+      "market_value": 1670.817257,
+      "unrealized_pl": -30.472765,
+      "unrealized_plpc": -0.01791
     },
     {
       "symbol": "ZTS",
       "qty": 28.308171928,
       "avg_entry_price": 75.38,
-      "current_price": 71.7,
-      "market_value": 2029.695927,
-      "unrealized_pl": -104.174073,
-      "unrealized_plpc": -0.04882
+      "current_price": 73.915,
+      "market_value": 2092.398528,
+      "unrealized_pl": -41.471472,
+      "unrealized_plpc": -0.01943
     }
   ],
   "alpaca_live": true
