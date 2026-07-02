@@ -7736,5 +7736,78 @@
         "timestamp": "2026-06-30T16:10:10.663459+00:00"
       }
     ]
+  },
+  "MS:QNT:buy": {
+    "cached_at": "2026-07-02T15:45:49.199340+00:00",
+    "expires_at": "2026-07-09T15:45:49.199340+00:00",
+    "regime_at_cache": "BULL",
+    "verdicts": [
+      {
+        "agent": "equity_research",
+        "symbol": "MS",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.05,
+        "conviction": "MODERATE",
+        "reasoning": "Momentum signal conf=0.50 conflicts with valuation view",
+        "key_metrics": {
+          "signal_confidence": 0.5
+        },
+        "override_vote": null,
+        "timestamp": "2026-07-02T15:45:49.198205+00:00"
+      },
+      {
+        "agent": "technical_strategist",
+        "symbol": "MS",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.03,
+        "conviction": "MODERATE",
+        "reasoning": "Technical trend does not confirm momentum",
+        "key_metrics": {
+          "momentum_aligned": false
+        },
+        "override_vote": null,
+        "timestamp": "2026-07-02T15:45:49.198205+00:00"
+      },
+      {
+        "agent": "macro_economist",
+        "symbol": "MS",
+        "direction": "AGREE",
+        "confidence_delta": 0.06,
+        "conviction": "STRONG",
+        "reasoning": "Regime BULL: favorable for buy",
+        "key_metrics": {
+          "regime": "BULL",
+          "vix": 16.69
+        },
+        "override_vote": null,
+        "timestamp": "2026-07-02T15:45:49.198205+00:00"
+      },
+      {
+        "agent": "portfolio_architect",
+        "symbol": "MS",
+        "direction": "AGREE",
+        "confidence_delta": 0.02,
+        "conviction": "MODERATE",
+        "reasoning": "Portfolio allocation acceptable for MS at 5% weight",
+        "key_metrics": {
+          "target_weight": 0.05
+        },
+        "override_vote": null,
+        "timestamp": "2026-07-02T15:45:49.198205+00:00"
+      },
+      {
+        "agent": "risk_controller",
+        "symbol": "MS",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.1,
+        "conviction": "STRONG",
+        "reasoning": "Risk assessment: elevated risk (regime=BULL)",
+        "key_metrics": {
+          "regime_risk": false
+        },
+        "override_vote": null,
+        "timestamp": "2026-07-02T15:45:49.198205+00:00"
+      }
+    ]
   }
 }
