@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-07-08T16:04:04.895911+00:00",
+  "last_updated": "2026-07-08T17:58:22.143177+00:00",
   "peaks": {
     "COP": {
       "peak_plpc": -0.00112,
@@ -108,8 +108,8 @@
     },
     "LMT": {
       "peak_plpc": 0.07279,
-      "strategy": "UNKNOWN",
-      "last_plpc": 0.05348
+      "strategy": "VAL",
+      "last_plpc": 0.04968
     },
     "RTX": {
       "peak_plpc": 0.02021,
@@ -118,13 +118,13 @@
     },
     "GOOG": {
       "peak_plpc": 0.00416,
-      "strategy": "UNKNOWN",
-      "last_plpc": -0.02521
+      "strategy": "MOM",
+      "last_plpc": -0.03067
     },
     "GOOGL": {
       "peak_plpc": 0.00141,
-      "strategy": "UNKNOWN",
-      "last_plpc": -0.02521
+      "strategy": "MOM",
+      "last_plpc": -0.02942
     },
     "TXN": {
       "peak_plpc": -8e-05,
