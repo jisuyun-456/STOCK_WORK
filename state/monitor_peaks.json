@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-07-07T18:33:00.331931+00:00",
+  "last_updated": "2026-07-08T16:04:04.895911+00:00",
   "peaks": {
     "COP": {
       "peak_plpc": -0.00112,
@@ -10,11 +10,6 @@
       "peak_plpc": 0.01404,
       "strategy": "QNT",
       "last_plpc": -0.01067
-    },
-    "HD": {
-      "peak_plpc": 0.029,
-      "strategy": "QNT",
-      "last_plpc": 0.01702
     },
     "HON": {
       "peak_plpc": 0.02174,
@@ -114,7 +109,7 @@
     "LMT": {
       "peak_plpc": 0.07279,
       "strategy": "UNKNOWN",
-      "last_plpc": 0.05561
+      "last_plpc": 0.05348
     },
     "RTX": {
       "peak_plpc": 0.02021,
@@ -124,22 +119,17 @@
     "GOOG": {
       "peak_plpc": 0.00416,
       "strategy": "UNKNOWN",
-      "last_plpc": -0.00212
+      "last_plpc": -0.02521
     },
     "GOOGL": {
       "peak_plpc": 0.00141,
       "strategy": "UNKNOWN",
-      "last_plpc": -0.00113
+      "last_plpc": -0.02521
     },
     "TXN": {
       "peak_plpc": -8e-05,
       "strategy": "QNT",
       "last_plpc": -8e-05
-    },
-    "NFLX": {
-      "peak_plpc": 0.05483,
-      "strategy": "VAL",
-      "last_plpc": 0.05483
     },
     "MS": {
       "peak_plpc": -0.00365,
