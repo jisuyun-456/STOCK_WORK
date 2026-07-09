@@ -1,81 +1,285 @@
 {
-  "account_total": 107242.45,
-  "last_updated": "2026-07-08T16:04:04.932409+00:00",
+  "account_total": 107116.23,
+  "last_updated": "2026-07-09T16:19:25.037708+00:00",
   "strategies": {
     "MOM": {
       "name": "Momentum",
-      "allocated": 16102.89,
-      "cash": 16102.89,
-      "positions": {},
+      "allocated": 16086.37,
+      "cash": 135.17,
+      "positions": {
+        "AMAT": {
+          "qty": 2.419084,
+          "avg_entry": 608.93,
+          "current": 609.34,
+          "market_value": 1474.04,
+          "unrealized_pl": 0.99,
+          "unrealized_plpc": 0.00067
+        },
+        "AMD": {
+          "qty": 2.899059,
+          "avg_entry": 554.865882,
+          "current": 554.315,
+          "market_value": 1606.99,
+          "unrealized_pl": -1.6,
+          "unrealized_plpc": -0.00099
+        },
+        "ASML": {
+          "qty": 0.877608471,
+          "avg_entry": 1832.97,
+          "current": 1831.06,
+          "market_value": 1606.953767,
+          "unrealized_pl": -1.676232,
+          "unrealized_plpc": -0.00104
+        },
+        "INTC": {
+          "qty": 14.248273,
+          "avg_entry": 112.911761,
+          "current": 112.78,
+          "market_value": 1606.92,
+          "unrealized_pl": -1.88,
+          "unrealized_plpc": -0.00117
+        },
+        "KLAC": {
+          "qty": 6.816517649,
+          "avg_entry": 235.99,
+          "current": 235.78,
+          "market_value": 1607.198531,
+          "unrealized_pl": -1.431469,
+          "unrealized_plpc": -0.00089
+        },
+        "LRCX": {
+          "qty": 4.523887,
+          "avg_entry": 355.628192,
+          "current": 355.49,
+          "market_value": 1608.2,
+          "unrealized_pl": -0.62,
+          "unrealized_plpc": -0.00039
+        },
+        "MRVL": {
+          "qty": 6.486673,
+          "avg_entry": 248.007644,
+          "current": 247.985,
+          "market_value": 1608.6,
+          "unrealized_pl": -0.14,
+          "unrealized_plpc": -9e-05
+        },
+        "ON": {
+          "qty": 15.784810126,
+          "avg_entry": 101.91,
+          "current": 101.555,
+          "market_value": 1603.026392,
+          "unrealized_pl": -5.603608,
+          "unrealized_plpc": -0.00348
+        },
+        "RKLB": {
+          "qty": 19.180041,
+          "avg_entry": 83.872211,
+          "current": 83.77,
+          "market_value": 1606.71,
+          "unrealized_pl": -1.96,
+          "unrealized_plpc": -0.00122
+        },
+        "WBD": {
+          "qty": 61.164638783,
+          "avg_entry": 26.3,
+          "current": 26.29,
+          "market_value": 1608.018354,
+          "unrealized_pl": -0.611646,
+          "unrealized_plpc": -0.00038
+        }
+      },
       "nav_history": [
         {
           "date": "2026-07-08",
           "nav": 16102.89
+        },
+        {
+          "date": "2026-07-09",
+          "nav": 16071.83
         }
       ],
       "last_rebalance": "2026-07-07"
     },
     "VAL": {
       "name": "Value Quality",
-      "allocated": 10735.26,
-      "cash": 10735.26,
-      "positions": {},
+      "allocated": 10724.25,
+      "cash": 4289.73,
+      "positions": {
+        "ADP": {
+          "qty": 8.960728609,
+          "avg_entry": 239.36,
+          "current": 239.07,
+          "market_value": 2142.241389,
+          "unrealized_pl": -2.598611,
+          "unrealized_plpc": -0.00121
+        },
+        "NFLX": {
+          "qty": 28.828494623,
+          "avg_entry": 74.4,
+          "current": 74.425,
+          "market_value": 2145.560712,
+          "unrealized_pl": 0.720712,
+          "unrealized_plpc": 0.00034
+        },
+        "ZTS": {
+          "qty": 28.536987759,
+          "avg_entry": 75.16,
+          "current": 75.005,
+          "market_value": 2140.416767,
+          "unrealized_pl": -4.423233,
+          "unrealized_plpc": -0.00206
+        }
+      },
       "nav_history": [
         {
           "date": "2026-07-08",
           "nav": 10735.26
+        },
+        {
+          "date": "2026-07-09",
+          "nav": 10717.95
         }
       ],
       "last_rebalance": "2026-07-01"
     },
     "QNT": {
       "name": "Quant Factor",
-      "allocated": 13419.07,
-      "cash": 13419.07,
-      "positions": {},
+      "allocated": 13405.31,
+      "cash": 9248.65,
+      "positions": {
+        "AMAT": {
+          "qty": 0.222648,
+          "avg_entry": 608.93,
+          "current": 609.34,
+          "market_value": 135.67,
+          "unrealized_pl": 0.09,
+          "unrealized_plpc": 0.00067
+        },
+        "AMD": {
+          "qty": 1.208041,
+          "avg_entry": 554.865882,
+          "current": 554.315,
+          "market_value": 669.64,
+          "unrealized_pl": -0.66,
+          "unrealized_plpc": -0.00099
+        },
+        "INTC": {
+          "qty": 5.934656,
+          "avg_entry": 112.911761,
+          "current": 112.78,
+          "market_value": 669.31,
+          "unrealized_pl": -0.78,
+          "unrealized_plpc": -0.00117
+        },
+        "LRCX": {
+          "qty": 1.884182,
+          "avg_entry": 355.628192,
+          "current": 355.49,
+          "market_value": 669.81,
+          "unrealized_pl": -0.26,
+          "unrealized_plpc": -0.00039
+        },
+        "MRVL": {
+          "qty": 2.702117,
+          "avg_entry": 248.007644,
+          "current": 247.985,
+          "market_value": 670.08,
+          "unrealized_pl": -0.07,
+          "unrealized_plpc": -9e-05
+        },
+        "MU": {
+          "qty": 0.656790539,
+          "avg_entry": 1020.508,
+          "current": 1021.525,
+          "market_value": 670.927955,
+          "unrealized_pl": 0.667956,
+          "unrealized_plpc": 0.001
+        },
+        "RKLB": {
+          "qty": 7.990937,
+          "avg_entry": 83.872211,
+          "current": 83.77,
+          "market_value": 669.4,
+          "unrealized_pl": -0.82,
+          "unrealized_plpc": -0.00122
+        }
+      },
       "nav_history": [
         {
           "date": "2026-07-08",
           "nav": 13419.07
+        },
+        {
+          "date": "2026-07-09",
+          "nav": 13403.49
         }
       ],
       "last_rebalance": "2026-07-07"
     },
     "LEV": {
       "name": "Leveraged ETF",
-      "allocated": 26838.14,
-      "cash": 26838.14,
-      "positions": {},
+      "allocated": 26810.61,
+      "cash": 0.01,
+      "positions": {
+        "SPY": {
+          "qty": 17.861587453,
+          "avg_entry": 750.51,
+          "current": 750.53,
+          "market_value": 13405.657231,
+          "unrealized_pl": 0.357232,
+          "unrealized_plpc": 3e-05
+        },
+        "TQQQ": {
+          "qty": 176.371924746,
+          "avg_entry": 76.005861,
+          "current": 76.005,
+          "market_value": 13405.14814,
+          "unrealized_pl": -0.151857,
+          "unrealized_plpc": -1e-05
+        }
+      },
       "nav_history": [
         {
           "date": "2026-07-08",
           "nav": 26838.14
+        },
+        {
+          "date": "2026-07-09",
+          "nav": 26810.82
         }
       ],
       "last_rebalance": "2026-07-07"
     },
     "LEV_ST": {
       "name": "Leveraged Short-Term",
-      "allocated": 26838.14,
-      "cash": 26838.14,
+      "allocated": 26810.61,
+      "cash": 26810.61,
       "positions": {},
       "nav_history": [
         {
           "date": "2026-07-08",
           "nav": 26838.14
+        },
+        {
+          "date": "2026-07-09",
+          "nav": 26810.61
         }
       ],
       "last_rebalance": null
     },
     "GRW": {
       "name": "Growth Small Cap",
-      "allocated": 13419.07,
-      "cash": 13419.07,
+      "allocated": 13405.31,
+      "cash": 13405.31,
       "positions": {},
       "nav_history": [
         {
           "date": "2026-07-08",
           "nav": 13419.07
+        },
+        {
+          "date": "2026-07-09",
+          "nav": 13405.31
         }
       ],
       "last_rebalance": null
@@ -971,6 +1175,10 @@
     {
       "date": "2026-07-08",
       "nav": 107247.63
+    },
+    {
+      "date": "2026-07-09",
+      "nav": 107116.23
     }
   ]
 }
