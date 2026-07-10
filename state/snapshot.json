@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-09T16:12:20.252346+00:00",
+  "timestamp": "2026-07-10T15:55:55.397861+00:00",
   "symbols_count": 89,
   "days_count": 274,
   "alpaca_positions": [
@@ -7,28 +7,28 @@
       "symbol": "GOOG",
       "qty": 4.337541206,
       "avg_entry_price": 366.828878,
-      "current_price": 351.31,
-      "market_value": 1523.821601,
-      "unrealized_pl": -67.313773,
-      "unrealized_plpc": -0.04231
+      "current_price": 352.84,
+      "market_value": 1530.458039,
+      "unrealized_pl": -60.677335,
+      "unrealized_plpc": -0.03813
     },
     {
       "symbol": "GOOGL",
       "qty": 4.305916025,
       "avg_entry_price": 369.75307,
-      "current_price": 353.915,
-      "market_value": 1523.92827,
-      "unrealized_pl": -68.197399,
-      "unrealized_plpc": -0.04283
+      "current_price": 354.76,
+      "market_value": 1527.566769,
+      "unrealized_pl": -64.5589,
+      "unrealized_plpc": -0.04055
     },
     {
       "symbol": "LMT",
       "qty": 3.413277333,
       "avg_entry_price": 504.516339,
-      "current_price": 519.135,
-      "market_value": 1771.951728,
-      "unrealized_pl": 49.897544,
-      "unrealized_plpc": 0.02898
+      "current_price": 518.0351,
+      "market_value": 1768.197465,
+      "unrealized_pl": 46.143281,
+      "unrealized_plpc": 0.0268
     }
   ],
   "alpaca_live": true
