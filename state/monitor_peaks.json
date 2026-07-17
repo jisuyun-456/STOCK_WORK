@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-07-17T16:39:45.304062+00:00",
+  "last_updated": "2026-07-17T18:03:05.706682+00:00",
   "peaks": {
     "COP": {
       "peak_plpc": -0.00112,
@@ -104,7 +104,7 @@
     "LMT": {
       "peak_plpc": 0.07279,
       "strategy": "VAL",
-      "last_plpc": 0.02469
+      "last_plpc": 0.01482
     },
     "RTX": {
       "peak_plpc": 0.02021,
