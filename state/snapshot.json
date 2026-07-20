@@ -1,16 +1,16 @@
 {
-  "timestamp": "2026-07-17T14:58:04.274886+00:00",
+  "timestamp": "2026-07-20T15:28:51.604185+00:00",
   "symbols_count": 89,
-  "days_count": 274,
+  "days_count": 273,
   "alpaca_positions": [
     {
       "symbol": "LMT",
       "qty": 3.413277333,
       "avg_entry_price": 504.516339,
-      "current_price": 522.51,
-      "market_value": 1783.471539,
-      "unrealized_pl": 61.417355,
-      "unrealized_plpc": 0.03567
+      "current_price": 512.31,
+      "market_value": 1748.65611,
+      "unrealized_pl": 26.601926,
+      "unrealized_plpc": 0.01545
     }
   ],
   "alpaca_live": true
