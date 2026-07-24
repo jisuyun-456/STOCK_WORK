@@ -7738,8 +7738,8 @@
     ]
   },
   "MS:QNT:buy": {
-    "cached_at": "2026-07-17T15:03:56.922907+00:00",
-    "expires_at": "2026-07-24T15:03:56.922907+00:00",
+    "cached_at": "2026-07-24T15:16:55.389325+00:00",
+    "expires_at": "2026-07-31T15:16:55.389325+00:00",
     "regime_at_cache": "BULL",
     "verdicts": [
       {
@@ -7750,10 +7750,10 @@
         "conviction": "MODERATE",
         "reasoning": "Momentum signal conf=0.51 aligns with valuation view",
         "key_metrics": {
-          "signal_confidence": 0.5092
+          "signal_confidence": 0.5062
         },
         "override_vote": null,
-        "timestamp": "2026-07-17T15:03:56.921685+00:00"
+        "timestamp": "2026-07-24T15:16:55.388097+00:00"
       },
       {
         "agent": "technical_strategist",
@@ -7766,7 +7766,7 @@
           "momentum_aligned": false
         },
         "override_vote": null,
-        "timestamp": "2026-07-17T15:03:56.921685+00:00"
+        "timestamp": "2026-07-24T15:16:55.388097+00:00"
       },
       {
         "agent": "macro_economist",
@@ -7777,10 +7777,10 @@
         "reasoning": "Regime BULL: favorable for buy",
         "key_metrics": {
           "regime": "BULL",
-          "vix": 18.14
+          "vix": 18.07
         },
         "override_vote": null,
-        "timestamp": "2026-07-17T15:03:56.921685+00:00"
+        "timestamp": "2026-07-24T15:16:55.388097+00:00"
       },
       {
         "agent": "portfolio_architect",
@@ -7793,7 +7793,7 @@
           "target_weight": 0.05
         },
         "override_vote": null,
-        "timestamp": "2026-07-17T15:03:56.921685+00:00"
+        "timestamp": "2026-07-24T15:16:55.388097+00:00"
       },
       {
         "agent": "risk_controller",
@@ -7806,7 +7806,7 @@
           "regime_risk": false
         },
         "override_vote": null,
-        "timestamp": "2026-07-17T15:03:56.921685+00:00"
+        "timestamp": "2026-07-24T15:16:55.388097+00:00"
       }
     ]
   },
@@ -8099,6 +8099,152 @@
         },
         "override_vote": null,
         "timestamp": "2026-07-23T15:35:44.803207+00:00"
+      }
+    ]
+  },
+  "CSCO:MOM:buy": {
+    "cached_at": "2026-07-24T15:16:55.340200+00:00",
+    "expires_at": "2026-07-31T15:16:55.340200+00:00",
+    "regime_at_cache": "BULL",
+    "verdicts": [
+      {
+        "agent": "equity_research",
+        "symbol": "CSCO",
+        "direction": "AGREE",
+        "confidence_delta": -0.05,
+        "conviction": "MODERATE",
+        "reasoning": "Momentum signal conf=0.59 aligns with valuation view",
+        "key_metrics": {
+          "signal_confidence": 0.5859
+        },
+        "override_vote": null,
+        "timestamp": "2026-07-24T15:16:55.338998+00:00"
+      },
+      {
+        "agent": "technical_strategist",
+        "symbol": "CSCO",
+        "direction": "AGREE",
+        "confidence_delta": -0.03,
+        "conviction": "MODERATE",
+        "reasoning": "Technical trend confirms momentum",
+        "key_metrics": {
+          "momentum_aligned": true
+        },
+        "override_vote": null,
+        "timestamp": "2026-07-24T15:16:55.338998+00:00"
+      },
+      {
+        "agent": "macro_economist",
+        "symbol": "CSCO",
+        "direction": "AGREE",
+        "confidence_delta": 0.06,
+        "conviction": "STRONG",
+        "reasoning": "Regime BULL: favorable for buy",
+        "key_metrics": {
+          "regime": "BULL",
+          "vix": 18.07
+        },
+        "override_vote": null,
+        "timestamp": "2026-07-24T15:16:55.338998+00:00"
+      },
+      {
+        "agent": "portfolio_architect",
+        "symbol": "CSCO",
+        "direction": "AGREE",
+        "confidence_delta": 0.02,
+        "conviction": "MODERATE",
+        "reasoning": "Portfolio allocation acceptable for CSCO at 10% weight",
+        "key_metrics": {
+          "target_weight": 0.1
+        },
+        "override_vote": null,
+        "timestamp": "2026-07-24T15:16:55.338998+00:00"
+      },
+      {
+        "agent": "risk_controller",
+        "symbol": "CSCO",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.1,
+        "conviction": "STRONG",
+        "reasoning": "Risk assessment: elevated risk (regime=BULL)",
+        "key_metrics": {
+          "regime_risk": false
+        },
+        "override_vote": null,
+        "timestamp": "2026-07-24T15:16:55.338998+00:00"
+      }
+    ]
+  },
+  "HON:VAL:buy": {
+    "cached_at": "2026-07-24T15:16:55.354981+00:00",
+    "expires_at": "2026-07-31T15:16:55.354981+00:00",
+    "regime_at_cache": "BULL",
+    "verdicts": [
+      {
+        "agent": "equity_research",
+        "symbol": "HON",
+        "direction": "AGREE",
+        "confidence_delta": -0.05,
+        "conviction": "MODERATE",
+        "reasoning": "Momentum signal conf=0.50 aligns with valuation view",
+        "key_metrics": {
+          "signal_confidence": 0.5003
+        },
+        "override_vote": null,
+        "timestamp": "2026-07-24T15:16:55.353747+00:00"
+      },
+      {
+        "agent": "technical_strategist",
+        "symbol": "HON",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.03,
+        "conviction": "MODERATE",
+        "reasoning": "Technical trend does not confirm momentum",
+        "key_metrics": {
+          "momentum_aligned": false
+        },
+        "override_vote": null,
+        "timestamp": "2026-07-24T15:16:55.353747+00:00"
+      },
+      {
+        "agent": "macro_economist",
+        "symbol": "HON",
+        "direction": "AGREE",
+        "confidence_delta": 0.06,
+        "conviction": "STRONG",
+        "reasoning": "Regime BULL: favorable for buy",
+        "key_metrics": {
+          "regime": "BULL",
+          "vix": 18.07
+        },
+        "override_vote": null,
+        "timestamp": "2026-07-24T15:16:55.353747+00:00"
+      },
+      {
+        "agent": "portfolio_architect",
+        "symbol": "HON",
+        "direction": "AGREE",
+        "confidence_delta": 0.02,
+        "conviction": "MODERATE",
+        "reasoning": "Portfolio allocation acceptable for HON at 20% weight",
+        "key_metrics": {
+          "target_weight": 0.2
+        },
+        "override_vote": null,
+        "timestamp": "2026-07-24T15:16:55.353747+00:00"
+      },
+      {
+        "agent": "risk_controller",
+        "symbol": "HON",
+        "direction": "DISAGREE",
+        "confidence_delta": -0.1,
+        "conviction": "STRONG",
+        "reasoning": "Risk assessment: elevated risk (regime=BULL)",
+        "key_metrics": {
+          "regime_risk": false
+        },
+        "override_vote": null,
+        "timestamp": "2026-07-24T15:16:55.353747+00:00"
       }
     ]
   }
