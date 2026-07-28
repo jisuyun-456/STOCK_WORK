@@ -1,81 +1,253 @@
 {
-  "account_total": 106295.59,
-  "last_updated": "2026-07-27T16:17:17.969475+00:00",
+  "account_total": 106276.72,
+  "last_updated": "2026-07-28T15:50:00.444216+00:00",
   "strategies": {
     "MOM": {
       "name": "Momentum",
-      "allocated": 15966.07,
-      "cash": 15966.07,
-      "positions": {},
+      "allocated": 15944.34,
+      "cash": 4783.85,
+      "positions": {
+        "AMAT": {
+          "qty": 3.311979,
+          "avg_entry": 481.439407,
+          "current": 480.89,
+          "market_value": 1592.7,
+          "unrealized_pl": -1.82,
+          "unrealized_plpc": -0.00114
+        },
+        "AMD": {
+          "qty": 3.433142,
+          "avg_entry": 464.203287,
+          "current": 463.09,
+          "market_value": 1589.85,
+          "unrealized_pl": -3.83,
+          "unrealized_plpc": -0.0024
+        },
+        "ASML": {
+          "qty": 1.001245889,
+          "avg_entry": 1592.436,
+          "current": 1594.39,
+          "market_value": 1596.376433,
+          "unrealized_pl": 1.956435,
+          "unrealized_plpc": 0.00123
+        },
+        "INTC": {
+          "qty": 18.085526,
+          "avg_entry": 88.171761,
+          "current": 87.895,
+          "market_value": 1589.63,
+          "unrealized_pl": -5.0,
+          "unrealized_plpc": -0.00314
+        },
+        "KLAC": {
+          "qty": 8.24245244,
+          "avg_entry": 193.44,
+          "current": 193.1,
+          "market_value": 1591.617566,
+          "unrealized_pl": -2.802434,
+          "unrealized_plpc": -0.00176
+        },
+        "LRCX": {
+          "qty": 5.922588,
+          "avg_entry": 269.215882,
+          "current": 269.395,
+          "market_value": 1595.52,
+          "unrealized_pl": 1.07,
+          "unrealized_plpc": 0.00067
+        },
+        "MRVL": {
+          "qty": 8.903395,
+          "avg_entry": 179.074118,
+          "current": 178.9,
+          "market_value": 1592.82,
+          "unrealized_pl": -1.55,
+          "unrealized_plpc": -0.00097
+        }
+      },
       "nav_history": [
         {
           "date": "2026-07-27",
           "nav": 15966.07
+        },
+        {
+          "date": "2026-07-28",
+          "nav": 15932.36
         }
       ],
       "last_rebalance": "2026-07-07"
     },
     "VAL": {
       "name": "Value Quality",
-      "allocated": 10644.05,
-      "cash": 10644.05,
-      "positions": {},
+      "allocated": 10629.56,
+      "cash": 4251.86,
+      "positions": {
+        "ADP": {
+          "qty": 7.973221317,
+          "avg_entry": 266.63,
+          "current": 266.57,
+          "market_value": 2125.421606,
+          "unrealized_pl": -0.478394,
+          "unrealized_plpc": -0.00023
+        },
+        "LMT": {
+          "qty": 3.66521844,
+          "avg_entry": 580.02,
+          "current": 579.59,
+          "market_value": 2124.323956,
+          "unrealized_pl": -1.576044,
+          "unrealized_plpc": -0.00074
+        },
+        "ZTS": {
+          "qty": 27.126451448,
+          "avg_entry": 78.37,
+          "current": 78.355,
+          "market_value": 2125.493103,
+          "unrealized_pl": -0.406897,
+          "unrealized_plpc": -0.00019
+        }
+      },
       "nav_history": [
         {
           "date": "2026-07-27",
           "nav": 10644.05
+        },
+        {
+          "date": "2026-07-28",
+          "nav": 10627.1
         }
       ],
       "last_rebalance": "2026-07-01"
     },
     "QNT": {
       "name": "Quant Factor",
-      "allocated": 13305.06,
-      "cash": 13305.06,
-      "positions": {},
+      "allocated": 13286.95,
+      "cash": 9300.46,
+      "positions": {
+        "AMAT": {
+          "qty": 1.379701,
+          "avg_entry": 481.439407,
+          "current": 480.89,
+          "market_value": 663.48,
+          "unrealized_pl": -0.76,
+          "unrealized_plpc": -0.00114
+        },
+        "AMD": {
+          "qty": 1.432743,
+          "avg_entry": 464.203287,
+          "current": 463.09,
+          "market_value": 663.49,
+          "unrealized_pl": -1.59,
+          "unrealized_plpc": -0.0024
+        },
+        "INTC": {
+          "qty": 7.5322,
+          "avg_entry": 88.171761,
+          "current": 87.895,
+          "market_value": 662.04,
+          "unrealized_pl": -2.09,
+          "unrealized_plpc": -0.00314
+        },
+        "LRCX": {
+          "qty": 2.467556,
+          "avg_entry": 269.215882,
+          "current": 269.395,
+          "market_value": 664.75,
+          "unrealized_pl": 0.44,
+          "unrealized_plpc": 0.00067
+        },
+        "MRVL": {
+          "qty": 3.710153,
+          "avg_entry": 179.074118,
+          "current": 178.9,
+          "market_value": 663.75,
+          "unrealized_pl": -0.64,
+          "unrealized_plpc": -0.00097
+        },
+        "MU": {
+          "qty": 0.800675887,
+          "avg_entry": 829.724,
+          "current": 829.17,
+          "market_value": 663.896425,
+          "unrealized_pl": -0.443575,
+          "unrealized_plpc": -0.00067
+        }
+      },
       "nav_history": [
         {
           "date": "2026-07-27",
           "nav": 13305.06
+        },
+        {
+          "date": "2026-07-28",
+          "nav": 13281.87
         }
       ],
       "last_rebalance": "2026-07-07"
     },
     "LEV": {
       "name": "Leveraged ETF",
-      "allocated": 26610.11,
-      "cash": 26610.11,
-      "positions": {},
+      "allocated": 26573.9,
+      "cash": 0.02,
+      "positions": {
+        "SPY": {
+          "qty": 17.897761254,
+          "avg_entry": 742.38,
+          "current": 742.34,
+          "market_value": 13286.224089,
+          "unrealized_pl": -0.715911,
+          "unrealized_plpc": -5e-05
+        },
+        "TQQQ": {
+          "qty": 213.0,
+          "avg_entry": 62.38,
+          "current": 62.38,
+          "market_value": 13286.94,
+          "unrealized_pl": 0.0,
+          "unrealized_plpc": 0.0
+        }
+      },
       "nav_history": [
         {
           "date": "2026-07-27",
           "nav": 26610.11
+        },
+        {
+          "date": "2026-07-28",
+          "nav": 26573.18
         }
       ],
       "last_rebalance": "2026-07-07"
     },
     "LEV_ST": {
       "name": "Leveraged Short-Term",
-      "allocated": 26610.11,
-      "cash": 26610.11,
+      "allocated": 26573.9,
+      "cash": 26573.9,
       "positions": {},
       "nav_history": [
         {
           "date": "2026-07-27",
           "nav": 26610.11
+        },
+        {
+          "date": "2026-07-28",
+          "nav": 26573.9
         }
       ],
       "last_rebalance": null
     },
     "GRW": {
       "name": "Growth Small Cap",
-      "allocated": 13305.06,
-      "cash": 13305.06,
+      "allocated": 13286.95,
+      "cash": 13286.95,
       "positions": {},
       "nav_history": [
         {
           "date": "2026-07-27",
           "nav": 13305.06
+        },
+        {
+          "date": "2026-07-28",
+          "nav": 13286.95
         }
       ],
       "last_rebalance": null
@@ -1023,6 +1195,10 @@
     {
       "date": "2026-07-27",
       "nav": 106390.18
+    },
+    {
+      "date": "2026-07-28",
+      "nav": 106276.72
     }
   ]
 }
