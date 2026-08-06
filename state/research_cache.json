@@ -1679,8 +1679,8 @@
     ]
   },
   "HAL:QNT:buy": {
-    "cached_at": "2026-07-23T15:35:44.786425+00:00",
-    "expires_at": "2026-07-30T15:35:44.786425+00:00",
+    "cached_at": "2026-08-06T15:47:50.296051+00:00",
+    "expires_at": "2026-08-13T15:47:50.296051+00:00",
     "regime_at_cache": "BULL",
     "verdicts": [
       {
@@ -1689,12 +1689,12 @@
         "direction": "AGREE",
         "confidence_delta": -0.05,
         "conviction": "MODERATE",
-        "reasoning": "Momentum signal conf=0.51 aligns with valuation view",
+        "reasoning": "Momentum signal conf=0.50 aligns with valuation view",
         "key_metrics": {
-          "signal_confidence": 0.5126
+          "signal_confidence": 0.5037
         },
         "override_vote": null,
-        "timestamp": "2026-07-23T15:35:44.785158+00:00"
+        "timestamp": "2026-08-06T15:47:50.294791+00:00"
       },
       {
         "agent": "technical_strategist",
@@ -1707,7 +1707,7 @@
           "momentum_aligned": false
         },
         "override_vote": null,
-        "timestamp": "2026-07-23T15:35:44.785158+00:00"
+        "timestamp": "2026-08-06T15:47:50.294791+00:00"
       },
       {
         "agent": "macro_economist",
@@ -1718,10 +1718,10 @@
         "reasoning": "Regime BULL: favorable for buy",
         "key_metrics": {
           "regime": "BULL",
-          "vix": 19.59
+          "vix": 15.44
         },
         "override_vote": null,
-        "timestamp": "2026-07-23T15:35:44.785158+00:00"
+        "timestamp": "2026-08-06T15:47:50.294791+00:00"
       },
       {
         "agent": "portfolio_architect",
@@ -1734,7 +1734,7 @@
           "target_weight": 0.05
         },
         "override_vote": null,
-        "timestamp": "2026-07-23T15:35:44.785158+00:00"
+        "timestamp": "2026-08-06T15:47:50.294791+00:00"
       },
       {
         "agent": "risk_controller",
@@ -1747,7 +1747,7 @@
           "regime_risk": false
         },
         "override_vote": null,
-        "timestamp": "2026-07-23T15:35:44.785158+00:00"
+        "timestamp": "2026-08-06T15:47:50.294791+00:00"
       }
     ]
   },
@@ -5183,8 +5183,8 @@
     ]
   },
   "AMGN:VAL:buy": {
-    "cached_at": "2026-07-13T16:08:09.122109+00:00",
-    "expires_at": "2026-07-20T16:08:09.122109+00:00",
+    "cached_at": "2026-08-06T15:47:50.317414+00:00",
+    "expires_at": "2026-08-13T15:47:50.317414+00:00",
     "regime_at_cache": "BULL",
     "verdicts": [
       {
@@ -5193,12 +5193,12 @@
         "direction": "AGREE",
         "confidence_delta": 0.05,
         "conviction": "MODERATE",
-        "reasoning": "Momentum signal conf=0.82 aligns with valuation view",
+        "reasoning": "Momentum signal conf=1.00 aligns with valuation view",
         "key_metrics": {
-          "signal_confidence": 0.8216
+          "signal_confidence": 1.0
         },
         "override_vote": null,
-        "timestamp": "2026-07-13T16:08:09.120949+00:00"
+        "timestamp": "2026-08-06T15:47:50.316176+00:00"
       },
       {
         "agent": "technical_strategist",
@@ -5211,7 +5211,7 @@
           "momentum_aligned": true
         },
         "override_vote": null,
-        "timestamp": "2026-07-13T16:08:09.120949+00:00"
+        "timestamp": "2026-08-06T15:47:50.316176+00:00"
       },
       {
         "agent": "macro_economist",
@@ -5222,10 +5222,10 @@
         "reasoning": "Regime BULL: favorable for buy",
         "key_metrics": {
           "regime": "BULL",
-          "vix": 16.29
+          "vix": 15.44
         },
         "override_vote": null,
-        "timestamp": "2026-07-13T16:08:09.120949+00:00"
+        "timestamp": "2026-08-06T15:47:50.316176+00:00"
       },
       {
         "agent": "portfolio_architect",
@@ -5238,7 +5238,7 @@
           "target_weight": 0.2
         },
         "override_vote": null,
-        "timestamp": "2026-07-13T16:08:09.120949+00:00"
+        "timestamp": "2026-08-06T15:47:50.316176+00:00"
       },
       {
         "agent": "risk_controller",
@@ -5251,7 +5251,7 @@
           "regime_risk": false
         },
         "override_vote": null,
-        "timestamp": "2026-07-13T16:08:09.120949+00:00"
+        "timestamp": "2026-08-06T15:47:50.316176+00:00"
       }
     ]
   },
