@@ -359,3 +359,4 @@
 {"ts": "2026-08-07T17:46:04.100198+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 0, "exits": []}
 {"ts": "2026-08-07T18:51:10.254459+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 0, "exits": []}
 {"ts": "2026-08-07T19:50:42.374394+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 0, "exits": []}
+{"ts": "2026-08-07T20:36:59.694579+00:00", "run_type": "monitor", "market_open": false, "positions_checked": 0, "exits": []}
