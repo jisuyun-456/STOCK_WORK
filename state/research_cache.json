@@ -5329,9 +5329,9 @@
     ]
   },
   "PEP:VAL:buy": {
-    "cached_at": "2026-08-14T14:34:28.076415+00:00",
-    "expires_at": "2026-08-21T14:34:28.076415+00:00",
-    "regime_at_cache": "EUPHORIA",
+    "cached_at": "2026-08-18T14:11:57.514683+00:00",
+    "expires_at": "2026-08-25T14:11:57.514683+00:00",
+    "regime_at_cache": "BULL",
     "verdicts": [
       {
         "agent": "equity_research",
@@ -5344,7 +5344,7 @@
           "signal_confidence": 0.5
         },
         "override_vote": null,
-        "timestamp": "2026-08-14T14:34:28.075156+00:00"
+        "timestamp": "2026-08-18T14:11:57.513478+00:00"
       },
       {
         "agent": "technical_strategist",
@@ -5357,21 +5357,21 @@
           "momentum_aligned": false
         },
         "override_vote": null,
-        "timestamp": "2026-08-14T14:34:28.075156+00:00"
+        "timestamp": "2026-08-18T14:11:57.513478+00:00"
       },
       {
         "agent": "macro_economist",
         "symbol": "PEP",
-        "direction": "DISAGREE",
-        "confidence_delta": -0.08,
-        "conviction": "WEAK",
-        "reasoning": "Regime EUPHORIA: unfavorable for buy",
+        "direction": "AGREE",
+        "confidence_delta": 0.06,
+        "conviction": "STRONG",
+        "reasoning": "Regime BULL: favorable for buy",
         "key_metrics": {
-          "regime": "EUPHORIA",
-          "vix": 14.62
+          "regime": "BULL",
+          "vix": 15.82
         },
         "override_vote": null,
-        "timestamp": "2026-08-14T14:34:28.075156+00:00"
+        "timestamp": "2026-08-18T14:11:57.513478+00:00"
       },
       {
         "agent": "portfolio_architect",
@@ -5384,7 +5384,7 @@
           "target_weight": 0.2
         },
         "override_vote": null,
-        "timestamp": "2026-08-14T14:34:28.075156+00:00"
+        "timestamp": "2026-08-18T14:11:57.513478+00:00"
       },
       {
         "agent": "risk_controller",
@@ -5392,12 +5392,12 @@
         "direction": "DISAGREE",
         "confidence_delta": -0.1,
         "conviction": "STRONG",
-        "reasoning": "Risk assessment: elevated risk (regime=EUPHORIA)",
+        "reasoning": "Risk assessment: elevated risk (regime=BULL)",
         "key_metrics": {
           "regime_risk": false
         },
         "override_vote": null,
-        "timestamp": "2026-08-14T14:34:28.075156+00:00"
+        "timestamp": "2026-08-18T14:11:57.513478+00:00"
       }
     ]
   },
