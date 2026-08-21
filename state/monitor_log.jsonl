@@ -451,3 +451,4 @@
 {"ts": "2026-08-21T18:31:38.819294+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 0, "exits": []}
 {"ts": "2026-08-21T19:23:03.899277+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 0, "exits": []}
 {"ts": "2026-08-21T19:47:11.232439+00:00", "run_type": "monitor", "market_open": true, "positions_checked": 0, "exits": []}
+{"ts": "2026-08-21T20:21:21.481452+00:00", "run_type": "monitor", "market_open": false, "positions_checked": 0, "exits": []}
