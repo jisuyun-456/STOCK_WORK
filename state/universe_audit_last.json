@@ -1,11 +1,11 @@
 {
-  "ts": "2026-08-17T09:37:09.009224+00:00",
+  "ts": "2026-08-24T09:44:30.712740+00:00",
   "dry_run": false,
   "summary": {
     "NASDAQ_100_SUBSET": {
       "total": 89,
-      "live": 89,
-      "stale": 0,
+      "live": 88,
+      "stale": 1,
       "delisted": 0,
       "delisted_tickers": [],
       "to_remove_tickers": []
