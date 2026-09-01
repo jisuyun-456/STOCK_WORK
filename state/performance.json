@@ -11,90 +11,90 @@
   },
   "strategies": {
     "MOM": {
-      "current_nav": 15581.2,
-      "total_return_pct": -37.6752,
-      "daily_return_pct": -0.6815,
-      "mdd_pct": -2.4492,
+      "current_nav": 15860.76,
+      "total_return_pct": -36.557,
+      "daily_return_pct": -0.0218,
+      "mdd_pct": -0.0218,
       "sharpe_ratio": null,
       "win_rate": 0.0,
-      "trade_count": 753,
+      "trade_count": 772,
       "dry_run_count": 1307,
-      "peak_nav": 15972.39,
+      "peak_nav": 15864.22,
       "last_rebalance": "2026-08-07",
       "initial_nav": 25000.0
     },
     "VAL": {
-      "current_nav": 10493.91,
-      "total_return_pct": -58.0244,
-      "daily_return_pct": -1.4525,
-      "mdd_pct": -1.4525,
+      "current_nav": 10567.54,
+      "total_return_pct": -57.7298,
+      "daily_return_pct": -0.0814,
+      "mdd_pct": -0.0814,
       "sharpe_ratio": null,
       "win_rate": 0.0,
-      "trade_count": 273,
+      "trade_count": 280,
       "dry_run_count": 100,
-      "peak_nav": 10648.58,
+      "peak_nav": 10576.15,
       "last_rebalance": "2026-07-01",
       "initial_nav": 25000.0
     },
     "QNT": {
-      "current_nav": 13046.67,
-      "total_return_pct": -56.5111,
-      "daily_return_pct": -0.7984,
-      "mdd_pct": -1.9809,
+      "current_nav": 13214.92,
+      "total_return_pct": -55.9503,
+      "daily_return_pct": -0.0398,
+      "mdd_pct": -0.0398,
       "sharpe_ratio": null,
       "win_rate": 0.0,
-      "trade_count": 503,
+      "trade_count": 509,
       "dry_run_count": 633,
-      "peak_nav": 13310.33,
+      "peak_nav": 13220.18,
       "last_rebalance": "2026-08-31",
       "initial_nav": 30000.0
     },
     "LEV": {
-      "current_nav": 26152.66,
-      "total_return_pct": 30.7633,
-      "daily_return_pct": -0.8607,
-      "mdd_pct": -1.758,
+      "current_nav": 26423.82,
+      "total_return_pct": 32.1191,
+      "daily_return_pct": -0.0626,
+      "mdd_pct": -0.0626,
       "sharpe_ratio": null,
       "win_rate": 0.0,
-      "trade_count": 158,
+      "trade_count": 162,
       "dry_run_count": 40,
-      "peak_nav": 26620.65,
+      "peak_nav": 26440.37,
       "last_rebalance": "2026-07-07",
       "initial_nav": 20000.0
     },
     "LEV_ST": {
-      "current_nav": 26440.37,
+      "current_nav": 26425.19,
       "total_return_pct": 0.0,
-      "daily_return_pct": -0.5836,
-      "mdd_pct": -0.6772,
+      "daily_return_pct": -0.0574,
+      "mdd_pct": -0.0574,
       "sharpe_ratio": null,
       "win_rate": 0.0,
       "trade_count": 8,
       "dry_run_count": 0,
-      "peak_nav": 26620.65,
+      "peak_nav": 26440.37,
       "last_rebalance": null,
       "initial_nav": 0.0
     },
     "GRW": {
-      "current_nav": 13220.18,
+      "current_nav": 13212.6,
       "total_return_pct": 0.0,
-      "daily_return_pct": -0.5836,
-      "mdd_pct": -0.6773,
+      "daily_return_pct": -0.0573,
+      "mdd_pct": -0.0573,
       "sharpe_ratio": null,
       "win_rate": null,
       "trade_count": 0,
       "dry_run_count": 0,
-      "peak_nav": 13310.33,
+      "peak_nav": 13220.18,
       "last_rebalance": null,
       "initial_nav": 0.0
     },
     "TOTAL": {
       "initial_nav": 100000.0,
-      "current_nav": 105555.85,
-      "total_return_pct": 5.5559,
-      "spy_return_pct": 13.4125,
-      "qqq_return_pct": 18.0551,
-      "alpha_vs_spy": -7.8567
+      "current_nav": 105703.45,
+      "total_return_pct": 5.7034,
+      "spy_return_pct": 12.698,
+      "qqq_return_pct": 16.8622,
+      "alpha_vs_spy": -6.9946
     }
   },
   "daily": [
@@ -2238,6 +2238,25 @@
       "rebalances": [
         "QNT"
       ]
+    },
+    {
+      "date": "2026-09-01",
+      "total_nav": 105704.83,
+      "strategy_navs": {
+        "MOM": 15860.76,
+        "VAL": 10567.54,
+        "QNT": 13214.92,
+        "LEV": 26423.82,
+        "LEV_ST": 26425.19,
+        "GRW": 13212.6
+      },
+      "benchmark_prices": {
+        "SPY": 761.8499755859375,
+        "QQQ": 708.2899780273438
+      },
+      "regime": "BULL",
+      "signals_count": 20,
+      "rebalances": []
     }
   ]
 }
