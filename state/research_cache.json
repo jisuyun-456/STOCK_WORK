@@ -8760,22 +8760,22 @@
     ]
   },
   "TJX:VAL:buy": {
-    "cached_at": "2026-09-02T17:19:12.095838+00:00",
-    "expires_at": "2026-09-09T17:19:12.095838+00:00",
+    "cached_at": "2026-09-14T18:53:41.517325+00:00",
+    "expires_at": "2026-09-21T18:53:41.517325+00:00",
     "regime_at_cache": "BULL",
     "verdicts": [
       {
         "agent": "equity_research",
         "symbol": "TJX",
-        "direction": "AGREE",
+        "direction": "DISAGREE",
         "confidence_delta": -0.05,
         "conviction": "MODERATE",
-        "reasoning": "Momentum signal conf=0.54 aligns with valuation view",
+        "reasoning": "Momentum signal conf=0.50 conflicts with valuation view",
         "key_metrics": {
-          "signal_confidence": 0.5358
+          "signal_confidence": 0.5
         },
         "override_vote": null,
-        "timestamp": "2026-09-02T17:19:12.094454+00:00"
+        "timestamp": "2026-09-14T18:53:41.516086+00:00"
       },
       {
         "agent": "technical_strategist",
@@ -8788,7 +8788,7 @@
           "momentum_aligned": false
         },
         "override_vote": null,
-        "timestamp": "2026-09-02T17:19:12.094454+00:00"
+        "timestamp": "2026-09-14T18:53:41.516086+00:00"
       },
       {
         "agent": "macro_economist",
@@ -8799,10 +8799,10 @@
         "reasoning": "Regime BULL: favorable for buy",
         "key_metrics": {
           "regime": "BULL",
-          "vix": 15.32
+          "vix": 16.71
         },
         "override_vote": null,
-        "timestamp": "2026-09-02T17:19:12.094454+00:00"
+        "timestamp": "2026-09-14T18:53:41.516086+00:00"
       },
       {
         "agent": "portfolio_architect",
@@ -8815,7 +8815,7 @@
           "target_weight": 0.2
         },
         "override_vote": null,
-        "timestamp": "2026-09-02T17:19:12.094454+00:00"
+        "timestamp": "2026-09-14T18:53:41.516086+00:00"
       },
       {
         "agent": "risk_controller",
@@ -8828,7 +8828,7 @@
           "regime_risk": false
         },
         "override_vote": null,
-        "timestamp": "2026-09-02T17:19:12.094454+00:00"
+        "timestamp": "2026-09-14T18:53:41.516086+00:00"
       }
     ]
   },
