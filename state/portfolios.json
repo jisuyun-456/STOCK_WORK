@@ -1,81 +1,105 @@
 {
   "account_total": 105782.04,
-  "last_updated": "2026-09-25T18:15:39.231789+00:00",
+  "last_updated": "2026-09-28T20:25:51.084150+00:00",
   "strategies": {
     "MOM": {
       "name": "Momentum",
-      "allocated": 15862.15,
-      "cash": 15862.15,
+      "allocated": 15867.31,
+      "cash": 15867.31,
       "positions": {},
       "nav_history": [
         {
           "date": "2026-09-25",
           "nav": 15862.15
+        },
+        {
+          "date": "2026-09-28",
+          "nav": 15867.31
         }
       ],
       "last_rebalance": "2026-08-07"
     },
     "VAL": {
       "name": "Value Quality",
-      "allocated": 10574.77,
-      "cash": 10574.77,
+      "allocated": 10578.2,
+      "cash": 10578.2,
       "positions": {},
       "nav_history": [
         {
           "date": "2026-09-25",
           "nav": 10574.77
+        },
+        {
+          "date": "2026-09-28",
+          "nav": 10578.2
         }
       ],
       "last_rebalance": "2026-07-01"
     },
     "QNT": {
       "name": "Quant Factor",
-      "allocated": 13218.46,
-      "cash": 13218.46,
+      "allocated": 13222.75,
+      "cash": 13222.75,
       "positions": {},
       "nav_history": [
         {
           "date": "2026-09-25",
           "nav": 13218.46
+        },
+        {
+          "date": "2026-09-28",
+          "nav": 13222.75
         }
       ],
       "last_rebalance": "2026-08-31"
     },
     "LEV": {
       "name": "Leveraged ETF",
-      "allocated": 26436.92,
-      "cash": 26436.92,
+      "allocated": 26445.51,
+      "cash": 26445.51,
       "positions": {},
       "nav_history": [
         {
           "date": "2026-09-25",
           "nav": 26436.92
+        },
+        {
+          "date": "2026-09-28",
+          "nav": 26445.51
         }
       ],
       "last_rebalance": "2026-07-07"
     },
     "LEV_ST": {
       "name": "Leveraged Short-Term",
-      "allocated": 26436.92,
-      "cash": 26436.92,
+      "allocated": 26445.51,
+      "cash": 26445.51,
       "positions": {},
       "nav_history": [
         {
           "date": "2026-09-25",
           "nav": 26436.92
+        },
+        {
+          "date": "2026-09-28",
+          "nav": 26445.51
         }
       ],
       "last_rebalance": null
     },
     "GRW": {
       "name": "Growth Small Cap",
-      "allocated": 13218.46,
-      "cash": 13218.46,
+      "allocated": 13222.75,
+      "cash": 13222.75,
       "positions": {},
       "nav_history": [
         {
           "date": "2026-09-25",
           "nav": 13218.46
+        },
+        {
+          "date": "2026-09-28",
+          "nav": 13222.75
         }
       ],
       "last_rebalance": null
@@ -1211,6 +1235,10 @@
     {
       "date": "2026-09-25",
       "nav": 105746.72
+    },
+    {
+      "date": "2026-09-28",
+      "nav": 105782.04
     }
   ]
 }

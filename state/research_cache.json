@@ -219,8 +219,8 @@
     ]
   },
   "KLAC:MOM:buy": {
-    "cached_at": "2026-09-21T18:55:14.670136+00:00",
-    "expires_at": "2026-09-28T18:55:14.670136+00:00",
+    "cached_at": "2026-09-28T20:14:49.135142+00:00",
+    "expires_at": "2026-10-05T20:14:49.135142+00:00",
     "regime_at_cache": "BULL",
     "verdicts": [
       {
@@ -229,25 +229,25 @@
         "direction": "AGREE",
         "confidence_delta": 0.05,
         "conviction": "MODERATE",
-        "reasoning": "Momentum signal conf=0.70 aligns with valuation view",
+        "reasoning": "Momentum signal conf=0.69 aligns with valuation view",
         "key_metrics": {
-          "signal_confidence": 0.7014
+          "signal_confidence": 0.6878
         },
         "override_vote": null,
-        "timestamp": "2026-09-21T18:55:14.668723+00:00"
+        "timestamp": "2026-09-28T20:14:49.133743+00:00"
       },
       {
         "agent": "technical_strategist",
         "symbol": "KLAC",
         "direction": "AGREE",
         "confidence_delta": 0.08,
-        "conviction": "STRONG",
+        "conviction": "MODERATE",
         "reasoning": "Technical trend confirms momentum",
         "key_metrics": {
           "momentum_aligned": true
         },
         "override_vote": null,
-        "timestamp": "2026-09-21T18:55:14.668723+00:00"
+        "timestamp": "2026-09-28T20:14:49.133743+00:00"
       },
       {
         "agent": "macro_economist",
@@ -258,10 +258,10 @@
         "reasoning": "Regime BULL: favorable for buy",
         "key_metrics": {
           "regime": "BULL",
-          "vix": 14.99
+          "vix": 16.1
         },
         "override_vote": null,
-        "timestamp": "2026-09-21T18:55:14.668723+00:00"
+        "timestamp": "2026-09-28T20:14:49.133743+00:00"
       },
       {
         "agent": "portfolio_architect",
@@ -274,7 +274,7 @@
           "target_weight": 0.1
         },
         "override_vote": null,
-        "timestamp": "2026-09-21T18:55:14.668723+00:00"
+        "timestamp": "2026-09-28T20:14:49.133743+00:00"
       },
       {
         "agent": "risk_controller",
@@ -287,7 +287,7 @@
           "regime_risk": false
         },
         "override_vote": null,
-        "timestamp": "2026-09-21T18:55:14.668723+00:00"
+        "timestamp": "2026-09-28T20:14:49.133743+00:00"
       }
     ]
   },
