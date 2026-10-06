@@ -219,8 +219,8 @@
     ]
   },
   "KLAC:MOM:buy": {
-    "cached_at": "2026-09-28T20:14:49.135142+00:00",
-    "expires_at": "2026-10-05T20:14:49.135142+00:00",
+    "cached_at": "2026-10-06T19:02:14.625275+00:00",
+    "expires_at": "2026-10-13T19:02:14.625275+00:00",
     "regime_at_cache": "BULL",
     "verdicts": [
       {
@@ -229,12 +229,12 @@
         "direction": "AGREE",
         "confidence_delta": 0.05,
         "conviction": "MODERATE",
-        "reasoning": "Momentum signal conf=0.69 aligns with valuation view",
+        "reasoning": "Momentum signal conf=0.68 aligns with valuation view",
         "key_metrics": {
-          "signal_confidence": 0.6878
+          "signal_confidence": 0.6826
         },
         "override_vote": null,
-        "timestamp": "2026-09-28T20:14:49.133743+00:00"
+        "timestamp": "2026-10-06T19:02:14.624007+00:00"
       },
       {
         "agent": "technical_strategist",
@@ -247,7 +247,7 @@
           "momentum_aligned": true
         },
         "override_vote": null,
-        "timestamp": "2026-09-28T20:14:49.133743+00:00"
+        "timestamp": "2026-10-06T19:02:14.624007+00:00"
       },
       {
         "agent": "macro_economist",
@@ -258,10 +258,10 @@
         "reasoning": "Regime BULL: favorable for buy",
         "key_metrics": {
           "regime": "BULL",
-          "vix": 16.1
+          "vix": 15.03
         },
         "override_vote": null,
-        "timestamp": "2026-09-28T20:14:49.133743+00:00"
+        "timestamp": "2026-10-06T19:02:14.624007+00:00"
       },
       {
         "agent": "portfolio_architect",
@@ -274,7 +274,7 @@
           "target_weight": 0.1
         },
         "override_vote": null,
-        "timestamp": "2026-09-28T20:14:49.133743+00:00"
+        "timestamp": "2026-10-06T19:02:14.624007+00:00"
       },
       {
         "agent": "risk_controller",
@@ -287,7 +287,7 @@
           "regime_risk": false
         },
         "override_vote": null,
-        "timestamp": "2026-09-28T20:14:49.133743+00:00"
+        "timestamp": "2026-10-06T19:02:14.624007+00:00"
       }
     ]
   },
@@ -1460,22 +1460,22 @@
     ]
   },
   "ADI:QNT:buy": {
-    "cached_at": "2026-09-25T18:05:56.953280+00:00",
-    "expires_at": "2026-10-02T18:05:56.953280+00:00",
+    "cached_at": "2026-10-06T19:02:14.659039+00:00",
+    "expires_at": "2026-10-13T19:02:14.659039+00:00",
     "regime_at_cache": "BULL",
     "verdicts": [
       {
         "agent": "equity_research",
         "symbol": "ADI",
-        "direction": "DISAGREE",
+        "direction": "AGREE",
         "confidence_delta": -0.05,
         "conviction": "MODERATE",
-        "reasoning": "Momentum signal conf=0.50 conflicts with valuation view",
+        "reasoning": "Momentum signal conf=0.50 aligns with valuation view",
         "key_metrics": {
-          "signal_confidence": 0.5
+          "signal_confidence": 0.5008
         },
         "override_vote": null,
-        "timestamp": "2026-09-25T18:05:56.952160+00:00"
+        "timestamp": "2026-10-06T19:02:14.658072+00:00"
       },
       {
         "agent": "technical_strategist",
@@ -1488,7 +1488,7 @@
           "momentum_aligned": false
         },
         "override_vote": null,
-        "timestamp": "2026-09-25T18:05:56.952160+00:00"
+        "timestamp": "2026-10-06T19:02:14.658072+00:00"
       },
       {
         "agent": "macro_economist",
@@ -1499,10 +1499,10 @@
         "reasoning": "Regime BULL: favorable for buy",
         "key_metrics": {
           "regime": "BULL",
-          "vix": 15.0
+          "vix": 15.03
         },
         "override_vote": null,
-        "timestamp": "2026-09-25T18:05:56.952160+00:00"
+        "timestamp": "2026-10-06T19:02:14.658072+00:00"
       },
       {
         "agent": "portfolio_architect",
@@ -1515,7 +1515,7 @@
           "target_weight": 0.05
         },
         "override_vote": null,
-        "timestamp": "2026-09-25T18:05:56.952160+00:00"
+        "timestamp": "2026-10-06T19:02:14.658072+00:00"
       },
       {
         "agent": "risk_controller",
@@ -1528,7 +1528,7 @@
           "regime_risk": false
         },
         "override_vote": null,
-        "timestamp": "2026-09-25T18:05:56.952160+00:00"
+        "timestamp": "2026-10-06T19:02:14.658072+00:00"
       }
     ]
   },
@@ -5183,8 +5183,8 @@
     ]
   },
   "AMGN:VAL:buy": {
-    "cached_at": "2026-09-15T17:47:56.821105+00:00",
-    "expires_at": "2026-09-22T17:47:56.821105+00:00",
+    "cached_at": "2026-10-06T19:02:14.682106+00:00",
+    "expires_at": "2026-10-13T19:02:14.682106+00:00",
     "regime_at_cache": "BULL",
     "verdicts": [
       {
@@ -5193,12 +5193,12 @@
         "direction": "AGREE",
         "confidence_delta": 0.05,
         "conviction": "MODERATE",
-        "reasoning": "Momentum signal conf=0.85 aligns with valuation view",
+        "reasoning": "Momentum signal conf=0.78 aligns with valuation view",
         "key_metrics": {
-          "signal_confidence": 0.8524
+          "signal_confidence": 0.7814
         },
         "override_vote": null,
-        "timestamp": "2026-09-15T17:47:56.819995+00:00"
+        "timestamp": "2026-10-06T19:02:14.681117+00:00"
       },
       {
         "agent": "technical_strategist",
@@ -5211,7 +5211,7 @@
           "momentum_aligned": true
         },
         "override_vote": null,
-        "timestamp": "2026-09-15T17:47:56.819995+00:00"
+        "timestamp": "2026-10-06T19:02:14.681117+00:00"
       },
       {
         "agent": "macro_economist",
@@ -5222,10 +5222,10 @@
         "reasoning": "Regime BULL: favorable for buy",
         "key_metrics": {
           "regime": "BULL",
-          "vix": 17.59
+          "vix": 15.03
         },
         "override_vote": null,
-        "timestamp": "2026-09-15T17:47:56.819995+00:00"
+        "timestamp": "2026-10-06T19:02:14.681117+00:00"
       },
       {
         "agent": "portfolio_architect",
@@ -5238,7 +5238,7 @@
           "target_weight": 0.2
         },
         "override_vote": null,
-        "timestamp": "2026-09-15T17:47:56.819995+00:00"
+        "timestamp": "2026-10-06T19:02:14.681117+00:00"
       },
       {
         "agent": "risk_controller",
@@ -5251,7 +5251,7 @@
           "regime_risk": false
         },
         "override_vote": null,
-        "timestamp": "2026-09-15T17:47:56.819995+00:00"
+        "timestamp": "2026-10-06T19:02:14.681117+00:00"
       }
     ]
   },
@@ -5475,8 +5475,8 @@
     ]
   },
   "TQQQ:LEV_ST:buy": {
-    "cached_at": "2026-09-21T18:55:14.694538+00:00",
-    "expires_at": "2026-09-28T18:55:14.694538+00:00",
+    "cached_at": "2026-10-06T19:02:14.695201+00:00",
+    "expires_at": "2026-10-13T19:02:14.695201+00:00",
     "regime_at_cache": "BULL",
     "verdicts": [
       {
@@ -5490,7 +5490,7 @@
           "signal_confidence": 0.92
         },
         "override_vote": null,
-        "timestamp": "2026-09-21T18:55:14.693123+00:00"
+        "timestamp": "2026-10-06T19:02:14.694242+00:00"
       },
       {
         "agent": "technical_strategist",
@@ -5503,7 +5503,7 @@
           "momentum_aligned": true
         },
         "override_vote": null,
-        "timestamp": "2026-09-21T18:55:14.693123+00:00"
+        "timestamp": "2026-10-06T19:02:14.694242+00:00"
       },
       {
         "agent": "macro_economist",
@@ -5514,10 +5514,10 @@
         "reasoning": "Regime BULL: favorable for buy",
         "key_metrics": {
           "regime": "BULL",
-          "vix": 14.99
+          "vix": 15.03
         },
         "override_vote": null,
-        "timestamp": "2026-09-21T18:55:14.693123+00:00"
+        "timestamp": "2026-10-06T19:02:14.694242+00:00"
       },
       {
         "agent": "portfolio_architect",
@@ -5530,7 +5530,7 @@
           "target_weight": 1.0
         },
         "override_vote": null,
-        "timestamp": "2026-09-21T18:55:14.693123+00:00"
+        "timestamp": "2026-10-06T19:02:14.694242+00:00"
       },
       {
         "agent": "risk_controller",
@@ -5543,7 +5543,7 @@
           "regime_risk": false
         },
         "override_vote": null,
-        "timestamp": "2026-09-21T18:55:14.693123+00:00"
+        "timestamp": "2026-10-06T19:02:14.694242+00:00"
       }
     ]
   },
@@ -8614,8 +8614,8 @@
     ]
   },
   "CRWD:MOM:buy": {
-    "cached_at": "2026-09-29T18:49:58.178752+00:00",
-    "expires_at": "2026-10-06T18:49:58.178752+00:00",
+    "cached_at": "2026-10-06T19:02:14.615338+00:00",
+    "expires_at": "2026-10-13T19:02:14.615338+00:00",
     "regime_at_cache": "BULL",
     "verdicts": [
       {
@@ -8624,25 +8624,25 @@
         "direction": "AGREE",
         "confidence_delta": 0.05,
         "conviction": "MODERATE",
-        "reasoning": "Momentum signal conf=0.71 aligns with valuation view",
+        "reasoning": "Momentum signal conf=0.69 aligns with valuation view",
         "key_metrics": {
-          "signal_confidence": 0.7122
+          "signal_confidence": 0.6947
         },
         "override_vote": null,
-        "timestamp": "2026-09-29T18:49:58.177386+00:00"
+        "timestamp": "2026-10-06T19:02:14.614334+00:00"
       },
       {
         "agent": "technical_strategist",
         "symbol": "CRWD",
         "direction": "AGREE",
         "confidence_delta": 0.08,
-        "conviction": "STRONG",
+        "conviction": "MODERATE",
         "reasoning": "Technical trend confirms momentum",
         "key_metrics": {
           "momentum_aligned": true
         },
         "override_vote": null,
-        "timestamp": "2026-09-29T18:49:58.177386+00:00"
+        "timestamp": "2026-10-06T19:02:14.614334+00:00"
       },
       {
         "agent": "macro_economist",
@@ -8653,10 +8653,10 @@
         "reasoning": "Regime BULL: favorable for buy",
         "key_metrics": {
           "regime": "BULL",
-          "vix": 16.17
+          "vix": 15.03
         },
         "override_vote": null,
-        "timestamp": "2026-09-29T18:49:58.177386+00:00"
+        "timestamp": "2026-10-06T19:02:14.614334+00:00"
       },
       {
         "agent": "portfolio_architect",
@@ -8669,7 +8669,7 @@
           "target_weight": 0.1
         },
         "override_vote": null,
-        "timestamp": "2026-09-29T18:49:58.177386+00:00"
+        "timestamp": "2026-10-06T19:02:14.614334+00:00"
       },
       {
         "agent": "risk_controller",
@@ -8682,7 +8682,7 @@
           "regime_risk": false
         },
         "override_vote": null,
-        "timestamp": "2026-09-29T18:49:58.177386+00:00"
+        "timestamp": "2026-10-06T19:02:14.614334+00:00"
       }
     ]
   },
