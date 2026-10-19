@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-10-16T17:50:10.539363+00:00",
+  "last_updated": "2026-10-19T19:40:33.816072+00:00",
   "peaks": {
     "COP": {
       "peak_plpc": -0.00112,
@@ -95,11 +95,6 @@
       "peak_plpc": 0.02021,
       "strategy": "QNT",
       "last_plpc": -0.02418
-    },
-    "TXN": {
-      "peak_plpc": -8e-05,
-      "strategy": "QNT",
-      "last_plpc": -8e-05
     },
     "MS": {
       "peak_plpc": -0.00365,
